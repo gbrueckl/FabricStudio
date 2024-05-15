@@ -1,0 +1,80 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
+{
+    "version": "0.2.0",
+    "configurations": [  
+        {
+            "name": "Launch Core",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}/packages/Core"
+            ],
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/packages/Core/dist/node/**/*.js"
+            ],
+            "preLaunchTask": "pre Core",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/packages/Core/node_modules/**/*.js",
+                "${workspaceFolder}/packages/Core/node_modules/**/*.ts"
+            ],
+            "cwd": "${workspaceFolder}/packages/Core"
+        },
+        {
+            "name": "Launch PowerBI",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}/packages/PowerBI"
+            ],
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/packages/PowerBI/dist/node/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch PowerBI",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/packages/PowerBI/node_modules/**/*.js"
+            ]
+        },
+        {
+            "name": "Launch Web Ext Core",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/Core",
+                "--extensionDevelopmentKind=web"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/packages/Core/dist/web/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/packages/Core/node_modules/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to Extension Host",
+            "port": 5870,
+            "restart": true,
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+                "${workspaceFolder}/node_modules/**/*.js",
+                "main.js",
+                "extension.bundle.js",
+                "extensionHostProcess.js",
+                "${workspaceFolder}/node_modules/**/*.js"
+            ]
+        }
+    ]
+}
