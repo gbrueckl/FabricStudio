@@ -3,59 +3,41 @@
     "version": "0.2.0",
     "configurations": [  
         {
-            "name": "Launch Core",
+            "name": "Launch FabricStudio",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceRoot}/packages/Core"
+                "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/packages/Core/dist/node/**/*.js"
+                "${workspaceRoot}/dist/node/**/*.js"
             ],
-            "preLaunchTask": "pre Core",
+            "preLaunchTask": "pre-build",
             "skipFiles": [
                 "<node_internals>/**",
-                "${workspaceFolder}/packages/Core/node_modules/**/*.js",
-                "${workspaceFolder}/packages/Core/node_modules/**/*.ts"
-            ],
-            "cwd": "${workspaceFolder}/packages/Core"
-        },
-        {
-            "name": "Launch PowerBI",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceRoot}/packages/PowerBI"
-            ],
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/packages/PowerBI/dist/node/**/*.js"
-            ],
-            "preLaunchTask": "npm: watch PowerBI",
-            "skipFiles": [
-                "<node_internals>/**",
-                "${workspaceFolder}/packages/PowerBI/node_modules/**/*.js"
+                "${workspaceFolder}/node_modules/**/*.js",
+                "${workspaceFolder}/node_modules/**/*.ts"
             ]
         },
         {
-            "name": "Launch Web Ext Core",
+            "name": "Launch Web FabricStudio",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/packages/Core",
+                "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionDevelopmentKind=web"
             ],
             "outFiles": [
-                "${workspaceFolder}/packages/Core/dist/web/**/*.js"
+                "${workspaceFolder}/dist/web/**/*.js"
             ],
             "preLaunchTask": "npm: watch",
             "skipFiles": [
                 "<node_internals>/**",
-                "${workspaceFolder}/packages/Core/node_modules/**/*.js"
+                "${workspaceFolder}/node_modules/**/*.js",
+                "${workspaceFolder}/node_modules/**/*.ts"
             ]
         },
         {
@@ -73,7 +55,6 @@
                 "main.js",
                 "extension.bundle.js",
                 "extensionHostProcess.js",
-                "${workspaceFolder}/node_modules/**/*.js"
             ]
         }
     ]

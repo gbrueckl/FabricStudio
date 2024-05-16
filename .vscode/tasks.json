@@ -4,10 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-			"label": "pre Core",
+			"label": "pre-build",
 			"type": "npm",
 			"script": "watch",
-			"path": "/packages/Core",
 			"problemMatcher": "$ts-webpack-watch",
 			"isBackground": true,
 			"presentation": {
