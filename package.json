@@ -235,19 +235,19 @@
 				"icon": "$(refresh)"
 			},
 			{
-				"command": "FabricStudio.updateQuickPickList",
-				"title": "Update Quick Pick List",
-				"category": "FabricStudio"
-			},
-			{
-				"command": "FabricStudio.openNewNotebook",
-				"title": "Open new Power BI Notebook",
+				"command": "FabricStudio.Item.openNewNotebook",
+				"title": "Open new Fabric Notebook",
 				"icon": "$(notebook)",
 				"category": "FabricStudio"
 			},
 			{
+				"command": "FabricStudio.Item.updateQuickPickList",
+				"title": "Update Quick Pick List",
+				"category": "FabricStudio"
+			},
+			{
 				"command": "FabricStudio.Item.openInBrowser",
-				"title": "Open in Power BI Service",
+				"title": "Open in Fabric Service",
 				"icon": "$(globe)",
 				"category": "FabricStudio"
 			},
@@ -276,13 +276,13 @@
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.publishToFabric",
+				"command": "FabricStudio.FS.publishToFabric",
 				"title": "Publish to Fabric",
 				"icon": "$(cloud-upload)",
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.reloadFromFabric",
+				"command": "FabricStudio.FS.reloadFromFabric",
 				"title": "Reload from Fabric",
 				"icon": "$(cloud-download)",
 				"category": "FabricStudio"
@@ -323,6 +323,63 @@
 				{
 					"command": "FabricStudio.Workspaces.refresh",
 					"when": "view == FabricStudioWorkspaces",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Item.openNewNotebook",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "FabricStudio.Item.openInBrowser",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
+					"group": "7_open"
+				},
+				{
+					"command": "FabricStudio.Item.copyIdToClipboard",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_ID,.*/",
+					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.Item.copyNameToClipboard",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_NAME,.*/",
+					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.Item.copyPathToClipboard",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_PATH,.*/",
+					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.Item.insertPath",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,INSERT_PATH,.*/",
+					"group": "inline"
+				},
+				{
+					"command": "FabricStudio.Item.browseInOneLake",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,BROWSE_IN_ONELAKE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Lakehouse.copySQLConnectionString",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Lakehouse.copyOneLakeFilesPath",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_FILES_PATH,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Lakehouse.copyOneLakeTablesPath",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_TABLES_PATH,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Lakehouse.Table.maintain",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,LAKEHOUSETABLE,.*/",
 					"group": "navigation"
 				}
 			]

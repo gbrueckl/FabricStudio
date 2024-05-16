@@ -7,6 +7,7 @@ import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiItemType } from '../../fabric/_types';
 import { ThisExtension, TreeProviderId } from '../../ThisExtension';
 import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
+import { FabricConfiguration } from '../configuration/FabricConfiguration';
 
 
 export class FabricApiTreeItem extends vscode.TreeItem {
@@ -44,7 +45,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	protected getIconPath(): string | vscode.Uri {
-		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', this.itemType.toLowerCase() + '.svg');
+		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', FabricConfiguration.iconStyle, this.itemType.toLowerCase() + '.svg');
 	}
 
 	// tooltip shown when hovering over the item
@@ -71,7 +72,15 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	// used in package.json to filter commands via viewItem =~ /.*,GROUP,.*/
 	get _contextValue(): string {
-		return `,${this.itemType},`;
+		let actions: string[] = [
+			this.itemType,
+			"COPY_ID",
+			"COPY_NAME",
+			"COPY_PATH",
+			"OPEN_IN_BROWSER",
+			"INSERT_CODE",
+		];
+		return `,${actions.join(',')},`;
 	}
 
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
@@ -106,6 +115,10 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	get parent(): FabricApiTreeItem {
 		return this._parent;
+	}
+
+	set parent(value: FabricApiTreeItem) {
+		this._parent = value;
 	}
 
 	get TreeProvider(): TreeProviderId {
@@ -148,7 +161,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	get apiUrlPart(): string {
-		if (this.itemType.endsWith("S")) {
+		if (this.itemType.endsWith("s")) {
 			return this.itemType.toLowerCase();
 		}
 		if (this.itemId) {

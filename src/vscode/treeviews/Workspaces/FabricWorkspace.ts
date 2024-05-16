@@ -5,11 +5,14 @@ import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricLakehouses } from './FabricLakehouses';
-import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricApiWorkspace } from '../../../fabric/_types';
+import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricApiItem, iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricDataPipelines } from './FabricDataPipelines';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
+import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
+import { FabricLakehouse } from './FabricLakehouse';
+import { FabricDataPipeline } from './FabricDataPipeline';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -28,7 +31,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = ["BROWSEONELAKE"];
+		let actions: string[] = [
+			"BROWSE_IN_ONELAKE",
+		];
 
 		if (this.capacityId) {
 			actions.push("UNASSIGNCAPACITY");
@@ -41,12 +46,50 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		let children: FabricWorkspaceTreeItem[] = [];
+		let children: FabricWorkspaceGenericFolder[] = [];
+		let itemTypes: Map<FabricApiItemType, FabricWorkspaceGenericFolder> = new Map<FabricApiItemType, FabricWorkspaceGenericFolder>();
 
-		children.push(new FabricDataPipelines(this));
-		children.push(new FabricLakehouses(this));
+		// children.push(new FabricDataPipelines(this));
+		// children.push(new FabricLakehouses(this));
 
-		return children;
+		if (element != null && element != undefined) {
+			return element.getChildren();
+		}
+		else {
+			try {
+				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath + "items");
+				let itemToAdd: FabricWorkspaceTreeItem;
+				for (let item of items.success) {
+					if(!itemTypes.has(item.type)) {
+						let treeItem = new FabricWorkspaceGenericFolder(
+							this.itemId + "/" + item.type + "s",
+							item.type + "s",
+							item.type + "s" as FabricApiItemType,
+							this
+						);
+						itemTypes.set(item.type, treeItem);
+					}
+
+					if(item.type == "Lakehouse") {
+						itemToAdd = new FabricLakehouse(item, this);
+					}
+					else if (item.type == "DataPipeline") {
+						itemToAdd = new FabricDataPipeline(item, this);
+					}
+					else {
+						itemToAdd = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type as FabricApiItemType, itemTypes.get(item.type), item, item.description);
+					}
+					itemTypes.get(item.type).addChild(itemToAdd);
+				}
+
+				children = Array.from(itemTypes.values());
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);
+			}
+
+			return children;
+		}
 	}
 
 	get oneLakeUri(): vscode.Uri {

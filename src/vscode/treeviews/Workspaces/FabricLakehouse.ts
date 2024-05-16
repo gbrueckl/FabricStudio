@@ -24,7 +24,12 @@ export class FabricLakehouse extends FabricWorkspaceTreeItem {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = ["BROWSEONELAKE"];
+		let actions: string[] = [
+			"BROWSE_IN_ONELAKE",
+			"COPY_SQL_CONNECTION_STRING",
+			"COPY_ONELAKE_FILES_PATH",
+			"COPY_ONELAKE_TABLES_PATH"
+		];
 
 		return orig + actions.join(",") + ",";
 	}

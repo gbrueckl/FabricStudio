@@ -130,6 +130,11 @@ export abstract class FabricConfiguration {
 		return item.format;
 	}
 
+	static get iconStyle(): string { 
+		return "mono";
+		return this.getValue("iconStyle"); 
+	}
+
 	static get apiUrl(): string { 
 		//
 		return "https://api.fabric.microsoft.com";

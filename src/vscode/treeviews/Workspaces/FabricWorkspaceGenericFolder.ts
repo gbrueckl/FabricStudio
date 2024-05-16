@@ -8,7 +8,8 @@ import { FabricApiItemType } from '../../../fabric/_types';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
-	private customApiUrlPart: string;
+	private _customApiUrlPart: string;
+	private _children: FabricWorkspaceTreeItem[];
 
 	constructor(
 		id: string,
@@ -20,7 +21,7 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	) {
 		super(id, name, type, parent, undefined, undefined);
 
-		this.customApiUrlPart = apiUrlPart;
+		this._customApiUrlPart = apiUrlPart;
 		// the workspaceId is not unique for logical folders hence we make it unique
 		this.id = this.workspaceId + "/" + parent.itemId + "/" + this.itemType.toString();
 		this.iconPath = this.getIconPath();
@@ -41,13 +42,24 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	}
 
 	get apiUrlPart(): string {
-		if(this.customApiUrlPart != undefined) {
-			return this.customApiUrlPart;
+		if(this._customApiUrlPart != undefined) {
+			return this._customApiUrlPart;
 		}
-		return this.apiUrlPart;
+		return this.itemType;
+	}
+
+	addChild(value: FabricWorkspaceTreeItem) {
+		if(!this._children) {
+			this._children = [];
+		}
+		value.parent = this;
+		this._children.push(value);
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
+		if(this._children) {
+			return this._children;
+		}
 		await vscode.window.showErrorMessage("getChildren is not implemented! Please overwrite in derived class!");
 		return undefined;
 	}

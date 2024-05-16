@@ -43,6 +43,10 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return this._parent as FabricWorkspaceTreeItem;
 	}
 
+	set parent(value: FabricWorkspaceTreeItem) {
+		this._parent = value;
+	}
+
 	get workspace(): FabricWorkspace {
 		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
 		return workspace;

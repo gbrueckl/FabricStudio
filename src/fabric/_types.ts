@@ -58,7 +58,7 @@ export enum FabricApiItemFormat {
 export interface iFabricApiItem {
 	displayName: string;
 	description?: string;
-	type: string;
+	type: FabricApiItemType;
 	workspaceId?: UniqueId;
 	id?: string;
 }
