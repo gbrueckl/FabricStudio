@@ -11,6 +11,10 @@ import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWor
 import { FabricLakehouse } from './vscode/treeviews/Workspaces/FabricLakehouse';
 import { Helper } from '@utils/Helper';
 import { FabricLakehouseTable } from './vscode/treeviews/Workspaces/FabricLakehouseTable';
+import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
+import { FabricFSFileDecorationProvider } from './vscode/fileDecoration/FabricFileDecorationProvider';
+import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
+import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -55,6 +59,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
+	//#region Fabric FileSystemProvider
+	FabricFileSystemProvider.register(context);
+	FabricFSFileDecorationProvider.register(context);
+
+	vscode.commands.registerCommand('FabricStudio.FS.publishToFabric', (uri) => FabricFSCache.publishToFabric(uri));
+	vscode.commands.registerCommand('FabricStudio.FS.reloadFromFabric', (uri) => FabricFSCache.reloadFromFabric(uri));
+	vscode.commands.registerCommand('FabricStudio.FS.openInFabric', (uri) => FabricFSUri.openInBrowser(uri));
+	//#endregion
+
+	//#region Fabric Workspaces TreeView
 	vscode.commands.registerCommand('FabricStudio.updateQuickPickList', (treeItem: FabricApiTreeItem) => FabricCommandBuilder.pushQuickPickItem(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricNotebookSerializer.openNewNotebook(treeItem));
 
@@ -67,12 +81,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPathToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricWorkspaceTreeItem) => treeItem.insertCode());
 	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true));
+	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeFilesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeFilesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeTablesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
+	//#endregion
+
 
 
 	vscode.commands.executeCommand('FabricStudio.initialize');

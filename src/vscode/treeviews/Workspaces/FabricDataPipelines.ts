@@ -21,7 +21,20 @@ export class FabricDataPipelines extends FabricWorkspaceGenericFolder {
 			parent, 
 			"dataPipelines");
 
-		this.id = parent.itemId + "/" + parent.itemId + "/" + this.itemType;
+		this.id = parent.itemId + "/" + this.itemType;
+
+		this.contextValue = this._contextValue;
+	}
+
+	/* Overwritten properties from FabricApiTreeItem */
+	get _contextValue(): string {
+		let orig: string = super._contextValue;
+
+		let actions: string[] = [
+			"EDIT_DEFINITION"
+		];
+
+		return orig + actions.join(",") + ",";
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {

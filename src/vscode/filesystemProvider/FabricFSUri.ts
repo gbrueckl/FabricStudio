@@ -130,7 +130,7 @@ export class FabricFSUri {
 	get workspaceId(): string {
 		if (Helper.isGuid(this.workspace)) return this.workspace;
 
-		ThisExtension.Logger.logInfo("Trying to get ID for workspace '" + this.workspaceMapName + "' ...");
+		ThisExtension.Logger.logDebug("Trying to get ID for workspace '" + this.workspaceMapName + "' ...");
 		return FabricFSUri._workspaceNameIdMap.get(this.workspaceMapName);
 	}
 
@@ -145,7 +145,7 @@ export class FabricFSUri {
 	get itemId(): string {
 		if (Helper.isGuid(this.item)) return this.item;
 
-		ThisExtension.Logger.logInfo("Trying to get ID for item '" + this.itemMapName + "' ...");
+		ThisExtension.Logger.logDebug("Trying to get ID for item '" + this.itemMapName + "' ...");
 		return FabricFSUri._itemNameIdMap.get(this.itemMapName);
 	}
 

@@ -44,6 +44,7 @@ export abstract class FabricFSCache {
 		const stats = await item.stats();
 
 		if (!stats) {
+			ThisExtension.Logger.logInfo(`stats() - Fabric URI is not found: ${fabricUri.uri.toString()}`);
 			throw vscode.FileSystemError.FileNotFound(fabricUri.uri);
 		}
 
@@ -78,6 +79,7 @@ export abstract class FabricFSCache {
 			return (item as FabricFSItem).getContentForSubpath(fabricUri.part);
 		}
 
+		ThisExtension.Logger.logDebug(`readFile() - Could not read File: ${fabricUri.uri.toString()}`);
 		vscode.window.showErrorMessage("Could not read File: " + fabricUri.uri.toString());
 		throw vscode.FileSystemError.Unavailable("Could not read File: " + fabricUri.uri.toString());
 	}
@@ -99,8 +101,9 @@ export abstract class FabricFSCache {
 			return;
 		}
 
-		vscode.window.showErrorMessage("Could not read File: " + fabricUri.uri.toString());
-		throw vscode.FileSystemError.Unavailable("Could not read File: " + fabricUri.uri.toString());
+		ThisExtension.Logger.logDebug(`writeFile() - Could not write File: ${fabricUri.uri.toString()}`);
+		vscode.window.showErrorMessage("Could not write File: " + fabricUri.uri.toString());
+		throw vscode.FileSystemError.Unavailable("Could not write File: " + fabricUri.uri.toString());
 	}
 
 
@@ -124,6 +127,7 @@ export abstract class FabricFSCache {
 			return;
 		}
 
+		ThisExtension.Logger.logDebug(`writeFile() - Could not delete File: ${fabricUri.uri.toString()}`);
 		vscode.window.showErrorMessage("Could not delete File: " + fabricUri.uri.toString());
 		throw vscode.FileSystemError.Unavailable("Could not delete File: " + fabricUri.uri.toString());
 	}
@@ -168,6 +172,7 @@ export abstract class FabricFSCache {
 			return;
 		}
 
+		ThisExtension.Logger.logDebug(`rename() - Could not rename File: ${oldFabricUri.uri.toString()}`);
 		vscode.window.showErrorMessage("Could not rename File: " + oldFabricUri.uri.toString());
 		throw vscode.FileSystemError.Unavailable("Could not rename File: " + oldFabricUri.uri.toString());
 	}
@@ -206,8 +211,9 @@ export abstract class FabricFSCache {
 			}
 		}
 
-		vscode.window.showErrorMessage("Directory can not be created: " + fabricUri.uri.toString());
-		throw vscode.FileSystemError.NoPermissions("Directory can not be created: " + fabricUri.uri.toString());
+		ThisExtension.Logger.logDebug(`rename() - Could not create Directory: ${fabricUri.uri.toString()}`);
+		vscode.window.showErrorMessage("Could not create Directory: " + fabricUri.uri.toString());
+		throw vscode.FileSystemError.NoPermissions("Could not create Directory: " + fabricUri.uri.toString());
 	}
 
 

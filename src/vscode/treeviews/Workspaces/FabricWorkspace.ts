@@ -33,6 +33,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 		let actions: string[] = [
 			"BROWSE_IN_ONELAKE",
+			"EDIT_DEFINITION"
 		];
 
 		if (this.capacityId) {
@@ -47,6 +48,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceGenericFolder[] = [];
+		let treeItem: FabricWorkspaceGenericFolder;
 		let itemTypes: Map<FabricApiItemType, FabricWorkspaceGenericFolder> = new Map<FabricApiItemType, FabricWorkspaceGenericFolder>();
 
 		// children.push(new FabricDataPipelines(this));
@@ -60,24 +62,32 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath + "items");
 				let itemToAdd: FabricWorkspaceTreeItem;
 				for (let item of items.success) {
-					if(!itemTypes.has(item.type)) {
-						let treeItem = new FabricWorkspaceGenericFolder(
-							this.itemId + "/" + item.type + "s",
-							item.type + "s",
-							item.type + "s" as FabricApiItemType,
-							this
-						);
+					if (!itemTypes.has(item.type)) {
+						if (item.type == "Lakehouse") {
+							treeItem = new FabricLakehouses(this);
+						}
+						else if (item.type == "DataPipeline") {
+							treeItem = new FabricDataPipelines(this);
+						}
+						else {
+							treeItem = new FabricWorkspaceGenericFolder(
+								this.itemId + "/" + item.type + "s",
+								item.type + "s",
+								item.type + "s" as FabricApiItemType,
+								this
+							);
+						}
 						itemTypes.set(item.type, treeItem);
 					}
 
-					if(item.type == "Lakehouse") {
+					if (item.type == "Lakehouse") {
 						itemToAdd = new FabricLakehouse(item, this);
 					}
 					else if (item.type == "DataPipeline") {
 						itemToAdd = new FabricDataPipeline(item, this);
 					}
 					else {
-						itemToAdd = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type as FabricApiItemType, itemTypes.get(item.type), item, item.description);
+						itemToAdd = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type as FabricApiItemType, itemTypes.get(item.type), item, item.description, vscode.TreeItemCollapsibleState.None);
 					}
 					itemTypes.get(item.type).addChild(itemToAdd);
 				}
@@ -93,9 +103,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	get oneLakeUri(): vscode.Uri {
-	// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
+		// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
 		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
-		
+
 		return vscode.Uri.parse(`onelake://${workspace.itemName}`);
 	}
 
@@ -134,11 +144,4 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	// 		"displayName": "My Workspace"
 	// 	})
 	// }
-
-	// Workspace-specific functions
-	public async browseFabric(): Promise<void> {
-		const fabricUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}://${this.workspaceId}`))
-
-		await Helper.addToWorkspace(fabricUri.uri, `Fabric - Workspace ${this.itemName}`, true);
-	}
 }

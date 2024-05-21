@@ -1,15 +1,15 @@
-# PowerBI-VSCode
-[![Version](https://img.shields.io/visual-studio-marketplace/v/GerhardBrueckl.powerbi-vscode)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.powerbi-vscode)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/GerhardBrueckl.powerbi-vscode)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.powerbi-vscode)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/GerhardBrueckl.powerbi-vscode)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.powerbi-vscode)
-[![Ratings](https://img.shields.io/visual-studio-marketplace/r/GerhardBrueckl.powerbi-vscode)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.powerbi-vscode)
+# Fabric Studio
+[![Version](https://img.shields.io/visual-studio-marketplace/v/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
+[![Ratings](https://img.shields.io/visual-studio-marketplace/r/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
 
-![PowerBI-VSCode](/images/PowerBI-VSCode.png?raw=true "PowerBI-VSCode")
+![Fabric Studio](/images/PowerBI-VSCode.png?raw=true "Fabric Studio")
 
-A [VSCode](https://code.visualstudio.com/) extension for managing your Power BI tenant using the [Power BI REST API](https://docs.microsoft.com/en-us/rest/api/power-bi/) and modify Power BI datasets using TMDL (Tabular Model Definition Language) from within VSCode.
+A [VSCode](https://code.visualstudio.com/) extension for managing yourFabric tenant using the [Fabric REST API](https://learn.microsoft.com/en-us/rest/api/fabric/articles/) and modify Fabric items directly from within VSCode.
 
 # Installation
-The extensions can be installed directly from within VSCode by searching for this extension (`GerhardBrueckl.powerbi-vscode`) or downloaded from the official Visual Studio Code extension gallery at [PowerBI VSCode](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.powerbi-vscode) and installed manually as `VSIX`.
+The extensions can be installed directly from within VSCode by searching for this extension (`GerhardBrueckl.fabricstudio`) or downloaded from the official Visual Studio Code extension gallery at [Fabric Studio](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) and installed manually as `VSIX`.
 
 # Features
 - GUI to browse your workspace and run operations like [rebind](https://learn.microsoft.com/en-us/rest/api/power-bi/reports/rebind-report-in-group), [clone](https://learn.microsoft.com/en-us/rest/api/power-bi/reports/clone-report-in-group), ...
@@ -27,12 +27,9 @@ The extension supports the following VSCode settings:
 
 |Setting|Description|Example value|
 |-------|-----------|-------------|
-|`powerbi.tenantId`|(Optional) The tenant ID of the remote tenant that you want to connect to.|A GUID, `abcd1234-1234-5678-9abcd-9d1963e4b9f5`|
-|`powerbi.clientId`|(Optional) A custom ClientID/Application of an AAD application to use when connecting to Power BI.|A GUID, `99887766-1234-5678-9abcd-e4b9f59d1963`|
-|`powerbi.cloud`|(Optional) Only use when you want to connect to a sovereign or governmental cloud!|GlobalCloud|
-|`powerbi.TMDL.clientId`|(Optional) To use **TMDL features**, a custom ClientID/Application can be used. You can use `058487e5-bde7-4aba-a5dc-2f9ac58cb668` and make sure its permitted in your tenant or you can create your own AAD application in your AAD tenant (see [README](https://github.com/gbrueckl/PowerBI-VSCode/blob/main/README.md#tmdl)) for details. If this is configured, VSCode will manage the authentication and also remember it!|A GUID, `058487e5-bde7-4aba-a5dc-2f9ac58cb668`|
-|`powerbi.TMDL.enabled`|Set to `true` (default) to allow editing Power BI datasets using TMDL.|`true`(default)/`false`|
-|`powerbi.Fabric.itemTypes`|(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.|```[{"itemType": "Notebook", "format": "ipynb"}, {"itemType": "Report"}]```|
+|`fabricstudio.tenantId`|(Optional) The tenant ID of the remote tenant that you want to connect to.|A GUID, `abcd1234-1234-5678-9abcd-9d1963e4b9f5`|
+|`fabricstudio.clientId`|(Optional) A custom ClientID/Application of an AAD application to use when connecting to Power BI.|A GUID, `99887766-1234-5678-9abcd-e4b9f59d1963`|
+|`fabricstudio.itemTypeFormats`|(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.|```[{"itemType": "Notebook", "format": "ipynb"}, {"itemType": "Report"}]```|
 |`powerbi.workspaceFilter`|(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Power BI Workspaces view.|`Project A\|Sales` to see only workspaces that have "Project A" or (\|) "Sales" in the name|
 
 # Notebooks

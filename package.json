@@ -1,8 +1,8 @@
 {
 	"name": "fabricstudio",
-	"displayName": "FabricStudio ",
-	"description": "FabricStudio extension for VSCode",
-	"version": "0.1.0",
+	"displayName": "Fabric Studio ",
+	"description": "Fabric Studio extension for VSCode",
+	"version": "0.9.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -43,7 +43,9 @@
 		"REST",
 		"API"
 	],
-	"activationEvents": [],
+	"activationEvents": [
+		"onFileSystem:fabric"
+	],
 	"main": "./dist/node/extension.js",
 	"browser": "./dist/web/extension.js",
 	"contributes": {
@@ -252,6 +254,12 @@
 				"category": "FabricStudio"
 			},
 			{
+				"command": "FabricStudio.Item.editDefinition",
+				"title": "Edit Items",
+				"icon": "$(pencil)",
+				"category": "FabricStudio"
+			},
+			{
 				"command": "FabricStudio.Item.copyIdToClipboard",
 				"title": "Copy ID to Clipboard",
 				"icon": "$(clippy)",
@@ -286,6 +294,12 @@
 				"title": "Reload from Fabric",
 				"icon": "$(cloud-download)",
 				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.FS.openInFabric",
+				"title": "Open in Fabric",
+				"icon": "$(globe)",
+				"category": "Fabric"
 			},
 			{
 				"command": "FabricStudio.Lakehouse.copySQLConnectionString",
@@ -353,6 +367,11 @@
 					"group": "6_copypath"
 				},
 				{
+					"command": "FabricStudio.Item.editDefinition",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_DEFINITION,.*/",
+					"group": "7_open"
+				},
+				{
 					"command": "FabricStudio.Item.insertPath",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,INSERT_PATH,.*/",
 					"group": "inline"
@@ -381,6 +400,23 @@
 					"command": "FabricStudio.Lakehouse.Table.maintain",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,LAKEHOUSETABLE,.*/",
 					"group": "navigation"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "FabricStudio.FS.publishToFabric",
+					"when": "resourceScheme == fabric && resource =~ /^fabric:[\\/]+workspaces\\/[^\\/]*?\\/[^\\/]*?\\/[^\\/]*?$/",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.openInFabric",
+					"when": "resourceScheme == fabric && resource =~ /^fabric:(([\\/]+[^\\/]+?)?|([\\/]+[^\\/]+?){4})$/",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.reloadFromFabric",
+					"when": "resourceScheme == fabric",
+					"group": "2_workspace"
 				}
 			]
 		}

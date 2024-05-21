@@ -221,7 +221,7 @@ export abstract class FabricApiService {
 			let response: Response = await fetch(endpoint, requestConfig);
 
 			if (config.raw) {
-				return response as any as TSuccess;
+				return {"success": response as TSuccess};
 			}
 			let resultText = await response.text();
 			this.logResponse(resultText);
@@ -327,7 +327,8 @@ export abstract class FabricApiService {
 		};
 	}
 
-	static async post<TSuccess = any>(
+	private static async generic<TSuccess = any>(
+		method: "POST" | "PATCH" | "PUT" | "DELETE",
 		endpoint: string,
 		body: object,
 		config: iGenericApiCallConfig = { "raw": false, "awaitLongRunningOperation": true }
@@ -339,11 +340,11 @@ export abstract class FabricApiService {
 		}
 
 		endpoint = this.getFullUrl(endpoint);
-		ThisExtension.Logger.logDebug("POST " + endpoint + " --> " + (JSON.stringify(body) ?? "{}"));
+		ThisExtension.Logger.logDebug(`${method} ${endpoint} -->  ${JSON.stringify(body) ?? "{}"}`);
 
 		try {
 			const requestConfig: RequestInit = {
-				method: "POST",
+				method: method,
 				headers: this.getHeaders(),
 				body: JSON.stringify(body),
 				agent: getProxyAgent()
@@ -398,16 +399,25 @@ export abstract class FabricApiService {
 		}
 	}
 
+	static async post<TSuccess = any>(
+		endpoint: string,
+		body: object,
+		config: iGenericApiCallConfig = { "raw": false, "awaitLongRunningOperation": true }
+	): Promise<iFabricApiResponse<TSuccess>> {
+
+		return this.generic<TSuccess>("POST", endpoint, body, config);
+	}
+
 	static async delete<T = any>(endpoint: string, body: object): Promise<iFabricApiResponse<T>> {
-		throw new Error("Method not implemented.");
+		return this.generic<T>("DELETE", endpoint, body);
 	}
 
 	static async patch<T = any>(endpoint: string, body: object): Promise<iFabricApiResponse<T>> {
-		throw new Error("Method not implemented.");
+		return this.generic<T>("PATCH", endpoint, body);
 	}
 
 	static async put<T = any>(endpoint: string, body: object): Promise<iFabricApiResponse<T>> {
-		throw new Error("Method not implemented.");
+		return this.generic<T>("PUT", endpoint, body);
 	}
 
 	public static async awaitWithProgress<T>(message: string, promise: Promise<T>, showResultMessage: number = 5000): Promise<T> {

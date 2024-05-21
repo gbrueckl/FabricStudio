@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { TreeProviderId } from '../../../ThisExtension';
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType } from '../../../fabric/_types';
+import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
+import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	
@@ -54,5 +56,11 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 	get workspaceId(): UniqueId {
 		return this.workspace.itemId;
+	}
+
+	public async editDefinition(): Promise<void> {
+		const fabricUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}://${this.itemPath}`));
+
+		await Helper.addToWorkspace(fabricUri.uri, `Fabric - Workspace ${this.itemName}`, true);
 	}
 }
