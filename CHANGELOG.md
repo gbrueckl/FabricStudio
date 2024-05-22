@@ -14,4 +14,3 @@
 - added Fabric Notebooks to run arbitrary REST API calls against Fabric
 - added new config setting `fabricStudio.workspaceFilter` to define RegEx filters on workspace names
 - added support for [Long Running Operation (LRO)](https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation) when calling Fabric APIs from notebooks
-
