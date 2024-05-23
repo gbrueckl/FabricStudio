@@ -443,9 +443,10 @@ export abstract class FabricApiService {
 				this.Logger.logError(JSON.stringify(result["error"]));
 				vscode.window.showErrorMessage(JSON.stringify(result["error"]));
 			}
+			else {
+				Helper.showTemporaryInformationMessage(message + ": " + resultMessage, showResultMessage);
+			}
 			progress.report({ increment: 100, message: resultMessage });
-
-			Helper.showTemporaryInformationMessage(message + ": " + resultMessage, showResultMessage);
 
 			ret = result;
 

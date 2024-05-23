@@ -18,7 +18,7 @@ export class FabricLogger {
 	}
 
 	public log(text: string, newLine: boolean = true, logLevel: vscode.LogLevel = vscode.LogLevel.Info): void {
-		if(this._logLevel < logLevel) {
+		if(this._logLevel > logLevel) {
 			return;
 		}
 		if (!this._logger) {
