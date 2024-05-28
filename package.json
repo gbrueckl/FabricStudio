@@ -299,6 +299,30 @@
 				"title": "Browse in OneLake",
 				"icon": "$(link-external)",
 				"category": "Fabric.Item"
+			},
+			{
+				"command": "FabricStudio.GIT.refresh",
+				"title": "Refresh",
+				"icon": "$(refresh)",
+				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.GIT.commit",
+				"title": "Commit",
+				"icon": "$(refresh)",
+				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.GIT.undo",
+				"title": "Undo",
+				"icon": "$(refresh)",
+				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.GIT.update",
+				"title": "Update",
+				"icon": "$(refresh)",
+				"category": "Fabric.GIT"
 			}
 		],
 		"menus": {
@@ -391,6 +415,18 @@
 					"command": "FabricStudio.FS.reloadFromFabric",
 					"when": "resourceScheme == fabric",
 					"group": "2_workspace"
+				}
+			],
+			"scm/title": [
+				{
+					"command": "FabricStudio.GIT.refresh",
+					"when": "scmProvider == fabric-git",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.GIT.commit",
+					"when": "scmProvider == fabric-git",
+					"group": "navigation"
 				}
 			]
 		}

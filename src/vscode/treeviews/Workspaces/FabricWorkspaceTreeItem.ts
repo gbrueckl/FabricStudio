@@ -7,6 +7,7 @@ import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
+import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	
@@ -24,6 +25,21 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		this.iconPath = this.getIconPath();
 	}
 
+	/* Overwritten properties from FabricApiTreeItem */
+	get _contextValue(): string {
+		let orig: string = super._contextValue;
+
+		let actions: string[] = [];
+
+		const configItemFormats = FabricConfiguration.itemTypeFormats.map((x) => `${x.itemType}`);
+		const itemTypePlural = this.itemType + (this.itemType.endsWith("s") ? "" : "s");
+		if(configItemFormats.includes(itemTypePlural)) {
+			actions.push("EDIT_DEFINITION");
+		}
+
+		return orig + actions.join(",") + ",";
+	}
+
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		await vscode.window.showErrorMessage("getChildren is not implemented! Please overwrite in derived class!");
 		return undefined;
@@ -33,8 +49,8 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return "application/vnd.code.tree.fabricstudioworkspaces";
 	}
 
-	async editDefinitions(): Promise<void> {
-		// placeholder for now
+	async editItems(): Promise<void> {
+		this.editDefinition();
 	}
 
 	get oneLakeUri(): vscode.Uri {

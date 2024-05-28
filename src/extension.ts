@@ -15,6 +15,7 @@ import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFile
 import { FabricFSFileDecorationProvider } from './vscode/fileDecoration/FabricFileDecorationProvider';
 import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
 import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
+import { FabricGitRepository } from './vscode/sourceControl/FabricGitRepository';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -31,6 +32,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			}
 		});
 	}
+
+	FabricGitRepository.getInstance("ac9b8e93-9557-4f59-ba6f-6e7c6c2b94bf");
 
 	// some of the following code needs the context before the initialization already
 	ThisExtension.extensionContext = context;
@@ -74,7 +77,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editDefinitions());
+	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
 
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyIdToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyNameToClipboard());
@@ -88,6 +91,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeFilesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeFilesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeTablesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
+	//#endregion
+
+	//#region Fabric Git
+	vscode.commands.registerCommand('FabricStudio.GIT.refresh', (repository: FabricGitRepository) =>
+		repository.refresh()
+	);
+
 	//#endregion
 
 
