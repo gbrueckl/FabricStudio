@@ -63,43 +63,6 @@
 						"markdownDescription": "(Optional) A custom ClientID/AAD Application to use when interacting with Power BI REST APIs.",
 						"default": null
 					},
-					"fabricStudio.itemTypes": {
-						"type": "array",
-						"markdownDescription": "(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.",
-						"scope": "window",
-						"items": {
-							"type": "object",
-							"properties": {
-								"itemType": {
-									"type": "string",
-									"markdownDescription": "The ItemType to configure the file format for.",
-									"required": true
-								},
-								"format": {
-									"type": "string",
-									"markdownDescription": "The file extension used when downloading the specified ItemType.",
-									"required": false
-								}
-							}
-						},
-						"default": [
-							{
-								"itemType": "notebooks"
-							},
-							{
-								"itemType": "reports"
-							},
-							{
-								"itemType": "semanticModels"
-							},
-							{
-								"itemType": "sparkJobDefinitions"
-							},
-							{
-								"itemType": "dataPipelines"
-							}
-						]
-					},
 					"fabricStudio.workspaceFilter": {
 						"type": "string",
 						"markdownDescription": "(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Power BI Workspaces view.",
@@ -110,7 +73,7 @@
 					},
 					"fabricStudio.itemTypeFormats": {
 						"type": "array",
-						"markdownDescription": "(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.",
+						"markdownDescription": "(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) (plural, with 's' at the end) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.",
 						"scope": "window",
 						"items": {
 							"type": "object",
@@ -129,19 +92,19 @@
 						},
 						"default": [
 							{
-								"itemType": "notebooks"
+								"itemType": "Notebooks"
 							},
 							{
-								"itemType": "reports"
+								"itemType": "Refresh"
 							},
 							{
-								"itemType": "semanticModels"
+								"itemType": "SemanticModels"
 							},
 							{
-								"itemType": "sparkJobDefinitions"
+								"itemType": "SparkJobDefinitions"
 							},
 							{
-								"itemType": "dataPipelines"
+								"itemType": "DataPipelines"
 							}
 						]
 					},
@@ -235,6 +198,12 @@
 				"command": "FabricStudio.Workspaces.refresh",
 				"title": "Refresh Workspaces",
 				"icon": "$(refresh)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Workspaces.editItems",
+				"title": "Edit Items",
+				"icon": "$(pencil)"
 			},
 			{
 				"command": "FabricStudio.Item.openNewNotebook",
@@ -340,6 +309,11 @@
 					"group": "navigation"
 				},
 				{
+					"command": "FabricStudio.Workspaces.editItems",
+					"when": "view == FabricStudioWorkspaces",
+					"group": "navigation"
+				},
+				{
 					"command": "FabricStudio.Item.openNewNotebook",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/",
 					"group": "navigation"
@@ -369,7 +343,7 @@
 				{
 					"command": "FabricStudio.Item.editDefinition",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_DEFINITION,.*/",
-					"group": "7_open"
+					"group": "navigation"
 				},
 				{
 					"command": "FabricStudio.Item.insertPath",
@@ -384,17 +358,17 @@
 				{
 					"command": "FabricStudio.Lakehouse.copySQLConnectionString",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL,.*/",
-					"group": "navigation"
+					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Lakehouse.copyOneLakeFilesPath",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_FILES_PATH,.*/",
-					"group": "navigation"
+					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Lakehouse.copyOneLakeTablesPath",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_TABLES_PATH,.*/",
-					"group": "navigation"
+					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Lakehouse.Table.maintain",
