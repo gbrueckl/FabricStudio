@@ -8,7 +8,6 @@ import { FABRIC_SCHEME } from '../filesystemProvider/FabricFileSystemProvider';
 
 
 export const enum ResourceGroupType {
-
 	Changes = "changes", // Changes (in Workspace)
 	StagedChanges = "stagedChanges", // Staged Changes (to be committed)
 	Updates = "updates", // Updates (from GIT)
@@ -20,6 +19,8 @@ export class FabricGitRepository implements vscode.Disposable {
 	private _scm: vscode.SourceControl;
 	resourceStates: vscode.SourceControlResourceState[] = [];
 
+	private _remoteCommitHash: string;
+	private _workspaceHead: string;
 
 	private _changes: vscode.SourceControlResourceGroup; // Changes (in Workspace)
 	private _stagedChanges: vscode.SourceControlResourceGroup; // Staged Changes (to be committed)
@@ -40,9 +41,13 @@ export class FabricGitRepository implements vscode.Disposable {
 		this.SCM.inputBox.placeholder = 'Message (press Ctrl+Enter to commit)';
 		//this.SCM.inputBox.value = 'My prefilled value';
 
-		this._changes = this.SCM.createResourceGroup(ResourceGroupType.Changes, 'Changes in Workspace');
 		this._stagedChanges = this.SCM.createResourceGroup(ResourceGroupType.StagedChanges, 'Staged Changes (to be committed)');
+		this._changes = this.SCM.createResourceGroup(ResourceGroupType.Changes, 'Changes in Workspace');
 		this._updates = this.SCM.createResourceGroup(ResourceGroupType.Updates, 'Updates from GIT');
+
+		this._changes.hideWhenEmpty = true;
+		this._stagedChanges.hideWhenEmpty = true;
+		this._updates.hideWhenEmpty = true;
 	}
 	quickDiffProvider?: vscode.QuickDiffProvider;
 	commitTemplate?: string;
@@ -83,15 +88,19 @@ export class FabricGitRepository implements vscode.Disposable {
 
 	}
 
-	public async refresh(): Promise<void> {
-		/*
-				const workingTree = this.createResourceGroup('workingTree', 'Changes');
-				workingTree.resourceStates = [
-					{ resourceUri: this.createResourceUri('.travis.yml') },
-					{ resourceUri: this.createResourceUri('README.md') }
-				];
-				*/
+	private getResourceState(change: iFabricApiGitItemChange): vscode.SourceControlResourceState {
+		const absolutePath = vscode.Uri.joinPath(this.rootUri, change.itemMetadata.itemType, change.itemMetadata.displayName);
+		return {
+			resourceUri: absolutePath,
+			"command": { "title": "Open", "command": "vscode.open", "arguments": [absolutePath] },
+			"decorations": undefined,
+			"contextValue": undefined,
+		}
+	}
 
+
+	//#region Commands
+	public async refresh(): Promise<void> {
 		const response = await FabricApiService.get<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/status`);
 
 		if (response.error) {
@@ -116,17 +125,53 @@ export class FabricGitRepository implements vscode.Disposable {
 
 		this._changes.resourceStates = changes;
 		this._updates.resourceStates = updates;
+
+		this._remoteCommitHash = response.success.remoteCommitHash;
+		this._workspaceHead = response.success.workspaceHead;
 	}
 
-	private getResourceState(change: iFabricApiGitItemChange): vscode.SourceControlResourceState {
-		const absolutePath = vscode.Uri.joinPath(this.rootUri, change.itemMetadata.itemType, change.itemMetadata.displayName);
-		return {
-			resourceUri: absolutePath,
-			"command": { "title": "Open", "command": "vscode.open", "arguments": [absolutePath] },
-			"decorations": undefined,
-			"contextValue": undefined,
-		}
+	public async stageChanges(...resourceStates: vscode.SourceControlResourceState[]): Promise<void> {
+		const stagedChanges = this._stagedChanges.resourceStates.concat(resourceStates);
+		const changes = this._changes.resourceStates.filter(resourceState => !resourceStates.includes(resourceState))
+
+		this._changes.resourceStates = changes;
+		this._stagedChanges.resourceStates = stagedChanges;
 	}
+
+	public async unstageChanges(...resourceStates: vscode.SourceControlResourceState[]): Promise<void> {
+		const changes = this._changes.resourceStates.concat(resourceStates);
+		const stagedChanges = this._stagedChanges.resourceStates.filter(resourceState => !resourceStates.includes(resourceState))
+
+		this._changes.resourceStates = changes;
+		this._stagedChanges.resourceStates = stagedChanges;
+	}
+
+	public async discardChanges(...resourceStates: vscode.SourceControlResourceState[]): Promise<void> {
+
+	}
+
+	public async commitStagedChanges(): Promise<void> {
+		/*
+		{
+		"mode": "Selective",
+		"workspaceHead": "eaa737b48cda41b37ffefac772ea48f6fed3eac4",
+		"comment": "I'm committing specific changes.",
+		"items": [
+			{
+			"logicalId": "111e8d7b-4a95-4c02-8ccd-6faef5ba1bd1",
+			"objectId": "1153f3b4-dbb8-33c1-a84f-6ae4d776362d"
+			},
+			{
+			"objectId": "7753f3b4-dbb8-44c1-a94f-6ae4d776369e"
+			}
+		]
+		}
+		*/
+	}
+
+	//#endregion
+
+
 
 
 

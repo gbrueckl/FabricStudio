@@ -307,21 +307,39 @@
 				"category": "Fabric.GIT"
 			},
 			{
-				"command": "FabricStudio.GIT.commit",
+				"command": "FabricStudio.GIT.updateFromRepository",
+				"title": "Update from Repository",
+				"icon": "$(repo-sync)",
+				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.GIT.commitStagedChanges",
 				"title": "Commit",
-				"icon": "$(refresh)",
+				"icon": "$(check)",
 				"category": "Fabric.GIT"
 			},
 			{
-				"command": "FabricStudio.GIT.undo",
-				"title": "Undo",
-				"icon": "$(refresh)",
+				"command": "FabricStudio.GIT.discardChanges",
+				"title": "Discard Changes",
+				"icon": "$(discard)",
 				"category": "Fabric.GIT"
 			},
 			{
-				"command": "FabricStudio.GIT.update",
-				"title": "Update",
-				"icon": "$(refresh)",
+				"command": "FabricStudio.GIT.stageChanges",
+				"title": "Stage Changes",
+				"icon": "$(plus)",
+				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.GIT.openFile",
+				"title": "Open File",
+				"icon": "$(go-to-file)",
+				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.GIT.unstageChanges",
+				"title": "Unstage Changes",
+				"icon": "$(remove)",
 				"category": "Fabric.GIT"
 			}
 		],
@@ -424,9 +442,80 @@
 					"group": "navigation"
 				},
 				{
-					"command": "FabricStudio.GIT.commit",
+					"command": "FabricStudio.GIT.commitStagedChanges",
 					"when": "scmProvider == fabric-git",
 					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.GIT.updateFromRepository",
+					"when": "scmProvider == fabric-git",
+					"group": "navigation"
+				}
+			],
+			"scm/resourceGroup/context": [
+				{
+					"command": "FabricStudio.GIT.stageChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == changes",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.discardChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == changes",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.openFile",
+					"when": "scmProvider == fabric-git",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.unstageChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == stagedChanges",
+					"group": "1_modification"
+				}
+			],
+			"scm/resourceState/context": [
+				{
+					"command": "FabricStudio.GIT.stageChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == changes",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.discardChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == changes",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.openFile",
+					"when": "scmProvider == fabric-git",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.unstageChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == stagedChanges",
+					"group": "1_modification"
+				}
+			],
+			"scm/resourceFolder/context": [
+				{
+					"command": "FabricStudio.GIT.stageChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == changes",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.discardChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == changes",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.openFile",
+					"when": "scmProvider == fabric-git",
+					"group": "1_modification"
+				},
+				{
+					"command": "FabricStudio.GIT.unstageChanges",
+					"when": "scmProvider == fabric-git && scmResourceGroup == stagedChanges",
+					"group": "1_modification"
 				}
 			]
 		}

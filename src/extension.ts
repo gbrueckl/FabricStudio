@@ -16,6 +16,7 @@ import { FabricFSFileDecorationProvider } from './vscode/fileDecoration/FabricFi
 import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
 import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
 import { FabricGitRepository } from './vscode/sourceControl/FabricGitRepository';
+import { FabricGitRepositories } from './vscode/sourceControl/FabricGitRepositories';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -33,7 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		});
 	}
 
-	FabricGitRepository.getInstance("ac9b8e93-9557-4f59-ba6f-6e7c6c2b94bf");
+	FabricGitRepositories.initializeRepository("ac9b8e93-9557-4f59-ba6f-6e7c6c2b94bf");
 
 	// some of the following code needs the context before the initialization already
 	ThisExtension.extensionContext = context;
@@ -94,9 +95,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	//#endregion
 
 	//#region Fabric Git
-	vscode.commands.registerCommand('FabricStudio.GIT.refresh', (repository: FabricGitRepository) =>
+	vscode.commands.registerCommand('FabricStudio.GIT.refresh', async (repository: FabricGitRepository) =>
 		repository.refresh()
 	);
+
+	vscode.commands.registerCommand('FabricStudio.GIT.stageChanges', FabricGitRepositories.stageChanges);
+	vscode.commands.registerCommand('FabricStudio.GIT.unstageChanges', FabricGitRepositories.unstageChanges);
+	vscode.commands.registerCommand('FabricStudio.GIT.discardChanges', FabricGitRepositories.discardChanges);
 
 	//#endregion
 
