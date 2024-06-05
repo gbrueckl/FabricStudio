@@ -149,14 +149,16 @@ export interface iFabricApiResponse<TSucces = any, TError = iFabricErrorResponse
 	error?: TError;
 }
 
+export interface iFabricApiGitItemIdentifier {
+	logicalId?: string;  //The logical ID of the item. When the logical ID isn't available because the item is not yet added to the workspace, you can use the object ID.
+	objectId?: UniqueId;  //The object ID of the item. When the object ID isn't available because the item was deleted from the workspace, you can use the logical ID.
+}
+
 export interface iFabricApiGitItemChange {
 	conflictType: "Conflict" | "None" | "SameChanges"; 	//When there are changes on both the workspace side and the remote Git side.
 	itemMetadata: {
 		displayName: string; //The display name of the item. Prefers the workspace item's display name if it exists, otherwise displayName uses the remote item's display name.
-		itemIdentifier: {
-			logicalId: string;  //The logical ID of the item. When the logical ID isn't available because the item is not yet added to the workspace, you can use the object ID.
-			objectId: UniqueId;  //The object ID of the item. When the object ID isn't available because the item was deleted from the workspace, you can use the logical ID.
-		}
+		itemIdentifier: iFabricApiGitItemIdentifier;
 		itemType: FabricApiItemType; 	//The item type.
 	}; 	//The item metadata.
 	remoteChange: string; 	//Change on the remote Git side.

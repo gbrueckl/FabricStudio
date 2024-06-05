@@ -4,6 +4,9 @@ import { FabricApiService } from '../../fabric/FabricApiService';
 import { UniqueId } from '@utils/Helper';
 import { iFabricApiGitItemChange, iFabricApiGitStatusResponse, iFabricApiItem, iFabricApiWorkspace } from '../../fabric/_types';
 import { FABRIC_SCHEME } from '../filesystemProvider/FabricFileSystemProvider';
+import { FabricGitResourceState } from './FabricGitResourceState';
+import { FabricGitResourceGroup } from './FabricGitResourceGroup';
+import { ThisExtension } from '../../ThisExtension';
 
 
 
@@ -22,9 +25,9 @@ export class FabricGitRepository implements vscode.Disposable {
 	private _remoteCommitHash: string;
 	private _workspaceHead: string;
 
-	private _changes: vscode.SourceControlResourceGroup; // Changes (in Workspace)
-	private _stagedChanges: vscode.SourceControlResourceGroup; // Staged Changes (to be committed)
-	private _updates: vscode.SourceControlResourceGroup; // Updates (from GIT)
+	private _changes: FabricGitResourceGroup; // Changes (in Workspace)
+	private _stagedChanges: FabricGitResourceGroup; // Staged Changes (to be committed)
+	private _updates: FabricGitResourceGroup; // Updates (from GIT)
 
 	constructor(
 		workspace: iFabricApiWorkspace
@@ -37,13 +40,13 @@ export class FabricGitRepository implements vscode.Disposable {
 
 		this.SCM.acceptInputCommand = { command: 'fabric.git.acceptInput', title: 'Accept Input' };
 		this.SCM.commitTemplate = 'feat: ';
-		this.SCM.count = 123;
+		//this.SCM.count = 123;
 		this.SCM.inputBox.placeholder = 'Message (press Ctrl+Enter to commit)';
 		//this.SCM.inputBox.value = 'My prefilled value';
 
-		this._stagedChanges = this.SCM.createResourceGroup(ResourceGroupType.StagedChanges, 'Staged Changes (to be committed)');
-		this._changes = this.SCM.createResourceGroup(ResourceGroupType.Changes, 'Changes in Workspace');
-		this._updates = this.SCM.createResourceGroup(ResourceGroupType.Updates, 'Updates from GIT');
+		this._stagedChanges = this.SCM.createResourceGroup(ResourceGroupType.StagedChanges, 'Staged Changes (to be committed)') as FabricGitResourceGroup;
+		this._changes = this.SCM.createResourceGroup(ResourceGroupType.Changes, 'Changes in Workspace') as FabricGitResourceGroup;
+		this._updates = this.SCM.createResourceGroup(ResourceGroupType.Updates, 'Updates from GIT') as FabricGitResourceGroup;
 
 		this._changes.hideWhenEmpty = true;
 		this._stagedChanges.hideWhenEmpty = true;
@@ -88,17 +91,6 @@ export class FabricGitRepository implements vscode.Disposable {
 
 	}
 
-	private getResourceState(change: iFabricApiGitItemChange): vscode.SourceControlResourceState {
-		const absolutePath = vscode.Uri.joinPath(this.rootUri, change.itemMetadata.itemType, change.itemMetadata.displayName);
-		return {
-			resourceUri: absolutePath,
-			"command": { "title": "Open", "command": "vscode.open", "arguments": [absolutePath] },
-			"decorations": undefined,
-			"contextValue": undefined,
-		}
-	}
-
-
 	//#region Commands
 	public async refresh(): Promise<void> {
 		const response = await FabricApiService.get<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/status`);
@@ -108,10 +100,10 @@ export class FabricGitRepository implements vscode.Disposable {
 		}
 
 		// seems like we cannot ".push" to this._index.resourceStates but only assign a new array directly
-		let changes: vscode.SourceControlResourceState[] = [];
-		let updates: vscode.SourceControlResourceState[] = [];
+		let changes: FabricGitResourceState[] = [];
+		let updates: FabricGitResourceState[] = [];
 		for (const change of response.success.changes) {
-			const resourceState = this.getResourceState(change);
+			const resourceState = new FabricGitResourceState(this.rootUri, change);
 			if (change.workspaceChange) {
 				changes.push(resourceState);
 			}
@@ -130,28 +122,48 @@ export class FabricGitRepository implements vscode.Disposable {
 		this._workspaceHead = response.success.workspaceHead;
 	}
 
-	public async stageChanges(...resourceStates: vscode.SourceControlResourceState[]): Promise<void> {
+	public async stageChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {
+		const resourceUris = resourceStates.map(resourceState => resourceState.resourceUri);
 		const stagedChanges = this._stagedChanges.resourceStates.concat(resourceStates);
-		const changes = this._changes.resourceStates.filter(resourceState => !resourceStates.includes(resourceState))
+		const changes = this._changes.resourceStates.filter(resourceState => !resourceUris.includes(resourceState.resourceUri))
 
 		this._changes.resourceStates = changes;
 		this._stagedChanges.resourceStates = stagedChanges;
 	}
 
-	public async unstageChanges(...resourceStates: vscode.SourceControlResourceState[]): Promise<void> {
+	public async unstageChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {
+		const resourceUris = resourceStates.map(resourceState => resourceState.resourceUri);
 		const changes = this._changes.resourceStates.concat(resourceStates);
-		const stagedChanges = this._stagedChanges.resourceStates.filter(resourceState => !resourceStates.includes(resourceState))
+		const stagedChanges = this._stagedChanges.resourceStates.filter(resourceState => !resourceUris.includes(resourceState.resourceUri))
 
 		this._changes.resourceStates = changes;
 		this._stagedChanges.resourceStates = stagedChanges;
 	}
 
-	public async discardChanges(...resourceStates: vscode.SourceControlResourceState[]): Promise<void> {
+	public async discardChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {
 
 	}
 
 	public async commitStagedChanges(): Promise<void> {
+		const changedItems = this._stagedChanges.resourceStates.map(resourceState => resourceState.apiIdentifer);
+
+		const body = {
+			"mode": "Selective",
+			"workspaceHead": this._workspaceHead,
+			"comment": this.SCM.inputBox.value,
+			"items": changedItems
+		}
+
+		const response = await FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/commitToGit`, body);
+
+		if (response.error) {
+			ThisExtension.Logger.logError(response.error.message);
+			vscode.window.showErrorMessage(response.error.message);
+		}
+
+		this.refresh();
 		/*
+		POST https://api.fabric.microsoft.com/v1/workspaces/{workspaceId}/git/commitToGit
 		{
 		"mode": "Selective",
 		"workspaceHead": "eaa737b48cda41b37ffefac772ea48f6fed3eac4",

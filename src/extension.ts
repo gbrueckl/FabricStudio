@@ -102,6 +102,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.GIT.stageChanges', FabricGitRepositories.stageChanges);
 	vscode.commands.registerCommand('FabricStudio.GIT.unstageChanges', FabricGitRepositories.unstageChanges);
 	vscode.commands.registerCommand('FabricStudio.GIT.discardChanges', FabricGitRepositories.discardChanges);
+	vscode.commands.registerCommand('FabricStudio.GIT.commitStagedChanges', FabricGitRepositories.commitStagedChanges);
 
 	//#endregion
 
