@@ -5,6 +5,7 @@ import { FabricGitRepository } from './FabricGitRepository';
 import { FabricFSUri } from '../filesystemProvider/FabricFSUri';
 import { ThisExtension } from '../../ThisExtension';
 import { FabricGitResourceState } from './FabricGitResourceState';
+import { FabricApiService } from '../../fabric/FabricApiService';
 
 
 
@@ -12,7 +13,7 @@ export abstract class FabricGitRepositories {
 	private static _repositories: FabricGitRepository[] = [];
 
 	public static async initializeRepository(workspaceId: UniqueId): Promise<FabricGitRepository> {
-		const repository = await FabricGitRepository.getInstance(workspaceId)
+		const repository = await FabricApiService.awaitWithProgress("Initializing GIT Repository", FabricGitRepository.getInstance(workspaceId));
 		this._repositories.push(repository);
 		return repository;
 	}
@@ -30,6 +31,16 @@ export abstract class FabricGitRepositories {
 			fabricUri = await FabricFSUri.getInstance(source[0].resourceUri, true);
 		}
 		return this._repositories.find(repository => repository.workspaceId === fabricUri.workspaceId);
+	}
+
+	public static async refresh(repo: vscode.SourceControl): Promise<void> {
+		const repository = await FabricGitRepositories.getRepository(repo.rootUri);
+		repository.refresh();
+	}
+
+	public static async updateFromRepository(repo: vscode.SourceControl): Promise<void> {
+		const repository = await FabricGitRepositories.getRepository(repo.rootUri);
+		repository.updateFromRepository();
 	}
 
 	public static async stageChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {

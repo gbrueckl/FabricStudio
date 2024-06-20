@@ -154,6 +154,8 @@ export interface iFabricApiGitItemIdentifier {
 	objectId?: UniqueId;  //The object ID of the item. When the object ID isn't available because the item was deleted from the workspace, you can use the logical ID.
 }
 
+export type iFabricApiGitItemChangeType = "Added" | "Modified" | "Deleted";
+
 export interface iFabricApiGitItemChange {
 	conflictType: "Conflict" | "None" | "SameChanges"; 	//When there are changes on both the workspace side and the remote Git side.
 	itemMetadata: {
@@ -161,8 +163,8 @@ export interface iFabricApiGitItemChange {
 		itemIdentifier: iFabricApiGitItemIdentifier;
 		itemType: FabricApiItemType; 	//The item type.
 	}; 	//The item metadata.
-	remoteChange: string; 	//Change on the remote Git side.
-	workspaceChange: string; //Change on the workspace side.
+	remoteChange: iFabricApiGitItemChangeType; 	//Change on the remote Git side.
+	workspaceChange: iFabricApiGitItemChangeType; //Change on the workspace side.
 }
 
 export interface iFabricApiGitStatusResponse {

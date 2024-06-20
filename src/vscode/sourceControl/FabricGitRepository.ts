@@ -38,11 +38,14 @@ export class FabricGitRepository implements vscode.Disposable {
 
 		this._scm = vscode.scm.createSourceControl('fabric-git', 'Fabric GIT - ' + this.workspaceName, this.rootUri);
 
-		this.SCM.acceptInputCommand = { command: 'fabric.git.acceptInput', title: 'Accept Input' };
-		this.SCM.commitTemplate = 'feat: ';
+		this.SCM.acceptInputCommand = { command: 'FabricStudio.GIT.commitStagedChanges', title: 'Commit Staged Changes', arguments: [this.SCM] };
+		//this.SCM.commitTemplate = 'feat: ';
 		//this.SCM.count = 123;
-		this.SCM.inputBox.placeholder = 'Message (press Ctrl+Enter to commit)';
+		this.updateInputBoxPlaceholder();
+		this.SCM.inputBox.visible = true;
+
 		//this.SCM.inputBox.value = 'My prefilled value';
+		//this.SCM.statusBarCommands = [{title: "Commit staged changes", command: "FabricStudio.GIT.commitStagedChanges"}];
 
 		this._stagedChanges = this.SCM.createResourceGroup(ResourceGroupType.StagedChanges, 'Staged Changes (to be committed)') as FabricGitResourceGroup;
 		this._changes = this.SCM.createResourceGroup(ResourceGroupType.Changes, 'Changes in Workspace') as FabricGitResourceGroup;
@@ -56,6 +59,10 @@ export class FabricGitRepository implements vscode.Disposable {
 	commitTemplate?: string;
 	acceptInputCommand?: vscode.Command;
 	statusBarCommands?: vscode.Command[];
+
+	private updateInputBoxPlaceholder() {
+		this.SCM.inputBox.placeholder = 'Message (press Ctrl+Enter to commit)';
+	}
 
 	static async getInstance(workspaceId: UniqueId): Promise<FabricGitRepository> {
 		const response = await FabricApiService.getWorkspace(workspaceId);
@@ -88,12 +95,11 @@ export class FabricGitRepository implements vscode.Disposable {
 
 	createResourceGroup(id: string, label: string): vscode.SourceControlResourceGroup {
 		return this.SCM.createResourceGroup(id, label);
-
 	}
 
 	//#region Commands
 	public async refresh(): Promise<void> {
-		const response = await FabricApiService.get<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/status`);
+		const response =  await FabricApiService.awaitWithProgress("Refreshing GIT Status", FabricApiService.get<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/status`));
 
 		if (response.error) {
 			vscode.window.showErrorMessage(response.error.message);
@@ -122,6 +128,48 @@ export class FabricGitRepository implements vscode.Disposable {
 		this._workspaceHead = response.success.workspaceHead;
 	}
 
+	public async updateFromRepository(): Promise<void> {
+		let body = {
+			"workspaceHead": this._workspaceHead,
+			"remoteCommitHash": this._remoteCommitHash
+		}
+
+		if (this._updates.resourceStates.filter(resourceState => resourceState.isConflict).length > 0) {
+			const conflictResolutionType = "Workspace"; // only this option at the moment
+			const conflictResolutionPolicy = await vscode.window.showQuickPick(["PreferWorkspace", "PreferRemote"], { placeHolder: "Select conflict resolution policy", canPickMany: false, ignoreFocusOut: true });
+			if (!conflictResolutionPolicy) {
+				ThisExtension.Logger.logInfo("Aborting updateFromRepository - Conflict resolution policy not selected!");
+				return;
+			}
+
+			body["conflictResolution"] = {
+				"conflictResolutionType": conflictResolutionType,
+				"conflictResolutionPolicy": conflictResolutionPolicy
+			}
+		}
+
+		/*
+		// it does not make sense to not use allowOverrideItems option!?!
+		const allowOverrideItemsSelection = await vscode.window.showQuickPick(["Do not override Items", "Allow Override Items"], { placeHolder: "Select existing item override policy", canPickMany: false, ignoreFocusOut: true });;
+		if(!conflictResolutionPolicy) {
+			ThisExtension.Logger.logInfo("Aborting updateFromRepository - Conflict resolution policy not selected!");
+			return;
+		}
+		const allowOverrideItems = allowOverrideItemsSelection === "Allow Override Items";
+		*/
+		const allowOverrideItems = true;
+		body["options"] = {
+			"allowOverrideItems": allowOverrideItems
+		}
+
+		const response =  await FabricApiService.awaitWithProgress("Update from Repository", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/updateFromGit`, body));
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+
+	}
+
 	public async stageChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {
 		const resourceUris = resourceStates.map(resourceState => resourceState.resourceUri);
 		const stagedChanges = this._stagedChanges.resourceStates.concat(resourceStates);
@@ -145,6 +193,18 @@ export class FabricGitRepository implements vscode.Disposable {
 	}
 
 	public async commitStagedChanges(): Promise<void> {
+		if(this._stagedChanges.resourceStates.length === 0) {
+			vscode.window.showErrorMessage("Please stage changes for commit first!");
+			return;
+		}
+		if (this._updates.resourceStates.length > 0) {
+			const action = await vscode.window.showErrorMessage("Please 'Update from Repository' first!", "Update from Repository");
+			if (action && action === "Update from Repository") {
+				await this.updateFromRepository();
+			}
+			return;
+		}
+		
 		const changedItems = this._stagedChanges.resourceStates.map(resourceState => resourceState.apiIdentifer);
 
 		const body = {
@@ -154,7 +214,7 @@ export class FabricGitRepository implements vscode.Disposable {
 			"items": changedItems
 		}
 
-		const response = await FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/commitToGit`, body);
+		const response = await FabricApiService.awaitWithProgress("Committing changes", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/commitToGit`, body));
 
 		if (response.error) {
 			ThisExtension.Logger.logError(response.error.message);
@@ -162,24 +222,9 @@ export class FabricGitRepository implements vscode.Disposable {
 		}
 
 		this.refresh();
-		/*
-		POST https://api.fabric.microsoft.com/v1/workspaces/{workspaceId}/git/commitToGit
-		{
-		"mode": "Selective",
-		"workspaceHead": "eaa737b48cda41b37ffefac772ea48f6fed3eac4",
-		"comment": "I'm committing specific changes.",
-		"items": [
-			{
-			"logicalId": "111e8d7b-4a95-4c02-8ccd-6faef5ba1bd1",
-			"objectId": "1153f3b4-dbb8-33c1-a84f-6ae4d776362d"
-			},
-			{
-			"objectId": "7753f3b4-dbb8-44c1-a94f-6ae4d776369e"
-			}
-		]
-		}
-		*/
+		this.updateInputBoxPlaceholder();
 	}
+
 
 	//#endregion
 

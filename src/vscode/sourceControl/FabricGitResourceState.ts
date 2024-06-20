@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { iFabricApiGitItemChange, iFabricApiGitItemIdentifier } from '../../fabric/_types';
+import { iFabricApiGitItemChange, iFabricApiGitItemChangeType, iFabricApiGitItemIdentifier } from '../../fabric/_types';
 
 export class FabricGitResourceState implements vscode.SourceControlResourceState {
 	private _itemChange: iFabricApiGitItemChange;
@@ -19,7 +19,6 @@ export class FabricGitResourceState implements vscode.SourceControlResourceState
 	 */
 	get resourceUri(): vscode.Uri {
 		return this._resourceUri;
-	
 	}
 
 	/**
@@ -35,9 +34,39 @@ export class FabricGitResourceState implements vscode.SourceControlResourceState
 	 * resource state.
 	 */
 	get decorations(): vscode.SourceControlResourceDecorations {
+		/* has to be implemented via FileDecorationProvider !?! */
+		//return {faded: true, strikeThrough: true, tooltip: "Tooltip"};
+		let fileDeco: vscode.FileDecoration;
+		let change: iFabricApiGitItemChangeType;
+
+		if (this._itemChange.conflictType == "Conflict") {
+			fileDeco = new vscode.FileDecoration("C", "Conflict", new vscode.ThemeColor("gitDecoration.conflictResourceForeground"));
+			fileDeco.propagate = true;
+			return fileDeco;
+		}
+		else if (this._itemChange.workspaceChange) {
+			change = this._itemChange.workspaceChange;
+		}
+		else if (this._itemChange.remoteChange) {
+			change = this._itemChange.remoteChange;
+		}
+
+		switch (change) {
+			case "Added":
+				fileDeco = new vscode.FileDecoration("A", "Added", new vscode.ThemeColor("gitDecoration.addedResourceForeground"));
+				break;
+			case "Modified":
+				//fileDeco = new vscode.FileDecoration("M", "Modified", new vscode.ThemeColor("gitDecoration.modifiedResourceForeground"));
+				break;
+			case "Deleted":
+				return {faded: true, strikeThrough: true};
+				break;
+			default:
+				vscode.window.showErrorMessage(`Unknown publish action: '${change}'`);
+				return undefined;
+		}
+
 		return undefined;
-	
-	
 	}
 
 	/**
@@ -66,5 +95,9 @@ export class FabricGitResourceState implements vscode.SourceControlResourceState
 
 	get apiIdentifer(): iFabricApiGitItemIdentifier {
 		return this._itemChange.itemMetadata.itemIdentifier;
+	}
+
+	get isConflict(): boolean {
+		return this._itemChange.conflictType != "None";
 	}
 }

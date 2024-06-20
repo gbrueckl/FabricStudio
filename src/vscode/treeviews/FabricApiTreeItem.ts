@@ -73,7 +73,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	// used in package.json to filter commands via viewItem =~ /.*,GROUP,.*/
 	get _contextValue(): string {
 		let actions: string[] = [
-			this.itemType,
+			this.itemType.toUpperCase(),
 			"COPY_ID",
 			"COPY_NAME",
 			"COPY_PATH",

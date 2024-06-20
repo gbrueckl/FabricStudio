@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "0.9.2",
+	"version": "0.9.3",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -204,6 +204,12 @@
 				"command": "FabricStudio.Workspaces.editItems",
 				"title": "Edit Items",
 				"icon": "$(pencil)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Workspace.manageSourceControl",
+				"title": "Manage Source Control",
+				"icon": "$(source-control)"
 			},
 			{
 				"command": "FabricStudio.Item.openNewNotebook",
@@ -416,7 +422,14 @@
 					"command": "FabricStudio.Lakehouse.Table.maintain",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,LAKEHOUSETABLE,.*/",
 					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Workspace.manageSourceControl",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACE,.*/",
+					"group": "navigation"
 				}
+
+				
 			],
 			"explorer/context": [
 				{

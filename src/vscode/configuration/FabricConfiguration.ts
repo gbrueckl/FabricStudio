@@ -148,9 +148,10 @@ export abstract class FabricConfiguration {
 	static get resourceId(): string { return CLOUD_CONFIGS[this.cloud].resourceId; }
 
 	static get isSovereignCloud(): boolean {
-		// If the base URL for the API is not pointed to api.powerbi.com assume 
+		// If the base URL for the API is not pointed to api.fabric.microsoft.com assume 
 		// we are pointed to the sovereign tenant
-		return this.apiUrl !== "https://api.powerbi.com"
+		// NOT YET SUPPORTED
+		return this.apiUrl !== "https://api.fabric.microsoft.com";
 	}
 
 	static get config(): vscode.WorkspaceConfiguration {

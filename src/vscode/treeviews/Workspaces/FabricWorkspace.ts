@@ -13,6 +13,7 @@ import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricLakehouse } from './FabricLakehouse';
 import { FabricDataPipeline } from './FabricDataPipeline';
+import { FabricGitRepositories } from '../../sourceControl/FabricGitRepositories';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -144,4 +145,8 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	// 		"displayName": "My Workspace"
 	// 	})
 	// }
+
+	async manageSourceControl(): Promise<void> {
+		await FabricGitRepositories.initializeRepository(this.workspaceId);
+	}
 }

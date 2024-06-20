@@ -17,6 +17,7 @@ import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
 import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
 import { FabricGitRepository } from './vscode/sourceControl/FabricGitRepository';
 import { FabricGitRepositories } from './vscode/sourceControl/FabricGitRepositories';
+import { FabricWorkspace } from './vscode/treeviews/Workspaces/FabricWorkspace';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -33,8 +34,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			}
 		});
 	}
-
-	FabricGitRepositories.initializeRepository("ac9b8e93-9557-4f59-ba6f-6e7c6c2b94bf");
 
 	// some of the following code needs the context before the initialization already
 	ThisExtension.extensionContext = context;
@@ -80,6 +79,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
 
+	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace = undefined) => item.manageSourceControl());
+
+	
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyIdToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyNameToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPathToClipboard());
@@ -95,9 +97,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	//#endregion
 
 	//#region Fabric Git
-	vscode.commands.registerCommand('FabricStudio.GIT.refresh', async (repository: FabricGitRepository) =>
-		repository.refresh()
-	);
+	vscode.commands.registerCommand('FabricStudio.GIT.refresh', FabricGitRepositories.refresh);
+	vscode.commands.registerCommand('FabricStudio.GIT.updateFromRepository', FabricGitRepositories.updateFromRepository);
 
 	vscode.commands.registerCommand('FabricStudio.GIT.stageChanges', FabricGitRepositories.stageChanges);
 	vscode.commands.registerCommand('FabricStudio.GIT.unstageChanges', FabricGitRepositories.unstageChanges);
