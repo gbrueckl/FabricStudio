@@ -99,7 +99,7 @@ export class FabricGitRepository implements vscode.Disposable {
 
 	//#region Commands
 	public async refresh(): Promise<void> {
-		const response =  await FabricApiService.awaitWithProgress("Refreshing GIT Status", FabricApiService.get<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/status`));
+		const response =  await FabricApiService.awaitWithProgress("Refreshing GIT Status", FabricApiService.get<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/status`), 2000);
 
 		if (response.error) {
 			vscode.window.showErrorMessage(response.error.message);
@@ -162,7 +162,7 @@ export class FabricGitRepository implements vscode.Disposable {
 			"allowOverrideItems": allowOverrideItems
 		}
 
-		const response =  await FabricApiService.awaitWithProgress("Update from Repository", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/updateFromGit`, body));
+		const response =  await FabricApiService.awaitWithProgress("Update from Repository", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/updateFromGit`, body), 2000);
 
 		if (response.error) {
 			vscode.window.showErrorMessage(response.error.message);
@@ -214,7 +214,7 @@ export class FabricGitRepository implements vscode.Disposable {
 			"items": changedItems
 		}
 
-		const response = await FabricApiService.awaitWithProgress("Committing changes", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/commitToGit`, body));
+		const response = await FabricApiService.awaitWithProgress("Committing changes", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/commitToGit`, body), 2000);
 
 		if (response.error) {
 			ThisExtension.Logger.logError(response.error.message);

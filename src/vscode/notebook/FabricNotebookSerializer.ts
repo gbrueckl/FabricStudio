@@ -10,7 +10,7 @@ import { FabricApiTreeItem } from '../treeviews/FabricApiTreeItem';
 import { FabricAPILanguage } from '../language/_types';
 
 export class FabricNotebookSerializer implements vscode.NotebookSerializer {
-	public readonly label: string = 'Power BI Notebook  Serializer';
+	public readonly label: string = 'Fabric Notebook Serializer';
 
 	public async deserializeNotebook(data: Uint8Array, token: vscode.CancellationToken): Promise<FabricNotebook> {
 		var contents = Buffer.from(data).toString();
@@ -42,10 +42,10 @@ export class FabricNotebookSerializer implements vscode.NotebookSerializer {
 	}
 
 	static async openNewNotebook(apiItem: FabricApiTreeItem): Promise<vscode.NotebookEditor> {
-		let apiPath = "/groups";
+		let apiPath = "/workspaces";
 
 		if (apiItem) {
-			apiPath = '/' + Helper.trimChar(apiItem.apiPath.split("/").slice(2).join("/"), "/", false, true);
+			apiPath = '/' + Helper.trimChar(apiItem.apiPath.split("/").slice(1).join("/"), "/", false, true);
 		}
 
 		let defaultCells = [

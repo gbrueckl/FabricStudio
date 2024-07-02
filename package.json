@@ -44,6 +44,7 @@
 		"API"
 	],
 	"activationEvents": [
+		"onNotebook:fabric-notebook",
 		"onFileSystem:fabric"
 	],
 	"main": "./dist/node/extension.js",
@@ -531,7 +532,30 @@
 					"group": "1_modification"
 				}
 			]
-		}
+		},
+		"notebooks": [
+			{
+				"type": "fabric-notebook",
+				"displayName": "Fabric Notebook",
+				"selector": [
+					{
+						"filenamePattern": "*.fabnb"
+					}
+				]
+			}
+		],
+		"languages": [
+			{
+				"id": "fabric-api",
+				"extensions": [
+					".fabnb"
+				],
+				"icon": {
+					"light": "./resources/icons/notebook.png",
+					"dark": "./resources/icons/notebook.png"
+				}
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",

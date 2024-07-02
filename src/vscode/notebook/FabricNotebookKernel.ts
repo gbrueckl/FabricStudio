@@ -39,7 +39,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 		let kernel = new FabricNotebookKernel();
 
-		ThisExtension.Logger.logInfo("Creating new Power BI kernel '" + kernel.id + "'");
+		ThisExtension.Logger.logInfo("Creating new Fabric kernel '" + kernel.id + "'");
 		kernel._controller = vscode.notebooks.createNotebookController(kernel.id, kernel.notebookType, kernel.label);
 
 		kernel._controller.label = kernel.label;
@@ -70,7 +70,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 	// appears next to the label
 	get description(): string {
-		return "Generic Power BI REST API Kernel";
+		return "Generic Fabric REST API Kernel";
 	}
 
 	// appears below the label
@@ -245,8 +245,8 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 							return;
 					}
 
-					if (fabricResult.error) {
-						throw new Error(fabricResult.error.message);
+					if (result.error) {
+						throw new Error(result.error.message);
 					}
 					break;
 				case "cmd":

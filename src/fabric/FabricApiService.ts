@@ -175,7 +175,7 @@ export abstract class FabricApiService {
 
 	protected static getFullUrl(endpoint: string, params?: object): string {
 		let baseItems = this._apiBaseUrl.split("/");
-		baseItems.concat(["v1"]);
+		baseItems = baseItems.concat(["v1"]);
 		let pathItems = endpoint.split("/").filter(x => x);
 
 		let index = baseItems.indexOf(pathItems[0]);

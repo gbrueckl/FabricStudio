@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Helper } from '@utils/Helper';
 
-const API_ROOT_PATH_ALIASES = ["PATH", "DATASET", "DATASET_PATH", "API_ROOT_PATH", "APIROOTPATH", "API_PATH", "APIPATH", "ROOTPATH", "ROOT_PATH"];
+const API_ROOT_PATH_ALIASES = ["PATH", "API_ROOT_PATH", "APIROOTPATH", "API_PATH", "APIPATH", "ROOTPATH", "ROOT_PATH"];
 export class FabricNotebookContext {
 	apiRootPath: string;
 	uri: vscode.Uri;
