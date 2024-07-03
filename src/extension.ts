@@ -15,9 +15,10 @@ import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFile
 import { FabricFSFileDecorationProvider } from './vscode/fileDecoration/FabricFileDecorationProvider';
 import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
 import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
-import { FabricGitRepository } from './vscode/sourceControl/FabricGitRepository';
 import { FabricGitRepositories } from './vscode/sourceControl/FabricGitRepositories';
 import { FabricWorkspace } from './vscode/treeviews/Workspaces/FabricWorkspace';
+import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
+import { FabricNotebookContext } from './vscode/notebook/FabricNotebookContext';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -66,6 +67,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	FabricFileSystemProvider.register(context);
 	FabricFSFileDecorationProvider.register(context);
 
+
+	vscode.workspace.onDidOpenNotebookDocument((e) => {
+		const metadata = FabricNotebookContext.get(e.metadata.guid.toString());
+
+		metadata.uri = e.uri;
+
+		FabricNotebookContext.set(e.metadata.guid, metadata);
+	});
+
+	const completionProvider = new FabricAPICompletionProvider(context);
+	completionProvider.loadSwaggerFile();
+
 	vscode.commands.registerCommand('FabricStudio.FS.publishToFabric', (uri) => FabricFSCache.publishToFabric(uri));
 	vscode.commands.registerCommand('FabricStudio.FS.reloadFromFabric', (uri) => FabricFSCache.reloadFromFabric(uri));
 	vscode.commands.registerCommand('FabricStudio.FS.openInFabric', (uri) => FabricFSUri.openInBrowser(uri));
@@ -81,7 +94,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace = undefined) => item.manageSourceControl());
 
-	
+
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyIdToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyNameToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPathToClipboard());
