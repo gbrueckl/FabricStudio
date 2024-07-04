@@ -168,6 +168,7 @@ export class FabricGitRepository implements vscode.Disposable {
 			vscode.window.showErrorMessage(response.error.message);
 		}
 
+		this.refresh();
 	}
 
 	public async stageChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {
@@ -198,7 +199,7 @@ export class FabricGitRepository implements vscode.Disposable {
 			return;
 		}
 		if (this._updates.resourceStates.length > 0) {
-			const action = await vscode.window.showErrorMessage("Please 'Update from Repository' first!", "Update from Repository");
+			const action = await vscode.window.showErrorMessage("There have been changes in the repository. Please 'Update from Repository' before committing!", "Update from Repository");
 			if (action && action === "Update from Repository") {
 				await this.updateFromRepository();
 			}

@@ -284,6 +284,12 @@
 				"category": "FabricStudio.Lakehouse"
 			},
 			{
+				"command": "FabricStudio.Lakehouse.copySQLEndpoint",
+				"title": "Copy SQL Endpoint",
+				"icon": "$(debug-disconnect)",
+				"category": "FabricStudio.Lakehouse"
+			},
+			{
 				"command": "FabricStudio.Lakehouse.copyOneLakeFilesPath",
 				"title": "Copy OneLake Files Path",
 				"icon": "$(file-binary)",
@@ -406,7 +412,12 @@
 				},
 				{
 					"command": "FabricStudio.Lakehouse.copySQLConnectionString",
-					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL,.*/",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL_CONNECTION_STRING,.*/",
+					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.Lakehouse.copySQLEndpoint",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL_ENDPOINT,.*/",
 					"group": "6_copypath"
 				},
 				{

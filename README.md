@@ -4,7 +4,7 @@
 [![Downloads](https://img.shields.io/visual-studio-marketplace/d/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
 [![Ratings](https://img.shields.io/visual-studio-marketplace/r/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
 
-![Fabric Studio](/images/FabricStudio.png?raw=true "Fabric Studio")
+![Fabric Studio](./images/FabricStudio.png?raw=true "Fabric Studio")
 
 A [VSCode](https://code.visualstudio.com/) extension for managing your Fabric tenant using the [Fabric REST API](https://learn.microsoft.com/en-us/rest/api/fabric/articles/) and modify Fabric items directly from within VSCode.
 
@@ -12,16 +12,16 @@ A [VSCode](https://code.visualstudio.com/) extension for managing your Fabric te
 The extensions can be installed directly from within VSCode by searching for this extension (`GerhardBrueckl.fabricstudio`) or downloaded from the official Visual Studio Code extension gallery at [Fabric Studio](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) and installed manually as `VSIX`.
 
 # Features
-- GUI to browse your workspace and artifacts
+- GUI to browse your workspace and artifacts - see [Workspace Browser](#workspace-browser)
 - Custom FileSystemProvider for Fabric items (`fabric://`) from VSCode
   - create/update/delete
   - publish from VSCode to the Fabric Service
-- Supports VSCode and [vscode.dev](https://vscode.dev)
-- Connect to remote tenants where you are invited as a guest user - see [Configuration](#configuration)
+- Supports VSCode and [vscode.dev](https://vscode.dev) alike with all features also available in the web!
 - Run arbitrary REST API calls in a notebook using `%api` magic - see [Notebooks](#notebooks)
+- Integrate Fabric GIT APIs with VSCode GIT - see [Fabric GIT Integration](#fabric-git-integration)
+- Connect to remote tenants where you are invited as a guest user - see [Configuration](#configuration)
 - Soon to come:
   - GUI to manage Pipelines
-  - Integrate Fabric GIT APIs with VSCode GIT
   - Integration of [Fabric GraphQL](https://learn.microsoft.com/en-us/fabric/data-engineering/api-graphql-overview) in notebooks
 
 # Configuration
@@ -33,6 +33,11 @@ The extension supports the following VSCode settings:
 |`fabricstudio.clientId`|(Optional) A custom ClientID/Application of an AAD application to use when connecting to Fabric.|A GUID, `99887766-1234-5678-9abcd-e4b9f59d1963`|
 |`fabricstudio.itemTypeFormats`|(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.|```[{"itemType": "Notebook", "format": "ipynb"}, {"itemType": "Report"}]```|
 |`Fabric.workspaceFilter`|(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Fabric Workspaces view.|`Project A\|Sales` to see only workspaces that have "Project A" or (\|) "Sales" in the name|
+
+# Workspace Browser
+![WorkspaceBrowser](./images/WorkspaceBrowser.png?raw=true "WorkspaceBrowser")
+The workspace browser is usually the starting point for all activities. It allows you to browse through your Fabric workspaces, the individual items and sub-items and execute various action based on the current selection.
+As of now, not most items are read-only but actions will be added in the future and when the Fabric REST APIs support them! 
 
 # Notebooks
 You can open a new Fabric notebook via the UI from the header of each treeview or by running the command **Open new Fabric Notebook** (command `FabricStudio.Item.openNewNotebook`). Fabric notebooks have the file extension `.fabnb` and will automatically open in the notebook editor.
@@ -85,11 +90,17 @@ MY_VARIABLE = my_value
 
 Please note that variable names are note case sensitive and are converted to UPPER when you define them. However, you reference them using any casing you want.
 
-There are some special variables that must be set in combination with `%dax` magic to identify the dataset. The main variable that needs to be set is the `DATASET` (aliases are also `DATASET_PATH`, `API_PATH`or `API_ROOT_PATH`) to identify the dataset to which the DAX query is sent. the value has to be an API path pointing to the dataset:
+There are some special variables that can be used to make your notebooks more generic.The main variable that needs to be set is the `API_PATH` (aliases are also `ROOT_PATH`or `API_ROOT_PATH`) to set the starting point for relative API paths:
 
 ``` bash
 %cmd
-SET DATASET = /groups/d1f70e51-1234-1234-8e4c-55f35f9fa758/datasets/028d20ca-7777-8888-9999-7a253c7bb6b3
+SET API_PATH = /workspaces/d1f70e51-1234-1234-8e4c-55f35f9fa758
+```
+
+Relative API paths always start with `./`:
+
+``` rest
+GET ./notebooks
 ```
 
 Current values of variables can be retrieved by running `SET MY_VARIABLE`.
@@ -102,9 +113,11 @@ EVALUATE ROW("MyVariable", $(My_Variable))
 
 **Note:** you can also set/get multiple variables within the same notebook cell!
 
-
 # Custom FileSystemProvider
-The extension also provides an easy way to interact with all items hosted in Microsoft Fabric. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) when working with VSCode. In your workspace settings file, you can add a Fabric Workspace using an URI in the format of `fabric://workspaces/<workspace-guid>`:
+The extension also provides an easy way to interact with all items hosted in Microsoft Fabric. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) when working with VSCode.
+The easiest way to configure and use the custom FileSystemProvider is to right-click the item (or parent or workspace) in the Workspace Browser and select `Edit Defintion`:
+![EditDefinition](./images/EditDefinition.png?raw=true "Edit Definition")
+Alternatively you can also add the path to your Fabric Workspace (or item) directly to your workspace settings file using an URI in the format of `fabric://workspaces/<workspace-guid>`:
 
 ```json
 {
@@ -120,7 +133,9 @@ The extension also provides an easy way to interact with all items hosted in Mic
 }
 ```
 
-Once this is set up, you can browse your Fabric items as if they were local. In fact we use the API to download them and cache them locally in memory for you. You can also add, modify or delete the whole Fabric items or its files. Locally changed files will be displayed similar to changed items in GIT:
+Once this is set up, you can browse your Fabric items as if they were local. In fact, we use the Fabric APIs to download them and cache them locally in memory for you. You can also add, modify or delete the Fabric items or modify individual definition files. As it is now like a local file system, you can also Drag&Drop or Copy&Paste between local folder structures and Fabric items or within Fabric - e.g. to copy an existing Fabric item!
+
+Locally changed files will be displayed similar to changed items in GIT:
 
 - green with `A` badge -> Added
 - yellow with `M` badge -> Modified
@@ -129,6 +144,12 @@ Once this is set up, you can browse your Fabric items as if they were local. In 
 To publish your local changes back to Fabric, right-clicking on the Item-folder (e.g the Dataset, the Report, the Notebook, ...) and select `Publish to Fabric`.
 
 To undo your local changes or force the reload of content from Fabric (e.g. if you changed/created a new item in the Fabric UI), you can use `Reload from Fabric` from the context menu.
+
+# Fabric GIT Integration
+If you have your Fabric workspace connected to a GIT repository, you can from now on start managing your GIT workflow from within VSCode. To do so, simply right-click the Fabric workspace and select `Manage Source Control`. This action will integrate your Fabric workspace GIT workflows into VSCode as if it were a regular repository.
+![Manage-SourceControl](./images/Manage_SourceControl.png?raw=true "Manage SourceControl")
+Once the GIT repository is managed via VSCode, you can stage, commit, undo your changes from within VSCode:
+![SourceControl](./images/SourceControl.png?raw=true "SourceControl")
 
 # Building Locally
 1. Make sure you have installed [NodeJS](https://nodejs.org/en/) on your development workstation
@@ -151,14 +172,10 @@ Please refer to the [official docs and samples](https://github.com/microsoft/vsc
 
 **A:** Yes! The only thing you need to do is to specify the TenantID of the remote tenant in the setting `fabricStudio.tenantId`. I would recommend to create a separate VSCode workspace in this scenario and change the setting there.
 
-**Q: I tried to query the [Admin-APIs](https://learn.microsoft.com/en-us/rest/api/power-bi/admin) in a notebook but its not working, any ideas why?**
-
-**A:** By default, this is not supported as the VSCode built-in authentication does not have the necessary permissions/scopes to read these APIs (`Tenant.Read.All` or `Tenant.ReadWrite.All`). To be able to query the Admin APIs you need to use a custom ClientID (settig `fabricStudio.clientId`) and add those permissions to your custom AAD application (also see [Prerequisites](#prerequisites) on how to configure a custom AAD application to be used with this extension).
-
 **Q: I tried to run a command from the context menue but the dropdown that appears does not contain the values I want to use. What can I do?**
 
 **A:** Unfortunately VSCode is quite limited in the way how users can enter data (e.g. a dropdown box) and we simply display the last 10 items that the user selected or expanded. So if you e.g. want to do a rebind of a report and the target dataset does not show up, please make sure to select/click it the Workspace Browser just before you run the rebind.
 
 **Q: Something went wrong or the extension is stuck, what can I do?**
 
-**A:** Unfortunately this can happen, sorry! Please try to restart VSCode or run the command `Fabric.initialize` from the command menu. If the problem persists, please open an [issue](https://github.com/gbrueckl/Fabric-VSCode/issues) at our Git Repository.
+**A:** Unfortunately this can happen, sorry! Please try to restart VSCode or run the command `FabricStudio.initialize` from the command menu. If the problem persists, please open an [issue](https://github.com/gbrueckl/FabricStudio/issues) at our Git Repository.

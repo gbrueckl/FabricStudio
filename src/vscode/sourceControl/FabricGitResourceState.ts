@@ -26,6 +26,8 @@ export class FabricGitResourceState implements vscode.SourceControlResourceState
 	 * state is open in the Source Control viewlet.
 	 */
 	get command(): vscode.Command {
+		return undefined;
+		// this doesnt yet work as the file would need to be loaded beforehand
 		return { "title": "Open", "command": "vscode.open", "arguments": [this.resourceUri] }
 	}
 

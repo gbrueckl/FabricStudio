@@ -28,7 +28,9 @@ export class FabricLakehouse extends FabricWorkspaceTreeItem {
 			"BROWSE_IN_ONELAKE",
 			"COPY_SQL_CONNECTION_STRING",
 			"COPY_ONELAKE_FILES_PATH",
-			"COPY_ONELAKE_TABLES_PATH"
+			"COPY_ONELAKE_TABLES_PATH",
+			"COPY_SQL_CONNECTION_STRING",
+			"COPY_SQL_ENDPOINT"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -52,13 +54,23 @@ export class FabricLakehouse extends FabricWorkspaceTreeItem {
 	}
 
 	public async getSQLConnectionString(): Promise<string> {
+		let sqlEndpoint = await this.getSQLEndpoint();
+
+		return `Data Source=${sqlEndpoint},1433;Initial Catalog=${this.itemName};Encrypt=True;Trust Server Certificate=True;`
+	}
+
+	public async copySQLConnectionString(): Promise<void> {
+		vscode.env.clipboard.writeText(await this.getSQLConnectionString());
+	}
+
+	public async getSQLEndpoint(): Promise<string> {
 		let properties = await this.getProperties();
 
 		return properties.sqlEndpointProperties.connectionString;
 	}
 
-	public async copySQLConnectionString(): Promise<void> {
-		vscode.env.clipboard.writeText(await this.getSQLConnectionString());
+	public async copySQLEndpoint(): Promise<void> {
+		vscode.env.clipboard.writeText(await this.getSQLEndpoint());
 	}
 
 	public async getOneLakeFilesPath(): Promise<string> {
