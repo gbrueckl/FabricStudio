@@ -306,20 +306,30 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 				let output: vscode.NotebookCellOutput;
 
-				if (result.success.value) {
-					output = new vscode.NotebookCellOutput([
-						vscode.NotebookCellOutputItem.json(result.success.value, 'application/json') // to be used by proper JSON/table renderers
-					])
+				if (result.success) {
+					if (result.success.value) {
+						output = new vscode.NotebookCellOutput([
+							vscode.NotebookCellOutputItem.json(result.success.value, 'application/json') // to be used by proper JSON/table renderers
+						])
+					}
+					else {
+						output = new vscode.NotebookCellOutput([
+							vscode.NotebookCellOutputItem.json(result.success, 'application/json'), // to be used by proper JSON/table renderers,
+							vscode.NotebookCellOutputItem.text(result.success as any as string, 'text/plain') // to be used by proper JSON/table renderers
+						])
+					}
+					execution.appendOutput(output);
+					execution.end(true, Date.now());
 				}
 				else {
-					output = new vscode.NotebookCellOutput([
-						vscode.NotebookCellOutputItem.json(result, 'application/json'), // to be used by proper JSON/table renderers,
-						vscode.NotebookCellOutputItem.text(result as any as string, 'text/plain') // to be used by proper JSON/table renderers
-					])
-				}
+					execution.appendOutput(new vscode.NotebookCellOutput([
+						vscode.NotebookCellOutputItem.json(result.error, 'application/json'),
+						vscode.NotebookCellOutputItem.text(JSON.stringify(result.error), 'text/plain')
+					]));
 
-				execution.appendOutput(output);
-				execution.end(true, Date.now());
+					execution.end(false, Date.now());
+					return;
+				}
 			}
 		} catch (error) {
 			execution.appendOutput(new vscode.NotebookCellOutput([

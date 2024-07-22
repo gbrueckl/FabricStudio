@@ -157,8 +157,8 @@
 					"name": "Fabric Workspaces"
 				},
 				{
-					"id": "FabricStudioPipelines",
-					"name": "Pipelines"
+					"id": "FabricStudioDeploymentPipelines",
+					"name": "Deployment Pipelines"
 				},
 				{
 					"id": "FabricStudioCapacities",
@@ -211,6 +211,12 @@
 				"command": "FabricStudio.Workspace.manageSourceControl",
 				"title": "Manage Source Control",
 				"icon": "$(source-control)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.DeploymentPipelines.refresh",
+				"title": "Refresh Workspaces",
+				"icon": "$(refresh)"
 			},
 			{
 				"command": "FabricStudio.Item.openNewNotebook",
@@ -366,6 +372,11 @@
 				{
 					"command": "FabricStudio.Workspaces.editItems",
 					"when": "view == FabricStudioWorkspaces",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.DeploymentPipelines.refresh",
+					"when": "view == FabricStudioDeploymentPipelines",
 					"group": "navigation"
 				},
 				{

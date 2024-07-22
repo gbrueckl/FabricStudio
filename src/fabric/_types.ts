@@ -21,6 +21,7 @@ export type FabricApiItemType =
 	| "SemanticModel"			//	PowerBI semantic model.
 	| "SparkJobDefinition"	//	A spark job definition.
 	| "Warehouse"				//	A warehouse item.
+	| "DeploymentPipeline"	//	A deployment pipeline.
 
 	// custom types
 	| "Capacity"
@@ -30,6 +31,8 @@ export type FabricApiItemType =
 	| "LakehouseTable"				//	Lakehouse Table
 	| "LakehouseTables"				//	Folder for Lakehouse Table item.
 	| "DataPipelines"				//	Folder for DataPipeline item.
+	| "DeploymentPipelineStage"		//	A Deployment pipleine stage
+	| "DeploymentPipelineStages"	//	Folder for Deployment pipleine stages.
 	;
 
 export type FabricApiItemTypeWithDefinition =
@@ -171,4 +174,25 @@ export interface iFabricApiGitStatusResponse {
 	workspaceHead: string;
 	remoteCommitHash: string;
 	changes: iFabricApiGitItemChange[];
+}
+
+
+export interface iFabricApiDeploymentPipelineStage {
+	description:		string; // The deployment pipeline stage description.
+	displayName:		string; // The deployment pipeline stage display name.
+	id:					string; // The deployment pipeline stage ID.
+	isPublic:			boolean; // Indicates whether the deployment pipeline stage is public. True - the stage is public, False - the stage isn't public.
+	order:				number; // The stage order, starting from zero.
+	workspaceId?:		string; // The assigned workspace ID. Only applicable when there's an assigned workspace.
+	workspaceName?:		string; // The assigned workspace name. Only applicable when there's an assigned workspace and the user has access to the workspace.
+}
+
+
+export interface iFabricApiDeploymentPipelineStageItem {
+	itemDisplayName:		string; // The Fabric item display name.
+	itemId:					string; // The Fabric item ID.
+	itemType:				FabricApiItemType; // The Fabric item type.
+	lastDeploymentTime:		string; // The last deployment date and time of the Fabric item.
+	sourceItemId:			string; // The ID of the Fabric item from the workspace assigned to the source stage, which will update the current Fabric item upon deployment. Applicable only when the user has at least contributor access to the source stage workspace.
+	targetItemId:			string; // The ID of the Fabric item from the workspace of the target stage, which will be updated by the current Fabric item upon deployment. Applicable only when the user has at least contributor access to the target stage workspace.
 }

@@ -19,6 +19,8 @@ import { FabricGitRepositories } from './vscode/sourceControl/FabricGitRepositor
 import { FabricWorkspace } from './vscode/treeviews/Workspaces/FabricWorkspace';
 import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
 import { FabricNotebookContext } from './vscode/notebook/FabricNotebookContext';
+import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
+import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -108,6 +110,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeFilesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeFilesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeTablesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
+	//#endregion
+
+
+	//#region Fabric Deployment Pipelines TreeView
+	let fabricDeploymentPipelinesTreeProvider = new FabricPipelinesTreeProvider(context);
+
+	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.refresh', (item: FabricPipelineTreeItem = undefined, showInfoMessage: boolean = true) => fabricDeploymentPipelinesTreeProvider.refresh(item, showInfoMessage));
+	
 	//#endregion
 
 	//#region Fabric Git

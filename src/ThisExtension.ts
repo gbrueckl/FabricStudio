@@ -8,6 +8,7 @@ import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
 import { FabricNotebookKernel } from './vscode/notebook/FabricNotebookKernel';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
+import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
 
 
 export type TreeProviderId =
@@ -31,6 +32,7 @@ export abstract class ThisExtension {
 
 	private static _notebookKernel: FabricNotebookKernel;
 	private static _treeviewWorkspaces: FabricWorkspacesTreeProvider;
+	private static _treeviewPipelines: FabricPipelinesTreeProvider;
 	private static _fabricFileSystemProvider: FabricFileSystemProvider;
 
 	static async initialize(context: vscode.ExtensionContext): Promise<boolean> {
@@ -143,6 +145,14 @@ export abstract class ThisExtension {
 
 	static get TreeViewWorkspaces(): FabricWorkspacesTreeProvider {
 		return this._treeviewWorkspaces;
+	}
+
+	static set TreeViewPipelines(treeView: FabricPipelinesTreeProvider) {
+		this._treeviewPipelines = treeView;
+	}
+
+	static get TreeViewPipelines(): FabricPipelinesTreeProvider {
+		return this._treeviewPipelines;
 	}
 	//#endregion
 
