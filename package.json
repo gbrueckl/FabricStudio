@@ -159,14 +159,6 @@
 				{
 					"id": "FabricStudioDeploymentPipelines",
 					"name": "Deployment Pipelines"
-				},
-				{
-					"id": "FabricStudioCapacities",
-					"name": "Capacities"
-				},
-				{
-					"id": "FabricStudioGateways",
-					"name": "Gateways"
 				}
 			]
 		},
@@ -230,7 +222,7 @@
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.Item.openInBrowser",
+				"command": "FabricStudio.Item.openInFabric",
 				"title": "Open in Fabric Service",
 				"icon": "$(globe)",
 				"category": "FabricStudio"
@@ -387,7 +379,7 @@
 			],
 			"view/item/context": [
 				{
-					"command": "FabricStudio.Item.openInBrowser",
+					"command": "FabricStudio.Item.openInFabric",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
 					"group": "7_open"
 				},
