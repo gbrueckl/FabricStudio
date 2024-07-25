@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as lodash from 'lodash';
 
 import { ThisExtension } from '../../ThisExtension';
 import { Helper } from '@utils/Helper';
@@ -163,13 +164,46 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 		return endpoint;
 	}
 
-	private parseCommandText(commandText: string, context: FabricNotebookContext): string {
+	private parseCommandText(commandText: string, context: FabricNotebookContext, cell: vscode.NotebookCell): string {
 		let lines = commandText.split("\n");
 		let linesWithoutComments = lines.filter(l => !l.trim().startsWith("#") && !l.trim().startsWith("//") && !l.trim().startsWith("--/"));
 		let commandTextClean = linesWithoutComments.join("\n");
 
 		for (let variable in context.variables) {
 			commandTextClean = commandTextClean.replace(new RegExp(`\\$\\(${variable}\\)`, "gi"), context.variables[variable]);
+		}
+
+		const referencedOutputs = commandTextClean.matchAll(new RegExp(`\\$\\(\\_cells\\[(?<cellRef>-?\\d)](?<xPath>.*?)\\)`, "gi"))
+		for (let cellVariable of referencedOutputs) {
+			try {
+				ThisExtension.Logger.logInfo("Cell-Reference found: " + cellVariable[0] + ". Trying to resolve it ...");
+				const cellRef = cellVariable.groups["cellRef"];
+				const xPath = cellVariable.groups["xPath"];
+				const output = cell.notebook.cellAt(cell.index + parseInt(cellRef)).outputs[0];
+				const jsonOutput = output.items.find(i => i.mime === 'application/json');
+				const json = JSON.parse(jsonOutput.data.toString());
+
+				let value = json;
+				if (xPath) {
+					value = lodash.get(json, xPath);
+				}
+
+				if (value) {
+					if (value.toString().includes("[object Object]")) {
+						value = JSON.stringify(value);
+					}
+					ThisExtension.Logger.logInfo("Resolved " + cellVariable[0] + " to value: '" + value + "'!");
+					commandTextClean = commandTextClean.replace(cellVariable[0], value);
+				}
+				else {
+					throw new Error("Could not resolve value for '" + cellVariable[0] + "'!");
+				}
+			}
+			catch (error) {
+				ThisExtension.Logger.logError(error.message);
+
+				throw error;
+			}
 		}
 
 		return commandTextClean;
@@ -192,7 +226,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 			ThisExtension.Logger.logInfo("Executing " + language + ":\n" + commandText);
 
-			const commandTextClean = this.parseCommandText(commandText, context);
+			const commandTextClean = this.parseCommandText(commandText, context, cell);
 			customApi = this.resolveRelativePath(customApi, context.apiRootPath);
 
 			let result: iFabricApiResponse = undefined;
