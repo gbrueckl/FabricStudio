@@ -29,7 +29,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const prevInstalledVersion = context.globalState.get<vscode.Extension<any>>(`${context.extension.id}.installedVersion`, undefined);
 	if (!prevInstalledVersion || prevInstalledVersion.packageJSON.version !== context.extension.packageJSON.version) {
 		context.globalState.update(`${context.extension.id}.installedVersion`, context.extension);
-		const action = vscode.window.showInformationMessage(`${context.extension.packageJSON.itemName} updated to version ${context.extension.packageJSON.version}`, "Change Log");
+		const action = vscode.window.showInformationMessage(`${context.extension.packageJSON.displayName} updated to version ${context.extension.packageJSON.version}`, "Change Log");
 
 		action.then((value) => {
 			if (value == "Change Log") {
