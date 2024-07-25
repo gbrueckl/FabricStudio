@@ -101,6 +101,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyIdToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyNameToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPathToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPropertiesToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricWorkspaceTreeItem) => treeItem.insertCode());
 	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true));
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());

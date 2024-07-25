@@ -78,6 +78,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			"COPY_ID",
 			"COPY_NAME",
 			"COPY_PATH",
+			"COPY_PROPERTIES",
 			"OPEN_IN_BROWSER",
 			"INSERT_CODE",
 		];
@@ -146,6 +147,10 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	public copyPathToClipboard(): void {
 		vscode.env.clipboard.writeText(this.apiPath);
+	}
+
+	public copyPropertiesToClipboard(): void {
+		vscode.env.clipboard.writeText(JSON.stringify(this.itemDefinition, null, 4));
 	}
 
 	public getBrowserLink(): vscode.Uri {

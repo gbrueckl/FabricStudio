@@ -1,5 +1,11 @@
 # Change Log
 
+**v0.4.0**:
+- added [Fabric Notebooks](/README.md/#notebooks) to run arbitrary REST API calls against Fabric
+- added [GIT integration](/README.md/#fabric-git-integration) to manage Fabric source control from within VSCode
+- update icons to official Fabric icons
+- many more bug fixes and minor improvements!
+
 **v0.9.0**:
 - migrated Fabric specific code from [Power BI VSCode extension](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
 - added Fabric Workspace Browser

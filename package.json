@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "0.9.3",
+	"version": "0.9.4",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -252,6 +252,12 @@
 				"category": "FabricStudio"
 			},
 			{
+				"command": "FabricStudio.Item.copyPropertiesToClipboard",
+				"title": "Copy Properties to Clipboard",
+				"icon": "$(clippy)",
+				"category": "FabricStudio"
+			},
+			{
 				"command": "FabricStudio.Item.insertPath",
 				"title": "Insert Path",
 				"icon": "$(code)",
@@ -396,6 +402,11 @@
 				{
 					"command": "FabricStudio.Item.copyPathToClipboard",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_PATH,.*/",
+					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.Item.copyPropertiesToClipboard",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
 					"group": "6_copypath"
 				},
 				{
