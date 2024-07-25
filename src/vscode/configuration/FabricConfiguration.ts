@@ -131,7 +131,7 @@ export abstract class FabricConfiguration {
 	}
 
 	static get iconStyle(): string { 
-		return "mono";
+		return "color";
 		return this.getValue("iconStyle"); 
 	}
 

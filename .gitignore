@@ -7,3 +7,5 @@ dist/
 node_modules/
 *.vsix
 dist/
+svg-icons.tgz
+temp-icons/

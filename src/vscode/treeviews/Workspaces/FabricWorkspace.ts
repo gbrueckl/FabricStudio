@@ -47,6 +47,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		return orig + actions.join(",") + ",";
 	}
 
+	protected getIconPath(): string | vscode.Uri {
+		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'workspace.svg');
+	}
+
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceGenericFolder[] = [];
 		let treeItem: FabricWorkspaceGenericFolder;

@@ -28,7 +28,7 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	}
 
 	protected getIconPath(): string | vscode.Uri {
-		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'genericfolder.png');
+		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'genericfolder.svg');
 	}
 
 	// tooltip shown when hovering over the item
