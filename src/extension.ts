@@ -21,6 +21,8 @@ import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompleti
 import { FabricNotebookContext } from './vscode/notebook/FabricNotebookContext';
 import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
 import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
+import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
+import { FabricWorkspaceGenericViewer } from './vscode/treeviews/Workspaces/FabricWorkspaceGenericViewer';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -69,6 +71,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	FabricFileSystemProvider.register(context);
 	FabricFSFileDecorationProvider.register(context);
 
+	TempFileSystemProvider.register(context);
+
 
 	vscode.workspace.onDidOpenNotebookDocument((e) => {
 		const metadata = FabricNotebookContext.get(e.metadata.guid.toString());
@@ -103,9 +107,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPathToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPropertiesToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricWorkspaceTreeItem) => treeItem.insertCode());
-	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true));
+	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => ThisExtension.browseInOneLake(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
-
+	vscode.commands.registerCommand('FabricStudio.Item.showDefintion', async (treeItem: FabricWorkspaceGenericViewer) => treeItem.showDefinition());
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLEndpoint', (treeItem: FabricLakehouse) => treeItem.copySQLEndpoint());

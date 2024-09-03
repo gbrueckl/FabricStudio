@@ -30,7 +30,7 @@ export class FabricLakehouseTable extends FabricWorkspaceTreeItem {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = ["BROWSEONELAKE"];
+		let actions: string[] = ["BROWSE_IN_ONELAKE"];
 
 		return orig + actions.join(",") + ",";
 	}
@@ -86,7 +86,7 @@ export class FabricLakehouseTable extends FabricWorkspaceTreeItem {
 		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
 		const lakehouse = this.getParentByType<FabricWorkspace>("Lakehouse");
 
-		return vscode.Uri.parse(`onelake://${workspace.itemName}/${lakehouse.itemName}.Lakehouse/Tables/${this.itemName}`);
+		return vscode.Uri.parse(`onelake://${workspace.itemId}/${lakehouse.itemId}/Tables/${this.itemName}`);
 	}
 
 	async runMaintainanceJob(): Promise<void> {

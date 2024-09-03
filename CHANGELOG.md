@@ -1,6 +1,11 @@
 # Change Log
 
-**v0.4.0**:
+**v0.9.5**:
+- added support for Shortcuts in Lakehouses
+- added support to read Environment details
+- fixed issue with `Browse in OneLake`
+
+**v0.9.4**:
 - added [Fabric Notebooks](/README.md/#notebooks) to run arbitrary REST API calls against Fabric
 - added [GIT integration](/README.md/#fabric-git-integration) to manage Fabric source control from within VSCode
 - update icons to official Fabric icons

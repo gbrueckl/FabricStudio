@@ -23,7 +23,7 @@ export class FabricLakehouseTables extends FabricWorkspaceGenericFolder {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = ["BROWSEONELAKE"];
+		let actions: string[] = ["BROWSE_IN_ONELAKE"];
 
 		return orig + actions.join(",") + ",";
 	}
@@ -54,8 +54,8 @@ export class FabricLakehouseTables extends FabricWorkspaceGenericFolder {
 	get oneLakeUri(): vscode.Uri {
 		// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
 		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
-		const lakehouse = this.getParentByType<FabricWorkspace>("Lakehouse");
+		const lakehouse = this.getParentByType<FabricLakehouse>("Lakehouse");
 		
-		return vscode.Uri.parse(`onelake://${workspace.itemName}/${lakehouse.itemName}.Lakehouse/Tables`);
+		return vscode.Uri.parse(`onelake://${workspace.itemId}/${lakehouse.itemId}/Tables`);
 	}
 }

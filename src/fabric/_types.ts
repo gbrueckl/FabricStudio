@@ -3,36 +3,41 @@ import { UniqueId } from "@utils/Helper";
 
 // https://learn.microsoft.com/en-us/rest/api/fabric/core/items/get-item?tabs=HTTP#itemtype
 export type FabricApiItemType =
-	"Dashboard"				//	PowerBI dashboard.
+	"Dashboard"					//	PowerBI dashboard.
 	| "DataPipeline"			//	A data pipeline.
 	| "Datamart"				//	PowerBI datamart.
-	| "Eventstream"			//	An eventstream item.
+	| "Environment"				//	An environment item.
+	| "Eventstream"				//	An eventstream item.
 	| "KQLDataConnection"		//	A KQL data connection.
-	| "KQLDatabase"			//	A KQL database.
-	| "KQLQueryset"			//	A KQL queryset.
+	| "KQLDatabase"				//	A KQL database.
+	| "KQLQueryset"				//	A KQL queryset.
 	| "Lakehouse"				//	Lakehouse item.
 	| "MLExperiment"			//	A machine learning experiment.
-	| "MLModel"				//	A machine learning model.
+	| "MLModel"					//	A machine learning model.
 	| "MountedWarehouse"		//	A MountedWarehouse item.
 	| "Notebook"				//	A notebook.
-	| "PaginatedReport"		//	PowerBI paginated report.
-	| "Report"				//	PowerBI report.
-	| "SQLEndpoint"			//	An SQL endpoint.
+	| "PaginatedReport"			//	PowerBI paginated report.
+	| "Report"					//	PowerBI report.
+	| "SQLEndpoint"				//	An SQL endpoint.
 	| "SemanticModel"			//	PowerBI semantic model.
-	| "SparkJobDefinition"	//	A spark job definition.
+	| "SparkJobDefinition"		//	A spark job definition.
 	| "Warehouse"				//	A warehouse item.
-	| "DeploymentPipeline"	//	A deployment pipeline.
+	| "DeploymentPipeline"		//	A deployment pipeline.
 
 	// custom types
+	| "GenericViewer"			//	A generic viewer item.
 	| "Capacity"
 	| "Dataflow"
 	| "Workspace"
-	| "Lakehouses"					//	Folder for Lakehouse item.
-	| "LakehouseTable"				//	Lakehouse Table
-	| "LakehouseTables"				//	Folder for Lakehouse Table item.
-	| "DataPipelines"				//	Folder for DataPipeline item.
-	| "DeploymentPipelineStage"		//	A Deployment pipleine stage
-	| "DeploymentPipelineStages"	//	Folder for Deployment pipleine stages.
+	| "Lakehouses"							//	Folder for Lakehouse item.
+	| "Environments"						//	Folder for Environment item.
+	| "LakehouseTable"						//	Lakehouse Table
+	| "LakehouseTables"						//	Folder for Lakehouse Table item.
+	| "DataPipelines"						//	Folder for DataPipeline item.
+	| "DeploymentPipelineStage"				//	A Deployment pipleine stage
+	| "DeploymentPipelineStages"			//	Folder for Deployment pipleine stages.
+	| "ItemShortcuts"						//	Folder for item shortcuts.
+	| "ItemShortcut"						//	Folder for items.
 	;
 
 export type FabricApiItemTypeWithDefinition =
@@ -178,21 +183,27 @@ export interface iFabricApiGitStatusResponse {
 
 
 export interface iFabricApiDeploymentPipelineStage {
-	description:		string; // The deployment pipeline stage description.
-	displayName:		string; // The deployment pipeline stage display name.
-	id:					string; // The deployment pipeline stage ID.
-	isPublic:			boolean; // Indicates whether the deployment pipeline stage is public. True - the stage is public, False - the stage isn't public.
-	order:				number; // The stage order, starting from zero.
-	workspaceId?:		string; // The assigned workspace ID. Only applicable when there's an assigned workspace.
-	workspaceName?:		string; // The assigned workspace name. Only applicable when there's an assigned workspace and the user has access to the workspace.
+	description: string; // The deployment pipeline stage description.
+	displayName: string; // The deployment pipeline stage display name.
+	id: string; // The deployment pipeline stage ID.
+	isPublic: boolean; // Indicates whether the deployment pipeline stage is public. True - the stage is public, False - the stage isn't public.
+	order: number; // The stage order, starting from zero.
+	workspaceId?: string; // The assigned workspace ID. Only applicable when there's an assigned workspace.
+	workspaceName?: string; // The assigned workspace name. Only applicable when there's an assigned workspace and the user has access to the workspace.
 }
 
 
 export interface iFabricApiDeploymentPipelineStageItem {
-	itemDisplayName:		string; // The Fabric item display name.
-	itemId:					string; // The Fabric item ID.
-	itemType:				FabricApiItemType; // The Fabric item type.
-	lastDeploymentTime:		string; // The last deployment date and time of the Fabric item.
-	sourceItemId:			string; // The ID of the Fabric item from the workspace assigned to the source stage, which will update the current Fabric item upon deployment. Applicable only when the user has at least contributor access to the source stage workspace.
-	targetItemId:			string; // The ID of the Fabric item from the workspace of the target stage, which will be updated by the current Fabric item upon deployment. Applicable only when the user has at least contributor access to the target stage workspace.
+	itemDisplayName: string; // The Fabric item display name.
+	itemId: string; // The Fabric item ID.
+	itemType: FabricApiItemType; // The Fabric item type.
+	lastDeploymentTime: string; // The last deployment date and time of the Fabric item.
+	sourceItemId: string; // The ID of the Fabric item from the workspace assigned to the source stage, which will update the current Fabric item upon deployment. Applicable only when the user has at least contributor access to the source stage workspace.
+	targetItemId: string; // The ID of the Fabric item from the workspace of the target stage, which will be updated by the current Fabric item upon deployment. Applicable only when the user has at least contributor access to the target stage workspace.
+}
+
+export interface iFabricApiItemShortcut {
+	path: string; // The path of the shortcut.
+	name: string; // The name of the shortcut.
+	target: object; // The target of the shortcut.
 }

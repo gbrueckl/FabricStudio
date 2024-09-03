@@ -262,7 +262,8 @@ export abstract class FabricApiService {
 	static async getList<TSuccess = any>(
 		endpoint: string,
 		params: object = null,
-		listProperty: string = "value"
+		listProperty: string = "value",
+		listSortProperty: string = "displayName"
 	): Promise<iGenericApiResponse<TSuccess[], iGenericApiError>> {
 		let response;
 		let ret: TSuccess[] = [];
@@ -277,6 +278,8 @@ export abstract class FabricApiService {
 			endpoint = response.success.continuationUri;
 		}
 		while (endpoint)
+
+		Helper.sortArrayByProperty(ret, listSortProperty);
 
 		return { "success": ret };
 	}

@@ -14,6 +14,8 @@ import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricLakehouse } from './FabricLakehouse';
 import { FabricDataPipeline } from './FabricDataPipeline';
 import { FabricGitRepositories } from '../../sourceControl/FabricGitRepositories';
+import { FabricEnvironments } from './FabricEnvironments';
+import { FabricEnvironment } from './FabricEnvironment';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -74,6 +76,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						else if (item.type == "DataPipeline") {
 							treeItem = new FabricDataPipelines(this);
 						}
+						else if (item.type == "Environment") {
+							treeItem = new FabricEnvironments(this);
+						}
 						else {
 							treeItem = new FabricWorkspaceGenericFolder(
 								this.itemId + "/" + item.type + "s",
@@ -90,6 +95,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 					}
 					else if (item.type == "DataPipeline") {
 						itemToAdd = new FabricDataPipeline(item, this);
+					}
+					else if (item.type == "Environment") {
+						itemToAdd = new FabricEnvironment(item, this);
 					}
 					else {
 						itemToAdd = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type as FabricApiItemType, itemTypes.get(item.type), item, item.description, vscode.TreeItemCollapsibleState.None);

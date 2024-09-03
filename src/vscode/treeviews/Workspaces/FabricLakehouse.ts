@@ -6,6 +6,7 @@ import { iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_
 import { FabricLakehouseTables } from './FabricLakehouseTables';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricItemShortcuts } from './FabricItemShortcuts';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricLakehouse extends FabricWorkspaceTreeItem {
@@ -41,6 +42,12 @@ export class FabricLakehouse extends FabricWorkspaceTreeItem {
 		let children: FabricWorkspaceTreeItem[] = [];
 
 		children.push(new FabricLakehouseTables(this));
+
+		let shortcuts = new FabricItemShortcuts(this);
+		const shortcutsChildren = await shortcuts.getChildren();
+		if (shortcutsChildren.length > 0) {
+			children.push(shortcuts);
+		}
 
 		return children;
 	}
@@ -97,6 +104,6 @@ export class FabricLakehouse extends FabricWorkspaceTreeItem {
 	// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
 		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
 		
-		return vscode.Uri.parse(`onelake://${workspace.itemName}/${this.itemName}.Lakehouse`);
+		return vscode.Uri.parse(`onelake://${workspace.itemId}/${this.itemId}`);
 	}
 }

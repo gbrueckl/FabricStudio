@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "0.9.4",
+	"version": "0.9.5",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -231,6 +231,12 @@
 				"command": "FabricStudio.Item.editDefinition",
 				"title": "Edit Items",
 				"icon": "$(pencil)",
+				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.Item.showDefinition",
+				"title": "Show Definition",
+				"icon": "$(json)",
 				"category": "FabricStudio"
 			},
 			{

@@ -145,7 +145,10 @@ export abstract class FabricConfiguration {
 
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
 
-	static get resourceId(): string { return CLOUD_CONFIGS[this.cloud].resourceId; }
+	static get resourceId(): string { 
+		return "https://api.fabric.microsoft.com";
+		return CLOUD_CONFIGS[this.cloud].resourceId; 
+		}
 
 	static get isSovereignCloud(): boolean {
 		// If the base URL for the API is not pointed to api.fabric.microsoft.com assume 

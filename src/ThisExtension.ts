@@ -9,13 +9,16 @@ import { FabricNotebookKernel } from './vscode/notebook/FabricNotebookKernel';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
 import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
+import { Helper } from '@utils/Helper';
+import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWorkspaceTreeItem';
+import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
 
 
 export type TreeProviderId =
 	"application/vnd.code.tree.fabricstudioworkspaces"
 	| "application/vnd.code.tree.fabricstudiocapacities"
 	| "application/vnd.code.tree.fabricstudiopipelines"
-;
+	;
 
 const LOGGER_NAME = "Fabric Studio"
 
@@ -34,6 +37,7 @@ export abstract class ThisExtension {
 	private static _treeviewWorkspaces: FabricWorkspacesTreeProvider;
 	private static _treeviewPipelines: FabricPipelinesTreeProvider;
 	private static _fabricFileSystemProvider: FabricFileSystemProvider;
+	private static _tempFileSystemProvider: TempFileSystemProvider;
 
 	static async initialize(context: vscode.ExtensionContext): Promise<boolean> {
 		try {
@@ -156,12 +160,19 @@ export abstract class ThisExtension {
 	}
 	//#endregion
 
-	// #region FileSystemProvider
+	// #region FileSystemProviders
 	static set FabricFileSystemProvider(provider: FabricFileSystemProvider) {
 		this._fabricFileSystemProvider = provider;
 	}
 	static get FabricFileSystemProvider(): FabricFileSystemProvider {
 		return this._fabricFileSystemProvider;
+	}
+
+	static set TempFileSystemProvider(provider: TempFileSystemProvider) {
+		this._tempFileSystemProvider = provider;
+	}
+	static get TempFileSystemProvider(): TempFileSystemProvider {
+		return this._tempFileSystemProvider;
 	}
 	// #endregion
 
@@ -189,7 +200,7 @@ export abstract class ThisExtension {
 		return ENVIRONMENT == "web";
 	}
 
-	static async refreshTreeView(id: string, item: FabricApiTreeItem = null, ): Promise<void> {
+	static async refreshTreeView(id: string, item: FabricApiTreeItem = null,): Promise<void> {
 		throw new Error("Method not implemented.");
 		/*
 		switch (id) {
@@ -213,6 +224,20 @@ export abstract class ThisExtension {
 
 	static get NotebookKernel(): FabricNotebookKernel {
 		return this._notebookKernel;
+	}
+
+	static async browseInOneLake(treeItem: FabricWorkspaceTreeItem): Promise<void> {
+		const databricksExtension: vscode.Extension<any> = vscode.extensions.getExtension("GerhardBrueckl.onelake-vscode");
+		if (!databricksExtension) {
+			vscode.window.showErrorMessage("Please install the OneLake VSCode extension ('GerhardBrueckl.onelake-vscode') first!");
+			// TODO
+			/*
+			You can trigger the installation using the workbench.extensions.installExtension command (see https://code.visualstudio.com/api/references/commands).
+			*/
+			return;
+		}
+
+		Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true);
 	}
 }
 
