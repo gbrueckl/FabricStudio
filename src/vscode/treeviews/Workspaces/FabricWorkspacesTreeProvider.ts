@@ -37,14 +37,21 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 	}
 
 	async refresh(item: FabricWorkspaceTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
+		// as tree_item is not always accurate, we refresh based on the actual selection
+		if (this._treeView.selection.length == 0) {
+			this._onDidChangeTreeData.fire(undefined);
+			return;
+		}
 		if (showInfoMessage) {
 			Helper.showTemporaryInformationMessage('Refreshing Fabric Workspaces ...');
 		}
-		// on leaves, we refresh the parent instead
-		if (item && item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
-			item = item.parent;
+		for (let item of this._treeView.selection) {
+			// on leaves, we refresh the parent instead
+			if (item && item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
+				item = item.parent;
+			}
+			this._onDidChangeTreeData.fire(item);
 		}
-		this._onDidChangeTreeData.fire(item);
 	}
 
 	getTreeItem(element: FabricWorkspaceTreeItem): FabricWorkspaceTreeItem {
@@ -58,10 +65,10 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		const initialized = await FabricApiService.Initialization();
 
-		if(!initialized) {
+		if (!initialized) {
 			// maybe return an error here or a Dummy TreeItem saying "Not initialized" ?
 			return [];
-		}	
+		}
 
 		if (element != null && element != undefined) {
 			return element.getChildren();
@@ -76,14 +83,14 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 			}
 
 			for (let item of items.success) {
-				if(FabricConfiguration.workspaceFilter) {
+				if (FabricConfiguration.workspaceFilter) {
 					const match = item.displayName.match(FabricConfiguration.workspaceFilterRegEx);
-					if(!match) {
+					if (!match) {
 						ThisExtension.Logger.logInfo(`Skipping workspace ${item.displayName} because it does not match the workspace filter.`);
 						continue;
 					}
 				}
-				if(item.capacityId) {
+				if (item.capacityId) {
 					let treeItem = new FabricWorkspace(item);
 					children.push(treeItem);
 				}

@@ -10,10 +10,21 @@ export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
 		parent: FabricPipelineTreeItem
 	) {
 		super(definition.itemDisplayName, definition.itemType, definition.itemId, parent, definition, definition.lastDeploymentTime, vscode.TreeItemCollapsibleState.None);
+	
+		this.contextValue = this._contextValue;
 	}
 
-
 	/* Overwritten properties from FabricApiTreeItem */
+	get _contextValue(): string {
+		let orig: string = super._contextValue;
+
+		let actions: string[] = [
+			"DEPLOY"
+		];
+
+		return orig + actions.join(",") + ",";
+	}
+
 	get itemDefinition(): iFabricApiDeploymentPipelineStageItem {
 		return super.itemDefinition as iFabricApiDeploymentPipelineStageItem;
 	}
@@ -28,11 +39,5 @@ export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
 	}
 	get artifactType(): string {
 		return this.itemType.toLowerCase() + "s";
-	}
-
-	async getDeployableItems(): Promise<{ [key: string]: { sourceId: string }[] }> {
-		let obj = {};
-		obj[this.artifactType] = this.artifactIds;
-		return obj;
 	}
 }

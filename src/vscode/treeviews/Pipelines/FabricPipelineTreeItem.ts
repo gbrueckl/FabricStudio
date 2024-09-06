@@ -7,8 +7,9 @@ import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { TreeProviderId } from '../../../ThisExtension';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { FabricPipeline } from './FabricPipeline';
+import { iFabricApiPipelineDeployableItem, iFabricPipelineDeployableItem } from './iFabricPipelineDeployableItem';
 
-export class FabricPipelineTreeItem extends FabricApiTreeItem {
+export class FabricPipelineTreeItem extends FabricApiTreeItem implements iFabricPipelineDeployableItem {
 
 	constructor(
 		name: string,
@@ -55,5 +56,18 @@ export class FabricPipelineTreeItem extends FabricApiTreeItem {
 
 	get pipelineId(): UniqueId {
 		return this.pipeline.itemId;
+	}
+
+	async getDeployableItems(): Promise<iFabricApiPipelineDeployableItem[]> {
+		if (this.collapsibleState == vscode.TreeItemCollapsibleState.None) {
+			return Promise.resolve([{ "itemType": this.itemType, sourceItemId: this.itemId }]);
+		}
+		else {
+			let items: iFabricApiPipelineDeployableItem[] = [];
+			for (let child of await this.getChildren()) {
+				items = items.concat(await (child as iFabricPipelineDeployableItem).getDeployableItems());
+			}
+			return items;
+		}
 	}
 }

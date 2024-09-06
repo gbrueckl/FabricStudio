@@ -8,25 +8,28 @@ import { FabricApiItemType, iFabricApiDeploymentPipelineStage, iFabricApiDeploym
 import { FabricPipelineGenericFolder } from './FabricPipelineGenericFolder';
 import { FabricPipelineStageArtifact } from './FabricPipelineStageArtifact';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { iFabricApiPipelineDeployableItem, iFabricPipelineDeployableItem } from './iFabricPipelineDeployableItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricPipelineStage extends FabricPipelineTreeItem {
+export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabricPipelineDeployableItem {
 
 	constructor(
 		definition: iFabricApiDeploymentPipelineStage,
 		parent: FabricPipelineTreeItem
 	) {
-		super(definition.displayName, "DeploymentPipelineStages", definition.id, parent, vscode.TreeItemCollapsibleState.Collapsed);
+		super(definition.displayName, "DeploymentPipelineStage", definition.id, parent, vscode.TreeItemCollapsibleState.Collapsed);
 
 		this.itemDefinition = definition;
+		this.contextValue = this._contextValue;
 	}
-
 
 	/* Overwritten properties from FabricApiTreeItem */
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = [];
+		let actions: string[] = [
+			"DEPLOY"
+		];
 
 		if (this.itemDefinition.workspaceId) {
 			actions.push("UNASSIGN");
@@ -45,6 +48,10 @@ export class FabricPipelineStage extends FabricPipelineTreeItem {
 
 	set itemDefinition(value: iFabricApiDeploymentPipelineStage) {
 		this._itemDefinition = value;
+	}
+
+	get order(): number {
+		return this.itemDefinition.order;
 	}
 
 	get apiUrlPart(): string {
@@ -69,7 +76,9 @@ export class FabricPipelineStage extends FabricPipelineTreeItem {
 								this.itemId + "/" + item.itemType + "s",
 								item.itemType + "s",
 								item.itemType + "s" as FabricApiItemType,
-								this
+								this,
+								undefined,
+								["DEPLOY"]
 							);
 						itemTypes.set(item.itemType, treeItem);
 					}
@@ -78,7 +87,7 @@ export class FabricPipelineStage extends FabricPipelineTreeItem {
 					itemTypes.get(item.itemType).addChild(itemToAdd);
 				}
 
-				children = Array.from(itemTypes.values());
+				children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 			}
 			catch (e) {
 				ThisExtension.Logger.logInfo("Could not load items for pipeline " + this.pipeline.itemName);
@@ -98,5 +107,5 @@ export class FabricPipelineStage extends FabricPipelineTreeItem {
 	}
 
 	// Pipelinestage-specific funtions
-	
+
 }

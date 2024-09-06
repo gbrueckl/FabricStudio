@@ -29,7 +29,7 @@ export class FabricPipelineStages extends FabricPipelineGenericFolder {
 		}
 		else {
 			let children: FabricPipelineStage[] = [];
-			let items = await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(this.apiPath);
+			let items = await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(this.apiPath, undefined, "value", "order");
 
 			for (let item of items.success) {
 				let treeItem = new FabricPipelineStage(item, this);

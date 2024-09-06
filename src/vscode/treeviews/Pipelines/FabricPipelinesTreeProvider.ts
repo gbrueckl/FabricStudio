@@ -4,10 +4,12 @@ import * as vscode from 'vscode';
 import { ThisExtension } from '../../../ThisExtension';
 
 import { Helper } from '@utils/Helper';
-import { iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiDeploymentPipelineStage, iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { FabricPipeline } from './FabricPipeline';
+import { iFabricApiPipelineDeployableItem } from './iFabricPipelineDeployableItem';
+import { FabricPipelineStage } from './FabricPipelineStage';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<FabricPipelineTreeItem> {
@@ -21,7 +23,7 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 		const view = vscode.window.createTreeView<FabricPipelineTreeItem>('FabricStudioDeploymentPipelines', {
 			treeDataProvider: this,
 			showCollapseAll: true,
-			canSelectMany: false
+			canSelectMany: true
 		});
 		this._treeView = view;
 		context.subscriptions.push(view);
@@ -34,15 +36,22 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 	private async _onDidChangeSelection(items: readonly FabricPipelineTreeItem[]): Promise<void> {
 	}
 
-	async refresh(item: FabricPipelineTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
+	async refresh(tree_item: FabricPipelineTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
+		// as tree_item is not always accurate, we refresh based on the actual selection
+		if (this._treeView.selection.length == 0) {
+			this._onDidChangeTreeData.fire(undefined);
+			return;
+		}
 		if (showInfoMessage) {
 			Helper.showTemporaryInformationMessage('Refreshing Fabric Deployment pipelines ...');
 		}
-		// on leaves, we refresh the parent instead
-		if (item && item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
-			item = item.parent;
+		for (let item of this._treeView.selection) {
+			// on leaves, we refresh the parent instead
+			if (item && item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
+				item = item.parent;
+			}
+			this._onDidChangeTreeData.fire(item);
 		}
-		this._onDidChangeTreeData.fire(item);
 	}
 
 	getTreeItem(element: FabricPipelineTreeItem): FabricPipelineTreeItem {
@@ -80,5 +89,80 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 
 			return children;
 		}
+	}
+
+	async deploySelection(item: FabricPipelineTreeItem = undefined): Promise<void> {
+		let itemsSelected: readonly FabricPipelineTreeItem[] = [];
+		
+		if(item)
+		{
+			itemsSelected = [item];
+		}
+		else {
+			itemsSelected = this._treeView.selection;
+		}
+
+		// first items defines the pipeline etc.
+		const firstItem = itemsSelected[0] as FabricPipelineTreeItem;
+		const pipeline = firstItem.getParentByType<FabricPipeline>("DeploymentPipeline");
+		if (!pipeline) {
+			const msg = "Could not identify Deployment Pipeline!";
+			ThisExtension.Logger.logError(msg);
+			vscode.window.showErrorMessage(msg);
+			return;
+		}
+		const sourceStage = firstItem.getParentByType<FabricPipelineStage>("DeploymentPipelineStage");
+		if (!sourceStage) {
+			const msg = "Could not identify Deployment Pipeline Source Stage!";
+			ThisExtension.Logger.logError(msg);
+			vscode.window.showErrorMessage(msg);
+			return;
+		}
+		const allStages = (await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(pipeline.apiPath + "stages"));
+		const targetStage = allStages.success.find(stage => stage.order == sourceStage.order + 1);
+		if (!targetStage) {
+			const msg = "Could not identify Deployment Pipeline Target Stage!";
+			ThisExtension.Logger.logError(msg);
+			vscode.window.showErrorMessage(msg);
+			return;
+		}
+
+		let itemsToDeploy: iFabricApiPipelineDeployableItem[] = [];
+		for (let item of itemsSelected) {
+			if (item.getParentByType<FabricPipeline>("DeploymentPipelineStage").id !== sourceStage.id) {
+				const msg = "All items must be from the same pipeline and stage!";
+				ThisExtension.Logger.logError(msg);
+				vscode.window.showErrorMessage(msg);
+				return;
+			}
+			itemsToDeploy = itemsToDeploy.concat(await (item as FabricPipelineTreeItem).getDeployableItems());
+		}
+
+		const apiUrl = Helper.joinPath(pipeline.apiPath, "deploy");
+
+		let body = {
+			"sourceStageId": sourceStage.itemId,
+			"targetStageId": targetStage.id,
+			"items": itemsToDeploy
+		};
+
+		const note = await vscode.window.showInputBox({
+			title: "Deployment note",
+			ignoreFocusOut: true,
+			value: "Deployment via FabricStudio",
+			prompt: "A note describing the deployment. The text size is limited to 1024 characters."
+		});
+		if (note == undefined) {
+			await Helper.showTemporaryInformationMessage('Deployment aborted!', 4000);
+			return
+		}
+		else if (note.length > 0) {
+			const noteJson = { "note": note };
+			body = { ...body, ...noteJson };
+		}
+		
+		const response = await FabricApiService.awaitWithProgress(`Deploying ${itemsToDeploy.length} item(s) to '${targetStage.displayName}'`, FabricApiService.post(apiUrl, body));
+
+		this.refresh(undefined, false);
 	}
 }

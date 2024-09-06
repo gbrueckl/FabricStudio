@@ -54,8 +54,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.initialize', async () => {
 		let isValidated: boolean = await ThisExtension.initialize(context)
 		if (!isValidated) {
-			ThisExtension.Logger.logInfo("Issue initializing extension - Please update your settings and restart VSCode!");
-			vscode.window.showErrorMessage("Issue initializing extension - Please update your settings and restart VSCode!");
+			ThisExtension.Logger.logInfo(`Error initializing ${context.extension.packageJSON.displayName}  - Please update your settings and restart VSCode!`);
+			vscode.window.showErrorMessage(`Error initializing ${context.extension.packageJSON.displayName}  - Please update your settings and restart VSCode!`);
 		}
 		return isValidated;
 	}
@@ -123,6 +123,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	let fabricDeploymentPipelinesTreeProvider = new FabricPipelinesTreeProvider(context);
 
 	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.refresh', (item: FabricPipelineTreeItem = undefined, showInfoMessage: boolean = true) => fabricDeploymentPipelinesTreeProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deploySelection', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(undefined));
+	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deployItem', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(item));
 	
 	//#endregion
 

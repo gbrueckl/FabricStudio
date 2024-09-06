@@ -105,7 +105,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 					itemTypes.get(item.type).addChild(itemToAdd);
 				}
 
-				children = Array.from(itemTypes.values());
+				children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 			}
 			catch (e) {
 				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);

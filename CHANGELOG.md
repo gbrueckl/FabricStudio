@@ -1,5 +1,10 @@
 # Change Log
 
+**v0.9.6**:
+- added option to trigger a deployment
+- added proper sorting for items
+- minor fixes
+
 **v0.9.5**:
 - added support for Shortcuts in Lakehouses
 - added support to read Environment details

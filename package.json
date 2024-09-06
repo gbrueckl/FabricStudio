@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "0.9.5",
+	"version": "0.9.6",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -364,6 +364,18 @@
 				"title": "Unstage Changes",
 				"icon": "$(remove)",
 				"category": "Fabric.GIT"
+			},
+			{
+				"command": "FabricStudio.DeploymentPipelines.deploySelection",
+				"title": "Deploy Selection to next Stage",
+				"icon": "$(live-share)",
+				"category": "Fabric.Deployment"
+			},
+			{
+				"command": "FabricStudio.DeploymentPipelines.deployItem",
+				"title": "Deploy to next Stage",
+				"icon": "$(live-share)",
+				"category": "Fabric.Deployment"
 			}
 		],
 		"menus": {
@@ -380,6 +392,11 @@
 				},
 				{
 					"command": "FabricStudio.DeploymentPipelines.refresh",
+					"when": "view == FabricStudioDeploymentPipelines",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.DeploymentPipelines.deploySelection",
 					"when": "view == FabricStudioDeploymentPipelines",
 					"group": "navigation"
 				},
@@ -458,6 +475,11 @@
 				{
 					"command": "FabricStudio.Workspace.manageSourceControl",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.DeploymentPipelines.deployItem",
+					"when": "view == FabricStudioDeploymentPipelines && viewItem =~ /.*,DEPLOY,.*/",
 					"group": "navigation"
 				}
 

@@ -42,7 +42,7 @@ export abstract class ThisExtension {
 	static async initialize(context: vscode.ExtensionContext): Promise<boolean> {
 		try {
 			this._extension = context.extension;
-			this.Logger.log(`Loading VS Code extension '${context.extension.packageJSON.itemName}' (${context.extension.id}) version ${context.extension.packageJSON.version} ...`);
+			this.Logger.log(`Loading VS Code extension '${context.extension.packageJSON.displayName}' (${context.extension.id}) version ${context.extension.packageJSON.version} ...`);
 			this.Logger.log(`If you experience issues please open a ticket at ${context.extension.packageJSON.qna}`);
 			this._context = context;
 

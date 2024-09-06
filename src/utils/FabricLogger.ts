@@ -14,7 +14,7 @@ export class FabricLogger {
 
 		context.subscriptions.push(this._logger);
 
-		this.log(`Logger ${loggerName} initialized!`);
+		this.log(`Logger '${loggerName}' initialized!`);
 	}
 
 	public log(text: string, newLine: boolean = true, logLevel: vscode.LogLevel = vscode.LogLevel.Info): void {
