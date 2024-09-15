@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "0.9.6",
+	"version": "0.9.7",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -318,6 +318,12 @@
 				"category": "FabricStudio.Lakehouse"
 			},
 			{
+				"command": "FabricStudio.GrapqhQLApi.copyEndpoint",
+				"title": "Copy GraphQL Endpoint",
+				"icon": "$(graph-scatter)",
+				"category": "FabricStudio.GrapqhQLApi"
+			},
+			{
 				"command": "FabricStudio.Item.browseInOneLake",
 				"title": "Browse in OneLake",
 				"icon": "$(link-external)",
@@ -473,6 +479,11 @@
 					"group": "navigation"
 				},
 				{
+					"command": "FabricStudio.GrapqhQLApi.copyEndpoint",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_GRAPHQLAPI_ENDPOINT,.*/",
+					"group": "navigation"
+				},				
+				{
 					"command": "FabricStudio.Workspace.manageSourceControl",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACE,.*/",
 					"group": "navigation"
@@ -600,6 +611,16 @@
 		"languages": [
 			{
 				"id": "fabric-api",
+				"extensions": [
+					".fabnb"
+				],
+				"icon": {
+					"light": "./resources/icons/notebook.png",
+					"dark": "./resources/icons/notebook.png"
+				}
+			},
+			{
+				"id": "graphql",
 				"extensions": [
 					".fabnb"
 				],

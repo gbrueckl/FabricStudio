@@ -154,6 +154,10 @@ export abstract class FabricApiService {
 		return this._apiBaseUrl.replace("api.", "app.");
 	}
 
+	public static get ApiBaseUrl(): string {
+		return this._apiBaseUrl;
+	}
+
 	public static getHeaders(): HeadersInit {
 		return this._headers;
 	}

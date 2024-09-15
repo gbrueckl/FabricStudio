@@ -20,7 +20,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 	readonly notebookType: string = 'fabric-notebook';
 	readonly label: string;
-	readonly supportedLanguages = ["fabric-api"]; // any for now, should be DAX, M, ... in the future
+	readonly supportedLanguages = ["fabric-api", "graphql"]; // any for now, should be DAX, M, ... in the future
 	readonly supportsExecutionOrder: boolean = true;
 
 	private _controller: vscode.NotebookController;

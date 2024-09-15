@@ -33,6 +33,8 @@ export type FabricApiItemType =
 	| "Environments"						//	Folder for Environment item.
 	| "LakehouseTable"						//	Lakehouse Table
 	| "LakehouseTables"						//	Folder for Lakehouse Table item.
+	| "GraphQLApi"							//	GraphQL API item.
+	| "GraphQLApis"							//	Folder for GraphQL API items.
 	| "DataPipelines"						//	Folder for DataPipeline item.
 	| "DeploymentPipelineStage"				//	A Deployment pipleine stage
 	| "DeploymentPipelineStages"			//	Folder for Deployment pipleine stages.

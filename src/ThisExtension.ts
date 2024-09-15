@@ -229,15 +229,19 @@ export abstract class ThisExtension {
 	static async browseInOneLake(treeItem: FabricWorkspaceTreeItem): Promise<void> {
 		const databricksExtension: vscode.Extension<any> = vscode.extensions.getExtension("GerhardBrueckl.onelake-vscode");
 		if (!databricksExtension) {
-			vscode.window.showErrorMessage("Please install the OneLake VSCode extension ('GerhardBrueckl.onelake-vscode') first!");
-			// TODO
-			/*
-			You can trigger the installation using the workbench.extensions.installExtension command (see https://code.visualstudio.com/api/references/commands).
-			*/
+			let result = await vscode.window.showErrorMessage("Please install the OneLake VSCode extension ('GerhardBrueckl.onelake-vscode') first!", "Install OneLake Extension");
+			
+			if(result === "Install OneLake Extension") {
+				vscode.commands.executeCommand("workbench.extensions.installExtension", "GerhardBrueckl.onelake-vscode");
+			}
 			return;
 		}
-
-		Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true);
+		if (treeItem.oneLakeUri) {
+			Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true);
+		}
+		else {
+			vscode.window.showErrorMessage("Item/Folder cannot be browsed in OneLake!");
+		}
 	}
 }
 

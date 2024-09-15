@@ -1,7 +1,11 @@
 # Change Log
 
+**v0.9.7**:
+- added support for [GraphQL API](https://learn.microsoft.com/en-us/fabric/data-engineering/api-graphql-overview) queries in notebooks
+- improved integration with [OneLake Extension](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.onelake-vscode)
+
 **v0.9.6**:
-- added option to trigger a deployment
+- added support for [Deployment Pipelines](https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/intro-to-deployment-pipelines?tabs=new)
 - added proper sorting for items
 - minor fixes
 
@@ -17,7 +21,7 @@
 - many more bug fixes and minor improvements!
 
 **v0.9.0**:
-- migrated Fabric specific code from [Power BI VSCode extension](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
+- migrated Fabric specific code from [Power BI VSCode extension](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.powerbi-vscode)
 - added Fabric Workspace Browser
   - browse all existing Fabric items
   - added `Open in Fabric` for `fabric:/` scheme

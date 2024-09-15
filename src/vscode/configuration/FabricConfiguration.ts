@@ -146,7 +146,8 @@ export abstract class FabricConfiguration {
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
 
 	static get resourceId(): string { 
-		return "https://api.fabric.microsoft.com";
+		return "https://analysis.windows.net/powerbi/api"
+		//return "https://api.fabric.microsoft.com";
 		return CLOUD_CONFIGS[this.cloud].resourceId; 
 		}
 
