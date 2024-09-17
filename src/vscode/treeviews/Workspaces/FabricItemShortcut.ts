@@ -15,7 +15,7 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 	) {
 		super(definition.name, definition.name, "ItemShortcut", parent, definition, undefined, vscode.TreeItemCollapsibleState.None);
 
-		this.id = parent.parent.itemId + "/" + definition.name,
+		this.id = parent.id + "/" + definition.name,
 
 			this.tooltip = this.getToolTip(this.itemDefinition);
 		this.description = this._description;
@@ -59,8 +59,6 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 	get target(): object {
 		return this.itemDefinition.target;
 	}
-
-	
 
 	get oneLakeUri(): vscode.Uri {
 		// onelake:/<WorkspaceName>/<ItemName>.<ItemType>

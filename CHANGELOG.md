@@ -1,5 +1,10 @@
 # Change Log
 
+**v0.9.8**:
+- added support for [Item Data Access Roles](https://learn.microsoft.com/en-us/rest/api/fabric/core/onelake-data-access-security/list-data-access-roles?tabs=HTTP)
+- added support for [Item Connections](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-item-connections?tabs=HTTP)
+- reworked [Item Shortcuts](https://learn.microsoft.com/en-us/rest/api/fabric/core/onelake-shortcuts/list-shortcuts?tabs=HTTP)
+
 **v0.9.7**:
 - added support for [GraphQL API](https://learn.microsoft.com/en-us/fabric/data-engineering/api-graphql-overview) queries in notebooks
 - improved integration with [OneLake Extension](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.onelake-vscode)

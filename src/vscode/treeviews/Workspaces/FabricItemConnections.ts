@@ -3,54 +3,50 @@ import * as vscode from 'vscode';
 import { UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { FabricApiItemType,  iFabricApiItemShortcut,  iFabricApiLakehouseTable } from '../../../fabric/_types';
+import { iFabricApiItemConnection, iFabricApiItemShortcut } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
-import { FabricLakehouseTable } from './FabricLakehouseTable';
-import { FabricWorkspace } from './FabricWorkspace';
-import { FabricLakehouse } from './FabricLakehouse';
 import { FabricItemShortcut } from './FabricItemShortcut';
+import { FabricItemConnection } from './FabricItemConnection';
 import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricItemShortcuts extends FabricWorkspaceGenericFolder {
+export class FabricItemConnections extends FabricWorkspaceGenericFolder {
 	constructor(
 		parent: FabricItem
 	) {
-		super(`${parent.id}/Shortcuts`, "Shortcuts", "ItemShortcuts", parent, "shortcuts");
-	}
-
-	/* Overwritten properties from FabricApiTreeItem */
-	get _contextValue(): string {
-		let orig: string = super._contextValue;
-
-		let actions: string[] = ["BROWSE_IN_ONELAKE"];
-
-		return orig + actions.join(",") + ",";
+		super(`${parent.id}/Connections`, "Connections", "ItemConnections", parent, "connections");
 	}
 
 	get parent(): FabricItem {
 		return this._parent as FabricItem;
 	}
 
+	/* Overwritten properties from FabricApiTreeItem */
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
-			let children: FabricItemShortcut[] = [];
+			let children: FabricWorkspaceTreeItem[] = [];
+
+			if(this._children) {
+				children = this._children;
+				this._children = undefined;
+				return children;
+			}
 
 			try {
-				const items = await FabricApiService.getList<iFabricApiItemShortcut>(this.apiPath, undefined, undefined, "name");
+				const items = await FabricApiService.getList<iFabricApiItemConnection>(this.apiPath);
 
 				for (let item of items.success) {
-					let treeItem = new FabricItemShortcut(item, this);
+					let treeItem = new FabricItemConnection(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.parent.itemName);
+				ThisExtension.Logger.logInfo("Could not load connections for item " + this.parent.itemName);
 			}
 
 			return children;

@@ -4,16 +4,17 @@ import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricApiItemType, iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
+import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricEnvironment extends FabricWorkspaceTreeItem {
+export class FabricEnvironment extends FabricItem {
 	private _properties: iFabricApiLakehouseProperties;
 
 	constructor(
 		definition: iFabricApiItem,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.displayName, "Environment", parent, definition, definition.description);
+		super(definition, parent);
 
 		this.contextValue = this._contextValue;
 	}

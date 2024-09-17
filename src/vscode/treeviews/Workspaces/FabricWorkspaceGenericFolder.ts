@@ -8,8 +8,8 @@ import { FabricApiItemType } from '../../../fabric/_types';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
-	private _customApiUrlPart: string;
-	private _children: FabricWorkspaceTreeItem[];
+	protected _customApiUrlPart: string;
+	protected _children: FabricWorkspaceTreeItem[];
 
 	constructor(
 		id: string,

@@ -26,6 +26,7 @@ export type FabricApiItemType =
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
+
 	| "Capacity"
 	| "Dataflow"
 	| "Workspace"
@@ -38,8 +39,13 @@ export type FabricApiItemType =
 	| "DataPipelines"						//	Folder for DataPipeline item.
 	| "DeploymentPipelineStage"				//	A Deployment pipleine stage
 	| "DeploymentPipelineStages"			//	Folder for Deployment pipleine stages.
+	| "GenericItem"
 	| "ItemShortcuts"						//	Folder for item shortcuts.
-	| "ItemShortcut"						//	Folder for items.
+	| "ItemShortcut"						//	An Item shortcut.
+	| "ItemConnections"						//	Folder for item connections.
+	| "ItemConnection" 						//	An Item connection.
+	| "ItemDataAccessRoles"					//	Folder for item data access roles.	
+	| "ItemDataAccessRole"					//	An Item data access role.
 	;
 
 export type FabricApiItemTypeWithDefinition =
@@ -55,7 +61,15 @@ export enum FabricApiWorkspaceType {
 	, "Workspace"		// A collaborative workspace
 };
 
-
+export enum FabricApiItemConnectionType {
+	"Automatic" 				//The connection connects through the cloud using an implicit data connection. This option is only available for specific scenarios like semantic models that use Single Sign-On (SSO).”
+	, "None" 					//The connection is not bound
+	, "OnPremisesGateway" 		// The connection connects through an on-premises data gateway.
+	, "OnPremisesGatewayPersonal" // The connection connects through a personal on-premises data gateway.
+	, "PersonalCloud" 			// 	The connection connects through the cloud and cannot be shared with others.
+	, "ShareableCloud" 			// The connection connects through the cloud and can be shared with others.
+	, "VirtualNetworkGateway" 	//	The connection connects through a virtual network data gateway.
+};
 
 export enum FabricApiItemFormat {
 	DEFAULT = "DEFAULT"
@@ -208,4 +222,27 @@ export interface iFabricApiItemShortcut {
 	path: string; // The path of the shortcut.
 	name: string; // The name of the shortcut.
 	target: object; // The target of the shortcut.
+}
+
+export interface iFabricApiItemConnection {
+	connectionDetails: {
+		path: string; // The connection path.
+		type: string; // The connection type.
+	}; // The connection details of the connection.	
+	connectivityType: FabricApiItemConnectionType; // The connectivity type of the connection.	
+	displayName: string; // The display name of the connection. Maximum length is 200 characters.
+	gatewayId: string; // The gateway object ID of the connection.	
+	id: string; // The object ID of the connection.
+}
+
+export interface iFabricApiItemDataAccessRole {
+	id: string; // The unique id for the Data access role.
+	name: string; // The name of the Data access role.
+	decisionRules: any[]; // The array of permissions that make up the Data access role.	
+
+	members: {
+		fabricItemMembers: any[]; // The array of role ids that are members of the Data access role.	
+		microsoftEntraMembers: any[]; // The array of user ids that are members of the Data access role.	
+	}; // The members object which contains the members of the role as arrays of different member types.
+
 }

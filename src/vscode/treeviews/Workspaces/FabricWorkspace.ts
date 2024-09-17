@@ -16,6 +16,7 @@ import { FabricEnvironments } from './FabricEnvironments';
 import { FabricEnvironment } from './FabricEnvironment';
 import { FabricGraphQLApis } from './FabricGraphQLApis';
 import { FabricGraphQLApi } from './FabricGraphQLApi';
+import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -67,7 +68,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		else {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath + "items");
-				let itemToAdd: FabricWorkspaceTreeItem;
+				let itemToAdd: FabricItem;
 				for (let item of items.success) {
 					if (!itemTypes.has(item.type)) {
 						if (item.type == "Lakehouse") {
@@ -106,7 +107,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						itemToAdd = new FabricGraphQLApi(item, this);
 					}
 					else {
-						itemToAdd = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type as FabricApiItemType, itemTypes.get(item.type), item, item.description, vscode.TreeItemCollapsibleState.None);
+						itemToAdd = new FabricItem(item, this);
 					}
 					itemTypes.get(item.type).addChild(itemToAdd);
 				}

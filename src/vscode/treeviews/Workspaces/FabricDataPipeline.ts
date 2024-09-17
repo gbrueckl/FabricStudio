@@ -3,16 +3,17 @@ import * as vscode from 'vscode';
 import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricApiItemType, iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
+import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricDataPipeline extends FabricWorkspaceTreeItem {
+export class FabricDataPipeline extends FabricItem {
 	private _properties: iFabricApiLakehouseProperties;
 
 	constructor(
 		definition: iFabricApiItem,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.displayName, "DataPipeline", parent, definition, definition.description, vscode.TreeItemCollapsibleState.None);
+		super(definition, parent);
 
 		this.contextValue = this._contextValue;
 	}

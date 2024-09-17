@@ -14,7 +14,7 @@ export class FabricLakehouseTable extends FabricWorkspaceTreeItem {
 	) {
 		super(definition.name, definition.name, "LakehouseTable", parent, definition, undefined, vscode.TreeItemCollapsibleState.None);
 
-		this.id = parent.parent.itemId + "/" + definition.name,
+		this.id = parent.id + "/" + definition.name,
 
 			this.tooltip = this.getToolTip(this.itemDefinition);
 		this.description = this._description;

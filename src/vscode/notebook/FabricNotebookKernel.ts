@@ -241,13 +241,11 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 					let body = undefined;
 					if (bodyString) {
+						// for parsing GraphQL queries with Newline/Linebreak: https://stackoverflow.com/questions/42068/how-do-i-handle-newlines-in-json
 						body = JSON.parse(bodyString);
 					}
 
 					endpoint = this.resolveRelativePath(endpoint, customApi);
-
-					const useFabricApi = endpoint.includes("api.fabric.microsoft.com") || endpoint.includes("/workspaces/");
-					let fabricResult: iFabricApiResponse<any>;
 
 					switch (method) {
 						case "GET":

@@ -7,16 +7,17 @@ import { FabricLakehouseTables } from './FabricLakehouseTables';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
+import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricLakehouse extends FabricWorkspaceTreeItem {
+export class FabricLakehouse extends FabricItem {
 	private _properties: iFabricApiLakehouseProperties;
 
 	constructor(
 		definition: iFabricApiItem,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.displayName, "Lakehouse", parent, definition, definition.description);
+		super(definition, parent);
 
 		this.contextValue = this._contextValue;
 	}
@@ -39,15 +40,9 @@ export class FabricLakehouse extends FabricWorkspaceTreeItem {
 
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		let children: FabricWorkspaceTreeItem[] = [];
+		let children: FabricWorkspaceTreeItem[] = await super.getChildren();
 
 		children.push(new FabricLakehouseTables(this));
-
-		let shortcuts = new FabricItemShortcuts(this);
-		const shortcutsChildren = await shortcuts.getChildren();
-		if (shortcutsChildren.length > 0) {
-			children.push(shortcuts);
-		}
 
 		return children;
 	}

@@ -3,14 +3,15 @@ import * as vscode from 'vscode';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricGraphQLApi extends FabricWorkspaceTreeItem {
+export class FabricGraphQLApi extends FabricItem {
 	constructor(
 		definition: iFabricApiItem,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.displayName, "GraphQLApi", parent, definition, definition.description, vscode.TreeItemCollapsibleState.None);
+		super(definition, parent);
 
 		this.contextValue = this._contextValue;
 	}
