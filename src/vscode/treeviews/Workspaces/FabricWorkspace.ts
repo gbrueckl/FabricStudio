@@ -5,7 +5,7 @@ import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricLakehouses } from './FabricLakehouses';
-import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricApiItem, iFabricApiWorkspace } from '../../../fabric/_types';
+import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricApiItem, iFabricApiWorkspace, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricDataPipelines } from './FabricDataPipelines';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
@@ -17,6 +17,7 @@ import { FabricEnvironment } from './FabricEnvironment';
 import { FabricGraphQLApis } from './FabricGraphQLApis';
 import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricItem } from './FabricItem';
+import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -51,7 +52,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	protected getIconPath(): string | vscode.Uri {
-		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'workspace.svg');
+		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'workspace.svg');
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
@@ -113,6 +114,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				}
 
 				children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+				let roleAssignments: FabricWorkspaceRoleAssignments = new FabricWorkspaceRoleAssignments(this);
+
+				children.push(roleAssignments);
 			}
 			catch (e) {
 				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);

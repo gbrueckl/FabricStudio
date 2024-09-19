@@ -1,5 +1,8 @@
 # Change Log
 
+**v0.9.9**:
+- added [Workspace Role Assignments](https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/list-workspace-role-assignments?tabs=HTTP)
+
 **v0.9.8**:
 - added support for [Item Data Access Roles](https://learn.microsoft.com/en-us/rest/api/fabric/core/onelake-data-access-security/list-data-access-roles?tabs=HTTP)
 - added support for [Item Connections](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-item-connections?tabs=HTTP)

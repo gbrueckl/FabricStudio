@@ -37,7 +37,7 @@ The extension supports the following VSCode settings:
 # Workspace Browser
 ![WorkspaceBrowser](./images/WorkspaceBrowser.png?raw=true "WorkspaceBrowser")
 The workspace browser is usually the starting point for all activities. It allows you to browse through your Fabric workspaces, the individual items and sub-items and execute various action based on the current selection.
-As of now, not most items are read-only but actions will be added in the future and when the Fabric REST APIs support them! 
+As of now, not most items are read-only but actions will be added in the future and when the Fabric REST APIs support them!
 
 # Notebooks
 You can open a new Fabric notebook via the UI from the header of each treeview or by running the command **Open new Fabric Notebook** (command `FabricStudio.Item.openNewNotebook`). Fabric notebooks have the file extension `.fabnb` and will automatically open in the notebook editor.

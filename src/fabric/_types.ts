@@ -46,6 +46,8 @@ export type FabricApiItemType =
 	| "ItemConnection" 						//	An Item connection.
 	| "ItemDataAccessRoles"					//	Folder for item data access roles.	
 	| "ItemDataAccessRole"					//	An Item data access role.
+	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
+	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
 	;
 
 export type FabricApiItemTypeWithDefinition =
@@ -245,4 +247,26 @@ export interface iFabricApiItemDataAccessRole {
 		microsoftEntraMembers: any[]; // The array of user ids that are members of the Data access role.	
 	}; // The members object which contains the members of the role as arrays of different member types.
 
+}
+
+export interface iFabricApiWorkspaceRoleAssignment {
+	id: string; // The unique id for the role assignment.
+	principal: {
+		displayName: string; // The principal's display name.
+		id: string; // The principal's ID.
+		type: "User" | "Group" | "ServicePrincipal" | "ServicePrincipalProfile"; // The type of the principal. Additional principal types may be added over time.
+		servicePrincipalDetails: {
+			aadAppId: string; // The service principal ID of the principal.
+		}; // Service principal specific details. Applicable when the principal type is ServicePrincipal.
+		servicePrincipalProfileDetails: {
+			parentPrincipal: object; // The service principal profile ID of the principal.
+		}; // Service principal profile details. Applicable when the principal type is ServicePrincipalProfile.
+		userDetails: {
+			userPrincipalName: string; // The user principal name of the principal.
+		}; // The user details of the principal.
+		groupDetails: {
+			groupType: string
+		};
+	}; // The principal object which contains the principal details.
+	role: string; // The role of the role assignment.
 }

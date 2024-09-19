@@ -225,7 +225,7 @@ export abstract class FabricApiService {
 			let response: Response = await fetch(endpoint, requestConfig);
 
 			if (config.raw) {
-				return {"success": response as TSuccess};
+				return { "success": response as TSuccess };
 			}
 			let resultText = await response.text();
 			this.logResponse(resultText);
@@ -283,7 +283,9 @@ export abstract class FabricApiService {
 		}
 		while (endpoint)
 
-		Helper.sortArrayByProperty(ret, listSortProperty);
+		if (listSortProperty) {
+			Helper.sortArrayByProperty(ret, listSortProperty);
+		}
 
 		return { "success": ret };
 	}
