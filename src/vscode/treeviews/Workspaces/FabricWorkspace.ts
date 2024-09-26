@@ -18,6 +18,7 @@ import { FabricGraphQLApis } from './FabricGraphQLApis';
 import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricItem } from './FabricItem';
 import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -56,7 +57,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		let children: FabricWorkspaceGenericFolder[] = [];
+		let children: FabricWorkspaceTreeItem[] = [];
 		let treeItem: FabricWorkspaceGenericFolder;
 		let itemTypes: Map<FabricApiItemType, FabricWorkspaceGenericFolder> = new Map<FabricApiItemType, FabricWorkspaceGenericFolder>();
 
@@ -118,6 +119,8 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				let roleAssignments: FabricWorkspaceRoleAssignments = new FabricWorkspaceRoleAssignments(this);
 
 				children.push(roleAssignments);
+
+				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
 			}
 			catch (e) {
 				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);

@@ -41,7 +41,8 @@
 		"Fabric",
 		"FabricStudio",
 		"REST",
-		"API"
+		"API",
+		"PowerBI"
 	],
 	"activationEvents": [
 		"onNotebook:fabric-notebook",
@@ -270,6 +271,12 @@
 				"category": "FabricStudio"
 			},
 			{
+				"command": "FabricStudio.Item.browseInOneLake",
+				"title": "Browse in OneLake",
+				"icon": "$(link-external)",
+				"category": "Fabric.Item"
+			},
+			{
 				"command": "FabricStudio.FS.publishToFabric",
 				"title": "Publish to Fabric",
 				"icon": "$(cloud-upload)",
@@ -324,12 +331,6 @@
 				"category": "FabricStudio.GrapqhQLApi"
 			},
 			{
-				"command": "FabricStudio.Item.browseInOneLake",
-				"title": "Browse in OneLake",
-				"icon": "$(link-external)",
-				"category": "Fabric.Item"
-			},
-			{
 				"command": "FabricStudio.GIT.refresh",
 				"title": "Refresh",
 				"icon": "$(refresh)",
@@ -382,6 +383,24 @@
 				"title": "Deploy to next Stage",
 				"icon": "$(live-share)",
 				"category": "Fabric.Deployment"
+			},
+			{
+				"command": "FabricStudio.Notebook.run",
+				"title": "Run Notebook",
+				"icon": "$(play)",
+				"category": "Fabric.Notebook"
+			},
+			{
+				"command": "FabricStudio.DataPipeline.run",
+				"title": "Run DataPipeline",
+				"icon": "$(play)",
+				"category": "Fabric.DataPipeline"
+			},
+			{
+				"command": "FabricStudio.SparkJob.run",
+				"title": "Run Spark Job",
+				"icon": "$(play)",
+				"category": "Fabric.SparkJob"
 			}
 		],
 		"menus": {
@@ -489,12 +508,27 @@
 					"group": "navigation"
 				},
 				{
+					"command": "FabricStudio.Notebook.run",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,NOTEBOOK,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.DataPipeline.run",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DATAPIPELINE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.SparkJob.run",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,SPARKJOBDEFINITION,.*/",
+					"group": "navigation"
+				},
+
+
+				{
 					"command": "FabricStudio.DeploymentPipelines.deployItem",
 					"when": "view == FabricStudioDeploymentPipelines && viewItem =~ /.*,DEPLOY,.*/",
 					"group": "navigation"
 				}
-
-				
 			],
 			"explorer/context": [
 				{
@@ -615,8 +649,8 @@
 					".fabnb"
 				],
 				"icon": {
-					"light": "./resources/icons/notebook.png",
-					"dark": "./resources/icons/notebook.png"
+					"light": "./resources/icons/fileIcons/fabric_notebook.png",
+					"dark": "./resources/icons/fileIcons/fabric_notebook.png"
 				}
 			},
 			{
@@ -625,8 +659,8 @@
 					".fabnb"
 				],
 				"icon": {
-					"light": "./resources/icons/notebook.png",
-					"dark": "./resources/icons/notebook.png"
+					"light": "./resources/icons/fileIcons/fabric_notebook.png",
+					"dark": "./resources/icons/fileIcons/fabric_notebook.png"
 				}
 			}
 		]

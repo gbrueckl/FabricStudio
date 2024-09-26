@@ -2,6 +2,8 @@
 
 **v0.9.9**:
 - added [Workspace Role Assignments](https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/list-workspace-role-assignments?tabs=HTTP)
+- added `Run` actions for notebooks, data pipelines and Spark Jobs.
+- added viewer for Workspace Spark Settings
 
 **v0.9.8**:
 - added support for [Item Data Access Roles](https://learn.microsoft.com/en-us/rest/api/fabric/core/onelake-data-access-security/list-data-access-roles?tabs=HTTP)

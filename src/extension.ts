@@ -24,6 +24,10 @@ import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipel
 import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
 import { FabricWorkspaceGenericViewer } from './vscode/treeviews/Workspaces/FabricWorkspaceGenericViewer';
 import { FabricGraphQLApi } from './vscode/treeviews/Workspaces/FabricGraphQLApi';
+import { FabricNotebook } from './vscode/treeviews/Workspaces/FabricNotebook';
+import { FabricItem } from './vscode/treeviews/Workspaces/FabricItem';
+import { FabricDataPipeline } from './vscode/treeviews/Workspaces/FabricDataPipeline';
+import { FabricSparkJob } from './vscode/treeviews/Workspaces/FabricSparkJob';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -119,6 +123,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
 
 	vscode.commands.registerCommand('FabricStudio.GrapqhQLApi.copyEndpoint', (graphQlApi: FabricGraphQLApi) => graphQlApi.copyGraphQLEndpoint());
+	
+	vscode.commands.registerCommand('FabricStudio.Notebook.run', (notebook: FabricItem) => FabricNotebook.runNotebook(notebook));
+
+	vscode.commands.registerCommand('FabricStudio.SparkJob.run', (sparkJob: FabricItem) => FabricSparkJob.runSparkJob(sparkJob));
+	
+	vscode.commands.registerCommand('FabricStudio.DataPipeline.run', (dataPipeline: FabricDataPipeline) => dataPipeline.runPipeline());
+	
 	//#endregion
 
 

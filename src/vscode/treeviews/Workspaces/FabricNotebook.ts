@@ -2,14 +2,12 @@ import * as vscode from 'vscode';
 
 import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
+import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricDataPipeline extends FabricItem {
-	private _properties: iFabricApiLakehouseProperties;
-
+export class FabricNotebook extends FabricItem {
 	constructor(
 		definition: iFabricApiItem,
 		parent: FabricWorkspaceTreeItem
@@ -30,10 +28,10 @@ export class FabricDataPipeline extends FabricItem {
 		return orig + actions.join(",") + ",";
 	}
 
-	async runPipeline(): Promise<void> {
-		// https://learn.microsoft.com/en-us/fabric/data-factory/pipeline-rest-api#run-on-demand-item-job
-		
-		const endpoint = this.itemApiPath + "jobs/instances?jobType=Pipeline";
+	static async runNotebook(notebook: FabricItem): Promise<void> {
+		// https://learn.microsoft.com/en-us/fabric/data-engineering/notebook-public-api#run-a-notebook-on-demand
+
+		const endpoint = notebook.itemApiPath + "jobs/instances?jobType=RunNotebook";
 
 		const body = {
 			"executionData": {}
@@ -45,19 +43,7 @@ export class FabricDataPipeline extends FabricItem {
 			vscode.window.showErrorMessage(response.error.message);
 		}
 		else {
-			Helper.showTemporaryInformationMessage(`Pipeline job started for '${this.itemName}'. (Tracking: GET ${response.success.url})`, 10000);
+			Helper.showTemporaryInformationMessage(`Notebook job started for '${notebook.itemName}'. (Tracking: GET ${response.success.url})`, 10000);
 		}
-		
-
-		/*
-		POST https://api.fabric.microsoft.com/v1/workspaces/<your WS Id>/items/<pipeline id>/jobs/instances?jobType=Pipeline
-		{ 
-			"executionData": { 
-				"parameters": {
-					"param_waitsec": 10" 
-				} 
-			} 
-		}
-		*/
 	}
 }

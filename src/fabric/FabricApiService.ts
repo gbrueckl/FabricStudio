@@ -376,14 +376,17 @@ export abstract class FabricApiService {
 						return await this.longRunningOperation<TSuccess>(response, 2000);
 					}
 					else {
+						this.Logger.logInfo("Long Running Operation started! Status available via GET " + response.headers.get("location"));
 						success = ({ message: "Long Running Operation started!", url: response.headers.get("location") }) as TSuccess;
 					}
 				}
-				if (!resultText || resultText == "") {
-					success = { "status": response.status, "statusText": response.statusText } as TSuccess;
-				}
 				else {
-					success = JSON.parse(resultText) as TSuccess;
+					if (!resultText || resultText == "") {
+						success = { "status": response.status, "statusText": response.statusText } as TSuccess;
+					}
+					else {
+						success = JSON.parse(resultText) as TSuccess;
+					}
 				}
 			}
 			else {

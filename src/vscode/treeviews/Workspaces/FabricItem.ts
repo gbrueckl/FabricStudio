@@ -4,15 +4,12 @@ import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { FabricApiItemType, iFabricApiItem, iFabricApiItemConnection, iFabricApiItemShortcut } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
 
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricItemConnections } from './FabricItemConnections';
-import { FabricItemConnection } from './FabricItemConnection';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
-import { FabricItemShortcut } from './FabricItemShortcut';
-import { FabricItemDataAccessRoles } from './FabricItemDataAccessroles';
+import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -23,6 +20,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	) {
 		super(definition.id, definition.displayName, definition.type, parent, definition, definition.description);
 
+		this.collapsibleState = vscode.TreeItemCollapsibleState.None;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
 
@@ -39,7 +37,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	}
 
 	get itemApiPath(): string {
-		return Helper.joinPath(this.parent.parent.apiPath, "items", this.itemId);
+		return Helper.joinPath(this.parent.parent.apiPath, "items", this.itemId) + "/";
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {

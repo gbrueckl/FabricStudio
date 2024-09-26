@@ -37,6 +37,9 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 			actions.push("EDIT_DEFINITION");
 		}
 
+		// to dynamically show actions based on item type
+		actions.push(this.itemType.toUpperCase());
+
 		return orig + actions.join(",") + ",";
 	}
 
