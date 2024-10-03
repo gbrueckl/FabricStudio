@@ -62,6 +62,7 @@ export class FabricGitRepository implements vscode.Disposable {
 
 	private updateInputBoxPlaceholder() {
 		this.SCM.inputBox.placeholder = 'Message (press Ctrl+Enter to commit)';
+		this.SCM.inputBox.value = "";
 	}
 
 	static async getInstance(workspaceId: UniqueId): Promise<FabricGitRepository> {
@@ -190,7 +191,7 @@ export class FabricGitRepository implements vscode.Disposable {
 	}
 
 	public async discardChanges(...resourceStates: FabricGitResourceState[]): Promise<void> {
-
+		vscode.window.showErrorMessage("Undo is not yet supported by the Fabric APIs!")
 	}
 
 	public async commitStagedChanges(): Promise<void> {
@@ -221,17 +222,15 @@ export class FabricGitRepository implements vscode.Disposable {
 			ThisExtension.Logger.logError(response.error.message);
 			vscode.window.showErrorMessage(response.error.message);
 		}
+		else
+		{
+			this._stagedChanges.resourceStates = [];
+			this.updateInputBoxPlaceholder();
+		}
 
 		this.refresh();
-		this.updateInputBoxPlaceholder();
 	}
-
-
 	//#endregion
-
-
-
-
 
 	dispose() {
 		this.SCM.dispose();
