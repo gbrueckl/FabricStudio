@@ -74,6 +74,14 @@ export abstract class ThisExtension {
 		);
 	}
 
+	public static get TreeProviderIds(): TreeProviderId[] {
+		return [
+			"application/vnd.code.tree.fabricstudioworkspaces",
+			"application/vnd.code.tree.fabricstudiopipelines",
+			"application/vnd.code.tree.fabricstudiocapacities"
+		];
+	}
+
 	static get rootUri(): vscode.Uri {
 		return this.extensionContext.extensionUri;
 	}

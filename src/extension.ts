@@ -28,6 +28,7 @@ import { FabricNotebook } from './vscode/treeviews/Workspaces/FabricNotebook';
 import { FabricItem } from './vscode/treeviews/Workspaces/FabricItem';
 import { FabricDataPipeline } from './vscode/treeviews/Workspaces/FabricDataPipeline';
 import { FabricSparkJob } from './vscode/treeviews/Workspaces/FabricSparkJob';
+import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/FabricWorkspaceRoleAssignment';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -101,10 +102,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
 
 	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace = undefined) => item.manageSourceControl());
 
+	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.delete', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.delete());
+	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.update', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.update());
 
 	vscode.commands.registerCommand('FabricStudio.Item.openInFabric', (treeItem: FabricWorkspaceTreeItem) => treeItem.openInBrowser());
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyIdToClipboard());

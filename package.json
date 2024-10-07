@@ -195,6 +195,12 @@
 			},
 			{
 				"category": "FabricStudio",
+				"command": "FabricStudio.Workspaces.filter",
+				"title": "Filter Workspaces",
+				"icon": "$(filter)"
+			},
+			{
+				"category": "FabricStudio",
 				"command": "FabricStudio.Workspaces.editItems",
 				"title": "Edit Items",
 				"icon": "$(pencil)"
@@ -204,6 +210,18 @@
 				"command": "FabricStudio.Workspace.manageSourceControl",
 				"title": "Manage Source Control",
 				"icon": "$(source-control)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.WorkspaceRoleAssignment.delete",
+				"title": "Delete",
+				"icon": "$(close)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.WorkspaceRoleAssignment.update",
+				"title": "Update",
+				"icon": "$(pencil)"
 			},
 			{
 				"category": "FabricStudio",
@@ -411,6 +429,11 @@
 					"group": "navigation"
 				},
 				{
+					"command": "FabricStudio.Workspaces.filter",
+					"when": "view == FabricStudioWorkspaces",
+					"group": "navigation"
+				},
+				{
 					"command": "FabricStudio.Workspaces.editItems",
 					"when": "view == FabricStudioWorkspaces",
 					"group": "navigation"
@@ -501,10 +524,20 @@
 					"command": "FabricStudio.GrapqhQLApi.copyEndpoint",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_GRAPHQLAPI_ENDPOINT,.*/",
 					"group": "navigation"
-				},				
+				},
 				{
 					"command": "FabricStudio.Workspace.manageSourceControl",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.WorkspaceRoleAssignment.delete",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACEROLEASSIGNMENT,.*/ && viewItem =~ /.*,DELETE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.WorkspaceRoleAssignment.update",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACEROLEASSIGNMENT,.*/ && viewItem =~ /.*,UPDATE,.*/",
 					"group": "navigation"
 				},
 				{
@@ -522,8 +555,6 @@
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,SPARKJOBDEFINITION,.*/",
 					"group": "navigation"
 				},
-
-
 				{
 					"command": "FabricStudio.DeploymentPipelines.deployItem",
 					"when": "view == FabricStudioDeploymentPipelines && viewItem =~ /.*,DEPLOY,.*/",

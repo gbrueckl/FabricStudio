@@ -249,6 +249,13 @@ export interface iFabricApiItemDataAccessRole {
 
 }
 
+export enum iFabricApiWorkspaceRoleAssignmentRole { 
+	"Admin",	// Enables administrative access to the workspace.
+	"Contributor", // Enables contribution to the workspace.
+	"Member", // Enables membership access to the workspace.
+	"Viewer" // Enables viewing of the workspace.
+}
+
 export interface iFabricApiWorkspaceRoleAssignment {
 	id: string; // The unique id for the role assignment.
 	principal: {
@@ -268,5 +275,5 @@ export interface iFabricApiWorkspaceRoleAssignment {
 			groupType: string
 		};
 	}; // The principal object which contains the principal details.
-	role: string; // The role of the role assignment.
+	role: iFabricApiWorkspaceRoleAssignmentRole; // The role of the role assignment.
 }

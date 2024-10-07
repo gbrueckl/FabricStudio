@@ -10,6 +10,7 @@ import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { FabricPipeline } from './FabricPipeline';
 import { iFabricApiPipelineDeployableItem } from './iFabricPipelineDeployableItem';
 import { FabricPipelineStage } from './FabricPipelineStage';
+import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<FabricPipelineTreeItem> {
@@ -23,7 +24,8 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 		const view = vscode.window.createTreeView<FabricPipelineTreeItem>('FabricStudioDeploymentPipelines', {
 			treeDataProvider: this,
 			showCollapseAll: true,
-			canSelectMany: true
+			canSelectMany: true,
+			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
 		context.subscriptions.push(view);

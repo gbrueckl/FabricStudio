@@ -44,4 +44,30 @@ export class FabricWorkspaceRoleAssignments extends FabricWorkspaceGenericFolder
 			return children;
 		}
 	}
+
+	// 
+	async addRoleAssignment(identity: iFabricApiWorkspaceRoleAssignment, showInfoMessage: boolean = true): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/add-workspace-role-assignment?tabs=HTTP
+		/*
+POST https://api.fabric.microsoft.com/v1/workspaces/cfafbeb1-8037-4d0c-896e-a46fb27ff512/roleAssignments
+{
+	"principal": {
+		"id": "8eedb1b0-3af8-4b17-8e7e-663e61e12211",
+		"type": "User"
+	},
+	"role": "Member"
+	}
+*/
+
+		const response = await FabricApiService.post(this.apiPath, identity, { "raw": false, "awaitLongRunningOperation": false });
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			if (showInfoMessage) {
+				Helper.showTemporaryInformationMessage(`Adding Role-Assignment for identity '${identity.principal.displayName}'`, 3000);
+			}
+		}
+	}
 }

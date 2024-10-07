@@ -9,6 +9,7 @@ import { iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
+import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<FabricWorkspaceTreeItem> {
@@ -22,8 +23,8 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		const view = vscode.window.createTreeView<FabricWorkspaceTreeItem>('FabricStudioWorkspaces', {
 			treeDataProvider: this,
 			showCollapseAll: true,
-			canSelectMany: false
-			//, dragAndDropController: new PowerBIApiDragAndDropController()
+			canSelectMany: false,
+			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
 		context.subscriptions.push(view);
@@ -107,4 +108,23 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 	// async newNotebook(workspaceItem: FabricWorkspaceTreeItem): Promise<void> {
 	// 	PowerBINotebookSerializer.openNewNotebook(workspaceItem);
 	// }
+
+	async filter(): Promise<void> {
+		const currentFilter = FabricConfiguration.workspaceFilter;
+
+		const filter = await vscode.window.showInputBox({
+			title: "Filter Workspaces",
+			prompt: "Enter a filter to apply to the workspaces. Regular Expressions (RegEx) are supported. Leave empty to clear the filter.",
+			placeHolder: "Enter a filter to apply to the workspaces",
+			value: currentFilter
+		});
+
+		if (filter === undefined) {
+			return;
+		}
+
+		FabricConfiguration.workspaceFilter = filter;
+
+		this.refresh(null, true);
+	}
 }

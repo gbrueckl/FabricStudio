@@ -5,6 +5,7 @@
 
 import * as vscode from 'vscode';
 import { ThisExtension } from './../ThisExtension';
+import { FabricQuickPickItem } from '../vscode/input/FabricQuickPickItem';
 
 export type UniqueId = string;
 
@@ -320,5 +321,20 @@ export abstract class Helper {
 		const offset = new Date().getTimezoneOffset() * 60 * 1000;
 		let localDateTime = new Date(dateTime.getTime() - offset);
 		return localDateTime;
+	}
+
+	static getEnumValues(type: any): string[] {
+		const textValues = Object.keys(type).filter(key => isNaN(Number(key)));
+		return textValues;
+	}
+
+	static getQuickPicksFromEnum(type: any, current: any = undefined): vscode.QuickPickItem[] {
+		const textValues = this.getEnumValues(type)
+		return textValues.map((x) => {
+			let item = new FabricQuickPickItem(x);
+			if (current && current == x) { item.picked = true; }
+
+			return item;
+		});
 	}
 }
