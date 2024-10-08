@@ -87,6 +87,12 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		if (!this._children) {
 			if (!this._apiResponse) {
 				const response = await FabricApiService.getItemDefinitionParts(this.FabricUri.workspaceId, this.FabricUri.itemId, this.format);
+				
+				if(response.error) {
+					ThisExtension.Logger.logError(response.error.message);
+					vscode.window.showErrorMessage(response.error.message);
+					return
+				}
 				this._apiResponse = response.success;
 			}
 			this._children = [];
