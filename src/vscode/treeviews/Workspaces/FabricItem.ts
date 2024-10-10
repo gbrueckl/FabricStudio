@@ -42,7 +42,6 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceGenericFolder[] = [];
-		let itemTypes: Map<FabricApiItemType, FabricWorkspaceGenericFolder> = new Map<FabricApiItemType, FabricWorkspaceGenericFolder>();
 
 		if (element != null && element != undefined) {
 			return element.getChildren();

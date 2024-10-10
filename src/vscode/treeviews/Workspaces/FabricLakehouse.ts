@@ -19,6 +19,7 @@ export class FabricLakehouse extends FabricItem {
 	) {
 		super(definition, parent);
 
+		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 		this.contextValue = this._contextValue;
 	}
 

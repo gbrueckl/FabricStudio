@@ -26,7 +26,7 @@ export class FabricLogger {
 			return;
 		}
 
-		this._logger.append(`${vscode.LogLevel[logLevel].toUpperCase().substring(0, 4)}\t${text}`);
+		this._logger.appendLine(`${vscode.LogLevel[logLevel].toUpperCase().substring(0, 4)}\t${text}`);
 	}
 
 	public logTrace(text: string): void {

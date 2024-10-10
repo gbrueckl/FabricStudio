@@ -10,6 +10,7 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	protected _customApiUrlPart: string;
+	protected _defaultChildCollapsibleState: vscode.TreeItemCollapsibleState;
 	protected _children: FabricWorkspaceTreeItem[];
 
 	constructor(
@@ -17,12 +18,14 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		name: string,
 		type: FabricApiItemType,
 		parent: FabricWorkspaceTreeItem,
-		apiUrlPart: string = undefined
-
+		apiUrlPart: string = undefined,
+		defaultChildCollapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
 	) {
 		super(id, name, type, parent, undefined, undefined);
 
 		this._customApiUrlPart = apiUrlPart;
+		this._defaultChildCollapsibleState = defaultChildCollapsibleState;
+
 		// the workspaceId is not unique for logical folders hence we make it unique
 		this.id = this.workspaceId + "/" + parent.itemId + "/" + this.itemType.toString();
 		this.iconPath = this.getIconPath();
@@ -61,6 +64,14 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		this._children.push(value);
 	}
 
+	get defaultChildCollapsibleState(): vscode.TreeItemCollapsibleState {
+		return this._defaultChildCollapsibleState;
+	}
+
+	set defaultChildCollapsibleState(value: vscode.TreeItemCollapsibleState) {
+		this._defaultChildCollapsibleState = value;
+	}
+
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceTreeItem[] = [];
 		if (this._children) {
@@ -73,7 +84,7 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
 
 				for (let item of items.success) {
-					let treeItem = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type, this, item, item.description, vscode.TreeItemCollapsibleState.None);
+					let treeItem = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type, this, item, item.description, this._defaultChildCollapsibleState);
 					children.push(treeItem);
 				}
 			}

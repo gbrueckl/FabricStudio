@@ -19,6 +19,8 @@ import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricItem } from './FabricItem';
 import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
+import { FabricNotebooks } from './FabricNotebooks';
+import { FabricNotebook } from './FabricNotebook';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -65,8 +67,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		let treeItem: FabricWorkspaceGenericFolder;
 		let itemTypes: Map<FabricApiItemType, FabricWorkspaceGenericFolder> = new Map<FabricApiItemType, FabricWorkspaceGenericFolder>();
 
-		// children.push(new FabricDataPipelines(this));
-		// children.push(new FabricLakehouses(this));
+		const EXPANDABLE_ITEMS = ["SemanticModel"];
 
 		if (element != null && element != undefined) {
 			return element.getChildren();
@@ -89,6 +90,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						else if (item.type == "GraphQLApi") {
 							treeItem = new FabricGraphQLApis(this);
 						}
+						else if (item.type == "Notebooks") {
+							treeItem = new FabricNotebooks(this);
+						}
 						else {
 							treeItem = new FabricWorkspaceGenericFolder(
 								this.itemId + "/" + item.type + "s",
@@ -96,6 +100,11 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 								item.type + "s" as FabricApiItemType,
 								this
 							);
+						}
+
+						// semantic models can be expanded
+						if (EXPANDABLE_ITEMS.includes(item.type)) {
+							treeItem.defaultChildCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 						}
 						itemTypes.set(item.type, treeItem);
 					}
@@ -112,8 +121,16 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 					else if (item.type == "GraphQLApi") {
 						itemToAdd = new FabricGraphQLApi(item, this);
 					}
+					else if (item.type == "Notebook") {
+						itemToAdd = new FabricNotebook(item, this);
+					}
 					else {
 						itemToAdd = new FabricItem(item, this);
+					}
+
+					// semantic models can be expanded
+					if (EXPANDABLE_ITEMS.includes(item.type)) {
+						itemToAdd.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 					}
 					itemTypes.get(item.type).addChild(itemToAdd);
 				}

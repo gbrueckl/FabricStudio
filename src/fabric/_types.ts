@@ -31,6 +31,7 @@ export type FabricApiItemType =
 	| "Dataflow"
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.
+	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
 	| "LakehouseTable"						//	Lakehouse Table
 	| "LakehouseTables"						//	Folder for Lakehouse Table item.
