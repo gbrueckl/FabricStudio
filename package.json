@@ -169,15 +169,7 @@
 				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:PowerBI.initialize)"
 			},
 			{
-				"view": "FabricStudioCapacities",
-				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:PowerBI.initialize)"
-			},
-			{
-				"view": "FabricStudioGateways",
-				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:PowerBI.initialize)"
-			},
-			{
-				"view": "FabricStudioPipelines",
+				"view": "FabricStudioDeploymentPipelines",
 				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:PowerBI.initialize)"
 			}
 		],
@@ -292,6 +284,12 @@
 				"command": "FabricStudio.Item.browseInOneLake",
 				"title": "Browse in OneLake",
 				"icon": "$(link-external)",
+				"category": "Fabric.Item"
+			},
+			{
+				"command": "FabricStudio.Item.delete",
+				"title": "Delete",
+				"icon": "$(close)",
 				"category": "Fabric.Item"
 			},
 			{
@@ -450,34 +448,34 @@
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/",
 					"group": "navigation"
 				}
 			],
 			"view/item/context": [
 				{
 					"command": "FabricStudio.Item.openInFabric",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
 					"group": "7_open"
 				},
 				{
 					"command": "FabricStudio.Item.copyIdToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_ID,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_ID,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyNameToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_NAME,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_NAME,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyPathToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_PATH,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_PATH,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyPropertiesToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
 					"group": "6_copypath"
 				},
 				{
@@ -487,13 +485,18 @@
 				},
 				{
 					"command": "FabricStudio.Item.insertPath",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioPipelines)|(FabricStudioGateways)|(FabricStudioCapacities)/ && viewItem =~ /.*,INSERT_PATH,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,INSERT_PATH,.*/",
 					"group": "inline"
 				},
 				{
 					"command": "FabricStudio.Item.browseInOneLake",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,BROWSE_IN_ONELAKE,.*/",
 					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Item.delete",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DELETE,.*/",
+					"group": "3_delete"
 				},
 				{
 					"command": "FabricStudio.Lakehouse.copySQLConnectionString",

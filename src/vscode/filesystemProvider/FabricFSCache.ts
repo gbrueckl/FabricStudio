@@ -96,6 +96,7 @@ export abstract class FabricFSCache {
 
 			if (item.publishAction != FabricFSPublishAction.CREATE) {
 				FabricFSCache.localItemModified(item.FabricUri);
+				item.publishAction = FabricFSPublishAction.MODIFIED;
 			}
 
 			return;

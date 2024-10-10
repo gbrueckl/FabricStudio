@@ -119,6 +119,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => ThisExtension.browseInOneLake(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.showDefintion', async (treeItem: FabricWorkspaceGenericViewer) => treeItem.showDefinition());
+	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricWorkspaceTreeItem) => treeItem.delete("yesNo"));
+
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLEndpoint', (treeItem: FabricLakehouse) => treeItem.copySQLEndpoint());

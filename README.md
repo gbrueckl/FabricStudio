@@ -113,6 +113,19 @@ EVALUATE ROW("MyVariable", $(My_Variable))
 
 **Note:** you can also set/get multiple variables within the same notebook cell!
 
+### Special _cells variable
+Another special variable is `_cells` which allows you to refernce the output of other cells. The full syntax is `_cells[<relativeCellIndex>]<XPathInResult>`. This variable can then be used like this:
+
+``` bash
+GET /groups
+------ CELL -------
+GET /groups/$(_cells[-1][2].id)/datasets
+```
+
+The first cell would return the list of all workspaces. The second cell gets the result of the previous cell (`[-1]`), and reads the `id` of the 3rd row (`[2].id`). This syntax can not only be used in the API path but anywhere in the cell, e.g. also in the body! To reference the whole output, you can also omi the `<XPathInResult>` and only use `_cells[<relativeCellIndex>]`.
+
+This approach can also be used to simply copy settings from one Power BI object to another by first running a `GET` on the source object and then a `POST`/`PUT`/`PATCH` on the target referencing the output of the preceding `GET`. Common scenarios would be to copy users/permissions or dataset refresh schedules but there are definitely much more use-cases!
+
 # Custom FileSystemProvider
 The extension also provides an easy way to interact with all items hosted in Microsoft Fabric. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) when working with VSCode.
 The easiest way to configure and use the custom FileSystemProvider is to right-click the item (or parent or workspace) in the Workspace Browser and select `Edit Defintion`:

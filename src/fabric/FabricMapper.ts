@@ -4,7 +4,8 @@ export abstract class FabricMapper {
 	private static _mappings: Map<RegExp, string> = new Map([
 		[/workspace/gmi, "group"], 
 		[/\/semanticmodel/gmi, "dataset"],
-		[/\/datapipelines/gmi, "pipelines"]
+		[/\/datapipelines/gmi, "pipelines"],
+		[/deploymentPipelines/gmi, "pipelines"]
 	]);
 	
 

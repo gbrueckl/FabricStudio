@@ -79,10 +79,25 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			"COPY_NAME",
 			"COPY_PATH",
 			"COPY_PROPERTIES",
-			"OPEN_IN_BROWSER",
 			"INSERT_CODE",
 		];
+		if(this.canOpenInBrowser) {
+			actions.push("OPEN_IN_BROWSER");
+		}
+		if(this.canDelete) {
+			actions.push("DELETE");
+		}
 		return `,${actions.join(',')},`;
+	}
+
+	// can be overwritten in derived classes to disable "Open in Fabric Server"
+	public get canOpenInBrowser(): boolean {
+		return true;
+	}
+	
+	// can be overwritten in derived classes to disable "Delete"
+	public get canDelete(): boolean {
+		return true;
 	}
 
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
@@ -225,42 +240,5 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	// API Drop
 	get apiDrop(): string {
 		return Helper.trimChar("/" + this.apiPath.split("/").slice(2).join("/"), "/", false);
-	}
-
-	public static async delete(apiItem: FabricApiTreeItem, confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
-		if (confirmation) {
-			let confirm: string;
-			switch (confirmation) {
-				case "yesNo":
-					confirm = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${apiItem.itemType.toLowerCase()} '${apiItem.itemName}'?`, undefined, undefined);
-					break;
-				case "name":
-					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${apiItem.itemType.toLowerCase()} name '${apiItem.itemName}' again.`, undefined, undefined);
-					break;
-			}
-
-			if (!confirm
-				|| (confirmation == "name" && confirm != apiItem.itemName)
-				|| (confirmation == "yesNo" && confirm != "yes")) {
-				const abortMsg = `Deletion of ${apiItem.itemType.toLowerCase()} '${apiItem.itemName}' aborted!`
-				ThisExtension.Logger.logWarning(abortMsg);
-				Helper.showTemporaryInformationMessage(abortMsg, 2000)
-				return;
-			}
-		}
-
-		const response = await FabricCommandBuilder.execute<any>(apiItem.apiPath, "DELETE", []);
-		if (response.error) {
-			const errorMsg = response.error.message;
-			vscode.window.showErrorMessage(errorMsg);
-		}
-		else {
-			const successMsg = `${apiItem.itemType.toLowerCase()} '${apiItem.itemName}' deleted!`
-			Helper.showTemporaryInformationMessage(successMsg, 2000);
-
-			if (apiItem.parent) {
-				ThisExtension.refreshTreeView(apiItem.TreeProvider, apiItem.parent);
-			}
-		}
 	}
 }

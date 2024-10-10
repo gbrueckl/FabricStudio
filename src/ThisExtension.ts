@@ -12,12 +12,12 @@ import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/Fabric
 import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
+import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
 
 
 export type TreeProviderId =
 	"application/vnd.code.tree.fabricstudioworkspaces"
-	| "application/vnd.code.tree.fabricstudiocapacities"
-	| "application/vnd.code.tree.fabricstudiopipelines"
+	| "application/vnd.code.tree.fabricstudiodeploymentpipelines"
 	;
 
 const LOGGER_NAME = "Fabric Studio"
@@ -72,14 +72,6 @@ export abstract class ThisExtension {
 			"Fabric.Core.isInBrowser",
 			this.isInBrowser
 		);
-	}
-
-	public static get TreeProviderIds(): TreeProviderId[] {
-		return [
-			"application/vnd.code.tree.fabricstudioworkspaces",
-			"application/vnd.code.tree.fabricstudiopipelines",
-			"application/vnd.code.tree.fabricstudiocapacities"
-		];
 	}
 
 	static get rootUri(): vscode.Uri {
@@ -151,6 +143,22 @@ export abstract class ThisExtension {
 	}
 
 	// #region TreeViews
+	public static get TreeProviderIds(): TreeProviderId[] {
+		return [
+			"application/vnd.code.tree.fabricstudioworkspaces",
+			"application/vnd.code.tree.fabricstudiodeploymentpipelines"
+		];
+	}
+
+	public static getTreeProvider(id: TreeProviderId): vscode.TreeDataProvider<FabricApiTreeItem> {
+		switch (id) {
+			case "application/vnd.code.tree.fabricstudioworkspaces":
+				return this.TreeViewWorkspaces;
+			case "application/vnd.code.tree.fabricstudiodeploymentpipelines":
+				return this.TreeViewPipelines;
+		}
+	}
+
 	static set TreeViewWorkspaces(treeView: FabricWorkspacesTreeProvider) {
 		this._treeviewWorkspaces = treeView;
 	}
@@ -208,22 +216,17 @@ export abstract class ThisExtension {
 		return ENVIRONMENT == "web";
 	}
 
-	static async refreshTreeView(id: string, item: FabricApiTreeItem = null,): Promise<void> {
-		throw new Error("Method not implemented.");
-		/*
+	static async refreshTreeView(id: TreeProviderId, item: FabricApiTreeItem = null): Promise<void> {
 		switch (id) {
-			case "application/vnd.code.tree.powerbiworkspaces":
-				await this.TreeViewWorkspaces.refresh(item as ApiTreeItem);
-			case "application/vnd.code.tree.powerbicapacities":
-				await this.TreeViewCapacities.refresh(item as ApiTreeItem);
-			case "application/vnd.code.tree.powerbigateways":
-				await this.TreeViewGateways.refresh(item as ApiTreeItem);
-			case "application/vnd.code.tree.powerbipipelines":
-				await this.TreeViewPipelines.refresh(item as ApiTreeItem);
-			case "application/vnd.code.tree.fabricworkspaces":
-				await this.TreeViewFabric.refresh(item as ApiTreeItem);
+			case "application/vnd.code.tree.fabricstudioworkspaces":
+				await this.TreeViewWorkspaces.refresh(item as FabricWorkspaceTreeItem);
+				break;
+			case "application/vnd.code.tree.fabricstudiodeploymentpipelines":
+				await this.TreeViewPipelines.refresh(item as FabricPipelineTreeItem);
+				break;
+			default:
+				this.Logger.logError(`TreeProviderId '${id}' not found!`, true, true);
 		}
-		*/
 	}
 
 	static PushDisposable(item: any) {

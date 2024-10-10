@@ -8,7 +8,8 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceRoot}"
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "${workspaceRoot}/utils/Fabric_Studio.test.code-workspace"
             ],
             "sourceMaps": true,
             "outFiles": [
@@ -28,7 +29,8 @@
             "request": "launch",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionDevelopmentKind=web"
+                "--extensionDevelopmentKind=web",
+                "${workspaceRoot}/utils/Fabric_Studio.code-workspace"
             ],
             "outFiles": [
                 "${workspaceFolder}/dist/web/**/*.js"

@@ -178,10 +178,16 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 			try {
 				ThisExtension.Logger.logInfo("Cell-Reference found: " + cellVariable[0] + ". Trying to resolve it ...");
 				const cellRef = cellVariable.groups["cellRef"];
-				const xPath = cellVariable.groups["xPath"];
+				const xPath = Helper.trimChar(cellVariable.groups["xPath"], ".");
 				const output = cell.notebook.cellAt(cell.index + parseInt(cellRef)).outputs[0];
 				const jsonOutput = output.items.find(i => i.mime === 'application/json');
-				const json = JSON.parse(jsonOutput.data.toString());
+				let json = undefined;
+				if("data" in jsonOutput) {
+					json = JSON.parse(jsonOutput.data.toString());
+				}
+				else {
+					json = JSON.parse(jsonOutput);
+				}
 
 				let value = json;
 				if (xPath) {

@@ -7,6 +7,10 @@
 - added button for Workspace Filter
 - added Drag & Drop provider for `WorkspaceRoleAssignments`
 - added `Update` and `Delete` actions for `WorkspaceRoleAssignments`
+- added `Delete` action for all Workspace Items
+- fixed issue with modified files in the custom file system provider
+- fixed issue with [`$(_cells)`](./README.md/#notebooks) notebook variable
+- fixed issue with `Open in Fabric Service` for invalid items
 
 **v0.9.8**:
 - added support for [Item Data Access Roles](https://learn.microsoft.com/en-us/rest/api/fabric/core/onelake-data-access-security/list-data-access-roles?tabs=HTTP)

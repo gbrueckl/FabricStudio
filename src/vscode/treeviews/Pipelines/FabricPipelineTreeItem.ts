@@ -33,7 +33,11 @@ export class FabricPipelineTreeItem extends FabricApiTreeItem implements iFabric
 	}
 
 	get TreeProvider(): TreeProviderId {
-		return "application/vnd.code.tree.fabricstudiopipelines";
+		return "application/vnd.code.tree.fabricstudiodeploymentpipelines";
+	}
+
+	public get canDelete(): boolean {
+		return false;
 	}
 
 	public async getChildren(element?: FabricPipelineTreeItem): Promise<FabricPipelineTreeItem[]> {

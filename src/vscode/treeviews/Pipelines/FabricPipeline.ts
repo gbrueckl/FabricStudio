@@ -42,9 +42,4 @@ export class FabricPipeline extends FabricPipelineTreeItem {
 	}
 
 	// Pipeline-specific funtions
-	public async delete(): Promise<void> {
-		await FabricApiTreeItem.delete(this, "name");
-		
-		ThisExtension.TreeViewPipelines.refresh(this.parent, false);
-	}
 }

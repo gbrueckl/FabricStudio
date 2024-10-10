@@ -41,6 +41,10 @@ export class FabricPipelineGenericFolder extends FabricPipelineTreeItem {
 		return orig;
 	}
 
+	public get canOpenInBrowser(): boolean {
+		return false;
+	}
+
 	protected getIconPath(): string | vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'genericfolder.svg');
 	}
@@ -72,7 +76,9 @@ export class FabricPipelineGenericFolder extends FabricPipelineTreeItem {
 
 	async getChildren(element?: FabricPipelineTreeItem): Promise<FabricPipelineTreeItem[]> {
 		if(this._children) {
-			return this._children.sort((a, b) => a.itemName.localeCompare(b.itemName));
+			const children = Array.from(this._children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+			return children;
 		}
 		await vscode.window.showErrorMessage("getChildren is not implemented! Please overwrite in derived class!");
 		return undefined;

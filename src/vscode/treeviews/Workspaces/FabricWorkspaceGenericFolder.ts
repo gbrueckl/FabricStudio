@@ -4,7 +4,8 @@ import { UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { FabricApiItemType } from '../../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
@@ -27,6 +28,10 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		this.iconPath = this.getIconPath();
 	}
 
+	public get canDelete(): boolean {
+		return false;
+	}
+
 	protected getIconPath(): string | vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'genericfolder.svg');
 	}
@@ -42,14 +47,14 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	}
 
 	get apiUrlPart(): string {
-		if(this._customApiUrlPart != undefined) {
+		if (this._customApiUrlPart != undefined) {
 			return this._customApiUrlPart;
 		}
 		return this.itemType;
 	}
 
 	addChild(value: FabricWorkspaceTreeItem) {
-		if(!this._children) {
+		if (!this._children) {
 			this._children = [];
 		}
 		value.parent = this;
@@ -57,10 +62,28 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		if(this._children) {
-			return this._children;
+		let children: FabricWorkspaceTreeItem[] = [];
+		if (this._children) {
+			children = this._children
+
+			this._children = undefined;
 		}
-		await vscode.window.showErrorMessage("getChildren is not implemented! Please overwrite in derived class!");
-		return undefined;
+		else {
+			try {
+				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
+
+				for (let item of items.success) {
+					let treeItem = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type, this, item, item.description, vscode.TreeItemCollapsibleState.None);
+					children.push(treeItem);
+				}
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo("Could not load tables for lakehouse " + this.parent.itemName);
+			}
+		}
+
+		children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+		return children;
 	}
 }

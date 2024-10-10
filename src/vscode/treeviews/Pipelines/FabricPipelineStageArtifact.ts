@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 
 import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { iFabricApiDeploymentPipelineStageItem } from '../../../fabric/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricPipelineStage } from './FabricPipelineStage';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
@@ -39,5 +41,15 @@ export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
 	}
 	get artifactType(): string {
 		return this.itemType.toLowerCase() + "s";
+	}
+
+	public getBrowserLink(): vscode.Uri {
+		//https://app.powerbi.com/groups/ccce57d1-10af-1234-1234-665f8bbd8458/datasets/7cdff921-9999-8888-b0c8-34be20567742
+
+		const stage = this.getParentByType<FabricPipelineStage>("DeploymentPipelineStage");
+
+		const itemUrl = `/workspaces/${stage.itemDefinition.workspaceId}/items/${this.itemId}`;
+
+		return vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), itemUrl);
 	}
 }

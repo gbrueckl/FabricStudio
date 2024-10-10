@@ -42,6 +42,10 @@ export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabr
 		return orig + actions.join(",") + ",";
 	}
 
+	public get canOpenInBrowser(): boolean {
+		return false;
+	}
+
 	get itemDefinition(): iFabricApiDeploymentPipelineStage {
 		return this._itemDefinition;
 	}

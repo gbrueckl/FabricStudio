@@ -17,39 +17,48 @@ export class FabricLogger {
 		this.log(`Logger '${loggerName}' initialized!`);
 	}
 
-	public log(text: string, newLine: boolean = true, logLevel: vscode.LogLevel = vscode.LogLevel.Info): void {
+	public log(text: string, logLevel: vscode.LogLevel = vscode.LogLevel.Info): void {
 		if(this._logLevel > logLevel) {
 			return;
 		}
 		if (!this._logger) {
 			vscode.window.showErrorMessage(text);
+			return;
 		}
-		if (newLine) {
-			this._logger.appendLine(`${vscode.LogLevel[logLevel].toUpperCase().substring(0, 4)}\t${text}`);
+
+		this._logger.append(`${vscode.LogLevel[logLevel].toUpperCase().substring(0, 4)}\t${text}`);
+	}
+
+	public logTrace(text: string): void {
+		this.log(text, vscode.LogLevel.Trace);
+	}
+
+	public logDebug(text: string): void {
+		this.log(text, vscode.LogLevel.Debug);
+	}
+
+	public logInfo(text: string): void {
+		this.log(text, vscode.LogLevel.Info);
+	}
+
+	public logWarning(text: string, showWarningWindow: boolean = false): void {
+		this.log(text, vscode.LogLevel.Warning);
+
+		if(showWarningWindow) {
+			vscode.window.showWarningMessage(text);
 		}
-		else {
-			this._logger.append(`${vscode.LogLevel[logLevel].toUpperCase().substring(0, 4)}\t${text}`);
+	}
+
+	public logError(text: string, showErrorWindow: boolean = false, raiseException: boolean = false): void {
+		this.log(text, vscode.LogLevel.Error);
+
+		if(showErrorWindow) {
+			vscode.window.showErrorMessage(text);
 		}
-	}
 
-	public logTrace(text: string, newLine: boolean = true): void {
-		this.log(text, newLine, vscode.LogLevel.Trace);
-	}
-
-	public logDebug(text: string, newLine: boolean = true): void {
-		this.log(text, newLine, vscode.LogLevel.Debug);
-	}
-
-	public logInfo(text: string, newLine: boolean = true): void {
-		this.log(text, newLine, vscode.LogLevel.Info);
-	}
-
-	public logWarning(text: string, newLine: boolean = true): void {
-		this.log(text, newLine, vscode.LogLevel.Warning);
-	}
-
-	public logError(text: string, newLine: boolean = true): void {
-		this.log(text, newLine, vscode.LogLevel.Error);
+		if(raiseException) {
+			throw new Error(text);
+		}
 	}
 }
 

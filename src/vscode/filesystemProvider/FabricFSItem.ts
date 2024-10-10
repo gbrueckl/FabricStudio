@@ -260,6 +260,9 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			this.parent.removeChild(this.displayName)
 			ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);
 		}
+		else {
+			ThisExtension.Logger.logError("Unknown publish action for item " + this.FabricUri.uri.toString(), true, true);
+		}
 
 		return response;
 	}

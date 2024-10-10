@@ -38,7 +38,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		let orig: string = super._contextValue;
 
 		let actions: string[] = [
-			"BROWSE_IN_ONELAKE",
+			//"BROWSE_IN_ONELAKE", // disabled for now as OneLake API does not work well with blanks in workspace names
 			"EDIT_DEFINITION"
 		];
 
@@ -50,6 +50,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		}
 
 		return orig + actions.join(",") + ",";
+	}
+
+	public get canDelete(): boolean {
+		return false;
 	}
 
 	protected getIconPath(): string | vscode.Uri {
