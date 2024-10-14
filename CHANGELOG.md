@@ -1,5 +1,10 @@
 # Change Log
 
+**v1.0.0**:
+- fixed issues `Delete` in Fabric file system provider
+- reworked the way how item types for the Fabric file system provider can be configured
+- minor fixes for error reporting
+
 **v0.9.9**:
 - added [Workspace Role Assignments](https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/list-workspace-role-assignments?tabs=HTTP)
 - added `Run` actions for notebooks, data pipelines and Spark Jobs.

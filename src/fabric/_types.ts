@@ -33,6 +33,9 @@ export type FabricApiItemType =
 	| "Lakehouses"							//	Folder for Lakehouse item.
 	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
+	| "SemanticModels"						//	Folder for Semantic Model item.
+	| "Reports"								//	Folder for Report item.
+	| "SparkJobDefinitions"					//	Folder for Spark Job Definition item.
 	| "LakehouseTable"						//	Lakehouse Table
 	| "LakehouseTables"						//	Folder for Lakehouse Table item.
 	| "GraphQLApi"							//	GraphQL API item.
@@ -49,14 +52,6 @@ export type FabricApiItemType =
 	| "ItemDataAccessRole"					//	An Item data access role.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
-	;
-
-export type FabricApiItemTypeWithDefinition =
-	"DataPipelines"			//	A data pipeline.
-	| "Notebooks"				//	A notebook.
-	| "Reports"				//	PowerBI report.
-	| "SemanticModels"			//	PowerBI semantic model.
-	| "SparkJobDefinitions"	//	A spark job definition.
 	;
 
 export enum FabricApiWorkspaceType {

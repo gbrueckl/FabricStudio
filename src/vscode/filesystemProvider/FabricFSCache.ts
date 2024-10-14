@@ -10,11 +10,10 @@ import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { Helper } from '@utils/Helper';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { FabricApiItemTypeWithDefinition } from '../../fabric/_types';
+import { FabricApiItemType } from '../../fabric/_types';
 
 export abstract class FabricFSCache {
 	private static _localChanges: Map<string, FabricFSPublishAction> = new Map<string, FabricFSPublishAction>();
-	private static _localItems: string[] = [];
 	private static _cache: Map<string, FabricFSCacheItem> = new Map<string, FabricFSCacheItem>();
 
 	public static async initialize(): Promise<void> {
@@ -24,7 +23,6 @@ export abstract class FabricFSCache {
 		else {
 			FabricFSCache._cache = new Map<string, FabricFSCacheItem>();
 		}
-		FabricFSCache._localItems = [];
 	}
 
 	public static async stats(fabricUri: FabricFSUri): Promise<vscode.FileStat | undefined> {
@@ -195,7 +193,7 @@ export abstract class FabricFSCache {
 			else if (fabricUri.uriType == FabricUriType.itemType) {
 				const newFolderName = fabricUri.uri.path.split("/").pop();
 
-				const newItemType: FabricApiItemTypeWithDefinition = newFolderName.split(".").pop() as FabricApiItemTypeWithDefinition;
+				const newItemType: FabricApiItemType = newFolderName.split(".").pop() as FabricApiItemType;
 
 				if (!FabricConfiguration.itemTypes.includes(newItemType)) {
 					(item as FabricFSItem).createSubFolder(newItemType);

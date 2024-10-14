@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
-
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
@@ -15,7 +13,7 @@ export class FabricDataPipelines extends FabricWorkspaceGenericFolder {
 		parent: FabricWorkspaceTreeItem
 	) {
 		super(
-			`${parent.itemId}/DataPipelines`, 
+			`${parent.itemId}/dataPipelines`, 
 			"DataPipelines", 
 			"DataPipelines", 
 			parent, 

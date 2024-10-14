@@ -90,7 +90,7 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceTreeItem {
 			}
 		}
 		catch (e) {
-			ThisExtension.Logger.logError(e.message);
+			ThisExtension.Logger.logError(e.message, true);
 		}
 	}
 
@@ -123,7 +123,7 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceTreeItem {
 			}
 		}
 		catch (e) {
-			ThisExtension.Logger.logError(e.message);
+			ThisExtension.Logger.logError(e.message, true);
 		}
 	}
 }

@@ -89,8 +89,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 				const response = await FabricApiService.getItemDefinitionParts(this.FabricUri.workspaceId, this.FabricUri.itemId, this.format);
 				
 				if(response.error) {
-					ThisExtension.Logger.logError(response.error.message);
-					vscode.window.showErrorMessage(response.error.message);
+					ThisExtension.Logger.logError(response.error.message, true);
 					return
 				}
 				this._apiResponse = response.success;
@@ -250,7 +249,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
 			}
 			
-			if (!response?.error) {
+			if (!response || !response.error) {
 				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, `Updating ${this.FabricUri.itemType} '${this.displayName}'`);
 			}
 		}
@@ -261,7 +260,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);
 		}
 		else {
-			ThisExtension.Logger.logError("Unknown publish action for item " + this.FabricUri.uri.toString(), true, true);
+			ThisExtension.Logger.logError("Unknown publish action for item " + this.FabricUri.uri.toString(), true);
+			return;
 		}
 
 		return response;
@@ -270,10 +270,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 	public async removePart(partPath: string): Promise<void> {
 		let parts = this.getApiResponse();
 		const partPathDecoded = decodeURIComponent(partPath);
-		let index = parts.findIndex((part) => part.path == partPathDecoded);
-		if (index >= 0) {
-			parts.splice(index, 1);
-		}
+
+		this._apiResponse = parts.filter((part) => !part.path.startsWith(partPathDecoded + "/"));
 
 		// reload children from modified API Response
 		this._children = undefined;
@@ -296,17 +294,13 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		await this.loadChildrenFromApi();
 	}
 
-	public async getPart(partPath: string): Promise<iFabricApiItemPart> {
+	public async getPart(partPath: string, raise: boolean = true): Promise<iFabricApiItemPart> {
 		let parts = this.getApiResponse();
 		const partPathDecoded = decodeURIComponent(partPath);
 		const part = parts.find((part) => part.path == partPathDecoded);
-		if (part) {
-			return part;
-		}
-		else {
-			vscode.window.showErrorMessage("FILE_NOT_FOUND - FabricFSItem.getPart()" + vscode.Uri.joinPath(this.FabricUri.uri, partPathDecoded).toString());
-			throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, partPathDecoded));
-		}
+		
+		// part might be not found and undefined! must be checked by caller!
+		return part;
 	}
 
 	public async createSubFolder(folderPath: string): Promise<void> {

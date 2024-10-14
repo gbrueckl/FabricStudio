@@ -206,7 +206,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 				}
 			}
 			catch (error) {
-				ThisExtension.Logger.logError(error.message);
+				ThisExtension.Logger.logError(error.message, true);
 
 				throw error;
 			}

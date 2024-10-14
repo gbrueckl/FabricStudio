@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
 import { FabricApiService } from '../../fabric/FabricApiService';
-import { FabricApiItemType, FabricApiItemTypeWithDefinition, iFabricApiItem } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem } from '../../fabric/_types';
 import { FabricFSPublishAction } from './_types';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricFSItem } from './FabricFSItem';
@@ -15,7 +15,7 @@ export class FabricFSItemType extends FabricFSCacheItem {
 		super(uri);
 	}
 
-	get itemType(): FabricApiItemTypeWithDefinition {
+	get itemType(): FabricApiItemType {
 		return this.FabricUri.itemType;
 	}
 

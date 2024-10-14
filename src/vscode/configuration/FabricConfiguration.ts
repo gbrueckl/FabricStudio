@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+
 import { ThisExtension } from '../../ThisExtension';
-import { FabricApiItemFormat, FabricApiItemTypeWithDefinition } from '../../fabric/_types';
+import { FabricApiItemFormat, FabricApiItemType } from '../../fabric/_types';
 
 /*
 CLOUD_CONFIGS are mainly derived from here:
@@ -85,6 +86,25 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 	}
 }
 
+// known list of Item Typs which support the Definition APIs
+// used to show/hide the "Edit Definitions" command
+export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
+	"DataPipelines",
+	"Notebooks",
+	"Reports",
+	"SemanticModels",
+	"SparkJobDefinitions"
+];
+
+interface iItemTypeFormatConfig {
+	itemType: string;
+	format: string;
+}
+
+interface iItemTypeFormat {
+	itemType: FabricApiItemType;
+	format: FabricApiItemFormat;
+}
 
 export abstract class FabricConfiguration {
 	static get logLevel(): vscode.LogLevel { return this.getValue("logLevel"); }
@@ -105,23 +125,23 @@ export abstract class FabricConfiguration {
 	static set workspaceFilter(value: string) { this.setValue("workspaceFilter", value); }
 	static get workspaceFilterRegEx(): RegExp { return new RegExp(this.getValue("workspaceFilter")); }
 
-	static get itemTypeFormats(): { itemType: FabricApiItemTypeWithDefinition, format: FabricApiItemFormat }[] { 
-		let confValues = this.getValue("itemTypeFormats") as { itemType: string, format: string }[];
+	static get itemTypeFormats(): iItemTypeFormat[] { 
+		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];
 		
 		let typedValues = confValues.map((item) => {
 			return { 
-				itemType: item.itemType as FabricApiItemTypeWithDefinition, // strict cast as the list of itemTypes is static
-				format: item.format as FabricApiItemFormat // loose cast as the list of formats may change
+				itemType: item.itemType as FabricApiItemType, // loose cast
+				format: item.format as FabricApiItemFormat // loose cast
 			};
 		});
 
 		return typedValues;
 	}
-	static get itemTypes(): FabricApiItemTypeWithDefinition[] { 
+	static get itemTypes(): FabricApiItemType[] { 
 		return this.itemTypeFormats.map((item) => item.itemType); 
 	}
 
-	static getFabricItemTypeformat(itemType: FabricApiItemTypeWithDefinition): FabricApiItemFormat {
+	static getFabricItemTypeformat(itemType: FabricApiItemType): FabricApiItemFormat {
 		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
 		if(!item || !item.format)
 		{

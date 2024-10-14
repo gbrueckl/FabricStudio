@@ -113,23 +113,20 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 		const pipeline = firstItem.getParentByType<FabricPipeline>("DeploymentPipeline");
 		if (!pipeline) {
 			const msg = "Could not identify Deployment Pipeline!";
-			ThisExtension.Logger.logError(msg);
-			vscode.window.showErrorMessage(msg);
+			ThisExtension.Logger.logError(msg, true);
 			return;
 		}
 		const sourceStage = firstItem.getParentByType<FabricPipelineStage>("DeploymentPipelineStage");
 		if (!sourceStage) {
 			const msg = "Could not identify Deployment Pipeline Source Stage!";
-			ThisExtension.Logger.logError(msg);
-			vscode.window.showErrorMessage(msg);
+			ThisExtension.Logger.logError(msg, true);
 			return;
 		}
 		const allStages = (await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(pipeline.apiPath + "stages"));
 		const targetStage = allStages.success.find(stage => stage.order == sourceStage.order + 1);
 		if (!targetStage) {
 			const msg = "Could not identify Deployment Pipeline Target Stage!";
-			ThisExtension.Logger.logError(msg);
-			vscode.window.showErrorMessage(msg);
+			ThisExtension.Logger.logError(msg, true);
 			return;
 		}
 
@@ -137,8 +134,7 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 		for (let item of itemsSelected) {
 			if (item.getParentByType<FabricPipeline>("DeploymentPipelineStage").id !== sourceStage.id) {
 				const msg = "All items must be from the same pipeline and stage!";
-				ThisExtension.Logger.logError(msg);
-				vscode.window.showErrorMessage(msg);
+				ThisExtension.Logger.logError(msg, true);
 				return;
 			}
 			itemsToDeploy = itemsToDeploy.concat(await (item as FabricPipelineTreeItem).getDeployableItems());

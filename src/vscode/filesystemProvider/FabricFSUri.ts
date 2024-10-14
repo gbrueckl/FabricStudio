@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { Helper } from '@utils/Helper';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
-import { FabricApiItemTypeWithDefinition } from '../../fabric/_types';
+import { FabricApiItemType } from '../../fabric/_types';
 import { ThisExtension } from '../../ThisExtension';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
 import { FabricFSWorkspace } from './FabricFSWorkspace';
@@ -11,6 +11,7 @@ import { FabricFSItem } from './FabricFSItem';
 import { FabricFSRoot } from './FabricFSRoot';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSCache } from './FabricFSCache';
+import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
 
 // regex with a very basic check for valid GUIDs
 const REGEX_FABRIC_URI = /fabric:\/\/workspaces\/(?<workspace>[0-9a-fA-F-]{36})?(\/(?<itemType>[a-zA-Z]*))?(\/(?<Item>[0-9a-fA-F-]{36}))?(\/(?<part>.*))?($|\?)/gm
@@ -30,7 +31,7 @@ export class FabricFSUri {
 
 	uri: vscode.Uri;
 	workspace?: string;
-	itemType?: FabricApiItemTypeWithDefinition;
+	itemType?: FabricApiItemType;
 	item?: string;
 	part: string;
 	uriType: FabricUriType;
@@ -45,11 +46,11 @@ export class FabricFSUri {
 
 		if (uriString.startsWith(FABRIC_SCHEME + ":/")) {
 			let paths = uriString.split("/").filter((path) => path.length > 0).slice(1);
-			if(paths[0] != 'workspaces') {
+			if (paths[0] != 'workspaces') {
 				ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
 			}
 			this.workspace = paths[1];
-			this.itemType = paths[2] as FabricApiItemTypeWithDefinition;
+			this.itemType = this.itemTypeFromString(paths[2]);
 			this.item = paths[3];
 			this.part = paths.slice(4).join("/");
 
@@ -97,7 +98,7 @@ export class FabricFSUri {
 			case "Reports": return "reports";
 			case "SparkJobDefinitions": return "sparkjobdefinitions";
 			default:
-				vscode.window.showWarningMessage(`No Browser Link specified for Item Type '${this.itemType}'!`);
+				ThisExtension.Logger.logWarning(`No Browser Link specified for Item Type '${this.itemType}', using '${this.itemType}s'!`, false);
 				return this.itemType.toLowerCase() + "s";
 		}
 	}
@@ -107,7 +108,7 @@ export class FabricFSUri {
 			return false;
 		}
 
-		if(FabricFSCache.hasCacheItem(this)) {
+		if (FabricFSCache.hasCacheItem(this)) {
 			return true;
 		}
 
@@ -124,7 +125,7 @@ export class FabricFSUri {
 	}
 
 	get uniqueKey(): string {
-		return this.uri.toString();
+		return this.uri.toString().replace("//", "/");
 	}
 
 	get workspaceId(): string {
@@ -140,6 +141,27 @@ export class FabricFSUri {
 
 	private get itemMapName(): string {
 		return decodeURI(`${this.workspaceId}/${this.itemType}/${this.item}`);
+	}
+
+	private itemTypeFromString(itemType: string): FabricApiItemType {
+		if(!itemType) { 
+			return undefined;
+		}
+
+		let ret: FabricApiItemType = itemType as FabricApiItemType;
+
+		if (!TYPES_WITH_DEFINITION.includes(ret)) {
+			let itemTypeCase = TYPES_WITH_DEFINITION.find((type) => type.toLowerCase() == itemType.toLowerCase());
+			if (itemTypeCase) {
+				ret = itemTypeCase;
+			}
+			else {
+				ThisExtension.Logger.logError(`Item type '${itemType}' is not a valid Fabric item type!`);
+				return undefined;
+			}
+		}
+
+		return ret;
 	}
 
 	get itemId(): string {
@@ -171,7 +193,7 @@ export class FabricFSUri {
 
 		if (match) {
 			this.workspace = match.groups["workspace"];
-			this.itemType = match.groups["itemType"] as FabricApiItemTypeWithDefinition;
+			this.itemType = this.itemTypeFromString(match.groups["itemType"]);
 			this.item = match.groups["item"];
 			this.part = match.groups["part"];
 

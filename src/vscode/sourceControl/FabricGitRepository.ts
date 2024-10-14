@@ -219,8 +219,7 @@ export class FabricGitRepository implements vscode.Disposable {
 		const response = await FabricApiService.awaitWithProgress("Committing changes", FabricApiService.post<iFabricApiGitStatusResponse>(`/v1/workspaces/${this.workspaceId}/git/commitToGit`, body), 2000);
 
 		if (response.error) {
-			ThisExtension.Logger.logError(response.error.message);
-			vscode.window.showErrorMessage(response.error.message);
+			ThisExtension.Logger.logError(response.error.message, true);
 		}
 		else
 		{

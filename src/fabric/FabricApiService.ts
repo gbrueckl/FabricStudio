@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 
-import { fetch, FormData, RequestInit, RequestInfo, File, fileFrom, Response, getProxyAgent } from '@env/fetch';
+import { fetch, RequestInit, Response, getProxyAgent } from '@env/fetch';
 import { Helper } from '@utils/Helper';
 import { iGenericApiCallConfig, iGenericApiError, iGenericApiResponse } from '@utils/_types';
 
 import { ThisExtension } from '../ThisExtension';
-import { FabricApiItemFormat, FabricApiItemType, FabricApiItemTypeWithDefinition, iFabricApiItem, iFabricApiItemDefinition, iFabricApiItemPart, iFabricApiResponse, iFabricApiWorkspace, iFabricErrorResponse, iFabricListResponse, iFabricPollingResponse } from './_types';
+import { FabricApiItemFormat, FabricApiItemType, iFabricApiItem, iFabricApiItemDefinition, iFabricApiItemPart, iFabricApiResponse, iFabricApiWorkspace, iFabricErrorResponse, iFabricListResponse, iFabricPollingResponse } from './_types';
 
-import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
+import { FabricConfiguration, TYPES_WITH_DEFINITION } from '../vscode/configuration/FabricConfiguration';
 import { FabricLogger } from '@utils/FabricLogger';
 
 export abstract class FabricApiService {
@@ -577,7 +577,12 @@ export abstract class FabricApiService {
 		return { success: "No Changes!" };
 	}
 
-	static async createItem(workspaceId: string, name: string, type: FabricApiItemTypeWithDefinition, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iFabricApiResponse> {
+	static async createItem(workspaceId: string, name: string, type: FabricApiItemType, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iFabricApiResponse> {
+		if(!TYPES_WITH_DEFINITION.includes(type))
+		{
+			ThisExtension.Logger.logError(`Type '${type}' is not supported for item creation!`, true, true);
+		}
+		
 		const endpoint = `${this._apiBaseUrl}/v1/workspaces/${workspaceId}/${type}`;
 
 		const body = Object.assign({}, {

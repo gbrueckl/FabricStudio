@@ -122,8 +122,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					ThisExtension.refreshTreeView(target.TreeProvider, targetGroup);
 				}
 				else {
-					ThisExtension.Logger.logError("ERROR importing PBIX: " + JSON.stringify(pbixImport, null, 4));
-					vscode.window.showErrorMessage("Error importing PBIX: " + JSON.stringify(pbixImport, null, 4));
+					ThisExtension.Logger.logError("ERROR importing PBIX: " + JSON.stringify(pbixImport, null, 4), true);
 				}
 				return;
 			}
