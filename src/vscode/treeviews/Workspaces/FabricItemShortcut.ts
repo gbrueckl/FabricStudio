@@ -13,7 +13,7 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 		definition: iFabricApiItemShortcut,
 		parent: FabricItemShortcuts
 	) {
-		super(definition.name, definition.name, "ItemShortcut", parent, definition, undefined, vscode.TreeItemCollapsibleState.None);
+		super(definition.name, definition.path + "/" + definition.name, "ItemShortcut", parent, definition, undefined, vscode.TreeItemCollapsibleState.None);
 
 		this.id = parent.id + "/" + definition.name,
 
@@ -39,7 +39,22 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 	// description is show next to the label
 	get _description(): string {
 		if (this.itemDefinition) {
-			return `${this.path}`;
+			const target = this.targetDetails
+			if (["AdlsGen2", "GoogleCloudStorage", "AmazonS3"].includes(this.itemDefinition.target.type)) {
+				return `${target.location}${target.subpath}`;
+			}
+			else if (["S3Compatible"].includes(this.itemDefinition.target.type)) {
+				return `${target.location}${target.bucket}${target.subpath}`;
+			}
+			else if (["OneLake"].includes(this.itemDefinition.target.type)) {
+				return `${target.path} in ${target.workspaceId}/${target.itemId}`;
+			}
+			else if (["ExternalDataShareTarget"].includes(this.itemDefinition.target.type)) {
+				return `${target.connectionId}`;
+			}
+			else if (["Dataverse"].includes(this.itemDefinition.target.type)) {
+				return `${target.environmentDomain} - ${target.deltaLakeFolder}/${target.tableName}`;
+			}
 		}
 	}
 
@@ -58,6 +73,14 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 
 	get target(): object {
 		return this.itemDefinition.target;
+	}
+
+	get targetDetails(): any {
+		if (this.itemDefinition) {
+			const targetType = this.itemDefinition.target.type
+			const targetProperty = targetType[0].toLowerCase() + targetType.slice(1)
+			return this.itemDefinition.target[targetProperty];
+		}
 	}
 
 	get oneLakeUri(): vscode.Uri {

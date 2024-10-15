@@ -219,7 +219,7 @@ export interface iFabricApiDeploymentPipelineStageItem {
 export interface iFabricApiItemShortcut {
 	path: string; // The path of the shortcut.
 	name: string; // The name of the shortcut.
-	target: object; // The target of the shortcut.
+	target: any; // The target of the shortcut.
 }
 
 export interface iFabricApiItemConnection {

@@ -14,9 +14,7 @@ export class FabricItemConnection extends FabricWorkspaceTreeItem {
 		definition: iFabricApiItemConnection,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(parent.id, definition.connectionDetails.type, "ItemConnection", parent, definition, definition.connectionDetails.path, vscode.TreeItemCollapsibleState.None);
-
-		this.id = parent.id + "/" + definition.connectionDetails.path,
+		super(definition.id, definition.displayName, "ItemConnection", parent, definition, definition.connectionDetails.path, vscode.TreeItemCollapsibleState.None);
 
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
@@ -31,6 +29,13 @@ export class FabricItemConnection extends FabricWorkspaceTreeItem {
 		let actions: string[] = [];
 
 		return orig + actions.join(",") + ",";
+	}
+
+	// description is show next to the label
+	get _description(): string {
+		if (this.itemDefinition) {
+			return `${this.itemDefinition.connectionDetails.path}`;
+		}
 	}
 
 	getIcon(): vscode.ThemeIcon {
