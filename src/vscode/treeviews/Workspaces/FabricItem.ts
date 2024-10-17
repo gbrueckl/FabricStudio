@@ -10,6 +10,7 @@ import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricItemConnections } from './FabricItemConnections';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
 import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
+import { FabricItemJobInstances } from './FabricItemJobInstances';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -20,7 +21,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	) {
 		super(definition.id, definition.displayName, definition.type, parent, definition, definition.description);
 
-		this.collapsibleState = vscode.TreeItemCollapsibleState.None;
+		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
 
@@ -55,7 +56,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load connections for item " + this.workspace.itemName);
+				ThisExtension.Logger.logInfo("Could not load connections for item " + this.itemName);
 			}
 
 			try {
@@ -66,8 +67,20 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.workspace.itemName);
+				ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.itemName);
 			}
+
+			try {
+				let jobInstances = new FabricItemJobInstances(this);
+				const jobInstancesChildren = await jobInstances.getChildren();
+				if (jobInstancesChildren.length > 0) {
+					children.push(jobInstances);
+				}
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo("Could not load job instances for item " + this.itemName);
+			}
+
 
 			try {
 				let accessRoles = new FabricItemDataAccessRoles(this);
@@ -77,7 +90,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load data access roles for item " + this.workspace.itemName);
+				ThisExtension.Logger.logInfo("Could not load data access roles for item " + this.itemName);
 			}
 
 			//children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));

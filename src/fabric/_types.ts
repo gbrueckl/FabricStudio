@@ -48,6 +48,8 @@ export type FabricApiItemType =
 	| "ItemShortcut"						//	An Item shortcut.
 	| "ItemConnections"						//	Folder for item connections.
 	| "ItemConnection" 						//	An Item connection.
+	| "ItemJobInstances"					//	Folder for item job instances.
+	| "ItemJobInstance"						//	An Item job instance.
 	| "ItemDataAccessRoles"					//	Folder for item data access roles.	
 	| "ItemDataAccessRole"					//	An Item data access role.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
@@ -242,7 +244,6 @@ export interface iFabricApiItemDataAccessRole {
 		fabricItemMembers: any[]; // The array of role ids that are members of the Data access role.	
 		microsoftEntraMembers: any[]; // The array of user ids that are members of the Data access role.	
 	}; // The members object which contains the members of the role as arrays of different member types.
-
 }
 
 export enum iFabricApiWorkspaceRoleAssignmentRole { 
@@ -272,4 +273,19 @@ export interface iFabricApiWorkspaceRoleAssignment {
 		};
 	}; // The principal object which contains the principal details.
 	role: iFabricApiWorkspaceRoleAssignmentRole; // The role of the role assignment.
+}
+
+export interface iFabricApiItemJobInstance {
+	id: string; // Job instance Id.
+	itemId: string; // Item Id.
+	startTimeUtc: string; // Job start time in UTC.
+	endTimeUtc: string; // Job end time in UTC.
+	failureReason: any; // Error response when job is failed.
+	
+	invokeType: string; // The item job invoke type. Additional invokeTypes may be added over time.
+	
+	jobType: string; // Job type.
+	rootActivityId: string; // Root activity id to trace requests across services.
+	
+	status: string; // The item job status. Additional statuses may be added over time.
 }
