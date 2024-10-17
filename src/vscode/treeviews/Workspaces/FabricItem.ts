@@ -48,6 +48,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			return element.getChildren();
 		}
 		else {
+			let supportedItemTypes: FabricApiItemType[] = [];
 			try {
 				let connections = new FabricItemConnections(this);
 				const connectionsChildren = await connections.getChildren();
@@ -59,38 +60,47 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				ThisExtension.Logger.logInfo("Could not load connections for item " + this.itemName);
 			}
 
-			try {
-				let shortcuts = new FabricItemShortcuts(this);
-				const shortcutsChildren = await shortcuts.getChildren();
-				if (shortcutsChildren.length > 0) {
-					children.push(shortcuts);
+			supportedItemTypes = ["Lakehouse", "Warehouse"];
+			if (supportedItemTypes.includes(this.itemType)) {
+				try {
+					let shortcuts = new FabricItemShortcuts(this);
+					const shortcutsChildren = await shortcuts.getChildren();
+					if (shortcutsChildren.length > 0) {
+						children.push(shortcuts);
+					}
+				}
+				catch (e) {
+					ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.itemName);
 				}
 			}
-			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.itemName);
-			}
 
-			try {
-				let jobInstances = new FabricItemJobInstances(this);
-				const jobInstancesChildren = await jobInstances.getChildren();
-				if (jobInstancesChildren.length > 0) {
-					children.push(jobInstances);
+			supportedItemTypes = ["DataPipeline", "Lakehouse", "Warehouse", "Notebook", "SparkJobDefinition"];
+			if (supportedItemTypes.includes(this.itemType)) {
+				try {
+					let jobInstances = new FabricItemJobInstances(this);
+					const jobInstancesChildren = await jobInstances.getChildren();
+					if (jobInstancesChildren.length > 0) {
+						children.push(jobInstances);
+					}
+				}
+				catch (e) {
+					ThisExtension.Logger.logInfo("Could not load job instances for item " + this.itemName);
 				}
 			}
-			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load job instances for item " + this.itemName);
-			}
 
-
-			try {
-				let accessRoles = new FabricItemDataAccessRoles(this);
-				const accessRolesChildren = await accessRoles.getChildren();
-				if (accessRolesChildren.length > 0) {
-					children.push(accessRoles);
+			// DataAccessRoles are currently only supported for Lakehouses
+			supportedItemTypes = ["Lakehouse"];
+			if (supportedItemTypes.includes(this.itemType)) {
+				try {
+					let accessRoles = new FabricItemDataAccessRoles(this);
+					const accessRolesChildren = await accessRoles.getChildren();
+					if (accessRolesChildren.length > 0) {
+						children.push(accessRoles);
+					}
 				}
-			}
-			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load data access roles for item " + this.itemName);
+				catch (e) {
+					ThisExtension.Logger.logInfo("Could not load data access roles for item " + this.itemName);
+				}
 			}
 
 			//children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
