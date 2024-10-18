@@ -88,8 +88,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		FabricNotebookContext.set(e.metadata.guid, metadata);
 	});
 
-	const completionProvider = new FabricAPICompletionProvider(context);
-	completionProvider.loadSwaggerFile();
+	//const completionProvider = new FabricAPICompletionProvider(context);
+	//completionProvider.loadSwaggerFile();
 
 	vscode.commands.registerCommand('FabricStudio.FS.publishToFabric', (uri) => FabricFSCache.publishToFabric(uri));
 	vscode.commands.registerCommand('FabricStudio.FS.reloadFromFabric', (uri) => FabricFSCache.reloadFromFabric(uri));
