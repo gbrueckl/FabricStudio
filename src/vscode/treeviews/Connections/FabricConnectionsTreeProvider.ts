@@ -44,21 +44,8 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 	}
 
 	async refresh(tree_item: FabricConnectionTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
-		// as tree_item is not always accurate, we refresh based on the actual selection
-		if (this._treeView.selection.length == 0) {
-			this._onDidChangeTreeData.fire(undefined);
-			return;
-		}
-		if (showInfoMessage) {
-			Helper.showTemporaryInformationMessage('Refreshing Fabric Connections ...');
-		}
-		for (let item of this._treeView.selection) {
-			// on leaves, we refresh the parent instead
-			if (item && item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
-				item = item.parent;
-			}
-			this._onDidChangeTreeData.fire(item);
-		}
+		// we always refresh the whole tree as its all built upon one API call
+		this._onDidChangeTreeData.fire(undefined);
 	}
 
 	getTreeItem(element: FabricConnectionTreeItem): FabricConnectionTreeItem {
@@ -85,7 +72,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			let treeItem: FabricGateway;
 			let gateways: Map<string, FabricGateway> = new Map<string, FabricGateway>();
 
-			//let items = await FabricApiService.getList<iFabricApiConnection>(`https://api.powerbi.com/v2.0/${FabricApiService.TenantId}/me/gatewayClusterDatasources`);
+			// seems like /myorg/ also works for guest accounts
 			let items = await FabricApiService.getList<iFabricApiConnection>(`https://api.powerbi.com/v2.0/myorg/me/gatewayClusterDatasources`);
 
 
@@ -96,6 +83,15 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 
 			let itemToAdd: FabricConnection;
 			for (let item of items.success) {
+				if (FabricConfiguration.connectionFilter) {
+					const conn = JSON.stringify(item)
+					const match = conn.match(FabricConfiguration.connectionFilterRegEx);
+					if (!match) {
+						ThisExtension.Logger.logInfo(`Skipping connection '${item.id}' because it does not match the connection filter.`);
+						continue;
+					}
+				}
+
 				if (!gateways.has(item.clusterId)) {
 					treeItem = new FabricGateway(
 						item
@@ -120,8 +116,8 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 
 		const filter = await vscode.window.showInputBox({
 			title: "Filter Connections",
-			prompt: "Enter a filter to apply to the connections. Regular Expressions (RegEx) are supported. Leave empty to clear the filter.",
-			placeHolder: "Enter a filter to apply to the workspaces",
+			prompt: "Enter a filter to apply to the connections. All properties of the connection will be considered. Regular Expressions (RegEx) are supported. Leave empty to clear the filter.",
+			placeHolder: "Enter a filter to apply to the connections",
 			value: currentFilter
 		});
 

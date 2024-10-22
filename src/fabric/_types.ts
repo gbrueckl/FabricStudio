@@ -292,6 +292,14 @@ export interface iFabricApiItemJobInstance {
 	status: string; // The item job status. Additional statuses may be added over time.
 }
 
+// useless as of now as only the ObjectID is provided
+export interface iFabricApiConnectionPermission {
+	identifer: string;	// ObjectID
+	role: "Owner" | "User" | "UserWithReshare";
+	datasourceAccessRight: string; // only "Read" ?
+	principalType: "User" | "Group"; // Service principals show up as users ?!?
+}
+
 export interface iFabricApiConnection {
 	id: string; 			// DatasourceId
 	datasourceName: string; // Name of the datasource
@@ -307,4 +315,7 @@ export interface iFabricApiConnection {
 	
 	credentialDetails: any; 
 	
+	users: iFabricApiConnectionPermission[];
+	datasourceUsers: iFabricApiConnectionPermission[];
+
 }

@@ -154,7 +154,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	let fabricConnectionsTreeViewProvider = new FabricConnectionsTreeProvider(context);
 
 	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.filter());
 	//#endregion
 
 	//#region Fabric Git

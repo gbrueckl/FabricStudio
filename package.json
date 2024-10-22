@@ -75,7 +75,7 @@
 							"\\[TEST]|\\[PROD]"
 						]
 					},
-					"fabricStudio.connectionsFilter": {
+					"fabricStudio.connectionFilter": {
 						"type": "string",
 						"markdownDescription": "(Optional) A regex to filter connections by name. Only connections matching this regex will be shown in the Fabric Studio Connections view.",
 						"examples": [
@@ -478,7 +478,7 @@
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/",
 					"group": "navigation"
 				},
 				{
