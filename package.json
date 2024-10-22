@@ -42,7 +42,9 @@
 		"FabricStudio",
 		"REST",
 		"API",
-		"PowerBI"
+		"PowerBI",
+		"Data",
+		"Analytics"
 	],
 	"activationEvents": [
 		"onNotebook:fabric-notebook",
@@ -62,12 +64,20 @@
 					},
 					"fabricStudio.clientId": {
 						"type": "string",
-						"markdownDescription": "(Optional) A custom ClientID/AAD Application to use when interacting with Power BI REST APIs.",
+						"markdownDescription": "(Optional) A custom ClientID/AAD Application to use when interacting with Fabric REST APIs.",
 						"default": null
 					},
 					"fabricStudio.workspaceFilter": {
 						"type": "string",
-						"markdownDescription": "(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Power BI Workspaces view.",
+						"markdownDescription": "(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Fabric Studio Workspaces view.",
+						"examples": [
+							"Project A|Sales",
+							"\\[TEST]|\\[PROD]"
+						]
+					},
+					"fabricStudio.connectionsFilter": {
+						"type": "string",
+						"markdownDescription": "(Optional) A regex to filter connections by name. Only connections matching this regex will be shown in the Fabric Studio Connections view.",
 						"examples": [
 							"Project A|Sales",
 							"\\[TEST]|\\[PROD]"
@@ -160,17 +170,25 @@
 				{
 					"id": "FabricStudioDeploymentPipelines",
 					"name": "Deployment Pipelines"
+				},
+				{
+					"id": "FabricStudioConnections",
+					"name": "Connections"
 				}
 			]
 		},
 		"viewsWelcome": [
 			{
 				"view": "FabricStudioWorkspaces",
-				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:PowerBI.initialize)"
+				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
 			},
 			{
 				"view": "FabricStudioDeploymentPipelines",
-				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:PowerBI.initialize)"
+				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
+			},
+			{
+				"view": "FabricStudioConnections",
+				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
 			}
 		],
 		"commands": [
@@ -417,6 +435,18 @@
 				"title": "Run Spark Job",
 				"icon": "$(play)",
 				"category": "Fabric.SparkJob"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Connections.refresh",
+				"title": "Refresh Connections",
+				"icon": "$(refresh)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Connections.filter",
+				"title": "Filter Connections",
+				"icon": "$(filter)"
 			}
 		],
 		"menus": {
@@ -448,7 +478,17 @@
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Connections.refresh",
+					"when": "view == FabricStudioConnections",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Connections.filter",
+					"when": "view == FabricStudioConnections",
 					"group": "navigation"
 				}
 			],

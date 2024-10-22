@@ -12,7 +12,7 @@ export class FabricPipeline extends FabricPipelineTreeItem {
 	constructor(
 		definition: iFabricApiItem
 	) {
-		super(definition.displayName, "DeploymentPipeline", definition.id, undefined, vscode.TreeItemCollapsibleState.Collapsed);
+		super(definition.id, definition.displayName, "DeploymentPipeline", undefined, vscode.TreeItemCollapsibleState.Collapsed);
 		this.itemDefinition = definition;
 		
 	}

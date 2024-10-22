@@ -20,7 +20,7 @@ export class FabricPipelineGenericFolder extends FabricPipelineTreeItem {
 		apiUrlPart: string = undefined,
 		contextValue: string[] = []
 	) {
-		super(name, type, id, parent, vscode.TreeItemCollapsibleState.Collapsed);
+		super(id, name, type, parent, vscode.TreeItemCollapsibleState.Collapsed);
 
 		this._customApiUrlPart = apiUrlPart;
 		this._customContextValue = contextValue;

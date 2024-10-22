@@ -13,11 +13,13 @@ import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
 import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
+import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 
 
 export type TreeProviderId =
 	"application/vnd.code.tree.fabricstudioworkspaces"
 	| "application/vnd.code.tree.fabricstudiodeploymentpipelines"
+	| "application/vnd.code.tree.fabricstudioconnections"
 	;
 
 const LOGGER_NAME = "Fabric Studio"
@@ -36,6 +38,7 @@ export abstract class ThisExtension {
 	private static _notebookKernel: FabricNotebookKernel;
 	private static _treeviewWorkspaces: FabricWorkspacesTreeProvider;
 	private static _treeviewPipelines: FabricPipelinesTreeProvider;
+	private static _treeviewConnections: FabricConnectionsTreeProvider;
 	private static _fabricFileSystemProvider: FabricFileSystemProvider;
 	private static _tempFileSystemProvider: TempFileSystemProvider;
 
@@ -156,6 +159,8 @@ export abstract class ThisExtension {
 				return this.TreeViewWorkspaces;
 			case "application/vnd.code.tree.fabricstudiodeploymentpipelines":
 				return this.TreeViewPipelines;
+			case "application/vnd.code.tree.fabricstudioconnections":
+				return this.TreeViewPipelines;
 		}
 	}
 
@@ -173,6 +178,14 @@ export abstract class ThisExtension {
 
 	static get TreeViewPipelines(): FabricPipelinesTreeProvider {
 		return this._treeviewPipelines;
+	}
+
+	static set TreeViewConnections(treeView: FabricConnectionsTreeProvider) {
+		this._treeviewConnections = treeView;
+	}
+
+	static get TreeViewConnections(): FabricConnectionsTreeProvider {
+		return this._treeviewConnections;
 	}
 	//#endregion
 

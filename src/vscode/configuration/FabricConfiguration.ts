@@ -125,6 +125,10 @@ export abstract class FabricConfiguration {
 	static set workspaceFilter(value: string) { this.setValue("workspaceFilter", value); }
 	static get workspaceFilterRegEx(): RegExp { return new RegExp(this.getValue("workspaceFilter")); }
 
+	static get connectionFilter(): string { return this.getValue("connectionFilter"); }
+	static set connectionFilter(value: string) { this.setValue("connectionFilter", value); }
+	static get connectionFilterRegEx(): RegExp { return new RegExp(this.getValue("connectionFilter")); }
+
 	static get itemTypeFormats(): iItemTypeFormat[] { 
 		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];
 		
@@ -166,7 +170,7 @@ export abstract class FabricConfiguration {
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
 
 	static get resourceId(): string { 
-		return "https://analysis.windows.net/powerbi/api"
+		//return "https://analysis.windows.net/powerbi/api"
 		return "https://api.fabric.microsoft.com";
 		return CLOUD_CONFIGS[this.cloud].resourceId; 
 		}

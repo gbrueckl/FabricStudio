@@ -11,7 +11,7 @@ export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
 		definition: iFabricApiDeploymentPipelineStageItem,
 		parent: FabricPipelineTreeItem
 	) {
-		super(definition.itemDisplayName, definition.itemType, definition.itemId, parent, definition, definition.lastDeploymentTime, vscode.TreeItemCollapsibleState.None);
+		super(definition.itemId, definition.itemDisplayName, definition.itemType, parent, definition, definition.lastDeploymentTime, vscode.TreeItemCollapsibleState.None);
 	
 		this.contextValue = this._contextValue;
 	}

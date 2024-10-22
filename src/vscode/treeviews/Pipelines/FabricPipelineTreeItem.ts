@@ -12,9 +12,9 @@ import { iFabricApiPipelineDeployableItem, iFabricPipelineDeployableItem } from 
 export class FabricPipelineTreeItem extends FabricApiTreeItem implements iFabricPipelineDeployableItem {
 
 	constructor(
+		id: UniqueId,
 		name: string,
 		type: FabricApiItemType,
-		id: UniqueId,
 		parent: FabricPipelineTreeItem,
 		definition: any = undefined,
 		description: string = undefined,

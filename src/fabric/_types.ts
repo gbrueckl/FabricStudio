@@ -54,6 +54,8 @@ export type FabricApiItemType =
 	| "ItemDataAccessRole"					//	An Item data access role.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
+	| "Gateway"
+	| "Connection"
 	;
 
 export enum FabricApiWorkspaceType {
@@ -288,4 +290,21 @@ export interface iFabricApiItemJobInstance {
 	rootActivityId: string; // Root activity id to trace requests across services.
 	
 	status: string; // The item job status. Additional statuses may be added over time.
+}
+
+export interface iFabricApiConnection {
+	id: string; 			// DatasourceId
+	datasourceName: string; // Name of the datasource
+
+	gatewayType: string;
+
+	clusterId: string; 		// GatewayId
+	clusterName: string; 	// Name of the Cluster/Gateway
+	datasourceType: string; // Type of the datasource
+	connectinDetails: any; 	// details of the connection
+	
+	key: any; 				// unique key used for the datasource connection info
+	
+	credentialDetails: any; 
+	
 }

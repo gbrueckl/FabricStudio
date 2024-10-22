@@ -29,6 +29,8 @@ import { FabricItem } from './vscode/treeviews/Workspaces/FabricItem';
 import { FabricDataPipeline } from './vscode/treeviews/Workspaces/FabricDataPipeline';
 import { FabricSparkJob } from './vscode/treeviews/Workspaces/FabricSparkJob';
 import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/FabricWorkspaceRoleAssignment';
+import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
+import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -146,6 +148,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deploySelection', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(undefined));
 	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deployItem', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(item));
 	
+	//#endregion
+
+	//#region Fabric Connections TreeView
+	let fabricConnectionsTreeViewProvider = new FabricConnectionsTreeProvider(context);
+
+	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
 	//#endregion
 
 	//#region Fabric Git

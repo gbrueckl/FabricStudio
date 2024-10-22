@@ -17,7 +17,7 @@ export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabr
 		definition: iFabricApiDeploymentPipelineStage,
 		parent: FabricPipelineTreeItem
 	) {
-		super(definition.displayName, "DeploymentPipelineStage", definition.id, parent, vscode.TreeItemCollapsibleState.Collapsed);
+		super(definition.id, definition.displayName, "DeploymentPipelineStage", parent, vscode.TreeItemCollapsibleState.Collapsed);
 
 		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;
