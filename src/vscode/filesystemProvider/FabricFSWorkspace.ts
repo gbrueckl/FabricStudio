@@ -1,13 +1,11 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiItem, iFabricApiWorkspace } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem, iFabricApiWorkspace } from '../../fabric/_types';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
 import { FabricFSUri } from './FabricFSUri';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSRoot } from './FabricFSRoot';
-import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
-import { Helper } from '@utils/Helper';
+import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
 
 export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWorkspace {
 	id: string;
@@ -56,10 +54,9 @@ export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWo
 			const response = await FabricApiService.getList<iFabricApiItem>(`/v1/workspaces/${this.FabricUri.workspaceId}/items`);
 			this._apiResponse = response.success;
 			this._children = [];
-			const configItemFormats = FabricConfiguration.itemTypeFormats.map((x) => `${x.itemType}`);
 			for (let item of this._apiResponse) {
-				const itemTypePlural = `${item.type}s`
-				if (!this._children.find((x) => x[0] == itemTypePlural) && configItemFormats.includes(itemTypePlural)) {
+				const itemTypePlural = `${item.type}s` as FabricApiItemType;
+				if (!this._children.find((x) => x[0] == itemTypePlural) && TYPES_WITH_DEFINITION.includes(itemTypePlural)) {
 					this._children.push([itemTypePlural, vscode.FileType.Directory]);
 				}
 			}

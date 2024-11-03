@@ -16,6 +16,7 @@ export class FabricConnection extends FabricConnectionGenericViewer {
 
 		this.tooltip = this.getToolTip(definition);
 		this.iconPath = new vscode.ThemeIcon("extensions-remote");
+		this.description = definition.datasourceType;
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */

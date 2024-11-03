@@ -323,7 +323,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 					return;
 				default:
 					execution.appendOutput(new vscode.NotebookCellOutput([
-						vscode.NotebookCellOutputItem.text("Only %dax, %api and %cmd magics are supported."),
+						vscode.NotebookCellOutputItem.text("Only %api and %cmd magics are currently supported."),
 					]));
 
 					execution.end(false, Date.now());

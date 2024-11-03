@@ -1,11 +1,8 @@
 import * as vscode from 'vscode';
 
-import { Helper, UniqueId } from '@utils/Helper';
+import { Helper } from '@utils/Helper';
 
-import { ThisExtension } from '../../../ThisExtension';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
-import { FabricApiItemType } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
 import { TempFileSystemProvider } from '../../filesystemProvider/temp/TempFileSystemProvider';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html

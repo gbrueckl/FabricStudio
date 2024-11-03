@@ -31,7 +31,6 @@ import { FabricSparkJob } from './vscode/treeviews/Workspaces/FabricSparkJob';
 import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/FabricWorkspaceRoleAssignment';
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
-import { FabricMirroredDatabase } from './vscode/treeviews/Workspaces/FabricMirroredDatabase';
 import { FabricMirroredDatabaseSynchronization } from './vscode/treeviews/Workspaces/FabricMirroredDatabaseSynchronization';
 
 export async function activate(context: vscode.ExtensionContext) {

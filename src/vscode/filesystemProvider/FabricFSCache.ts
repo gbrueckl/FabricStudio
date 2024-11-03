@@ -9,7 +9,7 @@ import { FabricFSFileDecorationProvider } from '../fileDecoration/FabricFileDeco
 import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { Helper } from '@utils/Helper';
-import { FabricConfiguration } from '../configuration/FabricConfiguration';
+import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
 import { FabricApiItemType } from '../../fabric/_types';
 
 export abstract class FabricFSCache {
@@ -195,7 +195,7 @@ export abstract class FabricFSCache {
 
 				const newItemType: FabricApiItemType = newFolderName.split(".").pop() as FabricApiItemType;
 
-				if (!FabricConfiguration.itemTypes.includes(newItemType)) {
+				if (!TYPES_WITH_DEFINITION.includes(newItemType)) {
 					(item as FabricFSItem).createSubFolder(newItemType);
 				}
 

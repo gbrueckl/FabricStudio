@@ -87,20 +87,23 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 }
 
 // known list of Item Typs which support the Definition APIs
-// used to show/hide the "Edit Definitions" command
+// used to show/hide the "Edit Definitions" command and drive subfolders of the Fabric file system provider
 export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
 	"DataPipelines",
 	"Notebooks",
 	"Reports",
 	"SemanticModels",
-	"SparkJobDefinitions"
+	"SparkJobDefinitions",
+	"MirroredDatabases"
 ];
 
+// as we get it from the Config
 interface iItemTypeFormatConfig {
 	itemType: string;
 	format: string;
 }
 
+// as we use it internally
 interface iItemTypeFormat {
 	itemType: FabricApiItemType;
 	format: FabricApiItemFormat;
