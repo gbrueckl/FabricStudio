@@ -21,6 +21,8 @@ import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricNotebooks } from './FabricNotebooks';
 import { FabricNotebook } from './FabricNotebook';
+import { FabricMirroredDatabases } from './FabricMirroredDatabases';
+import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -90,8 +92,11 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						else if (item.type == "GraphQLApi") {
 							treeItem = new FabricGraphQLApis(this);
 						}
-						else if (item.type == "Notebooks") {
+						else if (item.type == "Notebook") {
 							treeItem = new FabricNotebooks(this);
+						}
+						else if (item.type == "MirroredDatabase") {
+							treeItem = new FabricMirroredDatabases(this);
 						}
 						else {
 							treeItem = new FabricWorkspaceGenericFolder(
@@ -123,6 +128,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 					}
 					else if (item.type == "Notebook") {
 						itemToAdd = new FabricNotebook(item, this);
+					}
+					else if (item.type == "MirroredDatabase") {
+						itemToAdd = new FabricMirroredDatabase(item, this);
 					}
 					else {
 						itemToAdd = new FabricItem(item, this);

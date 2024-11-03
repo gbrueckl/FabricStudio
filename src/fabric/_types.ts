@@ -54,6 +54,11 @@ export type FabricApiItemType =
 	| "ItemDataAccessRole"					//	An Item data access role.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
+	| "MirroredDatabases"					//	Folder for mirrored databases.
+	| "MirroredDatabase"					//	A mirrored database.
+	| "MirroredDatabaseSynchronization"		//	A mirrored database synchronization.
+	| "MirroredDatabaseTables"				//	Folder for mirrored database tables.
+	| "MirroredDatabaseTable"				//	A mirrored database table.
 	| "Gateway"
 	| "Connection"
 	;
@@ -318,4 +323,16 @@ export interface iFabricApiConnection {
 	users: iFabricApiConnectionPermission[];
 	datasourceUsers: iFabricApiConnectionPermission[];
 
+}
+
+export interface iFabricApiTableMirroringStatusResponse {
+	error: iFabricErrorResponse; // Table level error is set if error happens in mirroring for this table
+	metrics: {	// The mirroring metrics of table.
+		lastSyncDateTime: string; // Last processed time of the table in in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
+		processedBytes: number; // Processed bytes for this table.
+		processedRows: number; // Processed row count for this table.
+	}; 
+	sourceSchemaName: string; // Source table schema name.
+	sourceTableName: string; // Source table name.
+	status: "Failed" | "Initialized" | "Replicating" | "Reseeding" | "Snapshotting" | "Stopped"; // The mirroring status type of table.
 }

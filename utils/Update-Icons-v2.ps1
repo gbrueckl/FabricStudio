@@ -41,6 +41,8 @@ Move-Item "$iconsFolder/model.svg" "$iconsFolder/semanticmodel.svg" -Force
 Move-Item "$iconsFolder/pipeline.svg" "$iconsFolder/datapipeline.svg" -Force
 Move-Item "$iconsFolder/sparkjobdirection.svg" "$iconsFolder/sparkjobdefinition.svg" -Force
 Copy-Item "$iconsFolder/warehouse.svg" "$iconsFolder/sqlendpoint.svg" -Force
+Copy-Item "$iconsFolder/mirroredgenericdatabase.svg" "$iconsFolder/mirroreddatabase.svg" -Force
+Copy-Item "$iconsFolder/mirroredgenericdatabase.svg" "$iconsFolder/mirroredwarehouse.svg" -Force
 #Remove-Item (Join-Path $outFolder "package") -recurse
 
 Copy-Item "$outFolderIcons/group_workspace_64_non-item.svg" "$iconsFolder/workspace.svg" -Force

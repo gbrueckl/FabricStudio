@@ -79,8 +79,8 @@
 						"type": "string",
 						"markdownDescription": "(Optional) A regex to filter connections by name. Only connections matching this regex will be shown in the Fabric Studio Connections view.",
 						"examples": [
-							"Project A|Sales",
-							"\\[TEST]|\\[PROD]"
+							"\\.database\\.windows\\.net|\\.dfs\\.core\\.windows\\.net",
+							"\"credentialType\": \"Basic\""
 						]
 					},
 					"fabricStudio.itemTypeFormats": {
@@ -98,6 +98,11 @@
 								"format": {
 									"type": "string",
 									"markdownDescription": "The file extension used when downloading the specified ItemType.",
+									"required": false
+								},
+								"publishOnSave": {
+									"type": "boolean",
+									"markdownDescription": "If true, the item will be published to Fabric when the file is saved.",
 									"required": false
 								}
 							}
@@ -117,6 +122,9 @@
 							},
 							{
 								"itemType": "DataPipelines"
+							},
+							{
+								"itemType": "MirroredDatabases"
 							}
 						]
 					},
@@ -359,6 +367,24 @@
 				"category": "FabricStudio.Lakehouse"
 			},
 			{
+				"command": "FabricStudio.MirroredDatabase.startMirroring",
+				"title": "Start Mirroring",
+				"icon": "$(debug-start)",
+				"category": "FabricStudio.MirroredDatabase"
+			},
+			{
+				"command": "FabricStudio.MirroredDatabase.stopMirroring",
+				"title": "Stop Mirroring",
+				"icon": "$(debug-pause)",
+				"category": "FabricStudio.MirroredDatabase"
+			},
+			{
+				"command": "FabricStudio.MirroredDatabase.updateMirroringStatus",
+				"title": "Refresh Mirroring Status",
+				"icon": "$(refresh)",
+				"category": "FabricStudio.MirroredDatabase"
+			},
+			{
 				"command": "FabricStudio.GrapqhQLApi.copyEndpoint",
 				"title": "Copy GraphQL Endpoint",
 				"icon": "$(graph-scatter)",
@@ -562,6 +588,21 @@
 					"command": "FabricStudio.Lakehouse.Table.maintain",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,LAKEHOUSETABLE,.*/",
 					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.MirroredDatabase.startMirroring",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,START_MIRRORING,.*/",
+					"group": "3_compare"
+				},
+				{
+					"command": "FabricStudio.MirroredDatabase.stopMirroring",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,STOP_MIRRORING,.*/",
+					"group": "3_compare"
+				},
+				{
+					"command": "FabricStudio.MirroredDatabase.updateMirroringStatus",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,UPDATE_MIRRORING_STATUS,.*/",
+					"group": "3_compare"
 				},
 				{
 					"command": "FabricStudio.GrapqhQLApi.copyEndpoint",

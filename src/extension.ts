@@ -31,6 +31,8 @@ import { FabricSparkJob } from './vscode/treeviews/Workspaces/FabricSparkJob';
 import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/FabricWorkspaceRoleAssignment';
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
+import { FabricMirroredDatabase } from './vscode/treeviews/Workspaces/FabricMirroredDatabase';
+import { FabricMirroredDatabaseSynchronization } from './vscode/treeviews/Workspaces/FabricMirroredDatabaseSynchronization';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -129,6 +131,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeFilesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeFilesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeTablesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
+
+	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.updateMirroringStatus', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.updateMirroringStatus());
+	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.startMirroring', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.startMirroring());
+	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.stopMirroring', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.stopMirroring());
+
 
 	vscode.commands.registerCommand('FabricStudio.GrapqhQLApi.copyEndpoint', (graphQlApi: FabricGraphQLApi) => graphQlApi.copyGraphQLEndpoint());
 	

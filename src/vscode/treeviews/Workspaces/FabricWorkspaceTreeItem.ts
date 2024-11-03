@@ -7,7 +7,7 @@ import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
-import { FabricConfiguration } from '../../configuration/FabricConfiguration';
+import { FabricConfiguration, TYPES_WITH_DEFINITION } from '../../configuration/FabricConfiguration';
 import { FabricCommandBuilder } from '../../input/FabricCommandBuilder';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 
@@ -33,9 +33,8 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 		let actions: string[] = [];
 
-		const configItemFormats = FabricConfiguration.itemTypeFormats.map((x) => `${x.itemType}`);
-		const itemTypePlural = this.itemType + (this.itemType.endsWith("s") ? "" : "s");
-		if(configItemFormats.includes(itemTypePlural)) {
+		const itemTypePlural: FabricApiItemType = (this.itemType + (this.itemType.endsWith("s") ? "" : "s")) as FabricApiItemType;
+		if(TYPES_WITH_DEFINITION.includes(itemTypePlural)) {
 			actions.push("EDIT_DEFINITION");
 		}
 
