@@ -9,8 +9,9 @@ import { FabricFSFileDecorationProvider } from '../fileDecoration/FabricFileDeco
 import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { Helper } from '@utils/Helper';
-import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
+import { FabricConfiguration, TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
 import { FabricApiItemType } from '../../fabric/_types';
+import { FABRIC_SCHEME } from './FabricFileSystemProvider';
 
 export abstract class FabricFSCache {
 	private static _localChanges: Map<string, FabricFSPublishAction> = new Map<string, FabricFSPublishAction>();
@@ -91,17 +92,24 @@ export abstract class FabricFSCache {
 
 		if (fabricUri.uriType == FabricUriType.part) {
 			const newFileAdded = await (item as FabricFSItem).writeContentToSubpath(fabricUri.part, content, options);
-
+			
 			if (item.publishAction != FabricFSPublishAction.CREATE) {
 				FabricFSCache.localItemModified(item.FabricUri);
 				item.publishAction = FabricFSPublishAction.MODIFIED;
 			}
 
+			// should be handled by Save-handler
+			// const publishOnSave = FabricConfiguration.getFabricItemTypePublishOnSave(item.FabricUri.itemType);
+			// if (publishOnSave) {
+			// 	await FabricFSCache.publishToFabric(item.FabricUri.uri);
+			// }
+
 			return;
 		}
 
-		ThisExtension.Logger.logDebug(`writeFile() - Could not write File: ${fabricUri.uri.toString()}`);
-		vscode.window.showErrorMessage("Could not write File: " + fabricUri.uri.toString());
+		// individual files can only be written below an item as parts
+		const msg = `Individual files can only be written below an item: ${fabricUri.uri.toString()}`;
+		ThisExtension.Logger.logError(msg, true);
 		throw vscode.FileSystemError.Unavailable("Could not write File: " + fabricUri.uri.toString());
 	}
 
@@ -234,7 +242,7 @@ export abstract class FabricFSCache {
 		const fabricUri: FabricFSUri = await FabricFSUri.getInstance(resourceUri);
 
 		ThisExtension.Logger.logInfo("Publishing changes to Fabric ...");
-		
+
 		for (let [key, action] of FabricFSCache._localChanges.entries()) {
 			if (key.startsWith(fabricUri.uniqueKey)) {
 				const itemToPublish = FabricFSCache.getCacheItem(await FabricFSUri.getInstance(vscode.Uri.parse(key))) as FabricFSItem;
@@ -249,6 +257,23 @@ export abstract class FabricFSCache {
 					vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer", fabricUri.uri);
 				}
 			}
+		}
+	}
+
+	public static async onDidSave(document: vscode.TextDocument | vscode.NotebookDocument): Promise<void> {
+		const fabricUri: FabricFSUri = await FabricFSUri.getInstance(document.uri);
+		const publishOnSave = FabricConfiguration.getFabricItemTypePublishOnSave(fabricUri.itemType);
+
+		if (document.uri.scheme === FABRIC_SCHEME && publishOnSave) {
+			const item = FabricFSCache.getCacheItem(fabricUri) as FabricFSItem;
+
+			// if (item) {
+			// 	if (item.publishAction != FabricFSPublishAction.CREATE) {
+			// 		FabricFSCache.localItemModified(fabricUri);
+			// 		item.publishAction = FabricFSPublishAction.MODIFIED;
+			// 	}
+			// }
+			await FabricFSCache.publishToFabric(item.FabricUri.uri);
 		}
 	}
 

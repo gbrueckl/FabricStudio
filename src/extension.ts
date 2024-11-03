@@ -174,6 +174,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//#endregion
 
+	// eventhandles when Fabric documents are saved
+	vscode.workspace.onDidSaveTextDocument(FabricFSCache.onDidSave);
+	vscode.workspace.onDidSaveNotebookDocument(FabricFSCache.onDidSave);
 
 
 	vscode.commands.executeCommand('FabricStudio.initialize');

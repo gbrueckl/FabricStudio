@@ -101,12 +101,14 @@ export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
 interface iItemTypeFormatConfig {
 	itemType: string;
 	format: string;
+	publishOnSave: boolean;
 }
 
 // as we use it internally
 interface iItemTypeFormat {
 	itemType: FabricApiItemType;
 	format: FabricApiItemFormat;
+	publishOnSave: boolean;
 }
 
 export abstract class FabricConfiguration {
@@ -138,7 +140,8 @@ export abstract class FabricConfiguration {
 		let typedValues = confValues.map((item) => {
 			return { 
 				itemType: item.itemType as FabricApiItemType, // loose cast
-				format: item.format as FabricApiItemFormat // loose cast
+				format: item.format as FabricApiItemFormat, // loose cast
+				publishOnSave: item.publishOnSave
 			};
 		});
 
@@ -148,13 +151,22 @@ export abstract class FabricConfiguration {
 		return this.itemTypeFormats.map((item) => item.itemType); 
 	}
 
-	static getFabricItemTypeformat(itemType: FabricApiItemType): FabricApiItemFormat {
+	static getFabricItemTypeFormat(itemType: FabricApiItemType): FabricApiItemFormat {
 		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
 		if(!item || !item.format)
 		{
 			return FabricApiItemFormat.DEFAULT;
 		}
 		return item.format;
+	}
+
+	static getFabricItemTypePublishOnSave(itemType: FabricApiItemType): boolean {
+		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
+		if(!item || !item.publishOnSave)
+		{
+			return false;
+		}
+		return item.publishOnSave;
 	}
 
 	static get iconStyle(): string { 

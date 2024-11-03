@@ -34,7 +34,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 
 	get format(): FabricApiItemFormat {
 		if (!this._format) {
-			this._format = FabricConfiguration.getFabricItemTypeformat(this.FabricUri.itemType);
+			this._format = FabricConfiguration.getFabricItemTypeFormat(this.FabricUri.itemType);
 		}
 		return this._format;
 	}
@@ -232,29 +232,30 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 
 	public async publish(): Promise<iFabricApiResponse> {
 		let definition = await this.getItemDefinition();
+		const itemTypeSingular = this.FabricUri.itemType.toLowerCase().slice(0, -1);
 
 		let response;
 		// if the item was created locally, we need to use CREATE instead of UPDATE
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
-			response = await FabricApiService.createItem(this.workspaceId, this.displayName, this.FabricUri.itemType, definition, `Creating ${this.FabricUri.itemType} '${this.displayName}'`);
+			response = await FabricApiService.createItem(this.workspaceId, this.displayName, this.FabricUri.itemType, definition, `Creating ${itemTypeSingular} '${this.displayName}'`);
 			// add NameIdMap for subsequent calls to the created item
 			FabricFSUri.addItemNameIdMap(`${response.success.workspaceId}/${response.success.type}/${response.success.itemName}`, response.success.id);
 			this.publishAction = FabricFSPublishAction.MODIFIED;
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
 			if(["semanticmodels", "reports"].includes(this.FabricUri.itemType.toLowerCase())) {
-				ThisExtension.Logger.logInfo("Updating items of type '" + this.FabricUri.itemType + "' is not supported yet supported by the APIs!");
+				ThisExtension.Logger.logInfo("Updating items of type '" + itemTypeSingular + "' is not supported yet supported by the APIs!");
 			}
 			else {
 				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
 			}
 			
 			if (!response || !response.error) {
-				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, `Updating ${this.FabricUri.itemType} '${this.displayName}'`);
+				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, `Updating ${itemTypeSingular} '${this.displayName}'`);
 			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {
-			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${this.FabricUri.itemType} '${this.displayName}'`);
+			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${itemTypeSingular} '${this.displayName}'`);
 			FabricFSCache.removeCacheItem(this);
 			this.parent.removeChild(this.displayName)
 			ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);
