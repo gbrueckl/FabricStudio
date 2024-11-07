@@ -73,6 +73,7 @@ export class FabricFSUri {
 		const fabricUri = new FabricFSUri(uri);
 
 		if (!fabricUri.isValid && !skipValidation) {
+			ThisExtension.Logger.logDebug(`Fabric URI '${uri.toString()}' is not valid!`);
 			throw vscode.FileSystemError.FileNotFound(uri);
 		}
 

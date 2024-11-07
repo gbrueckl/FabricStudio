@@ -103,7 +103,14 @@
 								"publishOnSave": {
 									"type": "boolean",
 									"markdownDescription": "If true, the item will be published to Fabric when the file is saved.",
-									"required": false
+									"required": false,
+									"default": false
+								},
+								"compactView": {
+									"type": "boolean",
+									"markdownDescription": "If true, the item folder will not be displayed and instead only the content-file will be shown.",
+									"required": false,
+									"default": false
 								}
 							}
 						},

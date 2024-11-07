@@ -42,6 +42,15 @@ export abstract class FabricFSCache {
 		}
 		const stats = await item.stats();
 
+		if (fabricUri.uriType == FabricUriType.item && FabricConfiguration.getFabricItemTypeCompactView(fabricUri.itemType)) {
+			return {
+				type: vscode.FileType.File,
+				ctime: stats.ctime,
+				mtime: stats.mtime,
+				size: stats.size
+			}
+		}
+
 		if (!stats) {
 			ThisExtension.Logger.logInfo(`stats() - Fabric URI is not found: ${fabricUri.uri.toString()}`);
 			throw vscode.FileSystemError.FileNotFound(fabricUri.uri);
@@ -65,7 +74,19 @@ export abstract class FabricFSCache {
 			return (item as FabricFSItem).getChildrenForSubpath(fabricUri.part);
 		}
 
-		return item.readDirectory();
+		const items = item.readDirectory();
+
+		if(fabricUri.uriType == FabricUriType.itemType && FabricConfiguration.getFabricItemTypeCompactView(fabricUri.itemType)) {
+			let compactItems: [string, vscode.FileType][] = [];
+			for(let i of (await items)) {
+				let compactName = i[0] + ".json";
+				compactItems.push([compactName, vscode.FileType.File]);
+				await FabricFSCache.addCacheItem(await FabricFSUri.getInstance(vscode.Uri.joinPath(fabricUri.uri, compactName), true));
+			}
+			return compactItems;
+		}
+
+		return items;
 	}
 
 	public static async readFile(fabricUri: FabricFSUri): Promise<Uint8Array> {
@@ -76,6 +97,12 @@ export abstract class FabricFSCache {
 
 		if (fabricUri.uriType == FabricUriType.part) {
 			return (item as FabricFSItem).getContentForSubpath(fabricUri.part);
+		}
+		if (fabricUri.uriType == FabricUriType.item && FabricConfiguration.getFabricItemTypeCompactView(fabricUri.itemType)) {
+			const contentFile = (await (item as FabricFSItem).readDirectory()).find((child) => child[0].includes("-content."));
+			if (contentFile) {
+				return (item as FabricFSItem).getContentForSubpath(contentFile[0]);
+			}
 		}
 
 		ThisExtension.Logger.logDebug(`readFile() - Could not read File: ${fabricUri.uri.toString()}`);
@@ -92,17 +119,11 @@ export abstract class FabricFSCache {
 
 		if (fabricUri.uriType == FabricUriType.part) {
 			const newFileAdded = await (item as FabricFSItem).writeContentToSubpath(fabricUri.part, content, options);
-			
+
 			if (item.publishAction != FabricFSPublishAction.CREATE) {
 				FabricFSCache.localItemModified(item.FabricUri);
 				item.publishAction = FabricFSPublishAction.MODIFIED;
 			}
-
-			// should be handled by Save-handler
-			// const publishOnSave = FabricConfiguration.getFabricItemTypePublishOnSave(item.FabricUri.itemType);
-			// if (publishOnSave) {
-			// 	await FabricFSCache.publishToFabric(item.FabricUri.uri);
-			// }
 
 			return;
 		}
@@ -112,8 +133,6 @@ export abstract class FabricFSCache {
 		ThisExtension.Logger.logError(msg, true);
 		throw vscode.FileSystemError.Unavailable("Could not write File: " + fabricUri.uri.toString());
 	}
-
-
 
 	public static async delete(fabricUri: FabricFSUri): Promise<void> {
 		let item = FabricFSCache.getCacheItem(fabricUri);
@@ -267,12 +286,6 @@ export abstract class FabricFSCache {
 		if (document.uri.scheme === FABRIC_SCHEME && publishOnSave) {
 			const item = FabricFSCache.getCacheItem(fabricUri) as FabricFSItem;
 
-			// if (item) {
-			// 	if (item.publishAction != FabricFSPublishAction.CREATE) {
-			// 		FabricFSCache.localItemModified(fabricUri);
-			// 		item.publishAction = FabricFSPublishAction.MODIFIED;
-			// 	}
-			// }
 			await FabricFSCache.publishToFabric(item.FabricUri.uri);
 		}
 	}
@@ -293,7 +306,6 @@ export abstract class FabricFSCache {
 	public static getCacheItem(fabricUri: FabricFSUri): FabricFSCacheItem {
 		return FabricFSCache._cache.get(fabricUri.cacheItemKey);
 	}
-
 
 	public static hasCacheItem(item: FabricFSUri): boolean {
 		return FabricFSCache._cache.has(item.cacheItemKey);

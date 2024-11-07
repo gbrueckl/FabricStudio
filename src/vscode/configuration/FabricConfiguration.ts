@@ -102,6 +102,7 @@ interface iItemTypeFormatConfig {
 	itemType: string;
 	format: string;
 	publishOnSave: boolean;
+	compactView: boolean;
 }
 
 // as we use it internally
@@ -109,6 +110,7 @@ interface iItemTypeFormat {
 	itemType: FabricApiItemType;
 	format: FabricApiItemFormat;
 	publishOnSave: boolean;
+	compactView: boolean;
 }
 
 export abstract class FabricConfiguration {
@@ -141,7 +143,8 @@ export abstract class FabricConfiguration {
 			return { 
 				itemType: item.itemType as FabricApiItemType, // loose cast
 				format: item.format as FabricApiItemFormat, // loose cast
-				publishOnSave: item.publishOnSave
+				publishOnSave: item.publishOnSave,
+				compactView: item.compactView
 			};
 		});
 
@@ -167,6 +170,15 @@ export abstract class FabricConfiguration {
 			return false;
 		}
 		return item.publishOnSave;
+	}
+
+	static getFabricItemTypeCompactView(itemType: FabricApiItemType): boolean {
+		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
+		if(!item || !item.compactView)
+		{
+			return false;
+		}
+		return item.compactView;
 	}
 
 	static get iconStyle(): string { 
