@@ -134,6 +134,10 @@ export abstract class FabricConfiguration {
 	static set connectionFilter(value: string) { this.setValue("connectionFilter", value); }
 	static get connectionFilterRegEx(): RegExp { return new RegExp(this.getValue("connectionFilter")); }
 
+	static get capacityFilter(): string { return this.getValue("capacityFilter"); }
+	static set capacityFilter(value: string) { this.setValue("capacityFilter", value); }
+	static get capacityFilterRegEx(): RegExp { return new RegExp(this.getValue("capacityFilter")); }
+
 	static get itemTypeFormats(): iItemTypeFormat[] { 
 		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];
 		

@@ -14,12 +14,14 @@ import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWor
 import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
 import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
+import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
 
 
 export type TreeProviderId =
 	"application/vnd.code.tree.fabricstudioworkspaces"
 	| "application/vnd.code.tree.fabricstudiodeploymentpipelines"
 	| "application/vnd.code.tree.fabricstudioconnections"
+	| "application/vnd.code.tree.fabricstudiocapacities"
 	;
 
 const LOGGER_NAME = "Fabric Studio"
@@ -39,6 +41,7 @@ export abstract class ThisExtension {
 	private static _treeviewWorkspaces: FabricWorkspacesTreeProvider;
 	private static _treeviewPipelines: FabricPipelinesTreeProvider;
 	private static _treeviewConnections: FabricConnectionsTreeProvider;
+	private static _treeviewCapacities: FabricCapacitiesTreeProvider;
 	private static _fabricFileSystemProvider: FabricFileSystemProvider;
 	private static _tempFileSystemProvider: TempFileSystemProvider;
 
@@ -161,6 +164,8 @@ export abstract class ThisExtension {
 				return this.TreeViewPipelines;
 			case "application/vnd.code.tree.fabricstudioconnections":
 				return this.TreeViewPipelines;
+			case "application/vnd.code.tree.fabricstudiocapacities":
+				return this.TreeViewCapacities;
 		}
 	}
 
@@ -186,6 +191,14 @@ export abstract class ThisExtension {
 
 	static get TreeViewConnections(): FabricConnectionsTreeProvider {
 		return this._treeviewConnections;
+	}
+
+	static set TreeViewCapacities(treeView: FabricCapacitiesTreeProvider) {
+		this._treeviewCapacities = treeView;
+	}
+
+	static get TreeViewCapacities(): FabricCapacitiesTreeProvider {
+		return this._treeviewCapacities;
 	}
 	//#endregion
 

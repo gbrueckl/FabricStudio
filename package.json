@@ -77,10 +77,18 @@
 					},
 					"fabricStudio.connectionFilter": {
 						"type": "string",
-						"markdownDescription": "(Optional) A regex to filter connections by name. Only connections matching this regex will be shown in the Fabric Studio Connections view.",
+						"markdownDescription": "(Optional) A regex to filter connections. Only connections where the definition is matching this regex will be shown in the Fabric Studio Connections view.",
 						"examples": [
 							"\\.database\\.windows\\.net|\\.dfs\\.core\\.windows\\.net",
 							"\"credentialType\": \"Basic\""
+						]
+					},
+					"fabricStudio.capacityFilter": {
+						"type": "string",
+						"markdownDescription": "(Optional) A regex to filter capacities. Only capacities where the definition is matching this regex will be shown in the Fabric Studio Capacities view.",
+						"examples": [
+							"F2",
+							"West Europe"
 						]
 					},
 					"fabricStudio.itemTypeFormats": {
@@ -182,6 +190,10 @@
 				{
 					"id": "FabricStudioConnections",
 					"name": "Connections"
+				},
+				{
+					"id": "FabricStudioCapacities",
+					"name": "Capacities"
 				}
 			]
 		},
@@ -196,6 +208,10 @@
 			},
 			{
 				"view": "FabricStudioConnections",
+				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
+			},
+			{
+				"view": "FabricStudioCapacities",
 				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
 			}
 		],
@@ -473,6 +489,18 @@
 				"command": "FabricStudio.Connections.filter",
 				"title": "Filter Connections",
 				"icon": "$(filter)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Capacities.refresh",
+				"title": "Refresh Capacities",
+				"icon": "$(refresh)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Capacities.filter",
+				"title": "Filter Capacities",
+				"icon": "$(filter)"
 			}
 		],
 		"menus": {
@@ -515,6 +543,16 @@
 				{
 					"command": "FabricStudio.Connections.filter",
 					"when": "view == FabricStudioConnections",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Capacities.refresh",
+					"when": "view == FabricStudioCapacities",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Capacities.filter",
+					"when": "view == FabricStudioCapacities",
 					"group": "navigation"
 				}
 			],
