@@ -10,7 +10,7 @@ import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { Helper } from '@utils/Helper';
 import { FabricConfiguration, TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
-import { FabricApiItemType } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiItemPart } from '../../fabric/_types';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
 
 export abstract class FabricFSCache {
@@ -163,6 +163,7 @@ export abstract class FabricFSCache {
 		if (!oldItem) {
 			throw vscode.FileSystemError.FileNotFound(oldFabricUri.uri);
 		}
+		const fileOrFolder = (await FabricFSCache.stats(oldFabricUri)).type;
 
 		let newItem = FabricFSCache.getCacheItem(newFabricUri);
 		if (!newItem) {
@@ -170,16 +171,34 @@ export abstract class FabricFSCache {
 		}
 
 		if (oldFabricUri.uriType == FabricUriType.part && newFabricUri.uriType == FabricUriType.part) {
-			// check if the target file already exists
-			const newPart = await (newItem as FabricFSItem).getPart(newFabricUri.part);
-			if (newPart) {
-				throw vscode.FileSystemError.FileExists(newFabricUri.uri);
+			let folderParts: iFabricApiItemPart[] = [];
+			if(fileOrFolder == vscode.FileType.Directory) {
+				// check if the target folder already exists
+				folderParts = await (oldItem as FabricFSItem).getPartsFromFolder(oldFabricUri.part);
+			}
+			else if(fileOrFolder == vscode.FileType.File) {
+				folderParts = [await (oldItem as FabricFSItem).getPart(oldFabricUri.part)];
+			}
+			else {
+				ThisExtension.Logger.logError("rename() - Could not rename File: " + oldFabricUri.uri.toString(), true);
 			}
 
-			let part = await (oldItem as FabricFSItem).getPart(oldFabricUri.part);
-			(oldItem as FabricFSItem).removePart(oldFabricUri.part);
+			for (let oldPart of folderParts) {
+				const newPartPath = oldPart.path.replace(oldFabricUri.part, newFabricUri.part)
+				// check if the target file already exists
+				const newPart = await (newItem as FabricFSItem).getPart(newPartPath);
+				if (newPart) {
+					throw vscode.FileSystemError.FileExists(newFabricUri.uri);
+				}
 
-			(newItem as FabricFSItem).addPart(newFabricUri.part, part.payload, part.payloadType);
+				//let oldPart = await (oldItem as FabricFSItem).getPart(oldPart.path);
+				(oldItem as FabricFSItem).removePart(oldPart.path);
+
+				(newItem as FabricFSItem).addPart(newPartPath, oldPart.payload, oldPart.payloadType);
+			}
+
+			FabricFSCache.localItemModified(oldItem.FabricUri);
+			FabricFSCache.localItemModified(newItem.FabricUri);
 
 			return;
 		}
@@ -193,7 +212,14 @@ export abstract class FabricFSCache {
 			(oldItem as FabricFSItem).displayName = decodeURIComponent(newFabricUri.item);
 			FabricFSCache.addCacheItem(newFabricUri, oldItem)
 
-			FabricFSCache.localItemModified(newFabricUri);
+			if(oldItem.FabricUri == newItem.FabricUri) {
+				FabricFSCache.localItemModified(newFabricUri);
+			}
+			else {
+				FabricFSCache.localItemAdded(newFabricUri);
+				FabricFSCache.localItemDeleted(oldFabricUri);
+			}
+			
 
 			return;
 		}

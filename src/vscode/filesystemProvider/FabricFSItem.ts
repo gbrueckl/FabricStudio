@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 
+import { Helper } from '@utils/Helper';
+import { Buffer } from '@env/buffer';
 
 import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
@@ -234,6 +236,10 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		let definition = await this.getItemDefinition();
 		const itemTypeSingular = this.FabricUri.itemType.toLowerCase().slice(0, -1);
 
+		if(!this.publishAction) {
+			this.publishAction = FabricFSCache.getLocalChanges(this.FabricUri);
+		}
+
 		let response;
 		// if the item was created locally, we need to use CREATE instead of UPDATE
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
@@ -255,7 +261,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {
-			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${itemTypeSingular} '${this.displayName}'`);
+			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${itemTypeSingular} '${this.displayName || this.FabricUri.item}'`);
 			FabricFSCache.removeCacheItem(this);
 			this.parent.removeChild(this.displayName)
 			ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);
@@ -272,7 +278,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		let parts = this.getApiResponse();
 		const partPathDecoded = decodeURIComponent(partPath);
 
-		this._apiResponse = parts.filter((part) => !part.path.startsWith(partPathDecoded + "/"));
+		this._apiResponse = parts.filter((part) => part.path != partPathDecoded && !part.path.startsWith(partPathDecoded + "/"));
 
 		// reload children from modified API Response
 		this._children = undefined;
@@ -302,6 +308,14 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		
 		// part might be not found and undefined! must be checked by caller!
 		return part;
+	}
+
+	public async getPartsFromFolder(partPath: string): Promise<iFabricApiItemPart[]> {
+		let parts = this.getApiResponse();
+		const partPathDecoded = Helper.trimChar(decodeURIComponent(partPath), '/');
+		const folderParts = parts.filter((part) => part.path.startsWith(partPathDecoded + "/"));
+
+		return folderParts;
 	}
 
 	public async createSubFolder(folderPath: string): Promise<void> {

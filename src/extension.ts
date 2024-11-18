@@ -32,6 +32,8 @@ import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/Fab
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
 import { FabricMirroredDatabaseSynchronization } from './vscode/treeviews/Workspaces/FabricMirroredDatabaseSynchronization';
+import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
+import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -161,6 +163,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.filter());
+	//#endregion
+
+	//#region Fabric Capacities TreeView
+	let fabricCapacitiesTreeViewProvider = new FabricCapacitiesTreeProvider(context);
+
+	vscode.commands.registerCommand('FabricStudio.Capacities.refresh', (item: FabricCapacityTreeItem = undefined, showInfoMessage: boolean = true) => fabricCapacitiesTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Capacities.filter', (item: FabricCapacityTreeItem = undefined, showInfoMessage: boolean = true) => fabricCapacitiesTreeViewProvider.filter());
 	//#endregion
 
 	//#region Fabric Git

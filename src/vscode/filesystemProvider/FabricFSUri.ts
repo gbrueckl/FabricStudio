@@ -137,11 +137,11 @@ export class FabricFSUri {
 	}
 
 	private get workspaceMapName(): string {
-		return decodeURI(this.workspace);
+		return decodeURIComponent(this.workspace);
 	}
 
 	private get itemMapName(): string {
-		return decodeURI(`${this.workspaceId}/${this.itemType}/${this.item}`);
+		return decodeURIComponent(`${this.workspaceId}/${this.itemType}/${this.item}`);
 	}
 
 	private itemTypeFromString(itemType: string): FabricApiItemType {
@@ -178,11 +178,11 @@ export class FabricFSUri {
 
 
 	public static addWorkspaceNameIdMap(workspaceName: string, workspaceId: string): void {
-		FabricFSUri._workspaceNameIdMap.set(workspaceName, workspaceId);
+		FabricFSUri._workspaceNameIdMap.set(decodeURIComponent(workspaceName), workspaceId);
 	}
 
 	public static addItemNameIdMap(itemName: string, itemId: string): void {
-		FabricFSUri._itemNameIdMap.set(itemName, itemId);
+		FabricFSUri._itemNameIdMap.set(decodeURIComponent(itemName), itemId);
 	}
 
 	private constructor_regex(uri: vscode.Uri) {

@@ -123,7 +123,7 @@ export interface iFabricApiLakehouseTable {
 export interface iFabricApiCapacity {
 	id: string;
 	displayName: string;
-	state: string;
+	state: "Active" | "Inactive";
 	sku: string;
 	region: string;
 }
