@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 
+import { Helper } from '@utils/Helper';
+import { Buffer } from '@env/buffer';
 
 import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
@@ -11,7 +13,6 @@ import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { Helper } from '@utils/Helper';
 
 export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 	id: string;

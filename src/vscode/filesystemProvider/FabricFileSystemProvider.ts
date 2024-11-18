@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../ThisExtension';
 import { Helper } from '@utils/Helper';
-import { Buffer } from '@env/buffer';
 import { FabricFSUri, FabricUriType } from './FabricFSUri';
 import { FabricFSCache } from './FabricFSCache';
 
