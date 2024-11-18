@@ -89,8 +89,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		if (!this._children) {
 			if (!this._apiResponse) {
 				const response = await FabricApiService.getItemDefinitionParts(this.FabricUri.workspaceId, this.FabricUri.itemId, this.format);
-				
-				if(response.error) {
+
+				if (response.error) {
 					ThisExtension.Logger.logError(response.error.message, true);
 					return
 				}
@@ -104,8 +104,19 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			for (let item of this.getApiResponse()) {
 				const partParts = item.path.split("/");
 				if (partParts.length == 1) {
-					let fileName = item.path;
-					files.push([fileName, vscode.FileType.File]);
+					let [fileName, ext] = item.path.split('.', 2);
+					if (FabricConfiguration.getFabricItemTypeCompactView(this.FabricUri.itemType)
+						&& FabricConfiguration.getFabricItemTypeCompactViewFile(this.FabricUri.itemType) == fileName) {
+						
+						// rename the part in the API response
+						item.path = item.path.replace(fileName, this.displayName);
+
+						fileName = this.displayName;
+						// const origPayload = await this.getContentForSubpath(item.path);
+						// this._apiResponse.push({ "path": fileName + "." + ext, "payloadType": item.payloadType, "payload": origPayload });
+						// this._apiResponse = this._apiResponse.filter((part) => part.path != item.path);
+					}
+					files.push([fileName + "." + ext, vscode.FileType.File]);
 				}
 				else {
 					const folderName = partParts[0];
@@ -219,9 +230,20 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 	}
 
 	public async getItemDefinition(): Promise<iFabricApiItemDefinition> {
-		let parts = this.getApiResponse();
+		let parts = this.getApiResponse().map(a => {return {...a}});
 
 		parts = parts.filter((part) => part.payloadType != "VSCodeFolder");
+
+		if (FabricConfiguration.getFabricItemTypeCompactView(this.FabricUri.itemType)) {
+			const compactViewFile = FabricConfiguration.getFabricItemTypeCompactViewFile(this.FabricUri.itemType);
+			const compactViewPart = parts.find((part) => part.path.startsWith(this.displayName + ".")); // maybe add another check that its not a folder
+
+			if (!compactViewPart) {
+				ThisExtension.Logger.logError("File for compact view not found for item " + this.FabricUri.uri.toString(), true);
+				throw vscode.FileSystemError.FileNotFound(this.FabricUri.uri);
+			}
+			compactViewPart.path = compactViewPart.path.replace(this.displayName, compactViewFile);
+		}
 
 		let definition = { "parts": parts };
 
@@ -236,7 +258,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		let definition = await this.getItemDefinition();
 		const itemTypeSingular = this.FabricUri.itemType.toLowerCase().slice(0, -1);
 
-		if(!this.publishAction) {
+		if (!this.publishAction) {
 			this.publishAction = FabricFSCache.getLocalChanges(this.FabricUri);
 		}
 
@@ -249,13 +271,13 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			this.publishAction = FabricFSPublishAction.MODIFIED;
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
-			if(["semanticmodels", "reports"].includes(this.FabricUri.itemType.toLowerCase())) {
+			if (["semanticmodels", "reports"].includes(this.FabricUri.itemType.toLowerCase())) {
 				ThisExtension.Logger.logInfo("Updating items of type '" + itemTypeSingular + "' is not supported yet supported by the APIs!");
 			}
 			else {
 				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
 			}
-			
+
 			if (!response || !response.error) {
 				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, `Updating ${itemTypeSingular} '${this.displayName}'`);
 			}
@@ -305,7 +327,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		let parts = this.getApiResponse();
 		const partPathDecoded = decodeURIComponent(partPath);
 		const part = parts.find((part) => part.path == partPathDecoded);
-		
+
 		// part might be not found and undefined! must be checked by caller!
 		return part;
 	}

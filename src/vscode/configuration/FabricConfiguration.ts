@@ -97,6 +97,12 @@ export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
 	"MirroredDatabases"
 ];
 
+export const COMPACT_VIEW_FILE : Map<FabricApiItemType, string> = new Map([
+	["DataPipelines", "pipeline-content"],
+	["Notebooks", "notebook-content"],
+	["MirroredDatabases", "mirroring"]
+]);
+
 // as we get it from the Config
 interface iItemTypeFormatConfig {
 	itemType: string;
@@ -182,7 +188,18 @@ export abstract class FabricConfiguration {
 		{
 			return false;
 		}
+		if(!COMPACT_VIEW_FILE.has(itemType)) {
+			ThisExtension.Logger.logWarning(`Compact View requested for item type ${itemType} which does not have a compact view file defined`);
+			return false;
+		}
 		return item.compactView;
+	}
+
+	static getFabricItemTypeCompactViewFile(itemType: FabricApiItemType): string {
+		if(COMPACT_VIEW_FILE.has(itemType)) {
+			return COMPACT_VIEW_FILE.get(itemType);
+		}
+		return undefined;
 	}
 
 	static get iconStyle(): string { 

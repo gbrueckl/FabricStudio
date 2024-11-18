@@ -42,15 +42,6 @@ export abstract class FabricFSCache {
 		}
 		const stats = await item.stats();
 
-		if (fabricUri.uriType == FabricUriType.item && FabricConfiguration.getFabricItemTypeCompactView(fabricUri.itemType)) {
-			return {
-				type: vscode.FileType.File,
-				ctime: stats.ctime,
-				mtime: stats.mtime,
-				size: stats.size
-			}
-		}
-
 		if (!stats) {
 			ThisExtension.Logger.logInfo(`stats() - Fabric URI is not found: ${fabricUri.uri.toString()}`);
 			throw vscode.FileSystemError.FileNotFound(fabricUri.uri);
@@ -76,16 +67,6 @@ export abstract class FabricFSCache {
 
 		const items = item.readDirectory();
 
-		if(fabricUri.uriType == FabricUriType.itemType && FabricConfiguration.getFabricItemTypeCompactView(fabricUri.itemType)) {
-			let compactItems: [string, vscode.FileType][] = [];
-			for(let i of (await items)) {
-				let compactName = i[0] + ".json";
-				compactItems.push([compactName, vscode.FileType.File]);
-				await FabricFSCache.addCacheItem(await FabricFSUri.getInstance(vscode.Uri.joinPath(fabricUri.uri, compactName), true));
-			}
-			return compactItems;
-		}
-
 		return items;
 	}
 
@@ -97,12 +78,6 @@ export abstract class FabricFSCache {
 
 		if (fabricUri.uriType == FabricUriType.part) {
 			return (item as FabricFSItem).getContentForSubpath(fabricUri.part);
-		}
-		if (fabricUri.uriType == FabricUriType.item && FabricConfiguration.getFabricItemTypeCompactView(fabricUri.itemType)) {
-			const contentFile = (await (item as FabricFSItem).readDirectory()).find((child) => child[0].includes("-content."));
-			if (contentFile) {
-				return (item as FabricFSItem).getContentForSubpath(contentFile[0]);
-			}
 		}
 
 		ThisExtension.Logger.logDebug(`readFile() - Could not read File: ${fabricUri.uri.toString()}`);
