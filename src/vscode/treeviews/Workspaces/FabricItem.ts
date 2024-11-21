@@ -48,6 +48,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			return element.getChildren();
 		}
 		else {
+			// Connections
 			let supportedItemTypes: FabricApiItemType[] = [];
 			try {
 				let connections = new FabricItemConnections(this);
@@ -60,6 +61,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				ThisExtension.Logger.logInfo("Could not load connections for item " + this.itemName);
 			}
 
+			// ShortCuts
 			supportedItemTypes = ["Lakehouse", "Warehouse"];
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
@@ -74,6 +76,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				}
 			}
 
+			// JobInstances
 			supportedItemTypes = ["DataPipeline", "Lakehouse", "Warehouse", "Notebook", "SparkJobDefinition"];
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {

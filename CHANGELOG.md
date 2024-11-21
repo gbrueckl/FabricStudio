@@ -1,12 +1,13 @@
 # Change Log
 
-**v1.0.0**:
+**v0.9.10**:
 - added `Connections` tree view to browse gateways and connections
 - reworked management of `itemTypes` for Fabric file system provider. They are now just optional settings.
 - fixed issues `Delete` in Fabric file system provider
 - reworked the way how item types for the Fabric file system provider can be configured
 - minor fixes for error reporting
 - added configuration setting for `publishOnSave` when configuring ItemType Formats via `fabricStudio.itemTypeFormats`
+- added support for new items in the Custom File System Provider (=virtual file system)
 
 **v0.9.9**:
 - added [Workspace Role Assignments](https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/list-workspace-role-assignments?tabs=HTTP)

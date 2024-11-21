@@ -94,13 +94,17 @@ export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
 	"Reports",
 	"SemanticModels",
 	"SparkJobDefinitions",
-	"MirroredDatabases"
+	"MirroredDatabases",
+	"Eventhouses",
+	"KQLDatabases",
+	"KQLQuerysets",
+	"KQLDashboards",
 ];
 
 export const COMPACT_VIEW_FILE : Map<FabricApiItemType, string> = new Map([
 	["DataPipelines", "pipeline-content"],
 	["Notebooks", "notebook-content"],
-	["MirroredDatabases", "mirroring"]
+	["MirroredDatabases", "mirroring"],
 ]);
 
 // as we get it from the Config

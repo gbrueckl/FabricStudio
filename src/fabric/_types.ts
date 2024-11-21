@@ -11,6 +11,7 @@ export type FabricApiItemType =
 	| "KQLDataConnection"		//	A KQL data connection.
 	| "KQLDatabase"				//	A KQL database.
 	| "KQLQueryset"				//	A KQL queryset.
+	| "KQLDashboard"			//	A KQL dashboard.
 	| "Lakehouse"				//	Lakehouse item.
 	| "MLExperiment"			//	A machine learning experiment.
 	| "MLModel"					//	A machine learning model.
@@ -23,6 +24,7 @@ export type FabricApiItemType =
 	| "SparkJobDefinition"		//	A spark job definition.
 	| "Warehouse"				//	A warehouse item.
 	| "DeploymentPipeline"		//	A deployment pipeline.
+	| "Eventhouse"
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
@@ -36,6 +38,10 @@ export type FabricApiItemType =
 	| "SemanticModels"						//	Folder for Semantic Model item.
 	| "Reports"								//	Folder for Report item.
 	| "SparkJobDefinitions"					//	Folder for Spark Job Definition item.
+	| "Eventhouses"							//	Folder for Eventhouse item.
+	| "KQLDatabases"						//	Folder for KQL Database item.
+	| "KQLQuerysets"						//	Folder for KQL Queryset item.
+	| "KQLDashboards"						//	Folder for KQL Dashboard item.
 	| "LakehouseTable"						//	Lakehouse Table
 	| "LakehouseTables"						//	Folder for Lakehouse Table item.
 	| "GraphQLApi"							//	GraphQL API item.
