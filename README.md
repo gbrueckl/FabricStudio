@@ -164,17 +164,6 @@ If you have your Fabric workspace connected to a GIT repository, you can from no
 Once the GIT repository is managed via VSCode, you can stage, commit, undo your changes from within VSCode:
 ![SourceControl](./images/SourceControl.png?raw=true "SourceControl")
 
-# Building Locally
-1. Make sure you have installed [NodeJS](https://nodejs.org/en/) on your development workstation
-2. Clone this repo to your development workstation, then open the cloned folder in [VSCode](https://code.visualstudio.com/)
-3. Install Visual Studio Code Extension Manager by running `npm install @vscode/vsce -g --force`
-4. To install all dependencies, switch to the terminal and run `npm install`
-5. To run the extension in debug mode (for using break-points, etc.), press `F5`
-6. To generate the `.vsix`, switch to the terminal and run `vsce package`
-
-# VSCode Extension Development Details
-Please refer to the [official docs and samples](https://github.com/microsoft/vscode-extension-samples#prerequisites)
-
 # FAQ
 
 **Q: I have so many workspaces and its hard to find the one I need, what can I do?**

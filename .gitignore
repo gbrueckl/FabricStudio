@@ -11,3 +11,4 @@ node_modules/
 dist/
 svg-icons.tgz
 temp-icons/
+.vscode-test-web/

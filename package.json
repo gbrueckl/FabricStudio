@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "0.9.10",
+	"version": "0.9.11",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -831,7 +831,8 @@
 		"watch": "webpack --watch",
 		"package": "webpack --mode production --devtool hidden-source-map",
 		"lint": "eslint src --ext ts",
-		"test": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/web/extension.js"
+		"test": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/web/extension.js",
+		"open-in-browser": "vscode-test-web . --extensionDevelopmentPath=."
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",
@@ -840,6 +841,7 @@
 		"@types/node": "^12.12.0",
 		"@types/rimraf": "^2.0.5",
 		"@types/vscode": "^1.68.0",
+		"@vscode/test-web": "*",
 		"buffer": "^6.0.3",
 		"eslint": "^8.19.0",
 		"form-data": "^4.0.0",

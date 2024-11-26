@@ -26,7 +26,7 @@
             ]
         },
         {
-            "name": "Launch Web FabricStudio",
+            "name": "Launch FabricStudio Web",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
@@ -47,6 +47,26 @@
                 "${workspaceFolder}/node_modules/**/*.js",
                 "${workspaceFolder}/node_modules/**/*.ts"
             ]
+        },
+        {
+            "name": "Launch FabricStudio Web Browser", 
+            // for some reason this is not working properly at the moment
+            // mainly due to authentication which gets stuck in an endless loop
+            "request": "launch",
+            "runtimeArgs": [
+                "run",
+                "open-in-browser",
+                "--disable-extensions",
+				"--skip-release-notes",
+				"--skip-welcome", 
+                "--browserType=chromium",
+                "--quality=stable"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
         },
         {
             "type": "node",

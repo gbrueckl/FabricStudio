@@ -73,8 +73,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			let gateways: Map<string, FabricGateway> = new Map<string, FabricGateway>();
 
 			// seems like /myorg/ also works for guest accounts
-			let items = await FabricApiService.getList<iFabricApiConnection>(`https://api.powerbi.com/v2.0/myorg/me/gatewayClusterDatasources`);
-
+			let items = await FabricApiService.getList<iFabricApiConnection>(`https://api.powerbi.com/v2.0/myorg/me/gatewayClusterDatasources`, undefined, "datasourceName");
 
 			if (items.error) {
 				ThisExtension.Logger.logError(items.error.message, true);
