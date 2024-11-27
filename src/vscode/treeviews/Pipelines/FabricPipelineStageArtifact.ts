@@ -4,6 +4,7 @@ import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { iFabricApiDeploymentPipelineStageItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricPipelineStage } from './FabricPipelineStage';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
@@ -40,7 +41,7 @@ export class FabricPipelineStageArtifact extends FabricPipelineTreeItem {
 		return [{ "sourceItemId": this.itemDefinition.sourceItemId }];
 	}
 	get artifactType(): string {
-		return this.itemType.toLowerCase() + "s";
+		return FabricMapper.getItemTypePlural(this.itemType);
 	}
 
 	public getBrowserLink(): vscode.Uri {

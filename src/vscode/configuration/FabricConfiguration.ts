@@ -99,6 +99,7 @@ export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
 	"KQLDatabases",
 	"KQLQuerysets",
 	"KQLDashboards",
+	"Reflexes"
 ];
 
 export const COMPACT_VIEW_FILE : Map<FabricApiItemType, string> = new Map([

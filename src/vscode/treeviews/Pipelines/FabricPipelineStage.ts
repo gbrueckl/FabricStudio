@@ -9,6 +9,7 @@ import { FabricPipelineGenericFolder } from './FabricPipelineGenericFolder';
 import { FabricPipelineStageArtifact } from './FabricPipelineStageArtifact';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { iFabricApiPipelineDeployableItem, iFabricPipelineDeployableItem } from './iFabricPipelineDeployableItem';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabricPipelineDeployableItem {
@@ -76,10 +77,11 @@ export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabr
 				let itemToAdd: FabricPipelineStageArtifact;
 				for (let item of items.success) {
 					if (!itemTypes.has(item.itemType)) {
+						const plural = FabricMapper.getItemTypePlural(item.itemType);
 							treeItem = new FabricPipelineGenericFolder(
-								this.itemId + "/" + item.itemType + "s",
-								item.itemType + "s",
-								item.itemType + "s" as FabricApiItemType,
+								this.itemId + "/" + plural,
+								plural,
+								plural as FabricApiItemType,
 								this,
 								undefined,
 								["DEPLOY"]

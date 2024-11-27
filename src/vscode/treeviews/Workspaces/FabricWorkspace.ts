@@ -23,6 +23,7 @@ import { FabricNotebooks } from './FabricNotebooks';
 import { FabricNotebook } from './FabricNotebook';
 import { FabricMirroredDatabases } from './FabricMirroredDatabases';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -99,10 +100,11 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 							treeItem = new FabricMirroredDatabases(this);
 						}
 						else {
+							const plural = FabricMapper.getItemTypePlural(item.type);
 							treeItem = new FabricWorkspaceGenericFolder(
-								this.itemId + "/" + item.type + "s",
-								item.type + "s",
-								item.type + "s" as FabricApiItemType,
+								this.itemId + "/" + plural,
+								plural,
+								plural as FabricApiItemType,
 								this
 							);
 						}

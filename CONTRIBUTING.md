@@ -2,7 +2,7 @@
 
 Fabric Studio is an open source project and contributions are highly welcome. Getting started should be quite easy as you only need to have two programs installed:
 
-- [VSCode](https://code.visualstudio.com/) 
+- [VSCode](https://code.visualstudio.com/)
 - [NodeJS](https://nodejs.org/en/) - I currently use `v22.5.1`
 - [NVM](https://github.com/coreybutler/nvm-windows) - (optional) to dynamically switch NodeJS versions
 

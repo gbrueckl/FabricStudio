@@ -12,6 +12,7 @@ import { FabricFSRoot } from './FabricFSRoot';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSCache } from './FabricFSCache';
 import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
+import { FabricMapper } from '../../fabric/FabricMapper';
 
 // regex with a very basic check for valid GUIDs
 const REGEX_FABRIC_URI = /fabric:\/\/workspaces\/(?<workspace>[0-9a-fA-F-]{36})?(\/(?<itemType>[a-zA-Z]*))?(\/(?<Item>[0-9a-fA-F-]{36}))?(\/(?<part>.*))?($|\?)/gm
@@ -92,16 +93,9 @@ export class FabricFSUri {
 	}
 
 	private get itemTypeBrowserLink(): string {
-		//TODO should be handled somehow by FabricItemType class
-		switch (this.itemType) {
-			case "Notebooks": return "synapsenotebooks";
-			case "SemanticModels": return "datasets";
-			case "Reports": return "reports";
-			case "SparkJobDefinitions": return "sparkjobdefinitions";
-			default:
-				ThisExtension.Logger.logWarning(`No Browser Link specified for Item Type '${this.itemType}', using '${this.itemType}s'!`, false);
-				return this.itemType.toLowerCase() + "s";
-		}
+		const plural = FabricMapper.getItemTypePlural(this.itemType).toLowerCase();
+		const browserItemType = FabricMapper.mapForBrowserUrl(plural);
+		return browserItemType
 	}
 
 	get isValid(): boolean {

@@ -6,6 +6,7 @@ import { FabricFSUri } from './FabricFSUri';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSRoot } from './FabricFSRoot';
 import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
+import { FabricMapper } from '../../fabric/FabricMapper';
 
 export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWorkspace {
 	id: string;
@@ -55,7 +56,7 @@ export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWo
 			this._apiResponse = response.success;
 			this._children = [];
 			for (let item of this._apiResponse) {
-				const itemTypePlural = `${item.type}s` as FabricApiItemType;
+				const itemTypePlural = FabricMapper.getItemTypePlural(item.type);
 				if (!this._children.find((x) => x[0] == itemTypePlural) && TYPES_WITH_DEFINITION.includes(itemTypePlural)) {
 					this._children.push([itemTypePlural, vscode.FileType.Directory]);
 				}

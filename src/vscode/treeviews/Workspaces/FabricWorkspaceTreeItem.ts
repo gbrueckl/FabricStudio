@@ -10,6 +10,7 @@ import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider
 import { FabricConfiguration, TYPES_WITH_DEFINITION } from '../../configuration/FabricConfiguration';
 import { FabricCommandBuilder } from '../../input/FabricCommandBuilder';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	
@@ -33,7 +34,7 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 		let actions: string[] = [];
 
-		const itemTypePlural: FabricApiItemType = (this.itemType + (this.itemType.endsWith("s") ? "" : "s")) as FabricApiItemType;
+		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
 		if(TYPES_WITH_DEFINITION.includes(itemTypePlural)) {
 			actions.push("EDIT_DEFINITION");
 		}

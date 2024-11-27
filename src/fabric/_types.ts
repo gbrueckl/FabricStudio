@@ -25,6 +25,7 @@ export type FabricApiItemType =
 	| "Warehouse"				//	A warehouse item.
 	| "DeploymentPipeline"		//	A deployment pipeline.
 	| "Eventhouse"
+	| "Reflex"					//	Reflex item.
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
@@ -42,6 +43,7 @@ export type FabricApiItemType =
 	| "KQLDatabases"						//	Folder for KQL Database item.
 	| "KQLQuerysets"						//	Folder for KQL Queryset item.
 	| "KQLDashboards"						//	Folder for KQL Dashboard item.
+	| "Reflexes"							//	Folder for Reflex item.
 	| "LakehouseTable"						//	Lakehouse Table
 	| "LakehouseTables"						//	Folder for Lakehouse Table item.
 	| "GraphQLApi"							//	GraphQL API item.
