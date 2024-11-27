@@ -99,13 +99,19 @@ export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
 	"KQLDatabases",
 	"KQLQuerysets",
 	"KQLDashboards",
-	"Reflexes"
+	"Reflexes",
 ];
 
-export const COMPACT_VIEW_FILE : Map<FabricApiItemType, string> = new Map([
+export const ITEM_FILE_NAMES : Map<FabricApiItemType, string> = new Map([
 	["DataPipelines", "pipeline-content"],
 	["Notebooks", "notebook-content"],
+	["SparkJobDefinitions", "SparkJobDefinitionV1"],
 	["MirroredDatabases", "mirroring"],
+	["Eventhouses", "EventhouseProperties"],
+	["KQLDatabases", "DatabaseProperties"],
+	["KQLQuerysets", "RealTimeQueryset"],
+	["KQLDashboards", "RealTimeDashboard"],
+	["Reflexes", "ReflexEntities"],
 ]);
 
 // as we get it from the Config
@@ -114,6 +120,7 @@ interface iItemTypeFormatConfig {
 	format: string;
 	publishOnSave: boolean;
 	compactView: boolean;
+	useItemNameAsFileName: boolean;
 }
 
 // as we use it internally
@@ -122,6 +129,7 @@ interface iItemTypeFormat {
 	format: FabricApiItemFormat;
 	publishOnSave: boolean;
 	compactView: boolean;
+	useItemNameAsFileName: boolean;
 }
 
 export abstract class FabricConfiguration {
@@ -159,7 +167,8 @@ export abstract class FabricConfiguration {
 				itemType: item.itemType as FabricApiItemType, // loose cast
 				format: item.format as FabricApiItemFormat, // loose cast
 				publishOnSave: item.publishOnSave,
-				compactView: item.compactView
+				compactView: item.compactView,
+				useItemNameAsFileName: item.useItemNameAsFileName,
 			};
 		});
 
@@ -193,16 +202,25 @@ export abstract class FabricConfiguration {
 		{
 			return false;
 		}
-		if(!COMPACT_VIEW_FILE.has(itemType)) {
-			ThisExtension.Logger.logWarning(`Compact View requested for item type ${itemType} which does not have a compact view file defined`);
-			return false;
-		}
 		return item.compactView;
 	}
 
-	static getFabricItemTypeCompactViewFile(itemType: FabricApiItemType): string {
-		if(COMPACT_VIEW_FILE.has(itemType)) {
-			return COMPACT_VIEW_FILE.get(itemType);
+	static getFabricItemTypeUseItemNameAsFileName(itemType: FabricApiItemType): boolean {
+		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
+		if(!item || !item.useItemNameAsFileName)
+		{
+			return false;
+		}
+		if(!ITEM_FILE_NAMES.has(itemType)) {
+			ThisExtension.Logger.logWarning(`UseItemNameAsfileName requested for item type '${itemType}' which does not have a single definition file!`);
+			return false;
+		}
+		return item.useItemNameAsFileName;
+	}
+
+	static getFabricItemTypeDefinitionFileName(itemType: FabricApiItemType): string {
+		if(ITEM_FILE_NAMES.has(itemType)) {
+			return ITEM_FILE_NAMES.get(itemType);
 		}
 		return undefined;
 	}

@@ -116,7 +116,13 @@
 								},
 								"compactView": {
 									"type": "boolean",
-									"markdownDescription": "If true, the item folder will not be displayed and instead only the content-file will be shown.",
+									"markdownDescription": "[FOR FUTURE USE] If true, the item folder will not be displayed and instead only the content-file will be shown.",
+									"required": false,
+									"default": false
+								},
+								"useItemNameAsFileName": {
+									"type": "boolean",
+									"markdownDescription": "If true, the item name will be used as the file name when downloading the item. This helps when working with multiple e.g. pipelines/notebooks/... at the same time. This setting is only supported for items that have only a single definition file.",
 									"required": false,
 									"default": false
 								}

@@ -105,8 +105,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 				const partParts = item.path.split("/");
 				if (partParts.length == 1) {
 					let [fileName, ext] = item.path.split('.', 2);
-					if (FabricConfiguration.getFabricItemTypeCompactView(this.FabricUri.itemType)
-						&& FabricConfiguration.getFabricItemTypeCompactViewFile(this.FabricUri.itemType) == fileName) {
+					if (FabricConfiguration.getFabricItemTypeUseItemNameAsFileName(this.FabricUri.itemType)
+						&& FabricConfiguration.getFabricItemTypeDefinitionFileName(this.FabricUri.itemType) == fileName) {
 						
 						// rename the part in the API response
 						item.path = item.path.replace(fileName, this.displayName);
@@ -235,7 +235,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		parts = parts.filter((part) => part.payloadType != "VSCodeFolder");
 
 		if (FabricConfiguration.getFabricItemTypeCompactView(this.FabricUri.itemType)) {
-			const compactViewFile = FabricConfiguration.getFabricItemTypeCompactViewFile(this.FabricUri.itemType);
+			const compactViewFile = FabricConfiguration.getFabricItemTypeDefinitionFileName(this.FabricUri.itemType);
 			const compactViewPart = parts.find((part) => part.path.startsWith(this.displayName + ".")); // maybe add another check that its not a folder
 
 			if (!compactViewPart) {
