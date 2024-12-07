@@ -69,6 +69,10 @@ export type FabricApiItemType =
 	| "MirroredDatabaseTable"				//	A mirrored database table.
 	| "Gateway"
 	| "Connection"
+	| "GatewayMembers"						//	Folder for gateway members.
+	| "GatewayMember"						//	A gateway member.
+	| "GatewayRoleAssignments"				//	Folder for gateway role assignments.
+	| "GatewayRoleAssignment"				//	A gateway role assignment.
 	;
 
 export enum FabricApiWorkspaceType {
@@ -76,15 +80,15 @@ export enum FabricApiWorkspaceType {
 	, "Workspace"		// A collaborative workspace
 };
 
-export enum FabricApiItemConnectionType {
-	"Automatic" 				//The connection connects through the cloud using an implicit data connection. This option is only available for specific scenarios like semantic models that use Single Sign-On (SSO).”
-	, "None" 					//The connection is not bound
-	, "OnPremisesGateway" 		// The connection connects through an on-premises data gateway.
-	, "OnPremisesGatewayPersonal" // The connection connects through a personal on-premises data gateway.
-	, "PersonalCloud" 			// 	The connection connects through the cloud and cannot be shared with others.
-	, "ShareableCloud" 			// The connection connects through the cloud and can be shared with others.
-	, "VirtualNetworkGateway" 	//	The connection connects through a virtual network data gateway.
-};
+export type FabricApiConnectionConnectivityType =
+	"Automatic"	// The connection connects through the cloud using an implicit data connection. This option is only available for specific scenarios like semantic models that use Single Sign-On (SSO).”
+	| "None"	// The connection is not bound
+	| "OnPremisesGateway"	// The connection connects through an on-premises data gateway.
+	| "OnPremisesGatewayPersonal"	// The connection connects through a personal on-premises data gateway.
+	| "PersonalCloud"	// The connection connects through the cloud and cannot be shared with others.
+	| "ShareableCloud"	// The connection connects through the cloud and can be shared with others.
+	| "VirtualNetworkGateway"	// The connection connects through a virtual network data gateway.
+	;
 
 export enum FabricApiItemFormat {
 	DEFAULT = "DEFAULT"
@@ -244,7 +248,7 @@ export interface iFabricApiItemConnection {
 		path: string; // The connection path.
 		type: string; // The connection type.
 	}; // The connection details of the connection.	
-	connectivityType: FabricApiItemConnectionType; // The connectivity type of the connection.	
+	connectivityType: FabricApiConnectionConnectivityType; // The connectivity type of the connection.	
 	displayName: string; // The display name of the connection. Maximum length is 200 characters.
 	gatewayId: string; // The gateway object ID of the connection.	
 	id: string; // The object ID of the connection.
@@ -261,14 +265,20 @@ export interface iFabricApiItemDataAccessRole {
 	}; // The members object which contains the members of the role as arrays of different member types.
 }
 
-export enum iFabricApiWorkspaceRoleAssignmentRole { 
+export enum iFabricApiWorkspaceRoleAssignmentRole {
 	"Admin",	// Enables administrative access to the workspace.
 	"Contributor", // Enables contribution to the workspace.
 	"Member", // Enables membership access to the workspace.
 	"Viewer" // Enables viewing of the workspace.
 }
 
-export interface iFabricApiWorkspaceRoleAssignment {
+export enum iFabricApiGatewayRoleAssignmentRole {
+	"Admin", // Enables administrative access for the gateway.
+	"ConnectionCreator", // Enables connection creator access for the gateway.
+	"ConnectionCreatorWithResharing" // Enables connection creator with resharing access for the gateway.
+}
+
+export interface iFabricApiGenericRoleAssignment {
 	id: string; // The unique id for the role assignment.
 	principal: {
 		displayName: string; // The principal's display name.
@@ -287,22 +297,58 @@ export interface iFabricApiWorkspaceRoleAssignment {
 			groupType: string
 		};
 	}; // The principal object which contains the principal details.
-	role: iFabricApiWorkspaceRoleAssignmentRole; // The role of the role assignment.
+	role: any; // The role of the role assignment.
 }
 
+export interface iFabricApiWorkspaceRoleAssignment extends iFabricApiGenericRoleAssignment {
+	role: iFabricApiWorkspaceRoleAssignmentRole
+};
+export interface iFabricApiGatewayRoleAssignment extends iFabricApiGenericRoleAssignment {
+	role: iFabricApiGatewayRoleAssignmentRole;
+};
 export interface iFabricApiItemJobInstance {
 	id: string; // Job instance Id.
 	itemId: string; // Item Id.
 	startTimeUtc: string; // Job start time in UTC.
 	endTimeUtc: string; // Job end time in UTC.
 	failureReason: any; // Error response when job is failed.
-	
+
 	invokeType: string; // The item job invoke type. Additional invokeTypes may be added over time.
-	
+
 	jobType: string; // Job type.
 	rootActivityId: string; // Root activity id to trace requests across services.
-	
+
 	status: string; // The item job status. Additional statuses may be added over time.
+}
+
+export interface iFabricApiGateway {
+	displayName: string; // The display name of the on-premises gateway.
+	id: string; // The object ID of the gateway.
+	numberOfMemberGateways: number; // The number of gateway members in the on-premises gateway.
+	type: "OnPremises" | "OnPremisesPersonal" | "VirtualNetwork"; // The type of the gateway.
+	
+	// on-premises + personal gateway only
+	publicKey: any; // The public key of the primary gateway member. Used to encrypt the credentials for creating and updating connections.
+	version: string; // The version of the installed primary gateway member.
+
+	// on-premises gateway only
+	allowCloudConnectionRefresh: boolean; // Whether to allow cloud connections to refresh through this on-premises gateway. True - Allow, False - Do not allow.
+	allowCustomConnectors: boolean; // Whether to allow custom connectors to be used with this on-premises gateway. True - Allow, False - Do not allow.
+	loadBalancingSetting: any; // The load balancing setting of the on-premises gateway.
+	
+
+	// VNet Gateway only
+	capacityId: string; // The object ID of the Fabric license capacity.
+	inactivityMinutesBeforeSleep: number; // The minutes of inactivity before the virtual network gateway goes into auto-sleep.
+	virtualNetworkAzureResource: any; // The Azure virtual network resource.
+}
+
+export interface iFabricApiGatewayMember {
+	displayName: string; // The display name of the gateway member.
+	enabled: boolean; // Whether the gateway member is enabled. True - Enabled, False - Not enabled.
+	id: string; // The object ID of the gateway member.
+	publicKey: any; // The public key of the gateway member. Used to encrypt the credentials for creating and updating connections.
+	version: string; // The version of the gateway member.
 }
 
 // useless as of now as only the ObjectID is provided
@@ -313,24 +359,28 @@ export interface iFabricApiConnectionPermission {
 	principalType: "User" | "Group"; // Service principals show up as users ?!?
 }
 
+
+
 export interface iFabricApiConnection {
-	id: string; 			// DatasourceId
-	datasourceName: string; // Name of the datasource
+	connectionDetails: {  // The connection details of the connection.
+		path: string; // The path of the connection.
+		type: string; // The type of the connection.
+	};
 
-	gatewayType: string;
+	connectivityType: FabricApiConnectionConnectivityType; // The connectivity type of the connection.
 
-	clusterId: string; 		// GatewayId
-	clusterName: string; 	// Name of the Cluster/Gateway
-	datasourceType: string; // Type of the datasource
-	connectinDetails: any; 	// details of the connection
-	
-	key: any; 				// unique key used for the datasource connection info
-	
-	credentialDetails: any; 
-	
-	users: iFabricApiConnectionPermission[];
-	datasourceUsers: iFabricApiConnectionPermission[];
+	credentialDetails: { // The credential details of the connection.
+		connectionEncryption: string; // The connection encryption setting that is used during the test connection.
+		credentialType: string; // The credential type of the connection.
+		singleSignOnType: string; // The single sign-on type of the connection.
+		skipTestConnection: boolean; // Whether the connection should skip the test connection during creation and update. True - Skip the test connection, False - Do not skip the test connection.	
+	};
 
+
+	displayName: string; // The display name of the connection.
+	gatewayId: string // The gateway object ID of the connection.
+	id: string // The object ID of the connection.
+	privacyLevel: string; // The privacy level of the connection.
 }
 
 export interface iFabricApiTableMirroringStatusResponse {
@@ -339,7 +389,7 @@ export interface iFabricApiTableMirroringStatusResponse {
 		lastSyncDateTime: string; // Last processed time of the table in in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
 		processedBytes: number; // Processed bytes for this table.
 		processedRows: number; // Processed row count for this table.
-	}; 
+	};
 	sourceSchemaName: string; // Source table schema name.
 	sourceTableName: string; // Source table name.
 	status: "Failed" | "Initialized" | "Replicating" | "Reseeding" | "Snapshotting" | "Stopped"; // The mirroring status type of table.

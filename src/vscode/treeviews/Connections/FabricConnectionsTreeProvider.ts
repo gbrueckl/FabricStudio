@@ -3,14 +3,12 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../../ThisExtension';
 
-import { Helper } from '@utils/Helper';
 import { iFabricApiConnection, iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricGateway } from './FabricGateway';
-import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 import { FabricConnection } from './FabricConnection';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
@@ -73,7 +71,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			let gateways: Map<string, FabricGateway> = new Map<string, FabricGateway>();
 
 			// seems like /myorg/ also works for guest accounts
-			let items = await FabricApiService.getList<iFabricApiConnection>(`https://api.powerbi.com/v2.0/myorg/me/gatewayClusterDatasources`, undefined, "datasourceName");
+			let items = await FabricApiService.getList<iFabricApiConnection>("/v1/connections");
 
 			if (items.error) {
 				ThisExtension.Logger.logError(items.error.message, true);
@@ -91,17 +89,19 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 					}
 				}
 
-				if (!gateways.has(item.clusterId)) {
+				const gateway = item.gatewayId ?? item.connectivityType;
+
+				if (!gateways.has(gateway)) {
 					treeItem = new FabricGateway(
 						item
 					);
 
-					gateways.set(item.clusterId, treeItem);
+					gateways.set(gateway, treeItem);
 				}
 
-				itemToAdd = new FabricConnection(item, gateways.get(item.clusterId));
+				itemToAdd = new FabricConnection(item, gateways.get(gateway));
 
-				gateways.get(item.clusterId).addChild(itemToAdd);
+				gateways.get(gateway).addChild(itemToAdd);
 			}
 
 			children = Array.from(gateways.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));

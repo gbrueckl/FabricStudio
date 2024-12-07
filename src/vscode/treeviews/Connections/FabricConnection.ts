@@ -11,12 +11,12 @@ export class FabricConnection extends FabricConnectionGenericViewer {
 		definition: iFabricApiConnection,
 		parent: FabricConnectionTreeItem
 	) {
-		super(definition.datasourceName ?? definition.key, parent, definition.id);
+		super(definition.displayName ?? definition.connectionDetails.path, parent, definition.id);
 		this.itemDefinition = definition;
 
 		this.tooltip = this.getToolTip(definition);
 		this.iconPath = new vscode.ThemeIcon("extensions-remote");
-		this.description = definition.datasourceType;
+		this.description = definition.id;
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */

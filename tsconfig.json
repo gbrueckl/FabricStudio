@@ -15,6 +15,7 @@
 		".vscode-test",
 		"dist",
 		"src/env/web/**/*",
-		"utils"
+		"utils",
+		".vscode-test-web"
 	]
 }

@@ -3,24 +3,30 @@ import * as vscode from 'vscode';
 import { iFabricApiConnection } from '../../../fabric/_types';
 import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 import { ThisExtension } from '../../../ThisExtension';
+import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
+import { FabricGatewayMembers } from './FabricGatewayMembers';
+import { FabricGatewayRoleAssignments } from './FabricGatewayRoleAssignments';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricGateway extends FabricConnectionGenericFolder {
 
 	constructor(
-		definition: iFabricApiConnection
+		definition: iFabricApiConnection // iFabricApiGateway
 	) {
-		super(definition.clusterId, definition.clusterName ?? definition.gatewayType, "Gateway", undefined, definition.clusterId, vscode.TreeItemCollapsibleState.Collapsed);
+		super(definition.gatewayId, definition.gatewayId ?? definition.connectivityType, "Gateway", undefined, definition.gatewayId, vscode.TreeItemCollapsibleState.Collapsed);
 		this.itemDefinition = definition;
 
-		this.description = definition.clusterId ?? definition.gatewayType;
+		this.description = definition.gatewayId ?? definition.connectivityType;
 		this.tooltip = this.getToolTip(definition);
 		this.iconPath = this.getIcon();
 	}
 
 	/* Overwritten properties from FabricConnectionGenericFolder */
 	protected getIcon(): vscode.Uri | vscode.ThemeIcon {
-		if (this.itemDefinition.gatewayType === "Enterprise") {
+		if (this.itemDefinition.connectivityType === "OnPremisesGatewayPersonal") {
+			return new vscode.ThemeIcon("cloud-upload");
+		}
+		if (this.itemDefinition.connectivityType === "OnPremisesGateway") {
 			return new vscode.ThemeIcon("cloud-upload");
 		}
 		else {
@@ -31,12 +37,52 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 	protected getToolTip(definition: any) {
 		if (!definition) return undefined;
 
-		let tooltips: string[] = [
-			`clusterId: ${definition.clusterId}`,
-			`clusterName: ${definition.clusterName}`,
-			`gatewayType: ${definition.gatewayType}`
-		];
+		const keysToRemove: string[] = ["credentialDetails", "connectionDetails", "id"];
 
-		return tooltips.join("\n");
+		const gatewayDefinition = Object.assign({}, ...Object.keys(definition)
+			.filter(key => !keysToRemove.includes(key))
+			.map(key => ({ [key]: definition[key] })));
+
+		return super.getToolTip(gatewayDefinition)
+	}
+
+	get apiUrlPart(): string {
+		return "gateways/" + this.itemId;
+	}
+
+	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
+		let children: FabricConnectionTreeItem[] = [];
+		if (this._children) {
+			children = this._children
+		}
+		//else {
+			// Members
+			try {
+				let members = new FabricGatewayMembers(this);
+				const connectionsChildren = await members.getChildren();
+				if (connectionsChildren.length > 0) {
+					children.push(members);
+				}
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo("Could not load members for item " + this.itemName);
+			}
+
+			// Role Assignments
+			try {
+				let roleAssignments = new FabricGatewayRoleAssignments(this);
+				const roleAssignmentsChildren = await roleAssignments.getChildren();
+				if (roleAssignmentsChildren.length > 0) {
+					children.push(roleAssignments);
+				}
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo("Could not load roleAssignments for item " + this.itemName);
+			}
+		//}
+
+		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+
+		return children;
 	}
 }

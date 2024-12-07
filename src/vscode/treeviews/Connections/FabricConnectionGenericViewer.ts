@@ -27,11 +27,6 @@ export class FabricConnectionGenericViewer extends FabricConnectionTreeItem {
 		return new vscode.ThemeIcon("json");
 	}
 
-	// tooltip shown when hovering over the item
-	get _tooltip(): string {
-		return undefined;
-	}
-
 	// description is show next to the label
 	get _description(): string {
 		return undefined;

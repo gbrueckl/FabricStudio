@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.0.0**:
+- OFFICIAL PUBLIC RELEASE!
+
 **v0.9.10**:
 - added `Connections` tree view to browse gateways and connections
 - reworked management of `itemTypes` for Fabric file system provider. They are now just optional settings.
