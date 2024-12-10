@@ -88,19 +88,19 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 
 // known list of Item Typs which support the Definition APIs
 // used to show/hide the "Edit Definitions" command and drive subfolders of the Fabric file system provider
-export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
-	"DataPipelines",
-	"Notebooks",
-	"Reports",
-	"SemanticModels",
-	"SparkJobDefinitions",
-	"MirroredDatabases",
-	"Eventhouses",
-	"KQLDatabases",
-	"KQLQuerysets",
-	"KQLDashboards",
-	"Reflexes",
-];
+// export const TYPES_WITH_DEFINITION: FabricApiItemType[] = [
+// 	"DataPipelines",
+// 	"Notebooks",
+// 	"Reports",
+// 	"SemanticModels",
+// 	"SparkJobDefinitions",
+// 	"MirroredDatabases",
+// 	"Eventhouses",
+// 	"KQLDatabases",
+// 	"KQLQuerysets",
+// 	"KQLDashboards",
+// 	"Reflexes",
+// ];
 
 export const ITEM_FILE_NAMES : Map<FabricApiItemType, string> = new Map([
 	["DataPipelines", "pipeline-content"],
@@ -134,6 +134,16 @@ interface iItemTypeFormat {
 
 export abstract class FabricConfiguration {
 	static get logLevel(): vscode.LogLevel { return this.getValue("logLevel"); }
+
+	static get itemTypesWithDefinition(): FabricApiItemType[] {
+		return ThisExtension.configuration.packageJSON.contributes.configuration[0].properties["fabricStudio.itemTypeFormats"].items.properties.itemType.enum;
+	}
+
+	static itemTypeHasDefinition(itemType: FabricApiItemType): boolean {
+		const enumFromConfig = this.itemTypesWithDefinition;
+		
+		return enumFromConfig.includes(itemType);
+	}
 
 	static get cloud(): string { 
 		return "GlobalCloud";

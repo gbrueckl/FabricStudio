@@ -11,7 +11,7 @@ import { FabricFSItem } from './FabricFSItem';
 import { FabricFSRoot } from './FabricFSRoot';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSCache } from './FabricFSCache';
-import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
+import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
 
 // regex with a very basic check for valid GUIDs
@@ -145,8 +145,8 @@ export class FabricFSUri {
 
 		let ret: FabricApiItemType = itemType as FabricApiItemType;
 
-		if (!TYPES_WITH_DEFINITION.includes(ret)) {
-			let itemTypeCase = TYPES_WITH_DEFINITION.find((type) => type.toLowerCase() == itemType.toLowerCase());
+		if (!FabricConfiguration.itemTypeHasDefinition(ret)) {
+			let itemTypeCase = FabricConfiguration.itemTypesWithDefinition.find((type) => type.toLowerCase() == itemType.toLowerCase());
 			if (itemTypeCase) {
 				ret = itemTypeCase;
 			}

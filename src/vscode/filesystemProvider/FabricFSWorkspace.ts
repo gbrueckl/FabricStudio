@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
-import { FabricApiItemType, iFabricApiItem, iFabricApiWorkspace } from '../../fabric/_types';
+import { iFabricApiItem, iFabricApiWorkspace } from '../../fabric/_types';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
 import { FabricFSUri } from './FabricFSUri';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSRoot } from './FabricFSRoot';
-import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
+import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
 
 export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWorkspace {
@@ -57,7 +57,7 @@ export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWo
 			this._children = [];
 			for (let item of this._apiResponse) {
 				const itemTypePlural = FabricMapper.getItemTypePlural(item.type);
-				if (!this._children.find((x) => x[0] == itemTypePlural) && TYPES_WITH_DEFINITION.includes(itemTypePlural)) {
+				if (!this._children.find((x) => x[0] == itemTypePlural) && FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
 					this._children.push([itemTypePlural, vscode.FileType.Directory]);
 				}
 			}

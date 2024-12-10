@@ -38,8 +38,9 @@
 		"Other"
 	],
 	"keywords": [
+		"Microsoft",
 		"Fabric",
-		"FabricStudio",
+		"Studio",
 		"REST",
 		"API",
 		"PowerBI",
@@ -101,7 +102,20 @@
 								"itemType": {
 									"type": "string",
 									"markdownDescription": "The ItemType to configure the file format for.",
-									"required": true
+									"required": true,
+									"enum": [
+										"DataPipelines",
+										"Notebooks",
+										"Reports",
+										"SemanticModels",
+										"SparkJobDefinitions",
+										"MirroredDatabases",
+										"Eventhouses",
+										"KQLDatabases",
+										"KQLQuerysets",
+										"KQLDashboards",
+										"Reflexes"
+									]
 								},
 								"format": {
 									"type": "string",
@@ -116,7 +130,7 @@
 								},
 								"compactView": {
 									"type": "boolean",
-									"markdownDescription": "[FOR FUTURE USE] If true, the item folder will not be displayed and instead only the content-file will be shown.",
+									"markdownDescription": "[FOR FUTURE USE] If true, the item folder will not be displayed and instead only the content-file will be shown. Only supported for items that have only a single definition file.",
 									"required": false,
 									"default": false
 								},
@@ -127,27 +141,7 @@
 									"default": false
 								}
 							}
-						},
-						"default": [
-							{
-								"itemType": "Notebooks"
-							},
-							{
-								"itemType": "Refresh"
-							},
-							{
-								"itemType": "SemanticModels"
-							},
-							{
-								"itemType": "SparkJobDefinitions"
-							},
-							{
-								"itemType": "DataPipelines"
-							},
-							{
-								"itemType": "MirroredDatabases"
-							}
-						]
+						}
 					},
 					"fabricStudio.logLevel": {
 						"type": "integer",
@@ -572,27 +566,27 @@
 			"view/item/context": [
 				{
 					"command": "FabricStudio.Item.openInFabric",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
 					"group": "7_open"
 				},
 				{
 					"command": "FabricStudio.Item.copyIdToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_ID,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,COPY_ID,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyNameToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_NAME,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,COPY_NAME,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyPathToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_PATH,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,COPY_PATH,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyPropertiesToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
 					"group": "6_copypath"
 				},
 				{

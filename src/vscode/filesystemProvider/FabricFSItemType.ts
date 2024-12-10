@@ -8,7 +8,7 @@ import { FabricFSPublishAction } from './_types';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricFSItem } from './FabricFSItem';
 import { FabricFSWorkspace } from './FabricFSWorkspace';
-import { TYPES_WITH_DEFINITION } from '../configuration/FabricConfiguration';
+import { FabricConfiguration } from '../configuration/FabricConfiguration';
 
 export class FabricFSItemType extends FabricFSCacheItem {
 	constructor(uri: FabricFSUri) {
@@ -24,7 +24,7 @@ export class FabricFSItemType extends FabricFSCacheItem {
 	}
 
 	public async loadStatsFromApi<T>(): Promise<void> {
-		if (TYPES_WITH_DEFINITION.includes(this.itemType)) {
+		if (FabricConfiguration.itemTypeHasDefinition(this.itemType)) {
 			this._stats = {
 				type: vscode.FileType.Directory,
 				ctime: undefined,

@@ -7,7 +7,7 @@ import { iGenericApiCallConfig, iGenericApiError, iGenericApiResponse } from '@u
 import { ThisExtension } from '../ThisExtension';
 import { FabricApiItemFormat, FabricApiItemType, iFabricApiItem, iFabricApiItemDefinition, iFabricApiItemPart, iFabricApiResponse, iFabricApiWorkspace, iFabricErrorResponse, iFabricListResponse, iFabricPollingResponse } from './_types';
 
-import { FabricConfiguration, TYPES_WITH_DEFINITION } from '../vscode/configuration/FabricConfiguration';
+import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
 import { FabricLogger } from '@utils/FabricLogger';
 
 export abstract class FabricApiService {
@@ -578,7 +578,7 @@ export abstract class FabricApiService {
 	}
 
 	static async createItem(workspaceId: string, name: string, type: FabricApiItemType, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iFabricApiResponse> {
-		if(!TYPES_WITH_DEFINITION.includes(type))
+		if(!FabricConfiguration.itemTypeHasDefinition(type))
 		{
 			ThisExtension.Logger.logError(`Type '${type}' is not supported for item creation!`, true, true);
 		}

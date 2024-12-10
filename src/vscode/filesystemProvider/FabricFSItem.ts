@@ -234,15 +234,15 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 
 		parts = parts.filter((part) => part.payloadType != "VSCodeFolder");
 
-		if (FabricConfiguration.getFabricItemTypeCompactView(this.FabricUri.itemType)) {
-			const compactViewFile = FabricConfiguration.getFabricItemTypeDefinitionFileName(this.FabricUri.itemType);
-			const compactViewPart = parts.find((part) => part.path.startsWith(this.displayName + ".")); // maybe add another check that its not a folder
+		if (FabricConfiguration.getFabricItemTypeUseItemNameAsFileName(this.FabricUri.itemType)) {
+			const definitionFileName = FabricConfiguration.getFabricItemTypeDefinitionFileName(this.FabricUri.itemType);
+			const definitionPart = parts.find((part) => part.path.startsWith(this.displayName + ".")); // maybe add another check that its not a folder
 
-			if (!compactViewPart) {
-				ThisExtension.Logger.logError("File for compact view not found for item " + this.FabricUri.uri.toString(), true);
+			if (!definitionPart) {
+				ThisExtension.Logger.logError(`File '${definitionPart}' not found in item '${this.FabricUri.uri.toString()}'`, true);
 				throw vscode.FileSystemError.FileNotFound(this.FabricUri.uri);
 			}
-			compactViewPart.path = compactViewPart.path.replace(this.displayName, compactViewFile);
+			definitionPart.path = definitionPart.path.replace(this.displayName, definitionFileName);
 		}
 
 		let definition = { "parts": parts };

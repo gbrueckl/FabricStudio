@@ -20,4 +20,7 @@ export class FabricConnection extends FabricConnectionGenericViewer {
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
+	get apiPath(): string {
+		return `v1/connections/${this.itemDefinition.id}/`;
+	}
 }
