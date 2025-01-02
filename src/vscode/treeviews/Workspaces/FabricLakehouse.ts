@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
 import { FabricLakehouseTables } from './FabricLakehouseTables';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
-import { FabricItemShortcuts } from './FabricItemShortcuts';
 import { FabricItem } from './FabricItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html

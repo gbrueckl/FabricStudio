@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -390,6 +390,12 @@
 				"category": "FabricStudio.Lakehouse"
 			},
 			{
+				"command": "FabricStudio.SQLEndpoint.syncMetadata",
+				"title": "Sync Metadata",
+				"icon": "$(refresh)",
+				"category": "FabricStudio.SQLEndpoint"
+			},
+			{
 				"command": "FabricStudio.MirroredDatabase.startMirroring",
 				"title": "Start Mirroring",
 				"icon": "$(debug-start)",
@@ -509,6 +515,7 @@
 				"title": "Filter Capacities",
 				"icon": "$(filter)"
 			}
+
 		],
 		"menus": {
 			"view/title": [
@@ -632,6 +639,11 @@
 				{
 					"command": "FabricStudio.Lakehouse.Table.maintain",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,LAKEHOUSETABLE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.SQLEndpoint.syncMetadata",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,SYNC_METADATA,.*/",
 					"group": "navigation"
 				},
 				{

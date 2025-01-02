@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 
-import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
@@ -8,7 +7,6 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricMirroredDatabaseTables } from './FabricMirroredDatabaseTables';
 import { FabricMirroredDatabaseSynchronization } from './FabricMirroredDatabaseSynchronization';
-import { sync } from 'glob';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricMirroredDatabase extends FabricItem {

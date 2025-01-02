@@ -2,13 +2,12 @@ import * as vscode from 'vscode';
 
 import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
+import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricDataPipeline extends FabricItem {
-	private _properties: iFabricApiLakehouseProperties;
 
 	constructor(
 		definition: iFabricApiItem,

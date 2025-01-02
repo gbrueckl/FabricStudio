@@ -34,6 +34,7 @@ export type FabricApiItemType =
 	| "Dataflow"
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.
+	| "SQLEndpoints"						//	Folder for SQLEndpoint item.
 	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
 	| "SemanticModels"						//	Folder for Semantic Model item.
@@ -73,6 +74,7 @@ export type FabricApiItemType =
 	| "GatewayMember"						//	A gateway member.
 	| "GatewayRoleAssignments"				//	Folder for gateway role assignments.
 	| "GatewayRoleAssignment"				//	A gateway role assignment.
+	| "SQLEndpointBatches"					//	Folder for sql endpoint batches.
 	;
 
 export enum FabricApiWorkspaceType {

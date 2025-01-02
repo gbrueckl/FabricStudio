@@ -21,8 +21,8 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 		ThisExtension.TempFileSystemProvider = fsp;
 	}
 
-	public static async createTempFile(path: string, content: string): Promise<vscode.Uri> {
-		let uri = vscode.Uri.parse(`${TEMP_SCHEME}:///${Helper.trimChar(path, "/")}`);
+	public static async createTempFile(path: string, content: string, extension: string = ".json"): Promise<vscode.Uri> {
+		let uri = vscode.Uri.parse(`${TEMP_SCHEME}:///${Helper.trimChar(encodeURI(path), "/")}${extension}`);
 		TempFileSystemProvider.cache.set(uri.toString(), Buffer.from(content, TEMP_FILE_ENCODING));
 
 		return uri;

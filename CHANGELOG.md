@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.1.0**:
+- added UI action to `Sync Metadata` for SQL endpoints
+- added batch history for SQL endpoint operations
+
 **v1.0.0**:
 - OFFICIAL PUBLIC RELEASE!
 

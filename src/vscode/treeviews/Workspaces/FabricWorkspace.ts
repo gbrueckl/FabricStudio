@@ -24,6 +24,8 @@ import { FabricNotebook } from './FabricNotebook';
 import { FabricMirroredDatabases } from './FabricMirroredDatabases';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricMapper } from '../../../fabric/FabricMapper';
+import { FabricSqlEndpoint } from './FabricSqlEndpoint';
+import { FabricSqlEndpoints } from './FabricSqlEndpoints';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -84,6 +86,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						if (item.type == "Lakehouse") {
 							treeItem = new FabricLakehouses(this);
 						}
+						else if (item.type == "SQLEndpoint") {
+							treeItem = new FabricSqlEndpoints(this);
+						}
 						else if (item.type == "DataPipeline") {
 							treeItem = new FabricDataPipelines(this);
 						}
@@ -118,6 +123,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 					if (item.type == "Lakehouse") {
 						itemToAdd = new FabricLakehouse(item, this);
+					}
+					else if (item.type == "SQLEndpoint") {
+						itemToAdd = new FabricSqlEndpoint(item, this);
 					}
 					else if (item.type == "DataPipeline") {
 						itemToAdd = new FabricDataPipeline(item, this);
