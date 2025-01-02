@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
-import { FabricWorkspace } from './FabricWorkspace';
 import { FabricSqlEndpointBatch } from './FabricSqlEndpointBatch';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -15,13 +13,13 @@ export class FabricSqlEndpointBatches extends FabricWorkspaceGenericFolder {
 		parent: FabricSqlEndpoint
 	) {
 		super(
-			`${parent.itemId}/Batches`, 
+			`${parent.id}/Batches`, 
 			"Batches", 
 			"SQLEndpointBatches", 
 			parent, 
 			"batches");
 
-		this.id = parent.itemId + "/" + this.itemType;
+		this.id = parent.id + "/" + this.itemType;
 
 		this.contextValue = this._contextValue;
 	}

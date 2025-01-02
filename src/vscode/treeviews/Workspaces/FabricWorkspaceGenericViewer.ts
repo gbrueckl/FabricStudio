@@ -18,7 +18,7 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 		apiUrlPart: string = undefined
 
 	) {
-		super(parent.apiPath + name, name, "GenericViewer", parent, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		super(parent.id + "/" + name, name, "GenericViewer", parent, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 
 		this._customApiUrlPart = apiUrlPart;
 		// the workspaceId is not unique for logical folders hence we make it unique

@@ -6,6 +6,7 @@ import { FabricLakehouseTables } from './FabricLakehouseTables';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItem } from './FabricItem';
+import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricLakehouse extends FabricItem {
@@ -39,8 +40,30 @@ export class FabricLakehouse extends FabricItem {
 
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		let children: FabricWorkspaceTreeItem[] = await super.getChildren();
+		let children: FabricWorkspaceTreeItem[] = [];
 
+		const sqlEndpointProp = (await this.getProperties()).sqlEndpointProperties;
+
+		/*
+		"sqlEndpointProperties": {
+            "connectionString": "rglfde36zlluzctg4s47lhizmm-nkhspyxse5qufn2zauvvsnsqwa.datawarehouse.fabric.microsoft.com",
+            "id": "72d28969-e787-4e79-a4f9-5b40edafd80c",
+            "provisioningStatus": "Success"
+        }
+		*/
+		const sqlEndpointDefinition: iFabricApiItem = {
+			id: sqlEndpointProp.id,
+			displayName: `SQL Endpoint ${this.itemName}`,
+			type: "SQLEndpoint"
+		};
+
+		let sqlEndpoint = new FabricSqlEndpoint(sqlEndpointDefinition, this);
+		sqlEndpoint.id = sqlEndpointProp.id + "/Lakehouse";
+
+		children.push(sqlEndpoint)
+
+		children = children.concat(await super.getChildren());
+		
 		children.push(new FabricLakehouseTables(this));
 
 		return children;
