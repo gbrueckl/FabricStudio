@@ -126,8 +126,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return this._itemType;
 	}
 
-	get itemId() {
+	get itemId(): UniqueId {
 		return this._itemId;
+	}
+
+	set itemId(value: UniqueId) {
+		this._itemId = value;
 	}
 
 	get parent(): FabricApiTreeItem {

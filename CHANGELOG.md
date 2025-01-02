@@ -3,6 +3,8 @@
 **v1.1.0**:
 - added UI action to `Sync Metadata` for SQL endpoints
 - added batch history for SQL endpoint operations
+- reworked Generic Viewer
+- added icons for job intances
 
 **v1.0.0**:
 - OFFICIAL PUBLIC RELEASE!

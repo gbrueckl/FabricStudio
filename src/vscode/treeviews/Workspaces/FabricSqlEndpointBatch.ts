@@ -13,9 +13,35 @@ export class FabricSqlEndpointBatch extends FabricWorkspaceGenericViewer {
 		super(definition.startTimeStamp.toString(), parent);
 
 		this._itemDefinition = definition;
+
+		this.description = this._description;
+
+		this.iconPath = this.getIcon();
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
+
+	// description is show next to the label
+	get _description(): string {
+		if (this.itemDefinition) {
+			return `${this.itemDefinition.batchType} - ${this.itemDefinition.progressState}`;
+		}
+	}
+
+	getIcon(): vscode.ThemeIcon {
+		if (this.itemDefinition) {
+			if (this.itemDefinition.progressState == "success") {
+				return new vscode.ThemeIcon("check");
+			}
+			else if (this.itemDefinition.progressState.includes("fail")) {
+				return new vscode.ThemeIcon("error");
+			}
+			else {
+				return new vscode.ThemeIcon("sync~spin");
+			}
+		}
+	}
+
 	get apiPath(): string {
 		return this.parent.apiPath + "/" + this.itemDefinition.batchId
 	}

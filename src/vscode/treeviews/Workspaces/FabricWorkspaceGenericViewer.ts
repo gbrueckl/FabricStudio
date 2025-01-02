@@ -45,7 +45,7 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 		if(this._customApiUrlPart != undefined) {
 			return this._customApiUrlPart;
 		}
-		return this.itemType;
+		return this.apiUrlPart;
 	}
 
 	get _command(): vscode.Command {

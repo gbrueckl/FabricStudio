@@ -2,15 +2,18 @@ import * as vscode from 'vscode';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItemConnection, iFabricApiItemJobInstance } from '../../../fabric/_types';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricItemJobInstance extends FabricWorkspaceTreeItem {
+export class FabricItemJobInstance extends FabricWorkspaceGenericViewer {
 	constructor(
 		definition: iFabricApiItemJobInstance,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.startTimeUtc, "ItemJobInstance", parent, definition, definition.id, vscode.TreeItemCollapsibleState.None);
+		super(definition.startTimeUtc, parent, definition.id);
 
+		this.itemId = definition.id;
+		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
 
@@ -29,12 +32,22 @@ export class FabricItemJobInstance extends FabricWorkspaceTreeItem {
 	// description is show next to the label
 	get _description(): string {
 		if (this.itemDefinition) {
-			return `${this.itemDefinition.status}`;
+			return `${this.itemDefinition.jobType} - ${this.itemDefinition.invokeType}`;
 		}
 	}
 
 	getIcon(): vscode.ThemeIcon {
-		return new vscode.ThemeIcon("extensions-remote");
+		if (this.itemDefinition) {
+			if (this.itemDefinition.status == "Completed") {
+				return new vscode.ThemeIcon("check");
+			}
+			else if (this.itemDefinition.status.includes("Failed")) {
+				return new vscode.ThemeIcon("error");
+			}
+			else {
+				return new vscode.ThemeIcon("sync~spin");
+			}
+		}
 	}
 
 	get itemDefinition(): iFabricApiItemJobInstance {
