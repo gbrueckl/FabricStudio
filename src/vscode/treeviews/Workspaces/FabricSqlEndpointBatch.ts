@@ -33,7 +33,7 @@ export class FabricSqlEndpointBatch extends FabricWorkspaceGenericViewer {
 			if (this.itemDefinition.progressState == "success") {
 				return new vscode.ThemeIcon("check");
 			}
-			else if (this.itemDefinition.progressState.includes("fail")) {
+			else if (this.itemDefinition.progressState == "failure") {
 				return new vscode.ThemeIcon("error");
 			}
 			else {
