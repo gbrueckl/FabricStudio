@@ -9,6 +9,7 @@ import { FabricApiItemFormat, FabricApiItemType, iFabricApiItem, iFabricApiItemD
 
 import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
 import { FabricLogger } from '@utils/FabricLogger';
+import { clear } from 'console';
 
 export abstract class FabricApiService {
 	protected static _logger: FabricLogger;
@@ -25,8 +26,7 @@ export abstract class FabricApiService {
 	protected static _vscodeSession: vscode.AuthenticationSession;
 
 	//#region Initialization
-	static async initialize(
-	): Promise<boolean> {
+	static async initialize(clearSession: boolean = false): Promise<boolean> {
 
 		try {
 			this._logger = ThisExtension.Logger;
@@ -40,7 +40,7 @@ export abstract class FabricApiService {
 			this._authenticationProvider = FabricConfiguration.authenticationProvider;
 			this._resourceId = FabricConfiguration.resourceId;
 
-			await this.refreshConnection();
+			await this.refreshConnection(clearSession);
 
 			return true;
 		} catch (error) {
@@ -55,8 +55,8 @@ export abstract class FabricApiService {
 		return this._logger;
 	}
 
-	private static async refreshConnection(): Promise<void> {
-		this._vscodeSession = await this.getVSCodeSession();
+	private static async refreshConnection(clearSession: boolean): Promise<void> {
+		this._vscodeSession = await this.getVSCodeSession(clearSession);
 
 		if (!this._vscodeSession || !this._vscodeSession.accessToken) {
 			vscode.window.showInformationMessage(`Fabric API Service: Please log in with your Microsoft account first!`);
@@ -78,6 +78,7 @@ export abstract class FabricApiService {
 		if (connected) {
 			this.Logger.logInfo(`Fabric API Service initialized!`);
 			this._isInitialized = true;
+			ThisExtension.updateStatusBarLeft();
 		}
 		else {
 			this.Logger.logError(`Failure initializing Fabric API Service!`);
@@ -85,9 +86,14 @@ export abstract class FabricApiService {
 		}
 	}
 
-	public static async getVSCodeSession(): Promise<vscode.AuthenticationSession> {
+	public static async changeUser(): Promise<void> {
+		await FabricApiService.refreshConnection(true);
+		ThisExtension.refreshUI();
+	}
+
+	public static async getVSCodeSession(clearSession: boolean = false): Promise<vscode.AuthenticationSession> {
 		// we dont need to specify a clientId here as VSCode is a first party app and can use impersonation by default
-		let session = await this.getAADAccessToken([`${Helper.trimChar(this._resourceId, "/")}/.default`], this._tenantId, this._clientId);
+		let session = await this.getAADAccessToken([`${Helper.trimChar(this._resourceId, "/")}/.default`], this._tenantId, this._clientId, clearSession);
 		return session;
 	}
 
@@ -95,11 +101,11 @@ export abstract class FabricApiService {
 		if (event.provider.id === this._authenticationProvider) {
 			this.Logger.logInfo("Session for provider '" + event.provider.label + "' changed - refreshing connections! ");
 
-			await this.refreshConnection();
+			await this.refreshConnection(false);
 		}
 	}
 
-	public static async getAADAccessToken(scopes: string[], tenantId?: string, clientId?: string): Promise<vscode.AuthenticationSession> {
+	public static async getAADAccessToken(scopes: string[], tenantId?: string, clientId?: string, clearSession: boolean = false): Promise<vscode.AuthenticationSession> {
 		//https://www.eliostruyf.com/microsoft-authentication-provider-visual-studio-code/
 
 		if (!scopes.includes("offline_access")) {
@@ -113,7 +119,8 @@ export abstract class FabricApiService {
 			scopes.push("VSCODE_CLIENT_ID:" + clientId);
 		}
 
-		let session: vscode.AuthenticationSession = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true });
+
+		let session: vscode.AuthenticationSession = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
 
 		return session;
 	}
@@ -578,11 +585,10 @@ export abstract class FabricApiService {
 	}
 
 	static async createItem(workspaceId: string, name: string, type: FabricApiItemType, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iFabricApiResponse> {
-		if(!FabricConfiguration.itemTypeHasDefinition(type))
-		{
+		if (!FabricConfiguration.itemTypeHasDefinition(type)) {
 			ThisExtension.Logger.logError(`Type '${type}' is not supported for item creation!`, true, true);
 		}
-		
+
 		const endpoint = `${this._apiBaseUrl}/v1/workspaces/${workspaceId}/${type}`;
 
 		const body = Object.assign({}, {

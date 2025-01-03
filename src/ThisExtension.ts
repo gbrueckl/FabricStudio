@@ -131,9 +131,23 @@ export abstract class ThisExtension {
 	}
 
 	static updateStatusBarLeft(): void {
-		// const tenantInfo = PowerBIApiService.TenantId ? `Tenant: ${PowerBIApiService.TenantId}` : "";
-		// this.StatusBarLeft.text = `Power BI: ${PowerBIApiService.SessionUserEmail}${tenantInfo ? " (GUEST)" : ""}`;
-		// this.StatusBarLeft.tooltip = tenantInfo ? `${tenantInfo}` : undefined;
+		const tenantInfo = FabricApiService.TenantId ? `Tenant: ${FabricApiService.TenantId}` : "";
+		this.StatusBarLeft.text = `Fabric Studio: ${FabricApiService.SessionUserEmail}${tenantInfo ? " (GUEST)" : ""}`;
+		this.StatusBarLeft.tooltip = tenantInfo ? `${tenantInfo}` : undefined;
+	}
+
+	public static async refreshUI(): Promise<void> {
+		// refresh all treeviews after the extension has been initialized
+		const allCommands = await vscode.commands.getCommands(true);
+		const refreshCommands = allCommands.filter(command => command.match(/^(FabricStudio).*?s\.refresh/));
+
+		ThisExtension.Logger.logInfo("Refreshing UI ...");
+		for (let command of refreshCommands) {
+			ThisExtension.Logger.logInfo(`Executing command '${command}' ...`);
+			vscode.commands.executeCommand(command, undefined, false);
+		}
+		ThisExtension.updateStatusBarLeft();
+		ThisExtension.Logger.logInfo("UI refresh finsihed!");
 	}
 
 	static cleanUp(): void {

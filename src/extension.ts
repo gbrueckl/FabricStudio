@@ -33,6 +33,7 @@ import { FabricMirroredDatabaseSynchronization } from './vscode/treeviews/Worksp
 import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
 import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
 import { FabricSqlEndpoint } from './vscode/treeviews/Workspaces/FabricSqlEndpoint';
+import { FabricApiService } from './fabric/FabricApiService';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -58,8 +59,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Core.setStatusBarRight("Initialized!");
 
 	ThisExtension.StatusBarLeft = vscode.window.createStatusBarItem("fabricstudio.left", vscode.StatusBarAlignment.Left);
-	//Core.StatusBarLeft.show();
-	//Core.StatusBarLeft.command = "FabricStudio.initialize";
+	ThisExtension.StatusBarLeft.show();
+	ThisExtension.StatusBarLeft.command = "FabricStudio.changeUser";
 
 	vscode.commands.registerCommand('FabricStudio.initialize', async () => {
 		let isValidated: boolean = await ThisExtension.initialize(context)
@@ -70,6 +71,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		return isValidated;
 	}
 	);
+
+	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
 
 	context.subscriptions.push(
 		vscode.workspace.registerNotebookSerializer(

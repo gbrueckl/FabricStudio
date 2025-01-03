@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.2.0**:
+- added left status bar to see currently logged in user
+- added user switch via left status bar and the command `FabricStudio.changeUser`
+
 **v1.1.0**:
 - added UI action to `Sync Metadata` for SQL endpoints
 - added batch history for SQL endpoint operations
