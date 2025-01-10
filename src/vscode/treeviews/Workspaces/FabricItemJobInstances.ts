@@ -7,6 +7,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricItem } from './FabricItem';
 import { FabricItemJobInstance } from './FabricItemJobInstance';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemJobInstances extends FabricWorkspaceGenericFolder {
@@ -51,6 +52,6 @@ export class FabricItemJobInstances extends FabricWorkspaceGenericFolder {
 	}
 
 	get apiPath(): string {
-		return this.parent.itemApiPath + "/" + this.apiUrlPart
+		return Helper.joinPath(this.parent.itemApiPath, this.apiUrlPart);
 	}
 }

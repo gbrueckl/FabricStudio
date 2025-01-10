@@ -42,10 +42,10 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 	}
 
 	get apiUrlPart(): string {
-		if(this._customApiUrlPart != undefined) {
+		if (this._customApiUrlPart != undefined) {
 			return this._customApiUrlPart;
 		}
-		return this.apiUrlPart;
+		return super.apiUrlPart;
 	}
 
 	get _command(): vscode.Command {
@@ -56,24 +56,35 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 
 	get tempFilePath(): string {
 		let tempPath = this.apiPath.replace(/[^A-Za-z0-9\/:\.-]/g, "_");
-		if(this.apiPath.startsWith("https://")) {
+		if (this.apiPath.startsWith("https://")) {
 			tempPath = tempPath.replace("https://", "");
 		}
 		return tempPath;
 	}
 
-	public async showDefinition(): Promise<void> {
-		let result = await FabricApiService.get(this.apiPath);
+	get getDefinitionFromApi(): boolean {
+		return true;
+	}
 
-		let content: string;
-		
-		if(result.success) {
-			content = JSON.stringify(result.success, null, "\t");
+	public async showDefinition(): Promise<void> {
+		let content: any;
+
+		if (this.getDefinitionFromApi) {
+			let result = await FabricApiService.get(this.apiPath);
+
+			if (result.success) {
+				content = result.success;
+			}
+			else {
+				content = result.error;
+			}
 		}
 		else {
-			content = JSON.stringify(result.error, null, "\t")
+			content = this.itemDefinition;
 		}
-		
+
+		content = JSON.stringify(content, null, "\t");
+
 		let tempUri = await TempFileSystemProvider.createTempFile(this.tempFilePath, content);
 
 		vscode.workspace.openTextDocument(tempUri).then(

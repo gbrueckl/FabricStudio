@@ -1,5 +1,10 @@
 # Change Log
 
+**v1.3.0**:
+- added JSON Viewer for Item Connections
+- added JSON Viewer for Item Shortcuts
+- added JSON Viewer for Item DataAccessRoles
+
 **v1.2.0**:
 - added left status bar to see currently logged in user
 - added user switch via left status bar and the command `FabricStudio.changeUser`

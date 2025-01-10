@@ -32,7 +32,7 @@ export class FabricNotebook extends FabricItem {
 	static async runNotebook(notebook: FabricItem): Promise<void> {
 		// https://learn.microsoft.com/en-us/fabric/data-engineering/notebook-public-api#run-a-notebook-on-demand
 
-		const endpoint = notebook.itemApiPath + "jobs/instances?jobType=RunNotebook";
+		const endpoint = Helper.joinPath(notebook.itemApiPath, "jobs/instances?jobType=RunNotebook");
 
 		const body = {
 			"executionData": {}

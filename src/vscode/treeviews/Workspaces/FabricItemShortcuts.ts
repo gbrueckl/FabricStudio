@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricApiItemType,  iFabricApiItemShortcut,  iFabricApiLakehouseTable } from '../../../fabric/_types';
@@ -58,6 +58,6 @@ export class FabricItemShortcuts extends FabricWorkspaceGenericFolder {
 	}
 
 	get apiPath(): string {
-		return this.parent.itemApiPath + "/" + this.apiUrlPart
+		return Helper.joinPath(this.parent.itemApiPath, this.apiUrlPart);
 	}
 }

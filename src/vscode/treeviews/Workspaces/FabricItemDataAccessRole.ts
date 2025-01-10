@@ -5,17 +5,21 @@ import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItemConnection, iFabricApiItemDataAccessRole } from '../../../fabric/_types';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
+import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricItemDataAccessRole extends FabricWorkspaceTreeItem {
+export class FabricItemDataAccessRole extends FabricWorkspaceGenericViewer {
 	constructor(
 		definition: iFabricApiItemDataAccessRole,
-		parent: FabricWorkspaceTreeItem
+		parent: FabricItemDataAccessRoles
 	) {
-		super(parent.id, definition.name, "ItemDataAccessRole", parent, definition, definition.name, vscode.TreeItemCollapsibleState.None);
+		super(definition.name, parent);
 
 		this.id = parent.id + "/" + definition.id,
 
+		this.itemId = definition.id;
+		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
 
@@ -41,6 +45,18 @@ export class FabricItemDataAccessRole extends FabricWorkspaceTreeItem {
 
 	set itemDefinition(value: iFabricApiItemDataAccessRole) {
 		this._itemDefinition = value;
+	}
+
+	get parent(): FabricItemDataAccessRoles {
+		return this._parent as FabricItemDataAccessRoles;
+	}
+
+	get getDefinitionFromApi(): boolean {
+		return false;
+	}
+
+	get apiPath(): string {
+		return this.parent.apiPath + this.apiUrlPart
 	}
 
 	// Item-specific functions

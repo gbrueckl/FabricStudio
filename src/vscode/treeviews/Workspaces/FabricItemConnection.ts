@@ -7,15 +7,18 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricApiItemType, iFabricApiItem, iFabricApiItemConnection } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricItemConnection extends FabricWorkspaceTreeItem {
+export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 	constructor(
 		definition: iFabricApiItemConnection,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.displayName, "ItemConnection", parent, definition, definition.connectionDetails.path, vscode.TreeItemCollapsibleState.None);
+		super(definition.displayName, parent);
 
+		this.itemId = definition.id;
+		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
 
@@ -51,4 +54,7 @@ export class FabricItemConnection extends FabricWorkspaceTreeItem {
 	}
 
 	// Item-specific functions
+	get apiPath(): string {
+		return "/connections/" + this.itemDefinition.id;
+	}
 }

@@ -6,18 +6,20 @@ import { iFabricApiItemShortcut, iFabricApiLakehouseTable } from '../../../fabri
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricItemShortcut extends FabricWorkspaceTreeItem {
+export class FabricItemShortcut extends FabricWorkspaceGenericViewer {
 	constructor(
 		definition: iFabricApiItemShortcut,
 		parent: FabricItemShortcuts
 	) {
-		super(definition.name, definition.path + "/" + definition.name, "ItemShortcut", parent, definition, undefined, vscode.TreeItemCollapsibleState.None);
+		super(definition.name, parent);
 
 		this.id = parent.id + "/" + definition.name,
 
-			this.tooltip = this.getToolTip(this.itemDefinition);
+		this.itemDefinition = definition;
+		this.tooltip = this.getToolTip(this.itemDefinition);
 		this.description = this._description;
 
 		this.iconPath = this.getIcon();
@@ -63,6 +65,10 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 		return this._itemDefinition;
 	}
 
+	set itemDefinition(value: iFabricApiItemShortcut) {
+		this._itemDefinition = value;
+	}
+
 	get name(): string {
 		return this.itemDefinition.name;
 	}
@@ -81,6 +87,10 @@ export class FabricItemShortcut extends FabricWorkspaceTreeItem {
 			const targetProperty = targetType[0].toLowerCase() + targetType.slice(1)
 			return this.itemDefinition.target[targetProperty];
 		}
+	}
+
+	get getDefinitionFromApi(): boolean {
+		return false;
 	}
 
 	get oneLakeUri(): vscode.Uri {

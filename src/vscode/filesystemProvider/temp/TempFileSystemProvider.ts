@@ -5,7 +5,7 @@ import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
 
 
-export const TEMP_SCHEME: string = "fabricemp";
+export const TEMP_SCHEME: string = "fabrictemp";
 export const TEMP_FILE_ENCODING: BufferEncoding = "utf8";
 
 

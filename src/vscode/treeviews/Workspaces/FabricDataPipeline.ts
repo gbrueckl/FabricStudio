@@ -32,7 +32,7 @@ export class FabricDataPipeline extends FabricItem {
 	async runPipeline(): Promise<void> {
 		// https://learn.microsoft.com/en-us/fabric/data-factory/pipeline-rest-api#run-on-demand-item-job
 		
-		const endpoint = this.itemApiPath + "jobs/instances?jobType=Pipeline";
+		const endpoint = Helper.joinPath(this.itemApiPath, "jobs/instances?jobType=Pipeline");
 
 		const body = {
 			"executionData": {}
