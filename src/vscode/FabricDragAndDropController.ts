@@ -13,6 +13,7 @@ import { FabricGatewayRoleAssignment } from './treeviews/Connections/FabricGatew
 import { FabricGatewayRoleAssignments } from './treeviews/Connections/FabricGatewayRoleAssignments';
 import { FabricConnectionRoleAssignment } from './treeviews/Connections/FabricConnectionRoleAssignment';
 import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricConnectionRoleAssignments';
+import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -135,7 +136,6 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 			}
 		}
 
-		const ws = dataTransfer.get("application/vnd.code.tree.fabricstudioworkspaces");
 		const transferItem = dataTransfer.get(FabricDragMIMEType);
 
 		if (!transferItem) {
@@ -202,7 +202,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					await target.addRoleAssignment(sourceItem.itemDefinition);
 					ThisExtension.TreeViewConnections.refresh(target.parent, false);
 				}
-
+				
 				actions.set("Add GatewayRoleAssignment", addRoleAssignment);
 			}
 		}
@@ -219,6 +219,20 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 				actions.set("Add ConnectionRoleAssignment", addRoleAssignment);
 			}
 		}
+		else if (source_Item0.itemType == "Workspace") {
+			const sourceItem = source_Item0 as FabricWorkspace;
+			if (["Capacity"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricCapacity;
+
+				const assignToCapacity = async () => {
+					await FabricCapacity.assignWorkspace(sourceItem.itemDefinition, target.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+				treeViewtoRefresh = sourceGroup.TreeProvider
+				actions.set("Assign to Capacity", assignToCapacity);
+			}
+		}
+
 
 		// if (source.itemType == "Workspace") {
 		// 	// dropping a Group/Workspace on a Capacity --> assign to that capacity

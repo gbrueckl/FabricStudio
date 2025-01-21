@@ -1,5 +1,14 @@
 # Change Log
 
+**v1.4.0**:
+- added explicit actions for `Edit using TMDL` and `Edit using PBIR`
+- added `Edit Definition` for EventStreams
+- added new config setting `fabricStudio.iconStyle` to choose between `mono` and `color`
+- reworked `Connections` treeview to include the gateways displayname
+- added `Role Assignments` for connections
+- added Drag&Drop for Gateway and Connection role assignments
+- added Drag&Drop to assign a workspace to a capacity by dropping the workspace item on the capacity item
+
 **v1.3.0**:
 - added JSON Viewer for Item Connections
 - added JSON Viewer for Item Shortcuts
