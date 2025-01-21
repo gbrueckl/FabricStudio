@@ -55,6 +55,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 		let tooltip: string = "";
 		for (const [key, value] of Object.entries(definition)) {
+			if(!value) continue; // skip empty values
 			if (typeof value === "string") {
 				if (value.length > 100 || value.length < 1) {
 					continue;
@@ -124,6 +125,10 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	get itemType(): FabricApiItemType {
 		return this._itemType;
+	}
+
+	set itemType(value: FabricApiItemType) {
+		this._itemType = value;
 	}
 
 	get itemId(): UniqueId {

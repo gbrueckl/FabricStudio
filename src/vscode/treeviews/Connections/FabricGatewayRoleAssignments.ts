@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 
-import {  iFabricApiGatewayRoleAssignment } from '../../../fabric/_types';
+import { iFabricApiGatewayRoleAssignment } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 import { FabricGateway } from './FabricGateway';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricGatewayRoleAssignment } from './FabricGatewayRoleAssignment';
+import { Helper } from '@utils/Helper';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -17,7 +18,7 @@ export class FabricGatewayRoleAssignments extends FabricConnectionGenericFolder 
 	}
 
 	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
-		if(!FabricApiService.isInitialized) { 			
+		if (!FabricApiService.isInitialized) {
 			return Promise.resolve([]);
 		}
 
@@ -32,8 +33,33 @@ export class FabricGatewayRoleAssignments extends FabricConnectionGenericFolder 
 				let treeItem = new FabricGatewayRoleAssignment(item, this);
 				children.push(treeItem);
 			}
-			
+
 			return children;
+		}
+	}
+
+	async addRoleAssignment(identity: iFabricApiGatewayRoleAssignment, showInfoMessage: boolean = true): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/gateways/add-gateway-role-assignment?tabs=HTTP
+		/*
+		POST https://api.fabric.microsoft.com/v1/gateways/d12d139f-4141-467c-9f53-80787b198843/roleAssignments
+		{
+			"principal": {
+				"id": "6a002b3d-e4ec-43df-8c08-e8eb7547d9dd",
+				"type": "User"
+			},
+			"role": "ConnectionCreator"
+		}
+		*/
+
+		const response = await FabricApiService.post(this.apiPath, identity, { "raw": false, "awaitLongRunningOperation": false });
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			if (showInfoMessage) {
+				Helper.showTemporaryInformationMessage(`Adding Gateway Role-Assignment for identity '${identity.principal.displayName}'`, 3000);
+			}
 		}
 	}
 }

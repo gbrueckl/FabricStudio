@@ -114,7 +114,8 @@
 										"KQLDatabases",
 										"KQLQuerysets",
 										"KQLDashboards",
-										"Reflexes"
+										"Reflexes",
+										"Eventstreams"
 									]
 								},
 								"format": {
@@ -171,6 +172,15 @@
 						],
 						"default": 3,
 						"markdownDescription": "The log level to use for the extension. 0 = Off, 1 = Trace, 2 = Debug, 3 = Info, 4 = Warning, 5 = Error."
+					},
+					"fabricStudio.iconStyle": {
+						"type": "string",
+						"enum": [
+							"mono",
+							"color"
+						],
+						"default": "mono",
+						"markdownDescription": "Which set of icons to use for the different Fabric item types."
 					}
 				}
 			}
@@ -294,7 +304,19 @@
 			},
 			{
 				"command": "FabricStudio.Item.editDefinition",
-				"title": "Edit Items",
+				"title": "Edit Definition",
+				"icon": "$(pencil)",
+				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.Item.editTMDL",
+				"title": "Edit using TMDL",
+				"icon": "$(pencil)",
+				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.Item.editPBIR",
+				"title": "Edit using PBIR",
 				"icon": "$(pencil)",
 				"category": "FabricStudio"
 			},
@@ -604,6 +626,16 @@
 				{
 					"command": "FabricStudio.Item.editDefinition",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_DEFINITION,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Item.editTMDL",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_TMDL,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Item.editPBIR",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_PBIR,.*/",
 					"group": "navigation"
 				},
 				{

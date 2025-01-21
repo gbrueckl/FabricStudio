@@ -9,6 +9,10 @@ import { FabricQuickPickItem } from './input/FabricQuickPickItem';
 import { Helper } from '@utils/Helper';
 import { FabricWorkspaceRoleAssignment } from './treeviews/Workspaces/FabricWorkspaceRoleAssignment';
 import { FabricWorkspaceRoleAssignments } from './treeviews/Workspaces/FabricWorkspaceRoleAssignments';
+import { FabricGatewayRoleAssignment } from './treeviews/Connections/FabricGatewayRoleAssignment';
+import { FabricGatewayRoleAssignments } from './treeviews/Connections/FabricGatewayRoleAssignments';
+import { FabricConnectionRoleAssignment } from './treeviews/Connections/FabricConnectionRoleAssignment';
+import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricConnectionRoleAssignments';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -186,7 +190,33 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
 				}
 
-				actions.set("Add RoleAssignment", addRoleAssignment);
+				actions.set("Add WorkspaceRoleAssignment", addRoleAssignment);
+			}
+		}
+		else if (source_Item0.itemType == "GatewayRoleAssignment") {
+			const sourceItem = source_Item0 as FabricGatewayRoleAssignment;
+			if (["GatewayRoleAssignments"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricGatewayRoleAssignments;
+
+				const addRoleAssignment = async () => {
+					await target.addRoleAssignment(sourceItem.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+
+				actions.set("Add GatewayRoleAssignment", addRoleAssignment);
+			}
+		}
+		else if (source_Item0.itemType == "ConnectionRoleAssignment") {
+			const sourceItem = source_Item0 as FabricConnectionRoleAssignment;
+			if (["ConnectionRoleAssignments"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricConnectionRoleAssignments;
+
+				const addRoleAssignment = async () => {
+					await target.addRoleAssignment(sourceItem.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+
+				actions.set("Add ConnectionRoleAssignment", addRoleAssignment);
 			}
 		}
 
@@ -257,7 +287,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		else {
 			const msg: string = "No action defined when dropping a '" + source_Item0.itemType + "' on a '" + targetItem.itemType + "'!"
 			ThisExtension.Logger.logWarning(msg);
-			Helper.showTemporaryInformationMessage(msg)
+			vscode.window.showWarningMessage(msg);
 		}
 	}
 }

@@ -15,6 +15,8 @@ import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFil
 import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
+import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
+import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
 
 
 export type TreeProviderId =
@@ -263,6 +265,12 @@ export abstract class ThisExtension {
 				break;
 			case "application/vnd.code.tree.fabricstudiodeploymentpipelines":
 				await this.TreeViewPipelines.refresh(item as FabricPipelineTreeItem);
+				break;
+			case "application/vnd.code.tree.fabricstudioconnections":
+				await this.TreeViewConnections.refresh(item as FabricConnectionTreeItem);
+				break;
+			case "application/vnd.code.tree.fabricstudiocapacities":
+				await this.TreeViewCapacities.refresh(item as FabricCapacityTreeItem);
 				break;
 			default:
 				this.Logger.logError(`TreeProviderId '${id}' not found!`, true, true);

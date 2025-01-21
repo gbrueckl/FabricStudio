@@ -66,7 +66,7 @@ POST https://api.fabric.microsoft.com/v1/workspaces/cfafbeb1-8037-4d0c-896e-a46f
 		}
 		else {
 			if (showInfoMessage) {
-				Helper.showTemporaryInformationMessage(`Adding Role-Assignment for identity '${identity.principal.displayName}'`, 3000);
+				Helper.showTemporaryInformationMessage(`Adding Workspace Role-Assignment for identity '${identity.principal.displayName}'`, 3000);
 			}
 		}
 	}

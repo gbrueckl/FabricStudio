@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiConnection } from '../../../fabric/_types';
+import { iFabricApiConnection, iFabricApiGateway } from '../../../fabric/_types';
 import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
@@ -11,10 +11,11 @@ import { FabricGatewayRoleAssignments } from './FabricGatewayRoleAssignments';
 export class FabricGateway extends FabricConnectionGenericFolder {
 
 	constructor(
-		definition: iFabricApiConnection // iFabricApiGateway
+		definition: iFabricApiConnection, 
+		gateway?: iFabricApiGateway
 	) {
-		super(definition.gatewayId, definition.gatewayId ?? definition.connectivityType, "Gateway", undefined, definition.gatewayId, vscode.TreeItemCollapsibleState.Collapsed);
-		this.itemDefinition = definition;
+		super(definition.gatewayId, gateway?.displayName ?? definition.gatewayId ?? definition.connectivityType, "Gateway", undefined, definition.gatewayId, vscode.TreeItemCollapsibleState.Collapsed);
+		this.itemDefinition = definition ?? gateway;
 
 		this.description = definition.gatewayId ?? definition.connectivityType;
 		this.tooltip = this.getToolTip(definition);
@@ -65,7 +66,7 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load members for item " + this.itemName);
+				ThisExtension.Logger.logError("Could not load members for gateway " + this.itemName);
 			}
 
 			// Role Assignments

@@ -13,7 +13,7 @@ import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
-	
+
 	constructor(
 		id: UniqueId,
 		name: string,
@@ -35,8 +35,16 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		let actions: string[] = [];
 
 		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
-		if(FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
-			actions.push("EDIT_DEFINITION");
+		if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
+			if (itemTypePlural == "SemanticModels") {
+				actions.push("EDIT_TMDL")
+			}
+			else if (itemTypePlural == "Reports") {
+				actions.push("EDIT_PBIR")
+			}
+			else {
+				actions.push("EDIT_DEFINITION");
+			}
 		}
 
 		// to dynamically show actions based on item type
@@ -83,10 +91,10 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		const fabricUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}://${this.itemPath}`));
 
 		let workspace = "";
-		if(this.itemType != "Workspace") {
+		if (this.itemType != "Workspace") {
 			workspace = `${this.workspace.itemName} - `
 		}
-		
+
 		let label = `Fabric - ${workspace}${this.itemName}`;
 
 		await Helper.addToWorkspace(fabricUri.uri, label, true);

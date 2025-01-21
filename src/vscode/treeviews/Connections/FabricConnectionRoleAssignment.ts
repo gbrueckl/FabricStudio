@@ -1,19 +1,21 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiGatewayRoleAssignment } from '../../../fabric/_types';
+import { iFabricApiConnectionRoleAssignment } from '../../../fabric/_types';
 import { FabricConnectionGenericViewer } from './FabricConnectionGenericViewer';
-import { FabricGatewayRoleAssignments } from './FabricGatewayRoleAssignments';
 import { ThisExtension } from '../../../ThisExtension';
+import { FabricConnectionRoleAssignments } from './FabricConnectionRoleAssignments';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
+export class FabricConnectionRoleAssignment extends FabricConnectionGenericViewer {
 
 	constructor(
-		definition: iFabricApiGatewayRoleAssignment,
-		parent: FabricGatewayRoleAssignments
+		definition: iFabricApiConnectionRoleAssignment,
+		parent: FabricConnectionRoleAssignments
 	) {
 		super(definition.id, parent, definition.id);
 		this.itemDefinition = definition;
+		this.itemId = definition.id;
 
 		this.description = this._description;
 		this.contextValue = this._contextValue;
@@ -23,7 +25,7 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 			dark: this.getIconPath()
 		};
 
-		this.itemType = "GatewayRoleAssignment";
+		this.itemType = "ConnectionRoleAssignment";
 	}
 
 	get _contextValue(): string {
@@ -66,13 +68,17 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 		}
 	}
 
-	get itemDefinition(): iFabricApiGatewayRoleAssignment {
+	get itemDefinition(): iFabricApiConnectionRoleAssignment {
 		return this._itemDefinition;
 	}
 
-	set itemDefinition(value: iFabricApiGatewayRoleAssignment) {
+	set itemDefinition(value: iFabricApiConnectionRoleAssignment) {
 		this._itemDefinition = value;
 	}
+
+	get apiPath(): string {
+			return Helper.joinPath(this.parent.apiPath, this.itemId);
+		}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
 }

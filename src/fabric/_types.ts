@@ -45,6 +45,7 @@ export type FabricApiItemType =
 	| "KQLQuerysets"						//	Folder for KQL Queryset item.
 	| "KQLDashboards"						//	Folder for KQL Dashboard item.
 	| "Reflexes"							//	Folder for Reflex item.
+	| "EventStreams" 						//	Folder for Eventstream item.
 	| "LakehouseTable"						//	Lakehouse Table
 	| "LakehouseTables"						//	Folder for Lakehouse Table item.
 	| "GraphQLApi"							//	GraphQL API item.
@@ -74,6 +75,8 @@ export type FabricApiItemType =
 	| "GatewayMember"						//	A gateway member.
 	| "GatewayRoleAssignments"				//	Folder for gateway role assignments.
 	| "GatewayRoleAssignment"				//	A gateway role assignment.
+	| "ConnectionRoleAssignments"			//	Folder for connection role assignments.
+	| "ConnectionRoleAssignment"			//	A connection role assignment.
 	| "SQLEndpointBatches"					//	Folder for sql endpoint batches.
 	;
 
@@ -280,6 +283,12 @@ export enum iFabricApiGatewayRoleAssignmentRole {
 	"ConnectionCreatorWithResharing" // Enables connection creator with resharing access for the gateway.
 }
 
+export enum iFabricApiConnectionRoleAssignmentRole {
+	"Owner", // Enables ownership access for the connection.
+	"User", // Enables user access for the connection.
+	"UserWithReshare" // Enables user with resharing access for the connection.
+}
+
 export interface iFabricApiGenericRoleAssignment {
 	id: string; // The unique id for the role assignment.
 	principal: {
@@ -307,6 +316,10 @@ export interface iFabricApiWorkspaceRoleAssignment extends iFabricApiGenericRole
 };
 export interface iFabricApiGatewayRoleAssignment extends iFabricApiGenericRoleAssignment {
 	role: iFabricApiGatewayRoleAssignmentRole;
+};
+
+export interface iFabricApiConnectionRoleAssignment extends iFabricApiGenericRoleAssignment {
+	role: iFabricApiConnectionRoleAssignmentRole;
 };
 export interface iFabricApiItemJobInstance {
 	id: string; // Job instance Id.

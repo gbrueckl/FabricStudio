@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../../ThisExtension';
 
-import { iFabricApiConnection, iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiConnection, iFabricApiGateway, iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
@@ -71,6 +71,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			let gateways: Map<string, FabricGateway> = new Map<string, FabricGateway>();
 
 			// seems like /myorg/ also works for guest accounts
+			let gatewayList = await FabricApiService.getList<iFabricApiGateway>("/v1/gateways");
 			let items = await FabricApiService.getList<iFabricApiConnection>("/v1/connections");
 
 			if (items.error) {
@@ -93,7 +94,8 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 
 				if (!gateways.has(gateway)) {
 					treeItem = new FabricGateway(
-						item
+						item,
+						gatewayList.success.find(g => g.id === item.gatewayId)
 					);
 
 					gateways.set(gateway, treeItem);

@@ -112,6 +112,7 @@ export const ITEM_FILE_NAMES : Map<FabricApiItemType, string> = new Map([
 	["KQLQuerysets", "RealTimeQueryset"],
 	["KQLDashboards", "RealTimeDashboard"],
 	["Reflexes", "ReflexEntities"],
+	["EventStreams", "eventstream"]
 ]);
 
 // as we get it from the Config
@@ -236,7 +237,6 @@ export abstract class FabricConfiguration {
 	}
 
 	static get iconStyle(): string { 
-		return "color";
 		return this.getValue("iconStyle"); 
 	}
 
