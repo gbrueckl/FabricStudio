@@ -25,6 +25,10 @@ export class FabricCapacity extends FabricCapacityTreeItem {
 		}
 	}
 
+	public get canDelete(): boolean {
+		return false;
+	}
+
 	/* Overwritten properties from FabricCapacityTreeItem */
 	static async assignWorkspace(workspace: iFabricApiWorkspace, capacity: iFabricApiCapacity): Promise<void> {
 		// https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/assign-to-capacity?tabs=HTTP

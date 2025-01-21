@@ -117,18 +117,19 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.delete', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.delete());
 	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.update', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.update());
 
-	vscode.commands.registerCommand('FabricStudio.Item.openInFabric', (treeItem: FabricWorkspaceTreeItem) => treeItem.openInBrowser());
-	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyIdToClipboard());
-	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyNameToClipboard());
-	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPathToClipboard());
-	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricWorkspaceTreeItem) => treeItem.copyPropertiesToClipboard());
-	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricWorkspaceTreeItem) => treeItem.insertCode());
+	vscode.commands.registerCommand('FabricStudio.Item.openInFabric', (treeItem: FabricApiTreeItem) => treeItem.openInBrowser());
+	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyIdToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyNameToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPathToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPropertiesToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricApiTreeItem) => treeItem.insertCode());
 	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => ThisExtension.browseInOneLake(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editTMDL', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editPBIR', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.showDefintion', async (treeItem: FabricWorkspaceGenericViewer) => treeItem.showDefinition());
-	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricWorkspaceTreeItem) => treeItem.delete("yesNo"));
+	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => 
+	treeItem.delete("yesNo"));
 
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());

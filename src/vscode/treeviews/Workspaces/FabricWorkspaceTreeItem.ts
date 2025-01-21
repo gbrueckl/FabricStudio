@@ -99,42 +99,4 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 		await Helper.addToWorkspace(fabricUri.uri, label, true);
 	}
-
-	public async delete(confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
-
-		if (confirmation) {
-			let confirm: string;
-			switch (confirmation) {
-				case "yesNo":
-					confirm = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${this.itemType.toLowerCase()} '${this.itemName}'?`, undefined, undefined);
-					break;
-				case "name":
-					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${this.itemType.toLowerCase()} name '${this.itemName}' again.`, undefined, undefined);
-					break;
-			}
-
-			if (!confirm
-				|| (confirmation == "name" && confirm != this.itemName)
-				|| (confirmation == "yesNo" && confirm != "yes")) {
-				const abortMsg = `Deletion of ${this.itemType.toLowerCase()} '${this.itemName}' aborted!`
-				ThisExtension.Logger.logWarning(abortMsg);
-				Helper.showTemporaryInformationMessage(abortMsg, 2000)
-				return;
-			}
-		}
-
-		const response = await FabricCommandBuilder.execute<any>(this.apiPath, "DELETE", []);
-		if (response.error) {
-			const errorMsg = response.error.message;
-			vscode.window.showErrorMessage(errorMsg);
-		}
-		else {
-			const successMsg = `${this.itemType.toLowerCase()} '${this.itemName}' deleted!`
-			Helper.showTemporaryInformationMessage(successMsg, 2000);
-
-			if (this.parent) {
-				ThisExtension.refreshTreeView(this.TreeProvider, this.parent);
-			}
-		}
-	}
 }

@@ -51,11 +51,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	// tooltip shown when hovering over the item
 	protected getToolTip(definition: any) {
-		if(!definition) return undefined;
+		if (!definition) return undefined;
 
 		let tooltip: string = "";
 		for (const [key, value] of Object.entries(definition)) {
-			if(!value) continue; // skip empty values
+			if (!value) continue; // skip empty values
 			if (typeof value === "string") {
 				if (value.length > 100 || value.length < 1) {
 					continue;
@@ -82,10 +82,10 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			"COPY_PROPERTIES",
 			"INSERT_CODE",
 		];
-		if(this.canOpenInBrowser) {
+		if (this.canOpenInBrowser) {
 			actions.push("OPEN_IN_BROWSER");
 		}
-		if(this.canDelete) {
+		if (this.canDelete) {
 			actions.push("DELETE");
 		}
 		return `,${actions.join(',')},`;
@@ -95,10 +95,47 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	public get canOpenInBrowser(): boolean {
 		return true;
 	}
-	
+
 	// can be overwritten in derived classes to disable "Delete"
 	public get canDelete(): boolean {
 		return true;
+	}
+
+	public async delete(confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
+		if (confirmation) {
+			let confirm: string;
+			switch (confirmation) {
+				case "yesNo":
+					confirm = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${this.itemType.toLowerCase()} '${this.itemName}'?`, undefined, undefined);
+					break;
+				case "name":
+					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${this.itemType.toLowerCase()} name '${this.itemName}' again.`, undefined, undefined);
+					break;
+			}
+
+			if (!confirm
+				|| (confirmation == "name" && confirm != this.itemName)
+				|| (confirmation == "yesNo" && confirm != "yes")) {
+				const abortMsg = `Aborted deletion of ${this.itemType.toLowerCase()} '${this.itemName}'!`
+				ThisExtension.Logger.logWarning(abortMsg);
+				Helper.showTemporaryInformationMessage(abortMsg, 2000)
+				return;
+			}
+		}
+
+		const response = await FabricCommandBuilder.execute<any>(this.apiPath, "DELETE", []);
+		if (response.error) {
+			const errorMsg = response.error.message;
+			vscode.window.showErrorMessage(errorMsg);
+		}
+		else {
+			const successMsg = `Deleted ${this.itemType.toLowerCase()} '${this.itemName}'!`
+			Helper.showTemporaryInformationMessage(successMsg, 5000);
+
+			if (this.parent) {
+				ThisExtension.refreshTreeView(this.TreeProvider, this.parent);
+			}
+		}
 	}
 
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
@@ -186,7 +223,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	public openInBrowser(): void {
 		const tenantParam = FabricApiService.TenantId ? `?ctid=${FabricApiService.TenantId}` : "";
 		const fullLink = `${this.getBrowserLink()}${tenantParam}`;
-		
+
 		Helper.openLink(fullLink);
 	}
 

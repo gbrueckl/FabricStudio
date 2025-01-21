@@ -77,8 +77,12 @@ export class FabricConnectionRoleAssignment extends FabricConnectionGenericViewe
 	}
 
 	get apiPath(): string {
-			return Helper.joinPath(this.parent.apiPath, this.itemId);
-		}
+		return Helper.joinPath(this.parent.apiPath, this.itemId);
+	}
+
+	get canDelete(): boolean {
+		return true;
+	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
 }

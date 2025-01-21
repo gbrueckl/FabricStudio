@@ -287,7 +287,7 @@
 			},
 			{
 				"command": "FabricStudio.Item.openNewNotebook",
-				"title": "Open new Fabric Notebook",
+				"title": "Open in Fabric API Notebook",
 				"icon": "$(notebook)",
 				"category": "FabricStudio"
 			},
@@ -573,7 +573,7 @@
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/",
 					"group": "navigation"
 				},
 				{
@@ -598,6 +598,11 @@
 				}
 			],
 			"view/item/context": [
+				{
+					"command": "FabricStudio.Item.openNewNotebook",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/",
+					"group": "navigation"
+				},
 				{
 					"command": "FabricStudio.Item.openInFabric",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
@@ -650,7 +655,7 @@
 				},
 				{
 					"command": "FabricStudio.Item.delete",
-					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DELETE,.*/",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioConnections)/ && viewItem =~ /.*,DELETE,.*/",
 					"group": "3_delete"
 				},
 				{

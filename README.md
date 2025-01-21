@@ -127,7 +127,7 @@ The first cell would return the list of all workspaces. The second cell gets the
 This approach can also be used to simply copy settings from one Power BI object to another by first running a `GET` on the source object and then a `POST`/`PUT`/`PATCH` on the target referencing the output of the preceding `GET`. Common scenarios would be to copy users/permissions or dataset refresh schedules but there are definitely much more use-cases!
 
 # Custom FileSystemProvider
-The extension also provides an easy way to interact with all items hosted in Microsoft Fabric. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) when working with VSCode.
+The extension also provides an easy way to interact with all items hosted in Microsoft Fabric and modify their definition. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) for this to work properly.
 The easiest way to configure and use the custom FileSystemProvider is to right-click the item (or parent or workspace) in the Workspace Browser and select `Edit Defintion`:
 ![EditDefinition](./images/EditDefinition.png?raw=true "Edit Definition")
 Alternatively you can also add the path to your Fabric Workspace (or item) directly to your workspace settings file using an URI in the format of `fabric://workspaces/<workspace-guid>`:
@@ -163,6 +163,15 @@ If you have your Fabric workspace connected to a GIT repository, you can from no
 ![Manage-SourceControl](./images/Manage_SourceControl.png?raw=true "Manage SourceControl")
 Once the GIT repository is managed via VSCode, you can stage, commit, undo your changes from within VSCode:
 ![SourceControl](./images/SourceControl.png?raw=true "SourceControl")
+
+# Drag & Drop Capabilites
+For usability, some items are configured for Drag & Drop.
+The following list provides the currently supported souces and targets for Drag & Drop
+
+| Source | Target | Action | Description |
+|--------|--------|--------|-------------|
+| Role Assignment | Role Assignments | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. |
+| Workspace | Capacity | Assign to Capacity | Assigns the dragged workspace to the dropped capacity. |
 
 # FAQ
 

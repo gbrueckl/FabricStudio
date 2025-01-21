@@ -74,5 +74,9 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 		this._itemDefinition = value;
 	}
 
+	get canDelete(): boolean {
+		return true;
+	}
+
 	/* Overwritten properties from FabricConnectionGenericViewer */
 }
