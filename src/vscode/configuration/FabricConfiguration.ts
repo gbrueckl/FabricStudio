@@ -158,6 +158,9 @@ export abstract class FabricConfiguration {
 	static get clientId(): string { return this.getValue("clientId"); }
 	static set clientId(value: string) { this.setValue("clientId", value); }
 
+	static get showProWorkspaces(): string { return this.getValue("showProWorkspaces"); }
+	static set showProWorkspaces(value: string) { this.setValue("showProWorkspaces", value); }
+
 	static get workspaceFilter(): string { return this.getValue("workspaceFilter"); }
 	static set workspaceFilter(value: string) { this.setValue("workspaceFilter", value); }
 	static get workspaceFilterRegEx(): RegExp { return new RegExp(this.getValue("workspaceFilter")); }

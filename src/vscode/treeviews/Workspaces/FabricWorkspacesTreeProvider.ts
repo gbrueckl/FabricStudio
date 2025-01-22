@@ -95,7 +95,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 						continue;
 					}
 				}
-				if (item.capacityId) {
+				if (item.capacityId || FabricConfiguration.showProWorkspaces) {
 					let treeItem = new FabricWorkspace(item);
 					children.push(treeItem);
 				}

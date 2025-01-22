@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.5.0**:
+- added new config setting `fabricStudio.showProWorkspaces` to also show Power BI workspaces that are not assigned to a capacity.
+  The TMDL and PBIR editor of Fabric Studio also works on regular Pro workspaces!
+
 **v1.4.0**:
 - added explicit actions for `Edit using TMDL` and `Edit using PBIR`
 - added `Edit Definition` for EventStreams

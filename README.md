@@ -31,8 +31,14 @@ The extension supports the following VSCode settings:
 |-------|-----------|-------------|
 |`fabricstudio.tenantId`|(Optional) The tenant ID of the remote tenant that you want to connect to.|A GUID, `abcd1234-1234-5678-9abcd-9d1963e4b9f5`|
 |`fabricstudio.clientId`|(Optional) A custom ClientID/Application of an AAD application to use when connecting to Fabric.|A GUID, `99887766-1234-5678-9abcd-e4b9f59d1963`|
+|`fabric.workspaceFilter`|(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Fabric Workspaces view.|`Project A\|Sales` to see only workspaces that have "Project A" or (\|) "Sales" in the name|
+|`fabric.connectionFilter`|(Optional) A regex to filter connections. Only connections where the definition is matching this regex will be shown in the Fabric Studio Connections view.|```(\\.database\\.windows\\.net\|\\.dfs\\.core\\.windows\\.net)``` to see only connections to Azure SQL databases and ADLS Gen2 accounts|
+|`fabric.capacityFilter`|(Optional) A regex to filter capacities. Only capacities where the definition is matching this regex will be shown in the Fabric Studio Capacities view.|```(F2\|West Europe)``` to see only capacities with SKU `F2` or are located in `West Europe`|
 |`fabricstudio.itemTypeFormats`|(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.|```[{"itemType": "Notebook", "format": "ipynb"}, {"itemType": "Report"}]```|
-|`Fabric.workspaceFilter`|(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Fabric Workspaces view.|`Project A\|Sales` to see only workspaces that have "Project A" or (\|) "Sales" in the name|
+|`fabric.logLevel`|The log level to use for the extension. 0 = Off, 1 = Trace, 2 = Debug, 3 = Info, 4 = Warning, 5 = Error. Default is 3 (`Info`)|3|
+|`fabric.iconStyle`|(Optional) Which set of icons to use for the different Fabric item types. Default is `mono`|`mono` or `color`|
+|`fabricStudio.showProWorkspaces`|(Optional) Whether regular Pro workspaces without a capacity should be shown or not. This might make sense for Power BI items as you can still use the TMDL/PBIR editor of Fabric Studio. Default is `false`|`true` or `false`|
+
 
 # Workspace Browser
 ![WorkspaceBrowser](./images/WorkspaceBrowser.png?raw=true "WorkspaceBrowser")
