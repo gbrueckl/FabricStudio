@@ -39,11 +39,12 @@ The extension supports the following VSCode settings:
 |`fabric.iconStyle`|(Optional) Which set of icons to use for the different Fabric item types. Default is `mono`|`mono` or `color`|
 |`fabricStudio.showProWorkspaces`|(Optional) Whether regular Pro workspaces without a capacity should be shown or not. This might make sense for Power BI items as you can still use the TMDL/PBIR editor of Fabric Studio. Default is `false`|`true` or `false`|
 
-
 # Workspace Browser
 ![WorkspaceBrowser](./images/WorkspaceBrowser.png?raw=true "WorkspaceBrowser")
 The workspace browser is usually the starting point for all activities. It allows you to browse through your Fabric workspaces, the individual items and sub-items and execute various action based on the current selection.
 As of now, not most items are read-only but actions will be added in the future and when the Fabric REST APIs support them!
+
+In case you have access to a lot of workspaces you can also filter them using the Workspace Filter. In addition, you can also opt in to show Pro workspaces (`fabricStudio.showProWorkspaces`) which are not assigned to a capacity to use TMDL and PBIR editor for existing Power BI items.
 
 # Notebooks
 You can open a new Fabric notebook via the UI from the header of each treeview or by running the command **Open new Fabric Notebook** (command `FabricStudio.Item.openNewNotebook`). Fabric notebooks have the file extension `.fabnb` and will automatically open in the notebook editor.
