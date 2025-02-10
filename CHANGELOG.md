@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.6.0**:
+- added `Reset OneLake Cache` action on the workspace level
+
 **v1.5.0**:
 - added new config setting `fabricStudio.showProWorkspaces` to also show Power BI workspaces that are not assigned to a capacity.
   The TMDL and PBIR editor of Fabric Studio also works on regular Pro workspaces!

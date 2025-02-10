@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -546,8 +546,13 @@
 				"command": "FabricStudio.Capacities.filter",
 				"title": "Filter Capacities",
 				"icon": "$(filter)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.OneLake.resetCache",
+				"title": "Reset OneLake Cache",
+				"icon": "$(file-symlink-directory)"
 			}
-
 		],
 		"menus": {
 			"view/title": [
@@ -746,6 +751,11 @@
 				{
 					"command": "FabricStudio.DeploymentPipelines.deployItem",
 					"when": "view == FabricStudioDeploymentPipelines && viewItem =~ /.*,DEPLOY,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.OneLake.resetCache",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RESET_CACHE,.*/",
 					"group": "navigation"
 				}
 			],

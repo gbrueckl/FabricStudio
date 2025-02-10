@@ -112,7 +112,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
 
-	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace = undefined) => item.manageSourceControl());
+	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace) => item.manageSourceControl());
+	vscode.commands.registerCommand('FabricStudio.OneLake.resetCache', (item: FabricWorkspace) => item.refreshCache());
 
 	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.delete', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.delete());
 	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.update', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.update());

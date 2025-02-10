@@ -46,7 +46,8 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 		let actions: string[] = [
 			//"BROWSE_IN_ONELAKE", // disabled for now as OneLake API does not work well with blanks in workspace names
-			"EDIT_DEFINITION"
+			"EDIT_DEFINITION",
+			"RESET_CACHE",
 		];
 
 		if (this.capacityId) {
@@ -214,5 +215,17 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 	async manageSourceControl(): Promise<void> {
 		await FabricGitRepositories.initializeRepository(this.workspaceId);
+	}
+
+	async refreshCache(): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/onelake-shortcuts/reset-shortcut-cache?tabs=HTTP
+
+		const endpoint = Helper.joinPath(this.apiPath, "onelake/resetShortcutCache");
+
+		const response = await FabricApiService.awaitWithProgress("Resetting Shortcut Cache", FabricApiService.post(endpoint, undefined), 5000);
+		
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
 	}
 }
