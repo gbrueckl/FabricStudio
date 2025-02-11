@@ -26,6 +26,8 @@ import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricSqlEndpoints } from './FabricSqlEndpoints';
+import { FabricWorkspaceManagedPrivateEndpoint } from './FabricWorkspaceManagedPrivateEndpoint';
+import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManagedPrivateEndpoints';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -157,8 +159,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
 				let roleAssignments: FabricWorkspaceRoleAssignments = new FabricWorkspaceRoleAssignments(this);
-
 				children.push(roleAssignments);
+
+				let managedPrivateEndpoints: FabricWorkspaceManagedPrivateEndpoints = new FabricWorkspaceManagedPrivateEndpoints(this);
+				children.push(managedPrivateEndpoints);
 
 				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
 			}

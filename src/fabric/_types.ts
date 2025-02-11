@@ -80,6 +80,8 @@ export type FabricApiItemType =
 	| "ConnectionRoleAssignments"			//	Folder for connection role assignments.
 	| "ConnectionRoleAssignment"			//	A connection role assignment.
 	| "SQLEndpointBatches"					//	Folder for sql endpoint batches.
+	| "WorkspaceManagedPrivateEndpoints"	//	Folder for workspace managed private endpoints.
+	| "WorkspaceManagedPrivateEndpoint"		//	A workspace managed private endpoint.
 	;
 
 export enum FabricApiWorkspaceType {
@@ -420,4 +422,13 @@ export interface iFabricApiTableMirroringStatusResponse {
 	sourceSchemaName: string; // Source table schema name.
 	sourceTableName: string; // Source table name.
 	status: "Failed" | "Initialized" | "Replicating" | "Reseeding" | "Snapshotting" | "Stopped"; // The mirroring status type of table.
+}
+
+export interface iFabricApiWorkspaceManagedPrivateEndpoint {
+	connectionState: object; // Endpoint connection state of provisioned endpoints.
+	id: string; // Managed private endpoint Id.
+	name: string; // The private endpoint name.
+	provisioningState: string; // Provisioning state of endpoint.
+	targetPrivateLinkResourceId: string; // Resource Id of data source for which private endpoint is created
+	targetSubresourceType: string; // Sub-resource pointing to Private-link resoure.
 }

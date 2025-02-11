@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.7.0**:
+- added `Managed Private Endpoints` under each workspace
+
 **v1.6.0**:
 - added `Reset OneLake Cache` action on the workspace level
 - added Schedules for `DataPipelines`, `Notebooks` and `SparkJobDefinitions` to Workspace Browser

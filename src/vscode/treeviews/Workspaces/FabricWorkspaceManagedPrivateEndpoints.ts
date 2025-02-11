@@ -3,19 +3,20 @@ import * as vscode from 'vscode';
 import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiItem, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
+import { iFabricApiItem, iFabricApiWorkspaceManagedPrivateEndpoint, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricWorkspaceRoleAssignment } from './FabricWorkspaceRoleAssignment';
+import { FabricWorkspaceManagedPrivateEndpoint } from './FabricWorkspaceManagedPrivateEndpoint';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricWorkspaceRoleAssignments extends FabricWorkspaceGenericFolder {
+export class FabricWorkspaceManagedPrivateEndpoints extends FabricWorkspaceGenericFolder {
 	constructor(
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(`${parent.itemId}/roleAssignments`, "Role Assignments", "WorkspaceRoleAssignments", parent, "roleAssignments");
+		super(`${parent.itemId}/managedPrivateEndpoints`, "Managed Private Endpoints", "WorkspaceManagedPrivateEndpoints", parent, "managedPrivateEndpoints");
 
 		this.id = parent.itemId + "/" + this.itemType.toString();
 	}
@@ -25,20 +26,20 @@ export class FabricWorkspaceRoleAssignments extends FabricWorkspaceGenericFolder
 			return element.getChildren();
 		}
 		else {
-			let children: FabricWorkspaceRoleAssignment[] = [];
+			let children: FabricWorkspaceManagedPrivateEndpoint[] = [];
 
 			try {
-				const items = await FabricApiService.getList<iFabricApiWorkspaceRoleAssignment>(this.apiPath, undefined, undefined, undefined);
+				const items = await FabricApiService.getList<iFabricApiWorkspaceManagedPrivateEndpoint>(this.apiPath, undefined, undefined, undefined);
 
 				for (let item of items.success) {
-					let treeItem = new FabricWorkspaceRoleAssignment(item, this);
+					let treeItem = new FabricWorkspaceManagedPrivateEndpoint(item, this);
 					children.push(treeItem);
 				}
 
 				Helper.sortArrayByProperty(children, "label");
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load Role Assignments for workspace " + this.workspace.itemName);
+				ThisExtension.Logger.logInfo("Could not load Managed Private Endpoints for workspace " + this.workspace.itemName);
 			}
 
 			return children;
