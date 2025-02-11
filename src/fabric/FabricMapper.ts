@@ -33,4 +33,21 @@ export abstract class FabricMapper {
 		return plural as FabricApiItemType;
 	}
 
+	private static _jobTypeMapping: Map<FabricApiItemType, string> = new Map([
+		// job types are case-sensitive!!!
+		["DataPipeline", "Pipeline"], 
+		["Notebook", "RunNotebook"],
+		["SparkJobDefinition", "sparkjob"], 
+	]);
+
+	static get ItemTypesWithJob(): FabricApiItemType[] {
+		return Array.from(this._jobTypeMapping.keys());
+	}
+
+	static getItemTypeJobType(itemType: FabricApiItemType): string {
+		const jobType = this._jobTypeMapping.get(itemType);
+
+		return jobType;
+	}
+
 }

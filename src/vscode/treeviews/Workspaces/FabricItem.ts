@@ -11,6 +11,8 @@ import { FabricItemConnections } from './FabricItemConnections';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
 import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
 import { FabricItemJobInstances } from './FabricItemJobInstances';
+import { FabricItemJobSchedules } from './FabricItemJobSchedules';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -81,6 +83,20 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let jobInstances = new FabricItemJobInstances(this);
+					const jobInstancesChildren = await jobInstances.getChildren();
+					if (jobInstancesChildren.length > 0) {
+						children.push(jobInstances);
+					}
+				}
+				catch (e) {
+					ThisExtension.Logger.logInfo("Could not load job instances for item " + this.itemName);
+				}
+			}
+
+			// JobSchedules
+			if (FabricMapper.ItemTypesWithJob.includes(this.itemType)) {
+				try {
+					let jobInstances = new FabricItemJobSchedules(this);
 					const jobInstancesChildren = await jobInstances.getChildren();
 					if (jobInstancesChildren.length > 0) {
 						children.push(jobInstances);

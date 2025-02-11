@@ -14,7 +14,6 @@ export class FabricNotebook extends FabricItem {
 	) {
 		super(definition, parent);
 
-		this.collapsibleState = vscode.TreeItemCollapsibleState.None;
 		this.contextValue = this._contextValue;
 	}
 

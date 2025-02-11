@@ -2,6 +2,8 @@
 
 **v1.6.0**:
 - added `Reset OneLake Cache` action on the workspace level
+- added Schedules for `DataPipelines`, `Notebooks` and `SparkJobDefinitions` to Workspace Browser
+- added Jobruns to `Notebooks`
 
 **v1.5.0**:
 - added new config setting `fabricStudio.showProWorkspaces` to also show Power BI workspaces that are not assigned to a capacity.
