@@ -14,7 +14,7 @@ export class FabricItemDataAccessRole extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemDataAccessRole,
 		parent: FabricItemDataAccessRoles
 	) {
-		super(definition.name, parent);
+		super(definition.name, parent, undefined, "ItemDataAccessRole");
 
 		this.id = parent.id + "/" + definition.id,
 

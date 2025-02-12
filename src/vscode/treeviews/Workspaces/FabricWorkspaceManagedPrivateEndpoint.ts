@@ -1,11 +1,7 @@
 import * as vscode from 'vscode';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItem, iFabricApiWorkspaceManagedPrivateEndpoint, iFabricApiWorkspaceRoleAssignment, iFabricApiWorkspaceRoleAssignmentRole } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
-import { FabricItem } from './FabricItem';
-import { ThisExtension } from '../../../ThisExtension';
-import { Helper } from '@utils/Helper';
+import { iFabricApiWorkspaceManagedPrivateEndpoint } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -14,12 +10,11 @@ export class FabricWorkspaceManagedPrivateEndpoint extends FabricWorkspaceGeneri
 		definition: iFabricApiWorkspaceManagedPrivateEndpoint,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.name, parent);
+		super(definition.name, parent, undefined, "WorkspaceManagedPrivateEndpoint");
 
 		this.id = parent.id + "/" + definition.id;
 		this.itemId = definition.id;
 		this.itemDefinition = definition;
-		this.label = definition.name;
 		this.description = this._description;
 		this.contextValue = this._contextValue;
 

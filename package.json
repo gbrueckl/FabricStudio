@@ -274,12 +274,6 @@
 			},
 			{
 				"category": "FabricStudio",
-				"command": "FabricStudio.WorkspaceRoleAssignment.delete",
-				"title": "Delete",
-				"icon": "$(close)"
-			},
-			{
-				"category": "FabricStudio",
 				"command": "FabricStudio.WorkspaceRoleAssignment.update",
 				"title": "Update",
 				"icon": "$(pencil)"
@@ -724,14 +718,9 @@
 					"group": "navigation"
 				},
 				{
-					"command": "FabricStudio.WorkspaceRoleAssignment.delete",
-					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACEROLEASSIGNMENT,.*/ && viewItem =~ /.*,DELETE,.*/",
-					"group": "navigation"
-				},
-				{
 					"command": "FabricStudio.WorkspaceRoleAssignment.update",
-					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WORKSPACEROLEASSIGNMENT,.*/ && viewItem =~ /.*,UPDATE,.*/",
-					"group": "navigation"
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,UPDATE_ROLE_ASSIGNMENT,.*/",
+					"group": "2_update"
 				},
 				{
 					"command": "FabricStudio.Notebook.run",

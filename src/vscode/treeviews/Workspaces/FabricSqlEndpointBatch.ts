@@ -12,7 +12,7 @@ export class FabricSqlEndpointBatch extends FabricWorkspaceGenericViewer {
 	) {
 		super(definition.startTimeStamp.toString(), parent);
 
-		this._itemDefinition = definition;
+		this.itemDefinition = definition;
 
 		this.description = this._description;
 
@@ -48,5 +48,9 @@ export class FabricSqlEndpointBatch extends FabricWorkspaceGenericViewer {
 
 	get itemDefinition(): iPowerBiSqlEndpointSyncBatch {
 		return this._itemDefinition;
+	}
+
+	set itemDefinition(value: iPowerBiSqlEndpointSyncBatch) {
+		this._itemDefinition = value;
 	}
 }

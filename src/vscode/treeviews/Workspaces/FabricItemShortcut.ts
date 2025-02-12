@@ -1,10 +1,7 @@
 import * as vscode from 'vscode';
 
-import { Helper, UniqueId } from '@utils/Helper';
-import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItemShortcut, iFabricApiLakehouseTable } from '../../../fabric/_types';
+import { iFabricApiItemShortcut } from '../../../fabric/_types';
 import { FabricWorkspace } from './FabricWorkspace';
-import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
@@ -14,7 +11,7 @@ export class FabricItemShortcut extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemShortcut,
 		parent: FabricItemShortcuts
 	) {
-		super(definition.name, parent);
+		super(definition.name, parent, undefined, "ItemShortcut");
 
 		this.id = parent.id + "/" + definition.name,
 

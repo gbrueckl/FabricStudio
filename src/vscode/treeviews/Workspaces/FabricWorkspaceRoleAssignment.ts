@@ -1,22 +1,23 @@
 import * as vscode from 'vscode';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItem, iFabricApiWorkspaceRoleAssignment, iFabricApiWorkspaceRoleAssignmentRole } from '../../../fabric/_types';
+import { iFabricApiWorkspaceRoleAssignment, iFabricApiWorkspaceRoleAssignmentRole } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
-import { FabricItem } from './FabricItem';
 import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricWorkspaceRoleAssignment extends FabricWorkspaceTreeItem {
+export class FabricWorkspaceRoleAssignment extends FabricWorkspaceGenericViewer {
 	constructor(
 		definition: iFabricApiWorkspaceRoleAssignment,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, definition.principal.displayName, "WorkspaceRoleAssignment", parent, definition, "", vscode.TreeItemCollapsibleState.None);
+		super(definition.principal.displayName, parent, undefined, "WorkspaceRoleAssignment");
 
 		this.id = parent.id + "/" + definition.id;
-		this.label = definition.principal.displayName;
+		this.itemId = definition.id;
+		this.itemDefinition = definition;
 		this.description = this._description;
 		this.contextValue = this._contextValue;
 
@@ -45,8 +46,8 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceTreeItem {
 		let orig: string = super._contextValue;
 
 		let actions: string[] = [
-			"DELETE",
-			"UPDATE"
+			"DELETE_ROLE_ASSIGNMENT",
+			"UPDATE_ROLE_ASSIGNMENT"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -67,6 +68,10 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceTreeItem {
 		}
 	}
 
+	// get canDelete(): boolean {
+	// 	return false; 
+	// }
+
 	get itemDefinition(): iFabricApiWorkspaceRoleAssignment {
 		return this._itemDefinition;
 	}
@@ -77,23 +82,6 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceTreeItem {
 
 
 	// properties of iFabricApiWorkspaceRoleAssignment
-	async delete(): Promise<void> {
-		try {
-			const result = await FabricApiService.awaitWithProgress("Deleting Role Assignment", FabricApiService.delete(this.apiPath, undefined), 2000);
-
-			if (result.success) {
-				ThisExtension.Logger.logInfo(`Role Assignment for '${this.itemDefinition.principal.displayName}' deleted from workspace '${this.workspace.itemName}'`);
-				ThisExtension.TreeViewWorkspaces.refresh(this.parent, false);
-			}
-			else {
-				ThisExtension.Logger.logError(`Could not delete Role Assignment '${this.itemDefinition.principal.displayName}' from workspace '${this.workspace.itemName}'`);
-			}
-		}
-		catch (e) {
-			ThisExtension.Logger.logError(e.message, true);
-		}
-	}
-
 	async update(): Promise<void> {
 		const availableRoles = Helper.getQuickPicksFromEnum(iFabricApiWorkspaceRoleAssignmentRole, this.itemDefinition.role);
 		let role = await vscode.window.showQuickPick(availableRoles, {

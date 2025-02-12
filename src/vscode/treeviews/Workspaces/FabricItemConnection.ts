@@ -1,12 +1,7 @@
 import * as vscode from 'vscode';
 
-import { ThisExtension } from '../../../ThisExtension';
-import { Helper } from '@utils/Helper';
-
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { FabricApiItemType, iFabricApiItem, iFabricApiItemConnection } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
-import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
+import { iFabricApiItemConnection } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -15,12 +10,14 @@ export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemConnection,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.displayName, parent);
+		super(definition.displayName, parent, undefined, "ItemConnection");
 
+		this.label = definition.connectionDetails.path;
 		this.itemId = definition.id;
 		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
+		this.description = this._description;
 
 		this.iconPath = this.getIcon();
 	}
@@ -37,7 +34,7 @@ export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 	// description is show next to the label
 	get _description(): string {
 		if (this.itemDefinition) {
-			return `${this.itemDefinition.connectionDetails.path}`;
+			return `${this.itemDefinition.connectionDetails.type} - ${this.itemDefinition.connectivityType}`;
 		}
 	}
 
