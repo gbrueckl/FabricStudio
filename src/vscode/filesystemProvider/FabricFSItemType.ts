@@ -43,7 +43,7 @@ export class FabricFSItemType extends FabricFSCacheItem {
 			this._apiResponse = response.success;
 			this._children = [];
 			for (let item of this._apiResponse) {
-				FabricFSUri.addItemNameIdMap(`${item.workspaceId}/${this.itemType}/${item.displayName}`, item.id);
+				FabricFSUri.addItemNameIdMap(item.displayName, item.id, item.workspaceId, this.itemType);
 				this._children.push([item.displayName, vscode.FileType.Directory]);
 			}
 		}

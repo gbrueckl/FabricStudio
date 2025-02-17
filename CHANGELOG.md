@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.8.0**:
+- added new action `Publish via Fabric Studio` to publish local TMDL files from the context menu
+
+
 **v1.7.0**:
 - added `Managed Private Endpoints` under each workspace
 

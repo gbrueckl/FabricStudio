@@ -134,7 +134,7 @@ export class FabricFSUri {
 		return decodeURIComponent(this.workspace);
 	}
 
-	private get itemMapName(): string {
+	public get itemMapName(): string {
 		return decodeURIComponent(`${this.workspaceId}/${this.itemType}/${this.item}`);
 	}
 
@@ -175,7 +175,11 @@ export class FabricFSUri {
 		FabricFSUri._workspaceNameIdMap.set(decodeURIComponent(workspaceName), workspaceId);
 	}
 
-	public static addItemNameIdMap(itemName: string, itemId: string): void {
+	public static addItemNameIdMap(itemName: string, itemId: string, workspaceId: string = undefined, itemType: FabricApiItemType = undefined): void {
+		if(workspaceId && itemType) {
+			itemName = `${workspaceId}/${FabricMapper.getItemTypePlural(itemType)}/${itemName}`;
+		}
+		
 		FabricFSUri._itemNameIdMap.set(decodeURIComponent(itemName), itemId);
 	}
 

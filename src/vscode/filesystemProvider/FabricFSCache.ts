@@ -182,7 +182,7 @@ export abstract class FabricFSCache {
 			(oldItem as FabricFSItem).parent.removeChild(decodeURIComponent(oldFabricUri.item));
 			(newItem as FabricFSItem).parent.addChild(decodeURIComponent(newFabricUri.item), vscode.FileType.Directory);
 
-			FabricFSUri.addItemNameIdMap(decodeURIComponent(newFabricUri.item), oldFabricUri.itemId);
+			FabricFSUri.addItemNameIdMap(newFabricUri.itemMapName, oldFabricUri.itemId);
 
 			(oldItem as FabricFSItem).displayName = decodeURIComponent(newFabricUri.item);
 			FabricFSCache.addCacheItem(newFabricUri, oldItem)
@@ -238,7 +238,7 @@ export abstract class FabricFSCache {
 			}
 		}
 
-		ThisExtension.Logger.logDebug(`rename() - Could not create Directory: ${fabricUri.uri.toString()}`);
+		ThisExtension.Logger.logDebug(`createDirectory() - Could not create Directory: ${fabricUri.uri.toString()}`);
 		vscode.window.showErrorMessage("Could not create Directory: " + fabricUri.uri.toString());
 		throw vscode.FileSystemError.NoPermissions("Could not create Directory: " + fabricUri.uri.toString());
 	}

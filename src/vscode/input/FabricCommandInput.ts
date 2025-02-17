@@ -71,30 +71,32 @@ export class FabricCommandInput {
 	}
 
 	public async getValue(): Promise<string> {
+		let selectedItem: FabricQuickPickItem = undefined;
 		switch (this.InputType) {
 			case "FREE_TEXT":
 				return await FabricCommandBuilder.showInputBox(this.CurrentValue, this.Prompt, this.Description);
-
 			case "WORKSPACE_SELECTOR":
-				return await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Workspace"), this.Prompt, this.Description, this._currentValue);
-
+				selectedItem = await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Workspace"), this.Prompt, this.Description, this._currentValue);
+				break;
 			case "REPORT_SELECTOR":
-				return await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Report"), this.Prompt, this.Description, this._currentValue);
-
+				selectedItem = await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Report"), this.Prompt, this.Description, this._currentValue);
+				break;
 			case "DATASET_SELECTOR":
-				return await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("SemanticModel"), this.Prompt, this.Description, this._currentValue);
-
+				selectedItem = await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("SemanticModel"), this.Prompt, this.Description, this._currentValue);
+				break;
 			case "DATAFLOW_SELECTOR":
-				return await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Dataflow"), this.Prompt, this.Description, this._currentValue);
-
+				selectedItem = await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Dataflow"), this.Prompt, this.Description, this._currentValue);
+				break;
 			case "CAPACITY_SELECTOR":
-				return await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Capacity"), this.Prompt, this.Description, this._currentValue);
-
+				selectedItem = await FabricCommandBuilder.showQuickPick(FabricCommandBuilder.getQuickPickItems("Capacity"), this.Prompt, this.Description, this._currentValue);
+				break;
 			case "CUSTOM_SELECTOR":
-				return await FabricCommandBuilder.showQuickPick(this.CustomOptions, this.Prompt, this.Description, this._currentValue);
+				selectedItem = await FabricCommandBuilder.showQuickPick(this.CustomOptions, this.Prompt, this.Description, this._currentValue);
+				break;
 			default:
 				return this.InputType;
 		}
+		return selectedItem?.value;
 	}
 }
 

@@ -267,7 +267,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
 			response = await FabricApiService.createItem(this.workspaceId, this.displayName, this.FabricUri.itemType, definition, `Creating ${itemTypeSingular} '${this.displayName}'`);
 			// add NameIdMap for subsequent calls to the created item
-			FabricFSUri.addItemNameIdMap(`${response.success.workspaceId}/${response.success.type}/${response.success.itemName}`, response.success.id);
+			FabricFSUri.addItemNameIdMap(response.success.itemName, response.success.id, response.success.workspaceId, response.success.type);
 			this.publishAction = FabricFSPublishAction.MODIFIED;
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {

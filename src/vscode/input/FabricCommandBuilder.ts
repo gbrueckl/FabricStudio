@@ -79,7 +79,7 @@ export abstract class FabricCommandBuilder {
 		title: string,
 		description: string,
 		currentValue: string
-	): Promise<string> {
+	): Promise<FabricQuickPickItem> {
 
 		const selectedItem = items.find(x => x.value == currentValue);
 		if (selectedItem != undefined) {
@@ -101,7 +101,7 @@ export abstract class FabricCommandBuilder {
 			return null;
 		}
 		else {
-			return result.value;
+			return result;
 		}
 	}
 

@@ -13,6 +13,8 @@ import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
 import { FabricItemJobInstances } from './FabricItemJobInstances';
 import { FabricItemJobSchedules } from './FabricItemJobSchedules';
 import { FabricMapper } from '../../../fabric/FabricMapper';
+import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
+import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html

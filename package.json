@@ -386,6 +386,12 @@
 				"category": "Fabric"
 			},
 			{
+				"command": "FabricStudio.FS.publishTMDL",
+				"title": "Publish via Fabric Studio",
+				"icon": "$(cloud-upload)",
+				"category": "FabricStudio"
+			},
+			{
 				"command": "FabricStudio.Lakehouse.copySQLConnectionString",
 				"title": "Copy SQL ConnectionString",
 				"icon": "$(debug-disconnect)",
@@ -762,6 +768,11 @@
 				{
 					"command": "FabricStudio.FS.reloadFromFabric",
 					"when": "resourceScheme == fabric",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishTMDL",
+					"when": "resourceScheme == file && resourceExtname == .tmdl",
 					"group": "2_workspace"
 				}
 			],

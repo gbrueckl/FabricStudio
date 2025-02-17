@@ -32,7 +32,7 @@ export class FabricGitRepository implements vscode.Disposable {
 	constructor(
 		workspace: iFabricApiWorkspace
 	) {
-		this.rootUri = vscode.Uri.parse(`${FABRIC_SCHEME}://workspaces/${workspace.id}`);
+		this.rootUri = vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${workspace.id}`);
 
 		this._workspace = workspace;
 

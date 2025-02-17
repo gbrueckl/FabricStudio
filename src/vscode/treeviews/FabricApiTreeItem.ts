@@ -43,6 +43,8 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		this.contextValue = this._contextValue;
 
 		this.iconPath = this.getIconPath();
+
+		FabricCommandBuilder.pushQuickPickItem(this);
 	}
 
 	protected getIconPath(): string | vscode.Uri {
@@ -103,10 +105,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	public async delete(confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
 		if (confirmation) {
-			let confirm: string;
+			let confirm: string
 			switch (confirmation) {
 				case "yesNo":
-					confirm = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${this.itemType.toLowerCase()} '${this.itemName}'?`, undefined, undefined);
+					const confirmQp = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${this.itemType.toLowerCase()} '${this.itemName}'?`, undefined, undefined);
+					confirm = confirmQp.value;
 					break;
 				case "name":
 					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${this.itemType.toLowerCase()} name '${this.itemName}' again.`, undefined, undefined);

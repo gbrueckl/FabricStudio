@@ -1,15 +1,13 @@
 import * as vscode from 'vscode';
 
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
+import { TreeProviderId } from '../../../ThisExtension';
 import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
-import { FabricCommandBuilder } from '../../input/FabricCommandBuilder';
-import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
@@ -87,8 +85,23 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return this.workspace.itemId;
 	}
 
+	get fabricFsUri(): FabricFSUri {
+		if(this.itemType == "Workspace") {
+			FabricFSUri.addWorkspaceNameIdMap(this.itemName, this.itemId);
+			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.itemId}`));
+		}
+
+		const itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(1, -1).join("/"), this.itemName), "/");
+		// as we return the URI by name, we also have to add the item to the mapping
+		if(Helper.isGuid(this.itemId)) {
+				FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
+		}
+		
+		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${itemFsPath}`));		
+	}
+
 	public async editDefinition(): Promise<void> {
-		const fabricUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}://${this.itemPath}`));
+		const fabricUri = this.fabricFsUri;
 
 		let workspace = "";
 		if (this.itemType != "Workspace") {
