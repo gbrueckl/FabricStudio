@@ -2,57 +2,24 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../ThisExtension';
 import { Helper } from '@utils/Helper';
-import { FabricFSUri, FabricUriType } from './FabricFSUri';
+import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
 import { FabricWorkspaceTreeItem } from '../treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
+import { FabricApiItemType } from '../../fabric/_types';
 
 export abstract class FabricFSHelper {
 
-	static async getTMDLRoot(uri: vscode.Uri): Promise<vscode.Uri> {
+	static async getDefinitionRoot(uri: vscode.Uri, rootFolderName: string = "definition"): Promise<vscode.Uri> {
 		const parts = uri.toString().split("/")
 
-		if (parts.includes("definition")) {
-			const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf("definition") + 1)), "/");
+		if (parts.includes(rootFolderName)) {
+			const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf(rootFolderName) + 1)), "/");
 			return vscode.Uri.parse(definitionUri);
 		}
 
 		return undefined;
-	}
-
-	static async publishTMDLFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
-		let semanticModels = FabricCommandBuilder.getQuickPickItems("SemanticModel")
-
-		if (semanticModels.length == 0 || semanticModels[0].value == "NO_ITEMS_FOUND") {
-			const dummyRoot = await ThisExtension.TreeViewWorkspaces.getChildren();
-			const workspaces = FabricCommandBuilder.getQuickPickItems("Workspace");
-			const workspace = await FabricCommandBuilder.showQuickPick(workspaces, "Select Workspace to publish TMDL to", "", "");
-
-			if (!workspace || workspace.value == "NO_ITEMS_FOUND") {
-				return undefined;
-			}
-
-			const dummyWs = await workspace.apiItem.getChildren();
-			semanticModels = FabricCommandBuilder.getQuickPickItems("SemanticModel")
-		}
-
-		const target = await FabricCommandBuilder.showQuickPick(semanticModels, "Select target Semantic Model to publish TMDL to", "", "");
-
-		if (!target || target.value == "NO_ITEMS_FOUND") {
-			return undefined;
-		}
-		const targetModel = target.apiItem as FabricWorkspaceTreeItem;
-		const targetFsUri: FabricFSUri = new FabricFSUri(vscode.Uri.joinPath(targetModel.fabricFsUri.uri, "definition"));
-
-		const sourceFsUri: vscode.Uri = await FabricFSHelper.getTMDLRoot(sourceUri);
-
-		if (!sourceFsUri) {
-			ThisExtension.Logger.logError("Could not find TMDL root folder 'definition' as partent of '" + sourceUri.toString() + "'!", true);
-			return;
-		}
-
-		await this.publishTMDL(sourceFsUri, targetFsUri);
 	}
 
 	static async ensureParents(fabricUri: FabricFSUri): Promise<void> {
@@ -69,15 +36,76 @@ export abstract class FabricFSHelper {
 		}
 	}
 
-	static async publishTMDL(sourceUri: vscode.Uri, fabricUri: FabricFSUri): Promise<void> {
-		ThisExtension.Logger.logInfo("Publishing TMDL file: " + sourceUri.toString());
-		const definitionRoot: vscode.Uri = await FabricFSHelper.getTMDLRoot(sourceUri);
+	static async getTargetFromQuickPick(itemType: FabricApiItemType): Promise<FabricWorkspaceTreeItem> {
+		let qpItems = FabricCommandBuilder.getQuickPickItems(itemType)
 
-		if (!sourceUri.path.endsWith("definition")) {
-			ThisExtension.Logger.logError("Source must be 'definition'-folder - found: '" + sourceUri.toString() + "'!", true);
+		if (qpItems.length == 0 || qpItems[0].value == "NO_ITEMS_FOUND") {
+			const dummyRoot = await ThisExtension.TreeViewWorkspaces.getChildren();
+			const workspaces = FabricCommandBuilder.getQuickPickItems("Workspace");
+			const workspace = await FabricCommandBuilder.showQuickPick(workspaces, "Select target Workspace to publish to", "", "");
+
+			if (!workspace || workspace.value == "NO_ITEMS_FOUND") {
+				return undefined;
+			}
+
+			const dummyWs = await workspace.apiItem.getChildren();
+			qpItems = FabricCommandBuilder.getQuickPickItems(itemType)
+		}
+
+		// add new option to ceate new item
+
+		const target = await FabricCommandBuilder.showQuickPick(qpItems, `Select target ${itemType} to publish to`, "", "");
+
+		if (!target || target.value == "NO_ITEMS_FOUND") {
+			return undefined;
+		} 
+		return target.apiItem as FabricWorkspaceTreeItem;
+	}
+
+	static async publishTMDLFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
+		const definitionFolder = "definition"
+		const target = await this.getTargetFromQuickPick("SemanticModel");
+		if(!target) {	
+			ThisExtension.Logger.logInfo("No target selected, aborting publish operation.");
 			return;
 		}
 
+		const targetFsUri: FabricFSUri = new FabricFSUri(vscode.Uri.joinPath(target.fabricFsUri.uri, definitionFolder));
+
+		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, definitionFolder);
+
+		if (!sourceFsUri) {
+			ThisExtension.Logger.logError(`Could not find TMDL root folder '${definitionFolder}' as partent of '${sourceUri.toString()}'!`, true);
+			return;
+		}
+
+		await this.publishContent(sourceFsUri, targetFsUri);
+	}
+
+	static async publishPBIRFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
+		const definitionFolder = "definition"
+		const target = await this.getTargetFromQuickPick("Report");
+		if(!target) {	
+			ThisExtension.Logger.logInfo("No target selected, aborting publish operation.");
+			return;
+		}
+
+		const targetFsUri: FabricFSUri = new FabricFSUri(vscode.Uri.joinPath(target.fabricFsUri.uri, definitionFolder));
+
+		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, definitionFolder);
+
+		if (!sourceFsUri) {
+			ThisExtension.Logger.logError(`Could not find PBIR root folder '${definitionFolder}' as partent of '${sourceUri.toString()}'!`, true);
+			return;
+		}
+
+		await this.publishContent(sourceFsUri, targetFsUri);
+	}
+
+	static async publishContent(sourceUri: vscode.Uri, fabricUri: FabricFSUri): Promise<void> {
+		ThisExtension.Logger.logInfo("Publishing from: " + sourceUri.toString());
+		ThisExtension.Logger.logInfo("To Fabric target: " + fabricUri.uri.toString());
+		const definitionRoot: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri);
 
 		await this.ensureParents(fabricUri);
 		// delete current definition from Target

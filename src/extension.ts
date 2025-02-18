@@ -103,6 +103,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.FS.reloadFromFabric', (uri) => FabricFSCache.reloadFromFabric(uri));
 	vscode.commands.registerCommand('FabricStudio.FS.openInFabric', (uri) => FabricFSUri.openInBrowser(uri));
 	vscode.commands.registerCommand('FabricStudio.FS.publishTMDL', (uri) => FabricFSHelper.publishTMDLFromLocal(uri));
+	vscode.commands.registerCommand('FabricStudio.FS.publishPBIR', (uri) => FabricFSHelper.publishPBIRFromLocal(uri));
 	//#endregion
 
 	//#region Fabric Workspaces TreeView
