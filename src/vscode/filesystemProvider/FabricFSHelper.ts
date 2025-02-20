@@ -14,8 +14,9 @@ export abstract class FabricFSHelper {
 	static async getDefinitionRoot(uri: vscode.Uri, rootFolderName: string = "definition"): Promise<vscode.Uri> {
 		const parts = uri.toString().split("/")
 
+		// return parent of rootFolderName
 		if (parts.includes(rootFolderName)) {
-			const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf(rootFolderName) + 1)), "/");
+			const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf(rootFolderName))), "/");
 			return vscode.Uri.parse(definitionUri);
 		}
 
@@ -70,8 +71,6 @@ export abstract class FabricFSHelper {
 			return;
 		}
 
-		const targetFsUri: FabricFSUri = new FabricFSUri(vscode.Uri.joinPath(target.fabricFsUri.uri, definitionFolder));
-
 		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, definitionFolder);
 
 		if (!sourceFsUri) {
@@ -79,7 +78,7 @@ export abstract class FabricFSHelper {
 			return;
 		}
 
-		await this.publishContent(sourceFsUri, targetFsUri);
+		await this.publishContent(sourceFsUri, target.fabricFsUri);
 	}
 
 	static async publishPBIRFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
@@ -90,8 +89,6 @@ export abstract class FabricFSHelper {
 			return;
 		}
 
-		const targetFsUri: FabricFSUri = new FabricFSUri(vscode.Uri.joinPath(target.fabricFsUri.uri, definitionFolder));
-
 		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, definitionFolder);
 
 		if (!sourceFsUri) {
@@ -99,19 +96,32 @@ export abstract class FabricFSHelper {
 			return;
 		}
 
-		await this.publishContent(sourceFsUri, targetFsUri);
+		// we do not overwrite the connection of the report
+		await this.publishContent(sourceFsUri, target.fabricFsUri, ["definition.pbir"]);
 	}
 
-	static async publishContent(sourceUri: vscode.Uri, fabricUri: FabricFSUri): Promise<void> {
+	static async publishContent(sourceUri: vscode.Uri, fabricUri: FabricFSUri, itemsToExclue: string[] = []): Promise<void> {
 		ThisExtension.Logger.logInfo("Publishing from: " + sourceUri.toString());
 		ThisExtension.Logger.logInfo("To Fabric target: " + fabricUri.uri.toString());
-		const definitionRoot: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri);
 
 		await this.ensureParents(fabricUri);
-		// delete current definition from Target
-		await vscode.workspace.fs.delete(fabricUri.uri, { recursive: true, useTrash: false });
+		// delete current definition from Target - everything except files starting with . (like .platform)
+		for (const item of await FabricFSCache.getCacheItem(fabricUri).readDirectory()) {
+			if (!item[0].startsWith(".") && !itemsToExclue.includes(item[0])) {
+				await vscode.workspace.fs.delete(vscode.Uri.joinPath(fabricUri.uri, item[0]), { recursive: true, useTrash: false });
+			}
+		}
+		//await vscode.workspace.fs.delete(fabricUri.uri, { recursive: true, useTrash: false });
 		// copy new definition from source
-		await vscode.workspace.fs.copy(definitionRoot, fabricUri.uri, { overwrite: true });
+		for (const item of await vscode.workspace.fs.readDirectory(sourceUri)) {
+			if (!item[0].startsWith(".") && !itemsToExclue.includes(item[0])) {
+				await vscode.workspace.fs.copy(
+					vscode.Uri.joinPath(sourceUri, item[0]), 
+					vscode.Uri.joinPath(fabricUri.uri, item[0]), 
+					{ overwrite: true }
+				);
+			}
+		}
 		// mark target as modified
 		await FabricFSCache.localItemModified(fabricUri);
 
