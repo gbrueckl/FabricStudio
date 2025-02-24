@@ -8,17 +8,35 @@ import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
 import { FabricWorkspaceTreeItem } from '../treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
 import { FabricApiItemType } from '../../fabric/_types';
+import { FabricMapper } from '../../fabric/FabricMapper';
 
 export abstract class FabricFSHelper {
 
-	static async getDefinitionRoot(uri: vscode.Uri, rootFolderName: string = "definition"): Promise<vscode.Uri> {
+	private static async getRegex(itemType: FabricApiItemType): Promise<RegExp> {
+		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
+
+		if(!itemTypePlural) {
+			throw new Error(`Could not find plural for item type '${itemType}'!`);
+		}
+
+		return new RegExp(`((.*\.${itemType})|(.*\/${itemTypePlural}))(\/|$)`, "gmi");
+	}
+
+	static async getDefinitionRoot(uri: vscode.Uri, rootFolderRegEx: RegExp): Promise<vscode.Uri> {
+
+		const match = rootFolderRegEx.exec(uri.toString());
+
+		if(match) {
+			return vscode.Uri.parse(match[1])
+		}
+
 		const parts = uri.toString().split("/")
 
 		// return parent of rootFolderName
-		if (parts.includes(rootFolderName)) {
-			const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf(rootFolderName))), "/");
-			return vscode.Uri.parse(definitionUri);
-		}
+		// if (parts.includes(rootFolderName)) {
+		// 	const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf(rootFolderName))), "/");
+		// 	return vscode.Uri.parse(definitionUri);
+		// }
 
 		return undefined;
 	}
@@ -63,44 +81,33 @@ export abstract class FabricFSHelper {
 		return target.apiItem as FabricWorkspaceTreeItem;
 	}
 
-	static async publishTMDLFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
-		const definitionFolder = "definition"
-		const target = await this.getTargetFromQuickPick("SemanticModel");
+	static async publishFromUri(sourceUri: vscode.Uri, itemType: FabricApiItemType, itemsToExclue: string[] = []): Promise<FabricFSUri> {
+		const rootRegex = await this.getRegex(itemType);
+		const target = await this.getTargetFromQuickPick(itemType);
 		if(!target) {	
 			ThisExtension.Logger.logInfo("No target selected, aborting publish operation.");
 			return;
 		}
 
-		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, definitionFolder);
+		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, rootRegex);
 
 		if (!sourceFsUri) {
-			ThisExtension.Logger.logError(`Could not find TMDL root folder '${definitionFolder}' as partent of '${sourceUri.toString()}'!`, true);
+			ThisExtension.Logger.logError(`Could not find matching regex '${rootRegex}' in '${sourceUri.toString()}'!`, true);
 			return;
 		}
 
-		await this.publishContent(sourceFsUri, target.fabricFsUri);
+		return this.publishContent(sourceFsUri, target.fabricFsUri, itemsToExclue);
+	}
+
+	static async publishTMDLFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
+		return this.publishFromUri(sourceUri, "SemanticModel");
 	}
 
 	static async publishPBIRFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
-		const definitionFolder = "definition"
-		const target = await this.getTargetFromQuickPick("Report");
-		if(!target) {	
-			ThisExtension.Logger.logInfo("No target selected, aborting publish operation.");
-			return;
-		}
-
-		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, definitionFolder);
-
-		if (!sourceFsUri) {
-			ThisExtension.Logger.logError(`Could not find PBIR root folder '${definitionFolder}' as partent of '${sourceUri.toString()}'!`, true);
-			return;
-		}
-
-		// we do not overwrite the connection of the report
-		await this.publishContent(sourceFsUri, target.fabricFsUri, ["definition.pbir"]);
+		return this.publishFromUri(sourceUri, "Report", ["definition.pbir"]);
 	}
 
-	static async publishContent(sourceUri: vscode.Uri, fabricUri: FabricFSUri, itemsToExclue: string[] = []): Promise<void> {
+	static async publishContent(sourceUri: vscode.Uri, fabricUri: FabricFSUri, itemsToExclue: string[] = []): Promise<FabricFSUri> {
 		ThisExtension.Logger.logInfo("Publishing from: " + sourceUri.toString());
 		ThisExtension.Logger.logInfo("To Fabric target: " + fabricUri.uri.toString());
 
@@ -126,5 +133,7 @@ export abstract class FabricFSHelper {
 		await FabricFSCache.localItemModified(fabricUri);
 
 		await FabricFSCache.publishToFabric(fabricUri.uri);
+
+		return fabricUri;
 	}
 }
