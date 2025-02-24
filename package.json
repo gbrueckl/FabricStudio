@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio ",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.8.1",
+	"version": "1.8.2",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -115,7 +115,8 @@
 										"KQLQuerysets",
 										"KQLDashboards",
 										"Reflexes",
-										"Eventstreams"
+										"Eventstreams",
+										"MountedDataFactories"
 									]
 								},
 								"format": {
@@ -778,12 +779,12 @@
 				},
 				{
 					"command": "FabricStudio.FS.publishTMDL",
-					"when": "resourceScheme == file && resourceExtname == .tmdl && resourcePath =~ /.*\\\\definition\\\\.*/",
+					"when": "(resourcePath =~ /.*\\.SemanticModel(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/SemanticModels\\/.*/)",
 					"group": "2_workspace"
 				},
 				{
 					"command": "FabricStudio.FS.publishPBIR",
-					"when": "resourceScheme == file && resourceExtname == .json && resourcePath =~ /.*\\.Report\\\\definition\\\\.*/",
+					"when": "(resourcePath =~ /.*\\.Report(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Reports\\/.*/)",
 					"group": "2_workspace"
 				}
 			],

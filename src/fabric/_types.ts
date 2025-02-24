@@ -26,6 +26,7 @@ export type FabricApiItemType =
 	| "DeploymentPipeline"		//	A deployment pipeline.
 	| "Eventhouse"
 	| "Reflex"					//	Reflex item.
+	| "MountedDataFactory" 		//	A MountedDataFactory item.
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
@@ -39,6 +40,7 @@ export type FabricApiItemType =
 	| "Environments"						//	Folder for Environment item.
 	| "SemanticModels"						//	Folder for Semantic Model item.
 	| "Reports"								//	Folder for Report item.
+	| "MountedDataFactories" 				//	Folder for MountedDataFactory item.
 	| "SparkJobDefinitions"					//	Folder for Spark Job Definition item.
 	| "Eventhouses"							//	Folder for Eventhouse item.
 	| "KQLDatabases"						//	Folder for KQL Database item.
