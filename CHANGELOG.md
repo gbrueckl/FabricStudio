@@ -1,9 +1,11 @@
 # Change Log
 
 **v1.8.2**:
-- added `MountedDataFactories` to `Edit Definition` functionality
+- added `Definition` entry under each Fabric Item that allows `Edit Defintion` to directly open the definition
+- added `MountedDataFactories`, `Graph APIs` and `Dataflows` to `Edit Definition` functionality
 - fixed minor issues with publishing of `PBIR` and `TMDL` from local folder
 - added support to publish from Fabric File System Provider to another workspace
+- fixed issue with Graph API URL
 
 **v1.8.1**:
 - overwrite all files and folders (not only `definition` folder) as part of `Publish via Fabric Studio` except for report connection (`definition.pbir`)

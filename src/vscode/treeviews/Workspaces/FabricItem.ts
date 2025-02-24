@@ -5,16 +5,14 @@ import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
-
-import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricItemConnections } from './FabricItemConnections';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
 import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
 import { FabricItemJobInstances } from './FabricItemJobInstances';
 import { FabricItemJobSchedules } from './FabricItemJobSchedules';
 import { FabricMapper } from '../../../fabric/FabricMapper';
+import { FabricItemDefinition } from './FabricItemDefinition';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
-import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -28,6 +26,8 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
+
+		FabricFSUri.addItemNameIdMap(this.itemPath, this.itemId);
 
 		this.iconPath = this.getIconPath();
 	}
@@ -46,12 +46,15 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		let children: FabricWorkspaceGenericFolder[] = [];
+		let children: FabricWorkspaceTreeItem[] = [];
 
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
+			if(this.contextValue.includes("EDIT_")) {
+				children.push(new FabricItemDefinition(this));
+			}
 			// Connections
 			let supportedItemTypes: FabricApiItemType[] = [];
 			try {

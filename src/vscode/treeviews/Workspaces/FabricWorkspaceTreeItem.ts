@@ -97,13 +97,14 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		if(this.itemType == "Workspace") {
 			FabricFSUri.addWorkspaceNameIdMap(this.itemName, this.itemId);
 			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.itemId}`));
-		}
+		}	
 
 		let itemFsPath = this.itemPath;
 		// as we return the URI by name, we also have to add the item to the mapping
 		if(Helper.isGuid(this.itemId)) {
+			itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(1, -1).join("/"), this.itemName), "/");
 			FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
-			itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(0, -1).join("/"), this.itemName), "/");
+			itemFsPath = "workspaces/" + itemFsPath;
 		}
 		
 		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));		
