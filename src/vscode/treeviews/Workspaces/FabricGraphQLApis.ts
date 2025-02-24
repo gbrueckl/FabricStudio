@@ -14,7 +14,7 @@ export class FabricGraphQLApis extends FabricWorkspaceGenericFolder {
 	constructor(
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(`${parent.itemId}/GraphQL APIs`, "GraphQL APIs", "GraphQLApis", parent, "graphqlapis");
+		super(`${parent.itemId}/GraphQL APIs`, "GraphQL APIs", "GraphQLApis", parent, "graphqlApis");
 
 		this.id = parent.itemId + "/" + this.itemType.toString();
 	}

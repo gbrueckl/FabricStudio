@@ -9,6 +9,7 @@ import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
+import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
@@ -85,19 +86,27 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return this.workspace.itemId;
 	}
 
+	get asQuickPickItem(): FabricQuickPickItem {
+		let qpItem = new FabricQuickPickItem(this.itemName, this.itemId, this.itemId, `\tWorkspace: ${this.workspace.itemName} - ${this.workspaceId}`);
+		qpItem.apiItem = this;
+
+		return qpItem;
+	}
+
 	get fabricFsUri(): FabricFSUri {
 		if(this.itemType == "Workspace") {
 			FabricFSUri.addWorkspaceNameIdMap(this.itemName, this.itemId);
 			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.itemId}`));
 		}
 
-		const itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(1, -1).join("/"), this.itemName), "/");
+		let itemFsPath = this.itemPath;
 		// as we return the URI by name, we also have to add the item to the mapping
 		if(Helper.isGuid(this.itemId)) {
-				FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
+			FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
+			itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(0, -1).join("/"), this.itemName), "/");
 		}
 		
-		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${itemFsPath}`));		
+		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));		
 	}
 
 	public async editDefinition(): Promise<void> {

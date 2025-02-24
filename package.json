@@ -116,7 +116,9 @@
 										"KQLDashboards",
 										"Reflexes",
 										"Eventstreams",
-										"MountedDataFactories"
+										"MountedDataFactories",
+										"Dataflows",
+										"GraphQLApis"
 									]
 								},
 								"format": {
