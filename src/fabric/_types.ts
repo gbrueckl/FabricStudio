@@ -67,6 +67,8 @@ export type FabricApiItemType =
 	| "ItemDataAccessRoles"					//	Folder for item data access roles.	
 	| "ItemDataAccessRole"					//	An Item data access role.
 	| "ItemDefinition"						//	An Item definition.	
+	| "ItemDefinitionFile"					//	An Item definition file.
+	| "ItemDefinitionFolder"				//	Folder for item definition files.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
 	| "MirroredDatabases"					//	Folder for mirrored databases.

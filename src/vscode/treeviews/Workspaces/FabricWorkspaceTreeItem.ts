@@ -25,6 +25,7 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		super(id, name, type, parent, definition, description, collapsibleState);
 
 		this.iconPath = this.getIconPath();
+		this.resourceUri = this.fabricFsUri.uri;
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */

@@ -127,7 +127,7 @@ export abstract class FabricApiService {
 
 	public static get SessionUserEmail(): string {
 		if (this._vscodeSession) {
-			const email = Helper.getFirstRegexGroup(/([\w\.]+@[\w-]+\.+[\w-]{2,5})/gm, this._vscodeSession.account.label);
+			const email = Helper.getFirstRegexGroup(/([\w\.\-\_]+@[\w\.\-]+\.+[\w-]{2,5})(\s|$)/gm, this._vscodeSession.account.label);
 			if (email) {
 				return email;
 			}
@@ -255,6 +255,12 @@ export abstract class FabricApiService {
 				else {
 					error = { "errorCode": `${response.status}`, "message": resultText, "details": response.statusText };
 				}
+			}
+
+			if(error && "errorCode" in error && "TokenExpired" == error.errorCode) {
+				ThisExtension.Logger.logError("Token expired - refreshing connection!");
+				await this.refreshConnection(true);
+				return this.get<TSuccess>(endpoint, params, config);
 			}
 
 			if (error && config.raiseErrorOnFailure) {
@@ -403,6 +409,12 @@ export abstract class FabricApiService {
 				else {
 					error = JSON.parse(resultText) as iFabricErrorResponse;
 				}
+			}
+
+			if(error && "errorCode" in error && "TokenExpired" == error.errorCode) {
+				ThisExtension.Logger.logError("Token expired - refreshing connection!");
+				await this.refreshConnection(true);
+				return this.generic<TSuccess>(method, endpoint, body, config);
 			}
 
 			if (error && config.raiseErrorOnFailure) {

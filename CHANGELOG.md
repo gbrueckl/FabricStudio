@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.9.0**:
+- added full definition directly into the workspace browser!
+- fixed issue with display of email in status bar
+
 **v1.8.2**:
 - added `Definition` entry under each Fabric Item that allows `Edit Defintion` to directly open the definition
 - added `MountedDataFactories`, `Graph APIs` and `Dataflows` to `Edit Definition` functionality
