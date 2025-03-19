@@ -42,9 +42,9 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 		return this._treeView.selection;
 	}
 
-	async refresh(tree_item: FabricPipelineTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
+	async refresh(item: FabricPipelineTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
 		// as tree_item is not always accurate, we refresh based on the actual selection
-		if (this._treeView.selection.length == 0) {
+		if (!item || this._treeView.selection.length == 0) {
 			this._onDidChangeTreeData.fire(undefined);
 			return;
 		}

@@ -102,7 +102,7 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 // 	"Reflexes",
 // ];
 
-export const ITEM_FILE_NAMES : Map<FabricApiItemType, string> = new Map([
+export const ITEM_FILE_NAMES: Map<FabricApiItemType, string> = new Map([
 	["DataPipelines", "pipeline-content"],
 	["Notebooks", "notebook-content"],
 	["SparkJobDefinitions", "SparkJobDefinitionV1"],
@@ -143,13 +143,34 @@ export abstract class FabricConfiguration {
 
 	static itemTypeHasDefinition(itemType: FabricApiItemType): boolean {
 		const enumFromConfig = this.itemTypesWithDefinition;
-		
+
 		return enumFromConfig.includes(itemType);
 	}
 
-	static get cloud(): string { 
+	static itemTypeFromString(itemType: string): FabricApiItemType {
+		if (!itemType) {
+			return undefined;
+		}
+
+		let ret: FabricApiItemType = itemType as FabricApiItemType;
+
+		if (!FabricConfiguration.itemTypeHasDefinition(ret)) {
+			let itemTypeCase = FabricConfiguration.itemTypesWithDefinition.find((type) => type.toLowerCase() == itemType.toLowerCase());
+			if (itemTypeCase) {
+				ret = itemTypeCase;
+			}
+			else {
+				ThisExtension.Logger.logError(`Item type '${itemType}' is not a valid Fabric item type!`);
+				return undefined;
+			}
+		}
+
+		return ret;
+	}
+
+	static get cloud(): string {
 		return "GlobalCloud";
-		return this.getValue("cloud"); 
+		return this.getValue("cloud");
 	}
 	//static set cloud(value: string) { this.setValue("cloud", value); }
 
@@ -174,11 +195,11 @@ export abstract class FabricConfiguration {
 	static set capacityFilter(value: string) { this.setValue("capacityFilter", value); }
 	static get capacityFilterRegEx(): RegExp { return new RegExp(this.getValue("capacityFilter")); }
 
-	static get itemTypeFormats(): iItemTypeFormat[] { 
+	static get itemTypeFormats(): iItemTypeFormat[] {
 		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];
-		
+
 		let typedValues = confValues.map((item) => {
-			return { 
+			return {
 				itemType: item.itemType as FabricApiItemType, // loose cast
 				format: item.format as FabricApiItemFormat, // loose cast
 				publishOnSave: item.publishOnSave,
@@ -189,14 +210,13 @@ export abstract class FabricConfiguration {
 
 		return typedValues;
 	}
-	static get itemTypes(): FabricApiItemType[] { 
-		return this.itemTypeFormats.map((item) => item.itemType); 
+	static get itemTypes(): FabricApiItemType[] {
+		return this.itemTypeFormats.map((item) => item.itemType);
 	}
 
 	static getFabricItemTypeFormat(itemType: FabricApiItemType): FabricApiItemFormat {
 		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
-		if(!item || !item.format)
-		{
+		if (!item || !item.format) {
 			return FabricApiItemFormat.DEFAULT;
 		}
 		return item.format;
@@ -204,8 +224,7 @@ export abstract class FabricConfiguration {
 
 	static getFabricItemTypePublishOnSave(itemType: FabricApiItemType): boolean {
 		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
-		if(!item || !item.publishOnSave)
-		{
+		if (!item || !item.publishOnSave) {
 			return false;
 		}
 		return item.publishOnSave;
@@ -213,8 +232,7 @@ export abstract class FabricConfiguration {
 
 	static getFabricItemTypeCompactView(itemType: FabricApiItemType): boolean {
 		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
-		if(!item || !item.compactView)
-		{
+		if (!item || !item.compactView) {
 			return false;
 		}
 		return item.compactView;
@@ -222,11 +240,10 @@ export abstract class FabricConfiguration {
 
 	static getFabricItemTypeUseItemNameAsFileName(itemType: FabricApiItemType): boolean {
 		const item = this.itemTypeFormats.find((item) => item.itemType == itemType);
-		if(!item || !item.useItemNameAsFileName)
-		{
+		if (!item || !item.useItemNameAsFileName) {
 			return false;
 		}
-		if(!ITEM_FILE_NAMES.has(itemType)) {
+		if (!ITEM_FILE_NAMES.has(itemType)) {
 			ThisExtension.Logger.logWarning(`UseItemNameAsfileName requested for item type '${itemType}' which does not have a single definition file!`);
 			return false;
 		}
@@ -234,31 +251,31 @@ export abstract class FabricConfiguration {
 	}
 
 	static getFabricItemTypeDefinitionFileName(itemType: FabricApiItemType): string {
-		if(ITEM_FILE_NAMES.has(itemType)) {
+		if (ITEM_FILE_NAMES.has(itemType)) {
 			return ITEM_FILE_NAMES.get(itemType);
 		}
 		return undefined;
 	}
 
-	static get iconStyle(): string { 
-		return this.getValue("iconStyle"); 
+	static get iconStyle(): string {
+		return this.getValue("iconStyle");
 	}
 
-	static get apiUrl(): string { 
+	static get apiUrl(): string {
 		//
 		return "https://api.fabric.microsoft.com";
-		return CLOUD_CONFIGS[this.cloud].apiEndpoint; 
+		return CLOUD_CONFIGS[this.cloud].apiEndpoint;
 	}
 
 	static get authenticationProvider(): string { return CLOUD_CONFIGS[this.cloud].authenticationProvider; }
 
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
 
-	static get resourceId(): string { 
+	static get resourceId(): string {
 		//return "https://analysis.windows.net/powerbi/api"
 		return "https://api.fabric.microsoft.com";
-		return CLOUD_CONFIGS[this.cloud].resourceId; 
-		}
+		return CLOUD_CONFIGS[this.cloud].resourceId;
+	}
 
 	static get isSovereignCloud(): boolean {
 		// If the base URL for the API is not pointed to api.fabric.microsoft.com assume 

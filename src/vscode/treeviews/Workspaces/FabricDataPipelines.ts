@@ -17,7 +17,7 @@ export class FabricDataPipelines extends FabricWorkspaceGenericFolder {
 			"DataPipelines", 
 			"DataPipelines", 
 			parent, 
-			"dataPipelines");
+			"DataPipelines");
 
 		this.id = parent.itemId + "/" + this.itemType;
 

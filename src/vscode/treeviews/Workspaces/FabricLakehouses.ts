@@ -14,7 +14,7 @@ export class FabricLakehouses extends FabricWorkspaceGenericFolder {
 	constructor(
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(`${parent.itemId}/Lakehouses`, "Lakehouses", "Lakehouses", parent, "lakehouses");
+		super(`${parent.itemId}/Lakehouses`, "Lakehouses", "Lakehouses", parent, "Lakehouses");
 
 		this.id = parent.itemId + "/" + this.itemType.toString();
 	}

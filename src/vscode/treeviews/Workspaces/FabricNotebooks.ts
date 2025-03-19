@@ -12,7 +12,7 @@ export class FabricNotebooks extends FabricWorkspaceGenericFolder {
 	constructor(
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(`${parent.itemId}/Notebooks`, "Notebooks", "Notebooks", parent, "notebooks");
+		super(`${parent.itemId}/Notebooks`, "Notebooks", "Notebooks", parent, "Notebooks");
 
 		this.id = parent.itemId + "/" + this.itemType.toString();
 	}

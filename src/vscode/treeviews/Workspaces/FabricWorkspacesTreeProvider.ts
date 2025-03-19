@@ -43,7 +43,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 
 	async refresh(item: FabricWorkspaceTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
 		// as tree_item is not always accurate, we refresh based on the actual selection
-		if (this._treeView.selection.length == 0) {
+		if (!item || this._treeView.selection.length == 0) {
 			this._onDidChangeTreeData.fire(undefined);
 			return;
 		}

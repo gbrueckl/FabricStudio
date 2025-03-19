@@ -20,7 +20,7 @@ export class FabricEnvironments extends FabricWorkspaceGenericFolder {
 			"Environments", 
 			"Environments", 
 			parent, 
-			"environments");
+			"Environments");
 
 		this.id = parent.itemId + "/" + this.itemType;
 

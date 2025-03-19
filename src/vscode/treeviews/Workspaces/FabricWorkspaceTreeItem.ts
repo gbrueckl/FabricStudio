@@ -10,6 +10,7 @@ import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
+import { FabricFSCache } from '../../filesystemProvider/FabricFSCache';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
@@ -26,6 +27,7 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 		this.iconPath = this.getIconPath();
 		this.resourceUri = this.fabricFsUri.uri;
+		this.contextValue = this._contextValue;
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
@@ -45,6 +47,9 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 			else {
 				actions.push("EDIT_DEFINITION");
 			}
+		}
+		if(this.resourceUri && FabricFSCache.unpublishedChanges(this.resourceUri)) {
+			actions.push("PUBLISH");
 		}
 
 		// to dynamically show actions based on item type

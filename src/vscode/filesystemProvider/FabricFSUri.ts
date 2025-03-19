@@ -51,7 +51,7 @@ export class FabricFSUri {
 				ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
 			}
 			this.workspace = paths[1];
-			this.itemType = this.itemTypeFromString(paths[2]);
+			this.itemType = FabricConfiguration.itemTypeFromString(paths[2]);
 			this.item = paths[3];
 			this.part = paths.slice(4).join("/");
 
@@ -138,27 +138,6 @@ export class FabricFSUri {
 		return decodeURIComponent(`${this.workspaceId}/${this.itemType}/${this.item}`);
 	}
 
-	private itemTypeFromString(itemType: string): FabricApiItemType {
-		if(!itemType) { 
-			return undefined;
-		}
-
-		let ret: FabricApiItemType = itemType as FabricApiItemType;
-
-		if (!FabricConfiguration.itemTypeHasDefinition(ret)) {
-			let itemTypeCase = FabricConfiguration.itemTypesWithDefinition.find((type) => type.toLowerCase() == itemType.toLowerCase());
-			if (itemTypeCase) {
-				ret = itemTypeCase;
-			}
-			else {
-				ThisExtension.Logger.logError(`Item type '${itemType}' is not a valid Fabric item type!`);
-				return undefined;
-			}
-		}
-
-		return ret;
-	}
-
 	get itemId(): string {
 		if (Helper.isGuid(this.item)) return this.item;
 
@@ -192,7 +171,7 @@ export class FabricFSUri {
 
 		if (match) {
 			this.workspace = match.groups["workspace"];
-			this.itemType = this.itemTypeFromString(match.groups["itemType"]);
+			this.itemType = FabricConfiguration.itemTypeFromString(match.groups["itemType"]);
 			this.item = match.groups["item"];
 			this.part = match.groups["part"];
 

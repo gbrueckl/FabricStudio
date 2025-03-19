@@ -206,19 +206,23 @@
 			"fabricstudio": [
 				{
 					"id": "FabricStudioWorkspaces",
-					"name": "Fabric Workspaces"
+					"name": "Fabric Workspaces",
+					"icon": "$(list-tree)"
 				},
 				{
 					"id": "FabricStudioDeploymentPipelines",
-					"name": "Deployment Pipelines"
+					"name": "Deployment Pipelines",
+					"icon": "$(debug-step-over)"
 				},
 				{
 					"id": "FabricStudioConnections",
-					"name": "Connections"
+					"name": "Connections",
+					"icon": "$(extensions-remote)"
 				},
 				{
 					"id": "FabricStudioCapacities",
-					"name": "Capacities"
+					"name": "Capacities",
+					"icon": "$(gear)"
 				}
 			]
 		},
@@ -371,7 +375,7 @@
 				"category": "Fabric.Item"
 			},
 			{
-				"command": "FabricStudio.FS.publishToFabric",
+				"command": "FabricStudio.Item.publishToFabric",
 				"title": "Publish to Fabric",
 				"icon": "$(cloud-upload)",
 				"category": "FabricStudio"
@@ -387,6 +391,12 @@
 				"title": "Open in Fabric",
 				"icon": "$(globe)",
 				"category": "Fabric"
+			},
+			{
+				"command": "FabricStudio.FS.publishToFabric",
+				"title": "Publish to Fabric",
+				"icon": "$(cloud-upload)",
+				"category": "FabricStudio"
 			},
 			{
 				"command": "FabricStudio.FS.publishTMDL",
@@ -676,6 +686,11 @@
 					"command": "FabricStudio.Item.delete",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioConnections)/ && viewItem =~ /.*,DELETE,.*/",
 					"group": "3_delete"
+				},
+				{
+					"command": "FabricStudio.Item.publishToFabric",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,PUBLISH,.*/",
+					"group": "navigation"
 				},
 				{
 					"command": "FabricStudio.Lakehouse.copySQLConnectionString",

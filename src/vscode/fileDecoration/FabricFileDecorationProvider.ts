@@ -3,6 +3,7 @@ import { FABRIC_SCHEME } from '../filesystemProvider/FabricFileSystemProvider';
 import { FabricFSUri, FabricUriType } from '../filesystemProvider/FabricFSUri';
 import { FabricFSCache } from '../filesystemProvider/FabricFSCache';
 import { FabricFSPublishAction } from '../filesystemProvider/_types';
+import { ThisExtension } from '../../ThisExtension';
 
 
 export class FabricFSFileDecorationProvider implements vscode.FileDecorationProvider {
@@ -20,6 +21,7 @@ export class FabricFSFileDecorationProvider implements vscode.FileDecorationProv
 
 	public static updateFileDecoration(urisToUpdate: vscode.Uri[]) {
 		this.provider._onDidChangeFileDecorations.fire(urisToUpdate);
+		ThisExtension.TreeViewWorkspaces.refresh(undefined, false);
 	}
 
 	public provideFileDecoration(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<vscode.FileDecoration> {

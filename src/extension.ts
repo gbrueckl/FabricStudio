@@ -131,8 +131,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.editTMDL', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editPBIR', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.showDefintion', async (treeItem: FabricWorkspaceGenericViewer) => treeItem.showDefinition());
-	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => 
-	treeItem.delete("yesNo"));
+	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => treeItem.delete("yesNo"));
+	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.publishToFabric(treeItem.resourceUri));
 
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());

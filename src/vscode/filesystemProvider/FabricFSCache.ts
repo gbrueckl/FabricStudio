@@ -258,6 +258,17 @@ export abstract class FabricFSCache {
 		vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer", resourceUri);
 	}
 
+	public static unpublishedChanges(resourceUri: vscode.Uri): boolean {
+		const fabricUri: FabricFSUri = new FabricFSUri(resourceUri);
+
+		for (let key of FabricFSCache._localChanges.keys()) {
+			if (key.startsWith(fabricUri.uniqueKey)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static async publishToFabric(resourceUri: vscode.Uri): Promise<void> {
 		const fabricUri: FabricFSUri = await FabricFSUri.getInstance(resourceUri);
 
