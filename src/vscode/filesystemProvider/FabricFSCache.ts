@@ -147,11 +147,11 @@ export abstract class FabricFSCache {
 
 		if (oldFabricUri.uriType == FabricUriType.part && newFabricUri.uriType == FabricUriType.part) {
 			let folderParts: iFabricApiItemPart[] = [];
-			if(fileOrFolder == vscode.FileType.Directory) {
+			if (fileOrFolder == vscode.FileType.Directory) {
 				// check if the target folder already exists
 				folderParts = await (oldItem as FabricFSItem).getPartsFromFolder(oldFabricUri.part);
 			}
-			else if(fileOrFolder == vscode.FileType.File) {
+			else if (fileOrFolder == vscode.FileType.File) {
 				folderParts = [await (oldItem as FabricFSItem).getPart(oldFabricUri.part)];
 			}
 			else {
@@ -187,14 +187,13 @@ export abstract class FabricFSCache {
 			(oldItem as FabricFSItem).displayName = decodeURIComponent(newFabricUri.item);
 			FabricFSCache.addCacheItem(newFabricUri, oldItem)
 
-			if(oldItem.FabricUri == newItem.FabricUri) {
+			if (oldItem.FabricUri == newItem.FabricUri) {
 				FabricFSCache.localItemModified(newFabricUri);
 			}
 			else {
 				FabricFSCache.localItemAdded(newFabricUri);
 				FabricFSCache.localItemDeleted(oldFabricUri);
 			}
-			
 
 			return;
 		}
@@ -244,7 +243,7 @@ export abstract class FabricFSCache {
 	}
 
 
-	public static async reloadFromFabric(resourceUri: vscode.Uri): Promise<void> {
+	public static async reloadFromFabric(resourceUri: vscode.Uri, refreshExplorer: boolean = true): Promise<void> {
 		const fabricUri: FabricFSUri = await FabricFSUri.getInstance(resourceUri);
 
 		for (let key of FabricFSCache._cache.keys()) {
@@ -255,7 +254,9 @@ export abstract class FabricFSCache {
 
 		FabricFSCache.localItemReloaded(fabricUri);
 
-		vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer", resourceUri);
+		if (refreshExplorer) {
+			vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer", resourceUri);
+		}
 	}
 
 	public static unpublishedChanges(resourceUri: vscode.Uri): boolean {
@@ -269,7 +270,7 @@ export abstract class FabricFSCache {
 		return false;
 	}
 
-	public static async publishToFabric(resourceUri: vscode.Uri): Promise<void> {
+	public static async publishToFabric(resourceUri: vscode.Uri, refreshExplorer: boolean = true): Promise<void> {
 		const fabricUri: FabricFSUri = await FabricFSUri.getInstance(resourceUri);
 
 		ThisExtension.Logger.logInfo("Publishing changes to Fabric ...");
@@ -277,6 +278,10 @@ export abstract class FabricFSCache {
 		for (let [key, action] of FabricFSCache._localChanges.entries()) {
 			if (key.startsWith(fabricUri.uniqueKey)) {
 				const itemToPublish = FabricFSCache.getCacheItem(await FabricFSUri.getInstance(vscode.Uri.parse(key))) as FabricFSItem;
+				if(!itemToPublish?.displayName) // when publishing from Workspace Browser
+				{
+					itemToPublish.displayName = fabricUri.item;
+				}
 				const response = await itemToPublish.publish();
 
 				if (response.error) {
@@ -285,7 +290,9 @@ export abstract class FabricFSCache {
 				else {
 					FabricFSCache.localItemPublished(itemToPublish.FabricUri);
 
-					vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer", fabricUri.uri);
+					if (refreshExplorer) {
+						vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer", fabricUri.uri);
+					}
 				}
 			}
 		}

@@ -381,6 +381,12 @@
 				"category": "FabricStudio"
 			},
 			{
+				"command": "FabricStudio.Item.reloadFromFabric",
+				"title": "Reload from Fabric",
+				"icon": "$(cloud-download)",
+				"category": "FabricStudio"
+			},
+			{
 				"command": "FabricStudio.FS.reloadFromFabric",
 				"title": "Reload from Fabric",
 				"icon": "$(cloud-download)",
@@ -690,6 +696,11 @@
 				{
 					"command": "FabricStudio.Item.publishToFabric",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,PUBLISH,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Item.reloadFromFabric",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RELOAD_FROM_FABRIC,.*/",
 					"group": "navigation"
 				},
 				{

@@ -1,14 +1,9 @@
 import * as vscode from 'vscode';
 
-import { Helper, UniqueId } from '@utils/Helper';
-
+import { Helper } from '@utils/Helper';
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiItemDataAccessRole } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
+
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
-import { FabricItem } from './FabricItem';
-import { FabricItemDataAccessRole } from './FabricItemDataAccessRole';
 import { FabricItemDefinition } from './FabricItemDefinition';
 import { FabricItemDefinitionFolder } from './FabricItemDefinitionFolder';
 

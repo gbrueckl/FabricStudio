@@ -28,7 +28,7 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = [];
+		let actions: string[] = ["RELOAD_FROM_FABRIC"];
 
 		return orig + actions.join(",") + ",";
 	}
