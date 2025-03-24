@@ -35,6 +35,9 @@ import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapa
 import { FabricSqlEndpoint } from './vscode/treeviews/Workspaces/FabricSqlEndpoint';
 import { FabricApiService } from './fabric/FabricApiService';
 import { FabricFSHelper } from './vscode/filesystemProvider/FabricFSHelper';
+import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
+import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeItem';
+import { FabricAdminGenericViewer } from './vscode/treeviews/Admin/FabricAdminGenericViewer';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -173,14 +176,23 @@ export async function activate(context: vscode.ExtensionContext) {
 	let fabricConnectionsTreeViewProvider = new FabricConnectionsTreeProvider(context);
 
 	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.filter());
+	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined) => fabricConnectionsTreeViewProvider.filter());
 	//#endregion
 
 	//#region Fabric Capacities TreeView
 	let fabricCapacitiesTreeViewProvider = new FabricCapacitiesTreeProvider(context);
 
 	vscode.commands.registerCommand('FabricStudio.Capacities.refresh', (item: FabricCapacityTreeItem = undefined, showInfoMessage: boolean = true) => fabricCapacitiesTreeViewProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Capacities.filter', (item: FabricCapacityTreeItem = undefined, showInfoMessage: boolean = true) => fabricCapacitiesTreeViewProvider.filter());
+	vscode.commands.registerCommand('FabricStudio.Capacities.filter', (item: FabricCapacityTreeItem = undefined) => fabricCapacitiesTreeViewProvider.filter());
+	//#endregion
+
+	//#region Fabric Admin TreeView
+	let fabricAdminTreeViewProvider = new FabricAdminTreeProvider(context);
+
+	vscode.commands.registerCommand('FabricStudio.Admin.refresh', (item: FabricAdminTreeItem = undefined, showInfoMessage: boolean = true) => fabricAdminTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Admin.filter', (item: FabricAdminTreeItem = undefined) => fabricAdminTreeViewProvider.filter());
+	
+	vscode.commands.registerCommand('FabricStudio.Admin.showDefintion', async (item: FabricAdminGenericViewer) => item.showDefinition());
 	//#endregion
 
 	//#region Fabric Git

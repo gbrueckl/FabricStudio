@@ -299,10 +299,13 @@ export abstract class FabricFSCache {
 	}
 
 	public static async onDidSave(document: vscode.TextDocument | vscode.NotebookDocument): Promise<void> {
+		if (document.uri.scheme != FABRIC_SCHEME) {
+			return;
+		}
 		const fabricUri: FabricFSUri = await FabricFSUri.getInstance(document.uri);
 		const publishOnSave = FabricConfiguration.getFabricItemTypePublishOnSave(fabricUri.itemType);
 
-		if (document.uri.scheme === FABRIC_SCHEME && publishOnSave) {
+		if (publishOnSave) {
 			const item = FabricFSCache.getCacheItem(fabricUri) as FabricFSItem;
 
 			await FabricFSCache.publishToFabric(item.FabricUri.uri);

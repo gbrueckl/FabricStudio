@@ -95,11 +95,11 @@ class FabricObjectTransferItem extends vscode.DataTransferItem {
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricDragAndDropController implements vscode.TreeDragAndDropController<FabricApiTreeItem> {
 
-	dropMimeTypes: readonly string[] = ThisExtension.TreeProviderIds.map((x) => x.toString()).concat([
+	dropMimeTypes: readonly string[] = ThisExtension.TreeProviderIdsForDragAndDrop.map((x) => x.toString()).concat([
 		FabricDragMIMEType,
 		"text/uri-list" // to support drag and drop from the file explorer (not yet working)
 	]);
-	dragMimeTypes: readonly string[] = ThisExtension.TreeProviderIds.map((x) => x.toString()).concat([
+	dragMimeTypes: readonly string[] = ThisExtension.TreeProviderIdsForDragAndDrop.map((x) => x.toString()).concat([
 		FabricDragMIMEType
 	]);
 

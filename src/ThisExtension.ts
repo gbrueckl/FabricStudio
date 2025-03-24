@@ -17,6 +17,7 @@ import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/Fa
 import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
 import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
+import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
 
 
 export type TreeProviderId =
@@ -24,6 +25,7 @@ export type TreeProviderId =
 	| "application/vnd.code.tree.fabricstudiodeploymentpipelines"
 	| "application/vnd.code.tree.fabricstudioconnections"
 	| "application/vnd.code.tree.fabricstudiocapacities"
+	| "application/vnd.code.tree.fabricstudioadmin"
 	;
 
 const LOGGER_NAME = "Fabric Studio"
@@ -44,6 +46,7 @@ export abstract class ThisExtension {
 	private static _treeviewPipelines: FabricPipelinesTreeProvider;
 	private static _treeviewConnections: FabricConnectionsTreeProvider;
 	private static _treeviewCapacities: FabricCapacitiesTreeProvider;
+	private static _treeviewAdmin: FabricAdminTreeProvider;
 	private static _fabricFileSystemProvider: FabricFileSystemProvider;
 	private static _tempFileSystemProvider: TempFileSystemProvider;
 
@@ -165,7 +168,7 @@ export abstract class ThisExtension {
 	}
 
 	// #region TreeViews
-	public static get TreeProviderIds(): TreeProviderId[] {
+	public static get TreeProviderIdsForDragAndDrop(): TreeProviderId[] {
 		return [
 			"application/vnd.code.tree.fabricstudioworkspaces",
 			"application/vnd.code.tree.fabricstudiodeploymentpipelines"
@@ -181,6 +184,8 @@ export abstract class ThisExtension {
 			case "application/vnd.code.tree.fabricstudioconnections":
 				return this.TreeViewPipelines;
 			case "application/vnd.code.tree.fabricstudiocapacities":
+				return this.TreeViewCapacities;
+			case "application/vnd.code.tree.fabricstudioadmin":
 				return this.TreeViewCapacities;
 		}
 	}
@@ -215,6 +220,14 @@ export abstract class ThisExtension {
 
 	static get TreeViewCapacities(): FabricCapacitiesTreeProvider {
 		return this._treeviewCapacities;
+	}
+
+	static set TreeViewAdmin(treeView: FabricAdminTreeProvider) {
+		this._treeviewAdmin = treeView;
+	}
+
+	static get TreeViewAdmin(): FabricAdminTreeProvider {
+		return this._treeviewAdmin;
 	}
 	//#endregion
 

@@ -193,7 +193,11 @@ export abstract class FabricConfiguration {
 
 	static get capacityFilter(): string { return this.getValue("capacityFilter"); }
 	static set capacityFilter(value: string) { this.setValue("capacityFilter", value); }
-	static get capacityFilterRegEx(): RegExp { return new RegExp(this.getValue("capacityFilter")); }
+	static get capacityFilterRegEx(): RegExp { return new RegExp(this.getValue("capacityFilter"), "i"); }
+
+	static get adminFilter(): string { return this.getValue("adminFilter"); }
+	static set adminFilter(value: string) { this.setValue("adminFilter", value); }
+	static get adminFilterRegEx(): RegExp { return new RegExp(this.getValue("adminFilter"), "i"); }
 
 	static get itemTypeFormats(): iItemTypeFormat[] {
 		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];

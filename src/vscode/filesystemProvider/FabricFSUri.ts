@@ -67,7 +67,7 @@ export class FabricFSUri {
 
 		ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
 
-		throw vscode.FileSystemError.Unavailable("Invalid Fabric URI!");
+		throw vscode.FileSystemError.Unavailable("Invalid Fabric URI: " + uri.toString());
 	}
 
 	static async getInstance(uri: vscode.Uri, skipValidation: boolean = false): Promise<FabricFSUri> {
@@ -180,7 +180,7 @@ export class FabricFSUri {
 
 		ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
 
-		throw vscode.FileSystemError.Unavailable("Invalid Fabric URI!");
+		throw vscode.FileSystemError.Unavailable("Invalid Fabric URI: " + uri.toString());
 	}
 
 	get uriTypeCalc(): FabricUriType {

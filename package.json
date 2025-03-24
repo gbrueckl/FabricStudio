@@ -1,8 +1,8 @@
 {
 	"name": "fabricstudio",
-	"displayName": "Fabric Studio ",
+	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.9.0",
+	"version": "1.10.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -90,6 +90,14 @@
 						"examples": [
 							"F2",
 							"West Europe"
+						]
+					},
+					"fabricStudio.adminFilter": {
+						"type": "string",
+						"markdownDescription": "(Optional) A regex to filter Admin Settings. Only settings where the definition is matching this regex will be shown in the Fabric Studio Admin view.",
+						"examples": [
+							"Service Principal",
+							"API"
 						]
 					},
 					"fabricStudio.itemTypeFormats": {
@@ -223,6 +231,11 @@
 					"id": "FabricStudioCapacities",
 					"name": "Capacities",
 					"icon": "$(gear)"
+				},
+				{
+					"id": "FabricStudioAdmin",
+					"name": "Admin",
+					"icon": "$(briefcase)"
 				}
 			]
 		},
@@ -241,6 +254,10 @@
 			},
 			{
 				"view": "FabricStudioCapacities",
+				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
+			},
+			{
+				"view": "FabricStudioAdmin",
 				"contents": "Please log in to VSCode with a Microsoft Account first!\n[Login](command:FabricStudio.initialize)"
 			}
 		],
@@ -577,6 +594,24 @@
 				"command": "FabricStudio.OneLake.resetCache",
 				"title": "Reset OneLake Cache",
 				"icon": "$(file-symlink-directory)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Admin.refresh",
+				"title": "Refresh Admin Settings",
+				"icon": "$(refresh)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Admin.filter",
+				"title": "Filter Admin Settings",
+				"icon": "$(filter)"
+			},
+			{
+				"command": "FabricStudio.Admin.showDefinition",
+				"title": "Show Definition",
+				"icon": "$(json)",
+				"category": "FabricStudio"
 			}
 		],
 		"menus": {
@@ -629,6 +664,16 @@
 				{
 					"command": "FabricStudio.Capacities.filter",
 					"when": "view == FabricStudioCapacities",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Admin.refresh",
+					"when": "view == FabricStudioAdmin",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Admin.filter",
+					"when": "view == FabricStudioAdmin",
 					"group": "navigation"
 				}
 			],

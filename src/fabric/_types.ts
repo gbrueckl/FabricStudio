@@ -87,6 +87,8 @@ export type FabricApiItemType =
 	| "SQLEndpointBatches"					//	Folder for sql endpoint batches.
 	| "WorkspaceManagedPrivateEndpoints"	//	Folder for workspace managed private endpoints.
 	| "WorkspaceManagedPrivateEndpoint"		//	A workspace managed private endpoint.
+	| "AdminTenantSettings"					//	Folder for admin tenant settings.
+	| "AdminTenantSetting"					//	An admin tenant setting.
 	;
 
 export enum FabricApiWorkspaceType {
@@ -436,4 +438,36 @@ export interface iFabricApiWorkspaceManagedPrivateEndpoint {
 	provisioningState: string; // Provisioning state of endpoint.
 	targetPrivateLinkResourceId: string; // Resource Id of data source for which private endpoint is created
 	targetSubresourceType: string; // Sub-resource pointing to Private-link resoure.
+}
+
+export interface iFabricApiTenantSettingSecuritygroup {
+	graphId: string; // The graph ID of the security group.
+	name: string; // The name of the security group.
+}
+
+export enum iFabricApiTenantSettingPropertyType {
+	Boolean = "Boolean", // A checkbox in the UI
+	FreeText = "FreeText", // UI accepts any string for the text box
+	Integer = "Integer", // UI accepts only integers for the text box
+	MailEnabledSecurityGroup = "MailEnabledSecurityGroup", // UI accepts only email enabled security groups for the text box
+	Url = "Url", // UI accepts only URLs for the text box
+}
+export interface iFabricApiTenantSettingProperties {
+	name: string; // The name of the property.
+	type: iFabricApiTenantSettingPropertyType; // The type of the property.
+	value: string; // The value of the property.
+}
+
+export interface iFabricApiAdminTenantSetting {
+	canSpecifySecurityGroups: boolean; // Indicates if the tenant setting can be enabled for security groups. False - The tenant setting cannot be enabled for security groups. True - The tenant setting can be enabled for security groups.
+	delegateToCapacity: boolean; // Indicates whether the tenant setting can be delegated to a capacity admin. False - Capacity admin cannot override the tenant setting. True - Capacity admin can override the tenant setting.
+	delegateToDomain: boolean; // Indicates whether the tenant setting can be delegated to a domain admin. False - Domain admin cannot override the tenant setting. True - Domain admin can override the tenant setting.
+	delegateToWorkspace: boolean; // Indicates whether the tenant setting can be delegated to a workspace admin. False - Workspace admin cannot override the tenant setting. True - Workspace admin can override the tenant setting.
+	enabled: boolean; // The status of the tenant setting. False - Disabled, True - Enabled.
+	enabledSecurityGroups: iFabricApiTenantSettingSecuritygroup[]; // A list of enabled security groups.
+	excludedSecurityGroups: iFabricApiTenantSettingSecuritygroup[]; // A list of excluded security groups.
+	properties: iFabricApiTenantSettingProperties[]; // Tenant setting properties.
+	settingName: string; // The name of the tenant setting.
+	tenantSettingGroup: string; // Tenant setting group name.
+	title: string; // The title of the tenant setting.
 }

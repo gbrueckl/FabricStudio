@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.10.0**:
+- added the Admin treeview (read-only)
+
 **v1.9.0**:
 - added full definition directly into the workspace browser!
 - fixed issue with display of email in status bar
