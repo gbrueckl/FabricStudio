@@ -14,6 +14,7 @@ import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<FabricWorkspaceTreeItem> {
 
+	private _filter: string;
 	private _treeView: vscode.TreeView<FabricWorkspaceTreeItem>;
 	private _previousSelection: { item: FabricWorkspaceTreeItem, time: number };
 	private _onDidChangeTreeData: vscode.EventEmitter<FabricWorkspaceTreeItem | undefined> = new vscode.EventEmitter<FabricWorkspaceTreeItem | undefined>();
@@ -27,6 +28,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
+		this._filter = FabricConfiguration.workspaceFilter;
 		context.subscriptions.push(view);
 
 		view.onDidChangeSelection((event) => this._onDidChangeSelection(event.selection));
@@ -87,11 +89,13 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 				return [];
 			}
 
+			const regexFilter = this.filterRegEx;
+
 			for (let item of items.success) {
-				if (FabricConfiguration.workspaceFilter) {
-					const match = item.displayName.match(FabricConfiguration.workspaceFilterRegEx);
+				if (regexFilter) {
+					const match = item.displayName.match(regexFilter);
 					if (!match) {
-						ThisExtension.Logger.logInfo(`Skipping workspace ${item.displayName} because it does not match the workspace filter.`);
+						ThisExtension.Logger.logInfo(`Skipping workspace ${item.displayName} because it does not match the workspace filter '${regexFilter}'.`);
 						continue;
 					}
 				}
@@ -108,13 +112,18 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		}
 	}
 
-	// TopLevel workspace functions
-	// async newNotebook(workspaceItem: FabricWorkspaceTreeItem): Promise<void> {
-	// 	PowerBINotebookSerializer.openNewNotebook(workspaceItem);
-	// }
+	public get filterRegEx(): RegExp {
+		if (this._filter) {
+			return new RegExp(this._filter, "i");
+		}
+		if (FabricConfiguration.workspaceFilter) {
+			return FabricConfiguration.workspaceFilterRegEx;
+		}
+		return undefined;
+	}
 
 	async filter(): Promise<void> {
-		const currentFilter = FabricConfiguration.workspaceFilter;
+		const currentFilter = this._filter;
 
 		const filter = await vscode.window.showInputBox({
 			title: "Filter Workspaces",
@@ -127,6 +136,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 			return;
 		}
 
+		this._filter = filter;
 		FabricConfiguration.workspaceFilter = filter;
 
 		this.refresh(null, true);

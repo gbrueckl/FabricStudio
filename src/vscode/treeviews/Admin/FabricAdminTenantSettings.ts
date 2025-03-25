@@ -3,12 +3,12 @@ import * as vscode from 'vscode';
 import { UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiAdminTenantSetting, iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiAdminTenantSetting } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricAdminTreeItem } from './FabricAdminTreeItem';
 import { FabricAdminGenericFolder } from './FabricAdminGenericFolder';
 import { FabricAdminTenantSetting } from './FabricAdminTenantSetting';
-import { FabricConfiguration } from '../../configuration/FabricConfiguration';
+
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricAdminTenantSettings extends FabricAdminGenericFolder {
@@ -29,10 +29,7 @@ export class FabricAdminTenantSettings extends FabricAdminGenericFolder {
 			const items = await FabricApiService.getList<iFabricApiAdminTenantSetting>(this.apiPath, undefined, "value", "title");
 			let itemToAdd: FabricAdminTenantSetting;
 
-			let regexFilter = undefined;
-			if (FabricConfiguration.adminFilter) {
-				regexFilter = FabricConfiguration.adminFilterRegEx;
-			}
+			const regexFilter = ThisExtension.TreeViewAdmin.filterRegEx;
 
 			for (let item of items.success) {
 				if (regexFilter) {

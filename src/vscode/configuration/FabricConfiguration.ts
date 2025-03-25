@@ -160,7 +160,7 @@ export abstract class FabricConfiguration {
 				ret = itemTypeCase;
 			}
 			else {
-				ThisExtension.Logger.logError(`Item type '${itemType}' is not a valid Fabric item type!`);
+				ThisExtension.Logger.logTrace(`Item type '${itemType}' is not a valid Fabric item type with support for definition APIs!`);
 				return undefined;
 			}
 		}
@@ -293,16 +293,26 @@ export abstract class FabricConfiguration {
 	}
 
 	static getValue<T>(key: string): T {
+		if (ThisExtension.Logger) {
+			ThisExtension.Logger.logDebug(`Getting configuration value for key '${key}'`);
+		}
 		const value: T = this.config.get<T>(key);
+		if (ThisExtension.Logger) {
+			ThisExtension.Logger.logDebug(`Retrieved configuration value for key '${key}': ${value}`);
+		}
 		return value;
 	}
 
 	static setValue<T>(key: string, value: T, target: boolean | vscode.ConfigurationTarget = null): void {
-		this.config.update(key, value, target);
+		ThisExtension.Logger.logDebug(`Setting configuration value for key '${key}' to '${value}'`);
+		const result = this.config.update(key, value, target);
+		ThisExtension.Logger.logDebug(`Set configuration value for key '${key}' to ${value}`);
 	}
 
 	static unsetValue(key: string, target: boolean | vscode.ConfigurationTarget = null): void {
+		ThisExtension.Logger.logDebug(`Unetting configuration value for key '${key}'`);
 		this.setValue(key, undefined, target);
+		ThisExtension.Logger.logDebug(`Unset configuration value for key '${key}'`);
 	}
 
 	static applySettings(): void {

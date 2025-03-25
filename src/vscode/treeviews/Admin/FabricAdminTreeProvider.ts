@@ -12,6 +12,7 @@ import { FabricAdminTenantSettings } from './FabricAdminTenantSettings';
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAdminTreeItem> {
 
+	private _filter: string;
 	private _treeView: vscode.TreeView<FabricAdminTreeItem>;
 	private _previousSelection: { item: FabricAdminTreeItem, time: number };
 	private _onDidChangeTreeData: vscode.EventEmitter<FabricAdminTreeItem | undefined> = new vscode.EventEmitter<FabricAdminTreeItem | undefined>();
@@ -25,6 +26,7 @@ export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAd
 			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
+		this._filter = FabricConfiguration.adminFilter;
 		context.subscriptions.push(view);
 
 		view.onDidChangeSelection((event) => this._onDidChangeSelection(event.selection));
@@ -64,9 +66,18 @@ export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAd
 		return children;
 	}
 
+	public get filterRegEx(): RegExp {
+		if (this._filter) {
+			return new RegExp(this._filter, "i");
+		}
+		if (FabricConfiguration.adminFilter) {
+			return FabricConfiguration.adminFilterRegEx
+		}
+		return undefined;
+	}
 
 	async filter(): Promise<void> {
-		const currentFilter = FabricConfiguration.adminFilter;
+		const currentFilter = this._filter;
 
 		const filter = await vscode.window.showInputBox({
 			title: "Filter Admin Setting",
@@ -79,6 +90,7 @@ export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAd
 			return;
 		}
 
+		this._filter = filter
 		FabricConfiguration.adminFilter = filter;
 
 		this.refresh(null, true);

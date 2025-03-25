@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.10.1**:
+- fixed issues with tree-view filters
+- improved logging
+
 **v1.10.0**:
 - added the Admin treeview (read-only)
 

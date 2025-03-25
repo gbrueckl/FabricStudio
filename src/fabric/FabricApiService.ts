@@ -27,7 +27,6 @@ export abstract class FabricApiService {
 
 	//#region Initialization
 	static async initialize(clearSession: boolean = false): Promise<boolean> {
-
 		try {
 			this._logger = ThisExtension.Logger;
 			this.Logger.log(`Initializing Fabric API Service ...`);
@@ -253,7 +252,7 @@ export abstract class FabricApiService {
 					error = { "errorCode": `${response.status}`, "message": response.statusText };
 				}
 				else {
-					error = { "errorCode": `${response.status}`, "message": resultText, "details": response.statusText };
+					error = JSON.parse(resultText) as iGenericApiError;;
 				}
 			}
 
@@ -499,7 +498,7 @@ export abstract class FabricApiService {
 		const result = await Helper.awaitCondition(async () => this.isInitialized, timeout, 100);
 
 		if (!result) {
-			this.Logger.logError("Fabric API Service could not be initialized!");
+			this.Logger.logError("Fabric API Service could not be initialized!", true);
 			return false;
 		}
 		else {

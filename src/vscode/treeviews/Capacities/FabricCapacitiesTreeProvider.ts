@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { ThisExtension } from '../../../ThisExtension';
 
 import { Helper } from '@utils/Helper';
-import { iFabricApiCapacity, iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiCapacity } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricCapacityTreeItem } from './FabricCapacityTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
@@ -14,6 +14,7 @@ import { FabricCapacity } from './FabricCapacity';
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<FabricCapacityTreeItem> {
 
+	private _filter: string;
 	private _treeView: vscode.TreeView<FabricCapacityTreeItem>;
 	private _previousSelection: { item: FabricCapacityTreeItem, time: number };
 	private _onDidChangeTreeData: vscode.EventEmitter<FabricCapacityTreeItem | undefined> = new vscode.EventEmitter<FabricCapacityTreeItem | undefined>();
@@ -27,6 +28,7 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
+		this._filter = FabricConfiguration.capacityFilter;
 		context.subscriptions.push(view);
 
 		view.onDidChangeSelection((event) => this._onDidChangeSelection(event.selection));
@@ -77,12 +79,14 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 				return [];
 			}
 
+			const regexFilter = this.filterRegEx;
+
 			for (let item of items.success) {
-				if (FabricConfiguration.capacityFilter) {
+				if (regexFilter) {
 					const conn = JSON.stringify(item)
-					const match = conn.match(FabricConfiguration.capacityFilterRegEx);
+					const match = conn.match(regexFilter);
 					if (!match) {
-						ThisExtension.Logger.logInfo(`Skipping Capacity '${item.id}' because it does not match the Capacity filter.`);
+						ThisExtension.Logger.logInfo(`Skipping Capacity '${item.id}' because it does not match the Capacity filter '${regexFilter}'.`);
 						continue;
 					}
 				}
@@ -97,8 +101,18 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 		}
 	}
 
+	public get filterRegEx(): RegExp {
+		if (this._filter) {
+			return new RegExp(this._filter, "i");
+		}
+		if (FabricConfiguration.capacityFilter) {
+			return FabricConfiguration.capacityFilterRegEx
+		}
+		return undefined;
+	}
+
 	async filter(): Promise<void> {
-		const currentFilter = FabricConfiguration.capacityFilter;
+		const currentFilter = this._filter;
 
 		const filter = await vscode.window.showInputBox({
 			title: "Filter Capacities",
@@ -111,6 +125,7 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 			return;
 		}
 
+		this._filter = filter
 		FabricConfiguration.capacityFilter = filter;
 
 		this.refresh(null, true);

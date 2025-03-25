@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../../ThisExtension';
 
-import { iFabricApiConnection, iFabricApiGateway, iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiConnection, iFabricApiGateway } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
@@ -14,6 +14,7 @@ import { FabricConnection } from './FabricConnection';
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<FabricConnectionTreeItem> {
 
+	private _filter: string;
 	private _treeView: vscode.TreeView<FabricConnectionTreeItem>;
 	private _previousSelection: { item: FabricConnectionTreeItem, time: number };
 	private _onDidChangeTreeData: vscode.EventEmitter<FabricConnectionTreeItem | undefined> = new vscode.EventEmitter<FabricConnectionTreeItem | undefined>();
@@ -27,6 +28,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
+		this._filter = FabricConfiguration.connectionFilter;
 		context.subscriptions.push(view);
 
 		view.onDidChangeSelection((event) => this._onDidChangeSelection(event.selection));
@@ -79,13 +81,15 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 				return [];
 			}
 
+			const regexFilter = this.filterRegEx;
+
 			let itemToAdd: FabricConnection;
 			for (let item of items.success) {
-				if (FabricConfiguration.connectionFilter) {
+				if (regexFilter) {
 					const conn = JSON.stringify(item)
-					const match = conn.match(FabricConfiguration.connectionFilterRegEx);
+					const match = conn.match(regexFilter);
 					if (!match) {
-						ThisExtension.Logger.logInfo(`Skipping connection '${item.id}' because it does not match the connection filter.`);
+						ThisExtension.Logger.logInfo(`Skipping connection '${item.id}' because it does not match the connection filter '${regexFilter}'.`);
 						continue;
 					}
 				}
@@ -112,8 +116,18 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 		}
 	}
 
+	public get filterRegEx(): RegExp {
+		if (this._filter) {
+			return new RegExp(this._filter, "i");
+		}
+		if (FabricConfiguration.connectionFilter) {
+			return FabricConfiguration.connectionFilterRegEx
+		}
+		return undefined;
+	}
+
 	async filter(): Promise<void> {
-		const currentFilter = FabricConfiguration.connectionFilter;
+		const currentFilter = this._filter;
 
 		const filter = await vscode.window.showInputBox({
 			title: "Filter Connections",
@@ -126,6 +140,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			return;
 		}
 
+		this._filter = filter;
 		FabricConfiguration.connectionFilter = filter;
 
 		this.refresh(null, true);

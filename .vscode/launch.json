@@ -1,7 +1,7 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
     "version": "0.2.0",
-    "configurations": [  
+    "configurations": [
         {
             "name": "Launch FabricStudio",
             "type": "extensionHost",
@@ -11,8 +11,8 @@
                 "--extensionDevelopmentPath=${workspaceRoot}",
                 "${workspaceRoot}/utils/Fabric_Studio.test.code-workspace",
                 "--disable-extensions",
-				"--skip-release-notes",
-				"--skip-welcome",
+                "--skip-release-notes",
+                "--skip-welcome",
             ],
             "sourceMaps": true,
             "outFiles": [
@@ -33,15 +33,14 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionDevelopmentKind=web",
-                "${workspaceRoot}/utils/Fabric_Studio.code-workspace",
                 "--disable-extensions",
-				"--skip-release-notes",
-				"--skip-welcome",
+                "--skip-release-notes",
+                "--skip-welcome",
             ],
             "outFiles": [
                 "${workspaceFolder}/dist/web/**/*.js"
             ],
-            "preLaunchTask": "npm: watch",
+            "preLaunchTask": "pre-build",
             "skipFiles": [
                 "<node_internals>/**",
                 "${workspaceFolder}/node_modules/**/*.js",
@@ -49,7 +48,7 @@
             ]
         },
         {
-            "name": "Launch FabricStudio Web Browser", 
+            "name": "Launch FabricStudio Web Browser",
             // for some reason this is not working properly at the moment
             // mainly due to authentication which gets stuck in an endless loop
             "request": "launch",
@@ -57,8 +56,8 @@
                 "run",
                 "open-in-browser",
                 "--disable-extensions",
-				"--skip-release-notes",
-				"--skip-welcome", 
+                "--skip-release-notes",
+                "--skip-welcome",
                 "--browserType=chromium",
                 "--quality=stable"
             ],
