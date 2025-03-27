@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.10.2**:
+- fixed issue with definitions in tree-views ([#11](/../../issues/11))
+- fixed issue with tree-view hierarchy
+
 **v1.10.1**:
 - fixed issues with tree-view filters
 - improved logging

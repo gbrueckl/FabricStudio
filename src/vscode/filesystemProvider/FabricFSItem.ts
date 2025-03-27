@@ -190,15 +190,20 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 
 	public async getContentForSubpath(path: string): Promise<Uint8Array> {
 		const pathDecoded = decodeURIComponent(path);
-		const item = this.getApiResponse().find((item) => item.path == pathDecoded);
+		const apiResponse = this.getApiResponse();
+		const item = apiResponse.find((item) => item.path == pathDecoded);
 		if (item) {
 			if (item.payloadType == "InlineBase64") {
 				const payloadBinary = Buffer.from(item.payload, "base64")
 				return payloadBinary;
 			}
+			else {
+				ThisExtension.Logger.logError("PAYLOAD_TYPE_NOT_SUPPORTED - PayloadType" + item.payloadType);
+				ThisExtension.Logger.logError("PAYLOAD_TYPE_NOT_SUPPORTED - Path: " + path, true, true);
+			}
 		}
 
-		vscode.window.showErrorMessage("FILE_NOT_FOUND - " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString());
+		ThisExtension.Logger.logError("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString(), true);
 		throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded));
 	}
 
@@ -225,7 +230,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			}
 		}
 
-		vscode.window.showErrorMessage("FILE_NOT_FOUND - " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString());
+		ThisExtension.Logger.logError("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString(), true);
 		throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded));
 	}
 

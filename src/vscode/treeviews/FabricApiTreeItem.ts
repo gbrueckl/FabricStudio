@@ -83,6 +83,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			"COPY_PATH",
 			"COPY_PROPERTIES",
 			"INSERT_CODE",
+			"OPEN_API_NOTEBOOK"
 		];
 		if (this.canOpenInBrowser) {
 			actions.push("OPEN_IN_BROWSER");
@@ -103,40 +104,40 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return true;
 	}
 
-	public async delete(confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
+	public async delete(confirmation: "yesNo" | "name" | undefined = undefined, item: FabricApiTreeItem = this): Promise<void> {
 		if (confirmation) {
 			let confirm: string
 			switch (confirmation) {
 				case "yesNo":
-					const confirmQp = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${this.itemType.toLowerCase()} '${this.itemName}'?`, undefined, undefined);
+					const confirmQp = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${item.itemType.toLowerCase()} '${item.itemName}'?`, undefined, undefined);
 					confirm = confirmQp.value;
 					break;
 				case "name":
-					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${this.itemType.toLowerCase()} name '${this.itemName}' again.`, undefined, undefined);
+					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${item.itemType.toLowerCase()} name '${item.itemName}' again.`, undefined, undefined);
 					break;
 			}
 
 			if (!confirm
-				|| (confirmation == "name" && confirm != this.itemName)
+				|| (confirmation == "name" && confirm != item.itemName)
 				|| (confirmation == "yesNo" && confirm != "yes")) {
-				const abortMsg = `Aborted deletion of ${this.itemType.toLowerCase()} '${this.itemName}'!`
+				const abortMsg = `Aborted deletion of ${item.itemType.toLowerCase()} '${item.itemName}'!`
 				ThisExtension.Logger.logWarning(abortMsg);
 				Helper.showTemporaryInformationMessage(abortMsg, 2000)
 				return;
 			}
 		}
 
-		const response = await FabricCommandBuilder.execute<any>(this.apiPath, "DELETE", []);
+		const response = await FabricCommandBuilder.execute<any>(item.apiPath, "DELETE", []);
 		if (response.error) {
 			const errorMsg = response.error.message;
 			vscode.window.showErrorMessage(errorMsg);
 		}
 		else {
-			const successMsg = `Deleted ${this.itemType.toLowerCase()} '${this.itemName}'!`
+			const successMsg = `Deleted ${item.itemType.toLowerCase()} '${item.itemName}'!`
 			Helper.showTemporaryInformationMessage(successMsg, 5000);
 
-			if (this.parent) {
-				ThisExtension.refreshTreeView(this.TreeProvider, this.parent);
+			if (item.parent) {
+				ThisExtension.refreshTreeView(item.TreeProvider, item.parent);
 			}
 		}
 	}

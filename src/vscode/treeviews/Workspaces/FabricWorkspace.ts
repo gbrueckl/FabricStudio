@@ -124,29 +124,30 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						itemTypes.set(item.type, treeItem);
 					}
 
+					const parent = itemTypes.get(item.type);
 					if (item.type == "Lakehouse") {
-						itemToAdd = new FabricLakehouse(item, this);
+						itemToAdd = new FabricLakehouse(item, parent);
 					}
 					else if (item.type == "SQLEndpoint") {
-						itemToAdd = new FabricSqlEndpoint(item, this);
+						itemToAdd = new FabricSqlEndpoint(item, parent);
 					}
 					else if (item.type == "DataPipeline") {
-						itemToAdd = new FabricDataPipeline(item, this);
+						itemToAdd = new FabricDataPipeline(item, parent);
 					}
 					else if (item.type == "Environment") {
-						itemToAdd = new FabricEnvironment(item, this);
+						itemToAdd = new FabricEnvironment(item, parent);
 					}
 					else if (item.type == "GraphQLApi") {
-						itemToAdd = new FabricGraphQLApi(item, this);
+						itemToAdd = new FabricGraphQLApi(item, parent);
 					}
 					else if (item.type == "Notebook") {
-						itemToAdd = new FabricNotebook(item, this);
+						itemToAdd = new FabricNotebook(item, parent);
 					}
 					else if (item.type == "MirroredDatabase") {
-						itemToAdd = new FabricMirroredDatabase(item, this);
+						itemToAdd = new FabricMirroredDatabase(item, parent);
 					}
 					else {
-						itemToAdd = new FabricItem(item, this);
+						itemToAdd = new FabricItem(item, parent);
 					}
 
 					// semantic models can be expanded

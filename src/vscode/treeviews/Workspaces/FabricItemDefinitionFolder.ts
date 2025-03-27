@@ -6,7 +6,7 @@ import { ThisExtension } from '../../../ThisExtension';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricItemDefinition } from './FabricItemDefinition';
-import { FabricItemDefinitionFile } from './FabricItemDefinitionFile';
+import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemDefinitionFolder extends FabricWorkspaceGenericFolder {
@@ -18,6 +18,7 @@ export class FabricItemDefinitionFolder extends FabricWorkspaceGenericFolder {
 
 		this.id = `${parent.id}/${uri.path}`;
 		this.itemId = parent.itemId;
+		this.itemName = uri.path.split('/').pop();
 
 		this.resourceUri = uri;
 		// below values are derived from resourceUri!
@@ -26,41 +27,39 @@ export class FabricItemDefinitionFolder extends FabricWorkspaceGenericFolder {
 		this.description = undefined;
 	}
 
+	get _contextValue(): string {
+		return this.definitionRoot._contextValue;
+	}
+
 	get parent(): FabricItemDefinition | FabricItemDefinitionFolder {
 		return this._parent as FabricItemDefinition | FabricItemDefinitionFolder;
 	}
 
+	get definitionRoot(): FabricItemDefinition {
+		return this.parent.definitionRoot;
+	}
+
 	/* Overwritten properties from FabricApiTreeItem */
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		if (element != null && element != undefined) {
-			return element.getChildren();
-		}
-		else {
-			let children: FabricWorkspaceTreeItem[] = [];
+		return this.definitionRoot.getChildrenFromFS(this, element);
+	}
 
-			try {
-				const items = await vscode.workspace.fs.readDirectory(this.resourceUri);
-
-				for (let item of items) {
-					if (item[1] == vscode.FileType.Directory) {
-						const folder = new FabricItemDefinitionFolder(vscode.Uri.joinPath(this.resourceUri, item[0]), this);
-						children.push(folder);
-					}
-					else if (item[1] == vscode.FileType.File) {
-						const file = new FabricItemDefinitionFile(vscode.Uri.joinPath(this.resourceUri, item[0]), this);
-						children.push(file);
-					}
-				}
-			}
-			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load definitions for item " + this.parent.itemName);
-			}
-
-			return children;
-		}
+	public get canOpenInBrowser(): boolean {
+		return false;
 	}
 
 	get apiPath(): string {
 		return this.parent.apiPath;
+	}
+
+	get fabricFsUri(): FabricFSUri {
+		if (this.resourceUri) {
+			return new FabricFSUri(this.resourceUri);
+		}
+	}
+
+	public async delete(confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
+		// currently disabled - TreeView is read-only!
+		this.definitionRoot.delete(confirmation, this);
 	}
 }

@@ -26,7 +26,7 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		super(id, name, type, parent, definition, description, collapsibleState);
 
 		this.iconPath = this.getIconPath();
-		this.resourceUri = this.fabricFsUri.uri;
+		this.resourceUri = this.fabricFsUri?.uri;
 		this.contextValue = this._contextValue;
 	}
 
@@ -47,9 +47,6 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 			else {
 				actions.push("EDIT_DEFINITION");
 			}
-		}
-		if(this.resourceUri && FabricFSCache.unpublishedChanges(this.resourceUri)) {
-			actions.push("PUBLISH");
 		}
 
 		// to dynamically show actions based on item type
