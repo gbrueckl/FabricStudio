@@ -41,6 +41,7 @@ export abstract class FabricApiService {
 
 			await this.refreshConnection(clearSession);
 
+			this.Logger.log(`Fabric API Service initialized successfully!`);
 			return true;
 		} catch (error) {
 			this._connectionTestRunning = false;
@@ -81,7 +82,7 @@ export abstract class FabricApiService {
 		}
 		else {
 			this.Logger.logError(`Failure initializing Fabric API Service!`);
-			throw new Error(`Invalid Configuration for Fabric API Service: Cannot access '${this._apiBaseUrl}' with given credentials'!`);
+			this.Logger.logError(`Invalid Configuration for Fabric API Service: Cannot access '${this._apiBaseUrl}' with given credentials'!`, true, true);
 		}
 	}
 
@@ -169,15 +170,17 @@ export abstract class FabricApiService {
 	}
 
 	public static async testConnection(): Promise<boolean> {
-		this.Logger.logDebug("Testing connection to Fabric API Service ...");
-		let workspaceList = await this.get("/v1/workspaces");
+		this.Logger.logInfo("Testing connection to Fabric API Service ...");
+		let probe = await this.get("/v1/deploymentPipelines");
 
-		if (workspaceList.success) {
+		if (probe.success) {
+			this.Logger.logInfo("Connection test to Fabric API Service was SUCCESSFUL!");
 			return true;
 		}
 		else {
-			if (workspaceList.error) {
-				this.Logger.logDebug(JSON.stringify(workspaceList.error));
+			this.Logger.logInfo("Connection test to Fabric API Service FAILED!");
+			if (probe.error) {
+				this.Logger.logError(JSON.stringify(probe.error));
 			}
 			return false;
 		}
