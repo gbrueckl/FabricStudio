@@ -27,6 +27,7 @@ export type FabricApiItemType =
 	| "Eventhouse"
 	| "Reflex"					//	Reflex item.
 	| "MountedDataFactory" 		//	A MountedDataFactory item.
+	
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
@@ -55,6 +56,8 @@ export type FabricApiItemType =
 	| "DataPipelines"						//	Folder for DataPipeline item.
 	| "DeploymentPipelineStage"				//	A Deployment pipleine stage
 	| "DeploymentPipelineStages"			//	Folder for Deployment pipleine stages.
+	| "CopyJob"								//	A copy job item.
+	| "CopyJobs"							//	Folder for copy job items.
 	| "GenericItem"
 	| "ItemShortcuts"						//	Folder for item shortcuts.
 	| "ItemShortcut"						//	An Item shortcut.

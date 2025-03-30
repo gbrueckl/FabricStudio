@@ -126,7 +126,8 @@
 										"Eventstreams",
 										"MountedDataFactories",
 										"Dataflows",
-										"GraphQLApis"
+										"GraphQLApis",
+										"CopyJobs"
 									]
 								},
 								"format": {

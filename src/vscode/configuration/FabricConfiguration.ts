@@ -113,7 +113,8 @@ export const ITEM_FILE_NAMES: Map<FabricApiItemType, string> = new Map([
 	["KQLDashboards", "RealTimeDashboard"],
 	["Reflexes", "ReflexEntities"],
 	["EventStreams", "eventstream"],
-	["MountedDataFactories", "mountedDataFactory-content"]
+	["MountedDataFactories", "mountedDataFactory-content"],
+	["CopyJobs", "copyjob-content"]
 ]);
 
 // as we get it from the Config
