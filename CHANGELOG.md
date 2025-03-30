@@ -1,5 +1,10 @@
 # Change Log
 
+**v1.11.0**:
+- reworked how the connection to the API is initialized
+- fixed issue where `Edit Definition` and the virtual file system did not work if it was the only folder in the workspace
+- added proper defaults to tree-views if no items were found.
+
 **v1.10.2**:
 - fixed issue with definitions in tree-views ([#11](/../../issues/11))
 - fixed issue with tree-view hierarchy

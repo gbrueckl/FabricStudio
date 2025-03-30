@@ -39,13 +39,18 @@ export class FabricItemDataAccessRoles extends FabricWorkspaceGenericFolder {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItemDataAccessRole>(this.apiPath);
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricItemDataAccessRole(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load data access roles for item " + this.parent.itemName);
+				ThisExtension.Logger.logError("Could not load data access roles for item " + this.parent.itemName, true);
 			}
 
 			return children;

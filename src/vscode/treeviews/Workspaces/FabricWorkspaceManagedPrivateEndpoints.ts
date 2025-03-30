@@ -3,13 +3,12 @@ import * as vscode from 'vscode';
 import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiItem, iFabricApiWorkspaceManagedPrivateEndpoint, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
+import { iFabricApiWorkspaceManagedPrivateEndpoint, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
-import { FabricGraphQLApi } from './FabricGraphQLApi';
-import { FabricWorkspaceRoleAssignment } from './FabricWorkspaceRoleAssignment';
 import { FabricWorkspaceManagedPrivateEndpoint } from './FabricWorkspaceManagedPrivateEndpoint';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceManagedPrivateEndpoints extends FabricWorkspaceGenericFolder {
@@ -31,6 +30,11 @@ export class FabricWorkspaceManagedPrivateEndpoints extends FabricWorkspaceGener
 			try {
 				const items = await FabricApiService.getList<iFabricApiWorkspaceManagedPrivateEndpoint>(this.apiPath, undefined, undefined, undefined);
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricWorkspaceManagedPrivateEndpoint(item, this);
 					children.push(treeItem);
@@ -39,7 +43,7 @@ export class FabricWorkspaceManagedPrivateEndpoints extends FabricWorkspaceGener
 				Helper.sortArrayByProperty(children, "label");
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load Managed Private Endpoints for workspace " + this.workspace.itemName);
+				ThisExtension.Logger.logError("Could not load Managed Private Endpoints for workspace " + this.workspace.itemName, true);
 			}
 
 			return children;

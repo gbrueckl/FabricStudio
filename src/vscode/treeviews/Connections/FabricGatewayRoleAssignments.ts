@@ -7,6 +7,7 @@ import { FabricGateway } from './FabricGateway';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricGatewayRoleAssignment } from './FabricGatewayRoleAssignment';
 import { Helper } from '@utils/Helper';
+import { ThisExtension } from '../../../ThisExtension';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -18,16 +19,17 @@ export class FabricGatewayRoleAssignments extends FabricConnectionGenericFolder 
 	}
 
 	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
-		if (!FabricApiService.isInitialized) {
-			return Promise.resolve([]);
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
 			let children: FabricGatewayRoleAssignment[] = [];
 			let items = await FabricApiService.getList<iFabricApiGatewayRoleAssignment>(this.apiPath, undefined, "value", "id");
+
+			if (items.error) {
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
+			}
 
 			for (let item of items.success) {
 				let treeItem = new FabricGatewayRoleAssignment(item, this);

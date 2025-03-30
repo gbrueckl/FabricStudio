@@ -38,13 +38,18 @@ export class FabricLakehouseTables extends FabricWorkspaceGenericFolder {
 			try {
 				const items = await FabricApiService.getList<iFabricApiLakehouseTable>(this.apiPath, undefined, "data");
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricLakehouseTable(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load tables for lakehouse " + this.parent.itemName);
+				ThisExtension.Logger.logError("Could not load tables for lakehouse " + this.parent.itemName, true);
 			}
 
 			return children;

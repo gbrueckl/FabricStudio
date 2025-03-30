@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import {  UniqueId } from '@utils/Helper';
+import { UniqueId } from '@utils/Helper';
 
 import { iFabricApiGatewayMember } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
@@ -8,6 +8,7 @@ import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 import { FabricGateway } from './FabricGateway';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricGatewayMember } from './FabricGatewayMember';
+import { ThisExtension } from '../../../ThisExtension';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -21,10 +22,6 @@ export class FabricGatewayMembers extends FabricConnectionGenericFolder {
 	}
 
 	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
-		if(!FabricApiService.isInitialized) { 			
-			return Promise.resolve([]);
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
@@ -32,11 +29,16 @@ export class FabricGatewayMembers extends FabricConnectionGenericFolder {
 			let children: FabricGatewayMember[] = [];
 			let items = await FabricApiService.getList<iFabricApiGatewayMember>(this.apiPath, undefined, "value", "order");
 
+			if (items.error) {
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
+			}
+
 			for (let item of items.success) {
 				let treeItem = new FabricGatewayMember(item, this);
 				children.push(treeItem);
 			}
-			
+
 			return children;
 		}
 	}

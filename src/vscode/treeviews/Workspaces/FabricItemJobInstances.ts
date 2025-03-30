@@ -38,13 +38,18 @@ export class FabricItemJobInstances extends FabricWorkspaceGenericFolder {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItemJobInstance>(this.apiPath);
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricItemJobInstance(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load job instances for item " + this.parent.itemName);
+				ThisExtension.Logger.logError("Could not load job instances for item " + this.parent.itemName, true);
 			}
 
 			return children;

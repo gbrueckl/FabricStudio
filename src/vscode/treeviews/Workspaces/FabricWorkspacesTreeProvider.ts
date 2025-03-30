@@ -10,6 +10,8 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
+import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<FabricWorkspaceTreeItem> {
@@ -70,26 +72,19 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
-		const initialized = await FabricApiService.Initialization();
-
-		if (!initialized) {
-			// maybe return an error here or a Dummy TreeItem saying "Not initialized" ?
-			return [];
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
 			let children: FabricWorkspaceTreeItem[] = [];
+			const regexFilter = this.filterRegEx;
+
 			let items = await FabricApiService.getList<iFabricApiWorkspace>("/v1/workspaces");
 
 			if (items.error) {
-				vscode.window.showErrorMessage(items.error.message);
-				return [];
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
 			}
-
-			const regexFilter = this.filterRegEx;
 
 			for (let item of items.success) {
 				if (regexFilter) {
@@ -107,6 +102,8 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 					ThisExtension.Logger.logInfo("Skipping workspace '" + item.displayName + "' (" + item.id + ") because it has no capacityId");
 				}
 			}
+
+			children = FabricWorkspaceTreeItem.handleEmptyItems(children, regexFilter);
 
 			return children;
 		}

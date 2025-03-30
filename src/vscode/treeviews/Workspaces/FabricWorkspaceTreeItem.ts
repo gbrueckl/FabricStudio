@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { TreeProviderId } from '../../../ThisExtension';
+import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
 import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType } from '../../../fabric/_types';
@@ -11,6 +11,7 @@ import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricFSCache } from '../../filesystemProvider/FabricFSCache';
+import { iGenericApiError } from '@utils/_types';
 
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
@@ -97,20 +98,20 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	}
 
 	get fabricFsUri(): FabricFSUri {
-		if(this.itemType == "Workspace") {
+		if (this.itemType == "Workspace") {
 			FabricFSUri.addWorkspaceNameIdMap(this.itemName, this.itemId);
 			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.itemId}`));
-		}	
+		}
 
 		let itemFsPath = this.itemPath;
 		// as we return the URI by name, we also have to add the item to the mapping
-		if(Helper.isGuid(this.itemId)) {
+		if (Helper.isGuid(this.itemId)) {
 			itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(1, -1).join("/"), this.itemName), "/");
 			FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
 			itemFsPath = "workspaces/" + itemFsPath;
 		}
-		
-		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));		
+
+		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
 	}
 
 	public async editDefinition(): Promise<void> {
@@ -124,5 +125,15 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		let label = `Fabric - ${workspace}${this.itemName}`;
 
 		await Helper.addToWorkspace(fabricUri.uri, label, true);
+	}
+
+	public static get NO_ITEMS(): FabricWorkspaceTreeItem {
+		let item = new FabricWorkspaceTreeItem("NO_ITEMS", "No workspaces found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		item.contextValue = "";
+		return item;
+	}
+
+	public static handleEmptyItems<FabricWorkspaceTreeItem>(items: FabricWorkspaceTreeItem[], filter: RegExp = undefined): FabricWorkspaceTreeItem[] {
+		return super.handleEmptyItems<FabricWorkspaceTreeItem>(items, filter, "workspace");
 	}
 }

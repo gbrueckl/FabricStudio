@@ -76,6 +76,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 	);
 
+	await vscode.commands.executeCommand('FabricStudio.initialize');
+
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
 
 	context.subscriptions.push(
@@ -211,7 +213,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidSaveNotebookDocument(FabricFSCache.onDidSave);
 
 
-	vscode.commands.executeCommand('FabricStudio.initialize');
+	
 }
 
 

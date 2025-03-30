@@ -77,17 +77,6 @@ export class FabricConnectionGenericFolder extends FabricConnectionTreeItem {
 		}
 		else {
 			throw new Error("Not implemented");
-			// try {
-			// 	const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
-
-			// 	for (let item of items.success) {
-			// 		let treeItem = new FabricConnectionTreeItem(item.id, item.displayName, item.type, this, item, item.description, this._defaultChildCollapsibleState);
-			// 		children.push(treeItem);
-			// 	}
-			// }
-			// catch (e) {
-			// 	ThisExtension.Logger.logInfo("Could not load tables for lakehouse " + this.parent.itemName);
-			// }
 		}
 
 		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));

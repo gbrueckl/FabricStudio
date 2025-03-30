@@ -103,7 +103,7 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 				children = (folders as FabricWorkspaceTreeItem[]).concat(files as FabricWorkspaceTreeItem[]);
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load definitions for item " + currentItem.parent.itemName);
+				ThisExtension.Logger.logError("Could not load definitions for item " + currentItem.parent.itemName, true);
 			}
 
 			return children;

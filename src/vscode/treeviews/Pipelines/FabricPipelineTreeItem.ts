@@ -8,6 +8,7 @@ import { TreeProviderId } from '../../../ThisExtension';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { FabricPipeline } from './FabricPipeline';
 import { iFabricApiPipelineDeployableItem, iFabricPipelineDeployableItem } from './iFabricPipelineDeployableItem';
+import { iGenericApiError } from '@utils/_types';
 
 export class FabricPipelineTreeItem extends FabricApiTreeItem implements iFabricPipelineDeployableItem {
 

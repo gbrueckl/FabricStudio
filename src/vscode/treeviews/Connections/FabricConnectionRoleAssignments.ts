@@ -9,6 +9,7 @@ import { FabricGatewayRoleAssignment } from './FabricGatewayRoleAssignment';
 import { FabricConnection } from './FabricConnection';
 import { FabricConnectionRoleAssignment } from './FabricConnectionRoleAssignment';
 import { Helper } from '@utils/Helper';
+import { ThisExtension } from '../../../ThisExtension';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -24,10 +25,6 @@ export class FabricConnectionRoleAssignments extends FabricConnectionGenericFold
 	}
 
 	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
-		if (!FabricApiService.isInitialized) {
-			return Promise.resolve([]);
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
@@ -35,6 +32,11 @@ export class FabricConnectionRoleAssignments extends FabricConnectionGenericFold
 			let children: FabricConnectionRoleAssignment[] = [];
 			let items = await FabricApiService.getList<iFabricApiConnectionRoleAssignment>(this.apiPath, undefined, "value", "id");
 
+			if (items.error) {
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
+			}
+			
 			for (let item of items.success) {
 				let treeItem = new FabricConnectionRoleAssignment(item, this);
 				children.push(treeItem);

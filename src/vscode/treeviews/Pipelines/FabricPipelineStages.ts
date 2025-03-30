@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 
-import {  UniqueId } from '@utils/Helper';
+import { UniqueId } from '@utils/Helper';
 
 import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { FabricPipelineGenericFolder } from './FabricPipelineGenericFolder';
 import { iFabricApiDeploymentPipelineStage } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricPipelineStage } from './FabricPipelineStage';
+import { ThisExtension } from '../../../ThisExtension';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -20,22 +21,23 @@ export class FabricPipelineStages extends FabricPipelineGenericFolder {
 	}
 
 	async getChildren(element?: FabricPipelineTreeItem): Promise<FabricPipelineTreeItem[]> {
-		if(!FabricApiService.isInitialized) { 			
-			return Promise.resolve([]);
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
 			let children: FabricPipelineStage[] = [];
 			let items = await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(this.apiPath, undefined, "value", "order");
-
+			
+			if (items.error) {
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricPipelineTreeItem.ERROR_ITEM<FabricPipelineTreeItem>(items.error)];
+			}
+			
 			for (let item of items.success) {
 				let treeItem = new FabricPipelineStage(item, this);
 				children.push(treeItem);
 			}
-			
+
 			return children;
 		}
 	}

@@ -10,6 +10,7 @@ import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricGateway } from './FabricGateway';
 import { FabricConnection } from './FabricConnection';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<FabricConnectionTreeItem> {
@@ -57,18 +58,12 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 	}
 
 	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
-		const initialized = await FabricApiService.Initialization();
-
-		if (!initialized) {
-			// maybe return an error here or a Dummy TreeItem saying "Not initialized" ?
-			return [];
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
 			let children: FabricConnectionTreeItem[] = [];
+			const regexFilter = this.filterRegEx;
 			let treeItem: FabricGateway;
 			let gateways: Map<string, FabricGateway> = new Map<string, FabricGateway>();
 
@@ -77,40 +72,41 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 			let items = await FabricApiService.getList<iFabricApiConnection>("/v1/connections");
 
 			if (items.error) {
-				ThisExtension.Logger.logError(items.error.message, true);
-				return [];
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
 			}
-
-			const regexFilter = this.filterRegEx;
-
-			let itemToAdd: FabricConnection;
-			for (let item of items.success) {
-				if (regexFilter) {
-					const conn = JSON.stringify(item)
-					const match = conn.match(regexFilter);
-					if (!match) {
-						ThisExtension.Logger.logInfo(`Skipping connection '${item.id}' because it does not match the connection filter '${regexFilter}'.`);
-						continue;
+			else {
+				let itemToAdd: FabricConnection;
+				for (let item of items.success) {
+					if (regexFilter) {
+						const conn = JSON.stringify(item)
+						const match = conn.match(regexFilter);
+						if (!match) {
+							ThisExtension.Logger.logInfo(`Skipping connection '${item.id}' because it does not match the connection filter '${regexFilter}'.`);
+							continue;
+						}
 					}
+
+					const gateway = item.gatewayId ?? item.connectivityType;
+
+					if (!gateways.has(gateway)) {
+						treeItem = new FabricGateway(
+							item,
+							gatewayList.success.find(g => g.id === item.gatewayId)
+						);
+
+						gateways.set(gateway, treeItem);
+					}
+
+					itemToAdd = new FabricConnection(item, gateways.get(gateway));
+
+					gateways.get(gateway).addChild(itemToAdd);
 				}
 
-				const gateway = item.gatewayId ?? item.connectivityType;
-
-				if (!gateways.has(gateway)) {
-					treeItem = new FabricGateway(
-						item,
-						gatewayList.success.find(g => g.id === item.gatewayId)
-					);
-
-					gateways.set(gateway, treeItem);
-				}
-
-				itemToAdd = new FabricConnection(item, gateways.get(gateway));
-
-				gateways.get(gateway).addChild(itemToAdd);
+				children = Array.from(gateways.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
 			}
 
-			children = Array.from(gateways.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+			children = FabricConnectionTreeItem.handleEmptyItems(children, regexFilter);
 
 			return children;
 		}

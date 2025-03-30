@@ -31,6 +31,11 @@ export class FabricAdminTenantSettings extends FabricAdminGenericFolder {
 
 			const regexFilter = ThisExtension.TreeViewAdmin.filterRegEx;
 
+			if (items.error) {
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricAdminTreeItem.ERROR_ITEM<FabricAdminTreeItem>(items.error)];
+			}
+
 			for (let item of items.success) {
 				if (regexFilter) {
 					const setting = JSON.stringify(item)
@@ -59,9 +64,11 @@ export class FabricAdminTenantSettings extends FabricAdminGenericFolder {
 			}
 
 			children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+			children = FabricAdminTreeItem.handleEmptyItems(children, regexFilter);
 		}
 		catch (e) {
-			ThisExtension.Logger.logInfo("Could not load items for Admin Tennant Settings");
+			ThisExtension.Logger.logError("Could not load items for Admin Tennant Settings", true);
 		}
 
 		return children;

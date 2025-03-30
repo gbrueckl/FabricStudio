@@ -69,13 +69,6 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 	}
 
 	async getChildren(element?: FabricPipelineTreeItem): Promise<FabricPipelineTreeItem[]> {
-		const initialized = await FabricApiService.Initialization();
-
-		if (!initialized) {
-			// maybe return an error here or a Dummy TreeItem saying "Not initialized" ?
-			return [];
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
@@ -84,14 +77,17 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 			let items = await FabricApiService.getList<iFabricApiItem>("/v1/deploymentPipelines");
 
 			if (items.error) {
-				vscode.window.showErrorMessage(items.error.message);
-				return [];
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricPipelineTreeItem.ERROR_ITEM<FabricPipelineTreeItem>(items.error)];
+			}
+			else {
+				for (let item of items.success) {
+					let treeItem = new FabricPipeline(item);
+					children.push(treeItem);
+				}
 			}
 
-			for (let item of items.success) {
-				let treeItem = new FabricPipeline(item);
-				children.push(treeItem);
-			}
+			children = FabricPipelineTreeItem.handleEmptyItems<FabricPipelineTreeItem>(children, undefined);
 
 			return children;
 		}
@@ -99,9 +95,8 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 
 	async deploySelection(item: FabricPipelineTreeItem = undefined): Promise<void> {
 		let itemsSelected: readonly FabricPipelineTreeItem[] = [];
-		
-		if(item)
-		{
+
+		if (item) {
 			itemsSelected = [item];
 		}
 		else {
@@ -162,7 +157,7 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 			const noteJson = { "note": note };
 			body = { ...body, ...noteJson };
 		}
-		
+
 		const response = await FabricApiService.awaitWithProgress(`Deploying ${itemsToDeploy.length} item(s) to '${targetStage.displayName}'`, FabricApiService.post(apiUrl, body));
 
 		this.refresh(undefined, false);

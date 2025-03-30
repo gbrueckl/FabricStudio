@@ -78,7 +78,7 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load roleAssignments for item " + this.itemName);
+				ThisExtension.Logger.logError("Could not load roleAssignments for item " + this.itemName, true);
 			}
 		//}
 

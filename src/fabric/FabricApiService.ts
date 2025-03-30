@@ -13,8 +13,8 @@ import { clear } from 'console';
 
 export abstract class FabricApiService {
 	protected static _logger: FabricLogger;
-	protected static _isInitialized: boolean = false;
-	protected static _connectionTestRunning: boolean = false;
+
+	protected static _initializationState: "not_loaded" | "loading" | "loaded" = "not_loaded";
 
 	protected static _apiBaseUrl: string;
 	protected static _tenantId: string;
@@ -44,9 +44,7 @@ export abstract class FabricApiService {
 			this.Logger.log(`Fabric API Service initialized successfully!`);
 			return true;
 		} catch (error) {
-			this._connectionTestRunning = false;
-			this.Logger.logError(error);
-			vscode.window.showErrorMessage(error);
+			this.Logger.logError(error, true);
 			return false;
 		}
 	}
@@ -55,11 +53,11 @@ export abstract class FabricApiService {
 		return this._logger;
 	}
 
-	private static async refreshConnection(clearSession: boolean): Promise<void> {
+	private static async refreshConnection(clearSession: boolean): Promise<boolean> {
 		this._vscodeSession = await this.getVSCodeSession(clearSession);
 
 		if (!this._vscodeSession || !this._vscodeSession.accessToken) {
-			vscode.window.showInformationMessage(`Fabric API Service: Please log in with your Microsoft account first!`);
+			ThisExtension.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
 			return;
 		}
 
@@ -70,20 +68,10 @@ export abstract class FabricApiService {
 			"Accept": 'application/json'
 		}
 
-		this.Logger.logInfo(`Testing new Fabric API Service settings for user '${this.SessionUser}' (${this.SessionUserId}) ...`);
-		this._connectionTestRunning = true;
-		let connected = await this.testConnection();
-		this._connectionTestRunning = false;
+		this.Logger.logInfo(`Authenticaton headers refreshed!`);
+		ThisExtension.updateStatusBarLeft();
 
-		if (connected) {
-			this.Logger.logInfo(`Fabric API Service initialized!`);
-			this._isInitialized = true;
-			ThisExtension.updateStatusBarLeft();
-		}
-		else {
-			this.Logger.logError(`Failure initializing Fabric API Service!`);
-			this.Logger.logError(`Invalid Configuration for Fabric API Service: Cannot access '${this._apiBaseUrl}' with given credentials'!`, true, true);
-		}
+		return true;
 	}
 
 	public static async changeUser(): Promise<void> {
@@ -120,8 +108,24 @@ export abstract class FabricApiService {
 		}
 
 
-		let session: vscode.AuthenticationSession = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
+		let session: vscode.AuthenticationSession
 
+		this.Logger.logInfo("Getting new session from provider '" + this._authenticationProvider + "' ...");
+		while (!session) {
+			try {
+				session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
+			}
+			catch (error) {
+				if (error.message.includes("Canceled")) {
+					this.Logger.logWarning("Issue with authentication - retrying in 100 ms ...");
+					await Helper.wait(100);
+				}
+				else {
+					this.Logger.logError(error, true, true);
+				}
+			}
+		}
+		this.Logger.logInfo("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
 		return session;
 	}
 
@@ -165,25 +169,32 @@ export abstract class FabricApiService {
 		return this._apiBaseUrl;
 	}
 
-	public static getHeaders(): HeadersInit {
-		return this._headers;
-	}
+	public static async getHeaders(): Promise<HeadersInit> {
+		if (this._initializationState == "not_loaded") {
+			this._initializationState = "loading";
 
-	public static async testConnection(): Promise<boolean> {
-		this.Logger.logInfo("Testing connection to Fabric API Service ...");
-		let probe = await this.get("/v1/deploymentPipelines");
+			ThisExtension.Logger.logInfo(`Initializing Connection ...`);
 
-		if (probe.success) {
-			this.Logger.logInfo("Connection test to Fabric API Service was SUCCESSFUL!");
-			return true;
-		}
-		else {
-			this.Logger.logInfo("Connection test to Fabric API Service FAILED!");
-			if (probe.error) {
-				this.Logger.logError(JSON.stringify(probe.error));
+			const initialized = await FabricApiService.initialize(false);
+			if (initialized) {
+				this._initializationState = "loaded";
 			}
-			return false;
+			else {
+				this._initializationState = "not_loaded";
+			}
 		}
+		else if (this._initializationState == "loading") {
+			ThisExtension.Logger.logDebug(`Connection Initialization in progress - waiting ... `);
+			const initialized = await Helper.awaitCondition(async () => this._initializationState != "loading", 5000, 100);
+
+			if (initialized) {
+				ThisExtension.Logger.logDebug(`Connection Initialization SUCCESSFUL!`);
+			}
+			else {
+				ThisExtension.Logger.logError(`Connection Initialization FAILED!`, true);
+			}
+		}
+		return this._headers;
 	}
 
 	protected static getFullUrl(endpoint: string, params?: object): string {
@@ -214,13 +225,7 @@ export abstract class FabricApiService {
 		params: object = null,
 		config: iGenericApiCallConfig = { "raw": false, "raiseErrorOnFailure": false }
 	): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> {
-
-		if (!this._connectionTestRunning) {
-			const connected = await this.Initialization();
-			if (!connected) {
-				return { "error": { "errorCode": "100", "message": "Service not initialized!" } };
-			}
-		}
+		const headers = await this.getHeaders(); // this also checks if the connection is initialized
 
 		endpoint = this.getFullUrl(endpoint, params);
 		ThisExtension.Logger.logDebug("GET " + endpoint);
@@ -228,7 +233,7 @@ export abstract class FabricApiService {
 		try {
 			const requestConfig: RequestInit = {
 				method: "GET",
-				headers: this.getHeaders(),
+				headers: headers,
 				agent: getProxyAgent()
 			};
 			let response: Response = await fetch(endpoint, requestConfig);
@@ -259,7 +264,7 @@ export abstract class FabricApiService {
 				}
 			}
 
-			if(error && "errorCode" in error && "TokenExpired" == error.errorCode) {
+			if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
 				ThisExtension.Logger.logError("Token expired - refreshing connection!");
 				await this.refreshConnection(true);
 				return this.get<TSuccess>(endpoint, params, config);
@@ -357,11 +362,7 @@ export abstract class FabricApiService {
 		body: object,
 		config: iGenericApiCallConfig = { "raw": false, "awaitLongRunningOperation": true }
 	): Promise<iFabricApiResponse<TSuccess>> {
-
-		const connected = await this.Initialization();
-		if (!connected) {
-			return { "error": { "errorCode": "100", "message": "Service not initialized!" } };
-		}
+		const headers = await this.getHeaders(); // this also checks if the connection is initialized
 
 		endpoint = this.getFullUrl(endpoint);
 		ThisExtension.Logger.logDebug(`${method} ${endpoint} -->  ${JSON.stringify(body) ?? "{}"}`);
@@ -369,7 +370,7 @@ export abstract class FabricApiService {
 		try {
 			const requestConfig: RequestInit = {
 				method: method,
-				headers: this.getHeaders(),
+				headers: headers,
 				body: JSON.stringify(body),
 				agent: getProxyAgent()
 			};
@@ -413,7 +414,7 @@ export abstract class FabricApiService {
 				}
 			}
 
-			if(error && "errorCode" in error && "TokenExpired" == error.errorCode) {
+			if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
 				ThisExtension.Logger.logError("Token expired - refreshing connection!");
 				await this.refreshConnection(true);
 				return this.generic<TSuccess>(method, endpoint, body, config);
@@ -487,27 +488,6 @@ export abstract class FabricApiService {
 		});
 
 		return ret;
-	}
-
-	public static get isInitialized(): boolean {
-		return this._isInitialized;
-	}
-
-	public static async Initialization(timeout: number = 30000): Promise<boolean> {
-		if (this.isInitialized) {
-			return true;
-		}
-		// wait 30 seconds for the service to initialize
-		const result = await Helper.awaitCondition(async () => this.isInitialized, timeout, 100);
-
-		if (!result) {
-			this.Logger.logError("Fabric API Service could not be initialized!", true);
-			return false;
-		}
-		else {
-			this.Logger.logInfo("Fabric API Service initialized!");
-			return true;
-		}
 	}
 
 	protected static async logResponse(response): Promise<void> {

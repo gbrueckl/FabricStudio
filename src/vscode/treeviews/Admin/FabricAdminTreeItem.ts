@@ -6,6 +6,7 @@ import { UniqueId } from '@utils/Helper';
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { TreeProviderId } from '../../../ThisExtension';
 import { FabricApiItemType } from '../../../fabric/_types';
+import { iGenericApiError } from '@utils/_types';
 
 export class FabricAdminTreeItem extends FabricApiTreeItem {
 
@@ -44,5 +45,15 @@ export class FabricAdminTreeItem extends FabricApiTreeItem {
 
 	get apiUrlPart(): string {
 		return "admin";
+	}
+
+	public static get NO_ITEMS(): FabricAdminTreeItem {
+		let item = new FabricAdminTreeItem("NO_ITEMS", "No settings found!", "AdminTenantSettings", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		item.contextValue = "";
+		return item;
+	}
+
+	public static handleEmptyItems<FabricAdminTreeItem>(items: FabricAdminTreeItem[], filter: RegExp = undefined): FabricAdminTreeItem[] {
+		return super.handleEmptyItems<FabricAdminTreeItem>(items, filter, "setting");
 	}
 }

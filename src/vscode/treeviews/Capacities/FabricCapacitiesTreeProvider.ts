@@ -10,6 +10,7 @@ import { FabricCapacityTreeItem } from './FabricCapacityTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricCapacity } from './FabricCapacity';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<FabricCapacityTreeItem> {
@@ -57,45 +58,39 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 	}
 
 	async getChildren(element?: FabricCapacityTreeItem): Promise<FabricCapacityTreeItem[]> {
-		const initialized = await FabricApiService.Initialization();
-
-		if (!initialized) {
-			// maybe return an error here or a Dummy TreeItem saying "Not initialized" ?
-			return [];
-		}
-
 		if (element != null && element != undefined) {
 			return element.getChildren();
 		}
 		else {
 			let children: FabricCapacityTreeItem[] = [];
+			const regexFilter = this.filterRegEx;
 
 			// seems like /myorg/ also works for guest accounts
 			let items = await FabricApiService.getList<iFabricApiCapacity>(`/v1/capacities`);
 
-
 			if (items.error) {
-				ThisExtension.Logger.logError(items.error.message, true);
-				return [];
+				ThisExtension.Logger.logError(items.error.message);
+				return [FabricCapacityTreeItem.ERROR_ITEM<FabricCapacityTreeItem>(items.error)];
 			}
-
-			const regexFilter = this.filterRegEx;
-
-			for (let item of items.success) {
-				if (regexFilter) {
-					const conn = JSON.stringify(item)
-					const match = conn.match(regexFilter);
-					if (!match) {
-						ThisExtension.Logger.logInfo(`Skipping Capacity '${item.id}' because it does not match the Capacity filter '${regexFilter}'.`);
-						continue;
+			else {
+				for (let item of items.success) {
+					if (regexFilter) {
+						const conn = JSON.stringify(item)
+						const match = conn.match(regexFilter);
+						if (!match) {
+							ThisExtension.Logger.logInfo(`Skipping Capacity '${item.id}' because it does not match the Capacity filter '${regexFilter}'.`);
+							continue;
+						}
 					}
+
+					let treeItem = new FabricCapacity(item, null);
+					children.push(treeItem);
 				}
 
-				let treeItem = new FabricCapacity(item, null);
-				children.push(treeItem);
+				children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 			}
 
-			children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+			children = FabricCapacityTreeItem.handleEmptyItems(children, regexFilter);
 
 			return children;
 		}

@@ -59,7 +59,6 @@ export abstract class ThisExtension {
 
 			let config = FabricConfiguration;
 			config.applySettings();
-			await FabricApiService.initialize();
 
 			this._notebookKernel = await FabricNotebookKernel.getInstance();
 

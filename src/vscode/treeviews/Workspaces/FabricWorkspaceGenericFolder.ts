@@ -82,6 +82,11 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		else {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
+				
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
 
 				for (let item of items.success) {
 					let treeItem = new FabricWorkspaceTreeItem(item.id, item.displayName, item.type, this, item, item.description, this._defaultChildCollapsibleState);
@@ -89,7 +94,7 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load tables for lakehouse " + this.parent.itemName);
+				ThisExtension.Logger.logError("Could not load tables for lakehouse " + this.parent.itemName, true);
 			}
 		}
 

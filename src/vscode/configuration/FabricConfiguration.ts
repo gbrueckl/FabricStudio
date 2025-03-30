@@ -138,7 +138,8 @@ export abstract class FabricConfiguration {
 	static get logLevel(): vscode.LogLevel { return this.getValue("logLevel"); }
 
 	static get itemTypesWithDefinition(): FabricApiItemType[] {
-		return ThisExtension.configuration.packageJSON.contributes.configuration[0].properties["fabricStudio.itemTypeFormats"].items.properties.itemType.enum;
+		let itemTypes = ThisExtension.configuration.packageJSON.contributes.configuration[0].properties["fabricStudio.itemTypeFormats"].items.properties.itemType.enum;
+		return itemTypes;
 	}
 
 	static itemTypeHasDefinition(itemType: FabricApiItemType): boolean {

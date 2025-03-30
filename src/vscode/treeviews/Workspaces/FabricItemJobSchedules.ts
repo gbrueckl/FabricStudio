@@ -40,13 +40,18 @@ export class FabricItemJobSchedules extends FabricWorkspaceGenericFolder {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItemJobSchedule>(this.apiPath);
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricItemJobSchedule(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load job schedules for item " + this.parent.itemName);
+				ThisExtension.Logger.logError("Could not load job schedules for item " + this.parent.itemName, true);
 			}
 
 			return children;

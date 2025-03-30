@@ -9,6 +9,7 @@ import { ThisExtension, TreeProviderId } from '../../ThisExtension';
 import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
+import { iGenericApiError } from '@utils/_types';
 
 
 export class FabricApiTreeItem extends vscode.TreeItem {
@@ -290,5 +291,33 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	// API Drop
 	get apiDrop(): string {
 		return Helper.trimChar("/" + this.apiPath.split("/").slice(2).join("/"), "/", false);
+	}
+
+	public static get NO_ITEMS(): FabricApiTreeItem {
+		let item = new FabricApiTreeItem("NO_ITEMS", "No items found!", "GenericItem", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		item.contextValue = "";
+		return item;
+	}
+
+	public static ERROR_ITEM<T>(error: iGenericApiError): T {
+		let item = new FabricApiTreeItem(Helper.newGuid(), `ERROR: ${error.errorCode}`, "GenericItem", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		item.contextValue = "";
+		item.description = error.message;
+		item.tooltip = error.details || error.message;
+		item.iconPath = new vscode.ThemeIcon("error");
+		return item as T;
+	}
+
+	public static handleEmptyItems<T>(items: T[], filter: RegExp = undefined, itemType: string = "item"): T[] {
+		if (!items || items.length == 0) {
+			if (filter) {
+				ThisExtension.Logger.logWarning(`No ${itemType}s found matching the filter '${filter.source}'!`, true);
+			}
+			else {
+				ThisExtension.Logger.logWarning(`No ${itemType}s found! Make sure you have permissions on at least one ${itemType}!`, true);
+			}
+			items = [this.NO_ITEMS as T];
+		}
+		return items;
 	}
 }

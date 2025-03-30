@@ -39,13 +39,18 @@ export class FabricEnvironments extends FabricWorkspaceGenericFolder {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricEnvironment(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load environments for workspace " + this.workspace.itemName);
+				ThisExtension.Logger.logError("Could not load environments for workspace " + this.workspace.itemName, true);
 			}
 
 			return children;

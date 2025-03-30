@@ -9,6 +9,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricWorkspaceRoleAssignment } from './FabricWorkspaceRoleAssignment';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceRoleAssignments extends FabricWorkspaceGenericFolder {
@@ -30,6 +31,10 @@ export class FabricWorkspaceRoleAssignments extends FabricWorkspaceGenericFolder
 			try {
 				const items = await FabricApiService.getList<iFabricApiWorkspaceRoleAssignment>(this.apiPath, undefined, undefined, undefined);
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
 				for (let item of items.success) {
 					let treeItem = new FabricWorkspaceRoleAssignment(item, this);
 					children.push(treeItem);
@@ -38,7 +43,7 @@ export class FabricWorkspaceRoleAssignments extends FabricWorkspaceGenericFolder
 				Helper.sortArrayByProperty(children, "label");
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load Role Assignments for workspace " + this.workspace.itemName);
+				ThisExtension.Logger.logError("Could not load Role Assignments for workspace " + this.workspace.itemName, true);
 			}
 
 			return children;

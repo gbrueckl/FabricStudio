@@ -96,7 +96,7 @@ export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabr
 				children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load items for pipeline " + this.pipeline.itemName);
+				ThisExtension.Logger.logError("Could not load items for pipeline " + this.pipeline.itemName, true);
 			}
 
 			return children;

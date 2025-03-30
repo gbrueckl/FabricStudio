@@ -90,19 +90,23 @@ export class FabricFSCacheItem {
 			this.loadingStateStats = "loading";
 
 			ThisExtension.Logger.logInfo(`Loading Fabric URI Stats ${this.FabricUri.uri.toString()} ...`);
-			const initialized = await FabricApiService.Initialization();
-			if (initialized) {
-				await this.loadStatsFromApi();
-				this.loadingStateStats = "loaded";
-			}
-			else {
-				this.loadingStateStats = "not_loaded";
-			}
+			
+			await this.loadStatsFromApi();
+			this.loadingStateStats = "loaded";
 		}
 		else if (this.loadingStateStats == "loading") {
 			ThisExtension.Logger.logDebug(`Fabric URI Stats for ${this.FabricUri.uri.toString()} are loading in other process - waiting ... `);
-			await Helper.awaitCondition(async () => this.loadingStateStats != "loading", 10000, 500);
-			ThisExtension.Logger.logDebug(`Fabric URI Stats for ${this.FabricUri.uri.toString()} successfully loaded in other process!`);
+			const result = await Helper.awaitCondition(async () => this.loadingStateStats != "loading", 10000, 100);
+
+			if(!result) {
+				this._loadingStateStats = "not_loaded";
+				ThisExtension.Logger.logWarning(`Fabric URI Stats for ${this.FabricUri.uri.toString()} could not be loaded in other process!`, true);
+				return;
+			}
+			else {
+				this._loadingStateStats = "loaded";
+				ThisExtension.Logger.logInfo(`Fabric URI Stats for ${this.FabricUri.uri.toString()} successfully loaded in other process!`);
+			}
 		}
 		return this._stats;
 	}
@@ -112,27 +116,21 @@ export class FabricFSCacheItem {
 			this.loadingStateChildren = "loading";
 
 			ThisExtension.Logger.logInfo(`Loading Fabric URI Children ${this.FabricUri.uri.toString()} ...`);
-			const initialized = await FabricApiService.Initialization();
-			if (initialized) {
-				await this.loadChildrenFromApi();
-				this.loadingStateChildren = "loaded";
-			}
-			else {
-				this.loadingStateChildren = "not_loaded";
-			}
+			await this.loadChildrenFromApi();
+			this.loadingStateChildren = "loaded";
 		}
 		else if (this.loadingStateChildren == "loading") {
 			ThisExtension.Logger.logDebug(`Fabric URI Children for ${this.FabricUri.uri.toString()} are loading in other process - waiting ... `);
-			await Helper.awaitCondition(async () => this.loadingStateChildren != "loading", 10000, 500);
+			const result = await Helper.awaitCondition(async () => this.loadingStateChildren != "loading", 10000, 100);
 
-			// @ts-ignore TS does not know that 'this.loadingStateChildren' is changed by the async call above
-			if (this.loadingStateChildren == "loaded") {
-				ThisExtension.Logger.logDebug(`Fabric URI Children for ${this.FabricUri.uri.toString()} successfully loaded in other process!`);
+			if(!result) {
+				this.loadingStateChildren = "not_loaded";
+				ThisExtension.Logger.logWarning(`Fabric URI Children for ${this.FabricUri.uri.toString()} could not be loaded in other process!`, true);
+				return;
 			}
 			else {
-				ThisExtension.Logger.logDebug(`Fabric URI Children for ${this.FabricUri.uri.toString()} failed to load in other process within 10 secons!`);
-				ThisExtension.Logger.logDebug(`Resetting loading state to 'not_loaded' ... `);
-				this.loadingStateChildren = "not_loaded";
+				this.loadingStateChildren = "loaded";
+				ThisExtension.Logger.logInfo(`Fabric URI Children for ${this.FabricUri.uri.toString()} successfully loaded in other process!`);
 			}
 		}
 		return this._children;

@@ -168,7 +168,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);
+				ThisExtension.Logger.logError("Could not load items for workspace " + this.workspace.itemName, true);
 			}
 
 			return children;

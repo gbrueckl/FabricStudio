@@ -44,13 +44,18 @@ export class FabricItemShortcuts extends FabricWorkspaceGenericFolder {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItemShortcut>(this.apiPath, undefined, undefined, "name");
 
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				for (let item of items.success) {
 					let treeItem = new FabricItemShortcut(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.parent.itemName);
+				ThisExtension.Logger.logError("Could not load shortcuts for item " + this.parent.itemName, true);
 			}
 
 			return children;
