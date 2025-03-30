@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { Helper } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricLakehouses } from './FabricLakehouses';
-import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricApiItem, iFabricApiWorkspace, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
+import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricApiItem, iFabricApiWorkspace, iFabricApiWorkspaceFolder, iFabricApiWorkspaceRoleAssignment } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricDataPipelines } from './FabricDataPipelines';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
@@ -26,11 +26,15 @@ import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricSqlEndpoints } from './FabricSqlEndpoints';
-import { FabricWorkspaceManagedPrivateEndpoint } from './FabricWorkspaceManagedPrivateEndpoint';
 import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManagedPrivateEndpoints';
+import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
+import { FabricConfiguration } from '../../configuration/FabricConfiguration';
+import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
+	private _workspaceFolders: iFabricApiWorkspaceFolder[] = [];
+
 	constructor(
 		definition: iFabricApiWorkspace
 	) {
@@ -72,10 +76,11 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceTreeItem[] = [];
-		let treeItem: FabricWorkspaceGenericFolder;
-		let itemTypes: Map<FabricApiItemType, FabricWorkspaceGenericFolder> = new Map<FabricApiItemType, FabricWorkspaceGenericFolder>();
+		let treeItem: FabricWorkspaceFolder | FabricWorkspaceGenericFolder;
+		let itemGroupings: Map<FabricApiItemType | UniqueId, FabricWorkspaceFolder | FabricWorkspaceGenericFolder> = new Map<FabricApiItemType | UniqueId, FabricWorkspaceFolder | FabricWorkspaceGenericFolder>();
+		let grouping: FabricApiItemType | UniqueId;
 
-		const EXPANDABLE_ITEMS = ["SemanticModel"];
+		const NO_FOLDER = "ZZZ___NO_FOLDER___";
 
 		if (element != null && element != undefined) {
 			return element.getChildren();
@@ -83,32 +88,72 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		else {
 			try {
 				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath + "items");
+
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
 				let itemToAdd: FabricItem;
+
+				if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
+					await this.refreshWorkspaceFolders();
+
+					for (let folder of this._workspaceFolders) {
+						if (!folder.parentFolderId) {
+							treeItem = new FabricWorkspaceFolder(folder.id, folder.displayName, folder, this);
+							itemGroupings.set(folder.id, treeItem);
+						}
+					}
+
+					treeItem = new FabricWorkspaceGenericFolder(NO_FOLDER, NO_FOLDER, "WorkspaceFolder", this);
+					itemGroupings.set(NO_FOLDER, treeItem);
+				}
+
 				for (let item of items.success) {
-					if (!itemTypes.has(item.type)) {
-						if (item.type == "Lakehouse") {
+					if (FabricConfiguration.workspaceViewGrouping == "by Folder") {	
+						if (item.folderId) {
+							const folder = this._workspaceFolders.find(f => f.id == item.folderId);
+							if (folder.parentFolderId) {
+								continue; // we only want root-level folders
+							}
+							grouping = item.folderId;
+						}
+						else {
+							grouping = NO_FOLDER;
+						}
+					}
+					else {
+						grouping = item.type;
+					}
+
+					if (!itemGroupings.has(grouping)) {
+						if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
+							// should never happen!?!
+						}
+						else if (grouping == "Lakehouse") {
 							treeItem = new FabricLakehouses(this);
 						}
-						else if (item.type == "SQLEndpoint") {
+						else if (grouping == "SQLEndpoint") {
 							treeItem = new FabricSqlEndpoints(this);
 						}
-						else if (item.type == "DataPipeline") {
+						else if (grouping == "DataPipeline") {
 							treeItem = new FabricDataPipelines(this);
 						}
-						else if (item.type == "Environment") {
+						else if (grouping == "Environment") {
 							treeItem = new FabricEnvironments(this);
 						}
-						else if (item.type == "GraphQLApi") {
+						else if (grouping == "GraphQLApi") {
 							treeItem = new FabricGraphQLApis(this);
 						}
-						else if (item.type == "Notebook") {
+						else if (grouping == "Notebook") {
 							treeItem = new FabricNotebooks(this);
 						}
-						else if (item.type == "MirroredDatabase") {
+						else if (grouping == "MirroredDatabase") {
 							treeItem = new FabricMirroredDatabases(this);
 						}
 						else {
-							const plural = FabricMapper.getItemTypePlural(item.type);
+							const plural = FabricMapper.getItemTypePlural(grouping);
 							treeItem = new FabricWorkspaceGenericFolder(
 								this.itemId + "/" + plural,
 								plural,
@@ -117,47 +162,21 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 							);
 						}
 
-						// semantic models can be expanded
-						if (EXPANDABLE_ITEMS.includes(item.type)) {
-							treeItem.defaultChildCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
-						}
-						itemTypes.set(item.type, treeItem);
+						itemGroupings.set(grouping, treeItem);
 					}
 
-					const parent = itemTypes.get(item.type);
-					if (item.type == "Lakehouse") {
-						itemToAdd = new FabricLakehouse(item, parent);
-					}
-					else if (item.type == "SQLEndpoint") {
-						itemToAdd = new FabricSqlEndpoint(item, parent);
-					}
-					else if (item.type == "DataPipeline") {
-						itemToAdd = new FabricDataPipeline(item, parent);
-					}
-					else if (item.type == "Environment") {
-						itemToAdd = new FabricEnvironment(item, parent);
-					}
-					else if (item.type == "GraphQLApi") {
-						itemToAdd = new FabricGraphQLApi(item, parent);
-					}
-					else if (item.type == "Notebook") {
-						itemToAdd = new FabricNotebook(item, parent);
-					}
-					else if (item.type == "MirroredDatabase") {
-						itemToAdd = new FabricMirroredDatabase(item, parent);
-					}
-					else {
-						itemToAdd = new FabricItem(item, parent);
-					}
+					itemToAdd = FabricWorkspacesTreeProvider.getFromApiDefinition(item, this);
 
-					// semantic models can be expanded
-					if (EXPANDABLE_ITEMS.includes(item.type)) {
-						itemToAdd.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
-					}
-					itemTypes.get(item.type).addChild(itemToAdd);
+					itemGroupings.get(grouping).addChild(itemToAdd);
 				}
 
-				children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+				children = Array.from(itemGroupings.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+				const noFolder: FabricWorkspaceTreeItem = children.pop();
+				const noFolderItems = await noFolder.getChildren();
+
+				children.push(...noFolderItems);
+
 
 				let roleAssignments: FabricWorkspaceRoleAssignments = new FabricWorkspaceRoleAssignments(this);
 				children.push(roleAssignments);
@@ -168,7 +187,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load items for workspace " + this.workspace.itemName, true);
+				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);
 			}
 
 			return children;
@@ -228,9 +247,21 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		const endpoint = Helper.joinPath(this.apiPath, "onelake/resetShortcutCache");
 
 		const response = await FabricApiService.awaitWithProgress("Resetting Shortcut Cache", FabricApiService.post(endpoint, undefined), 5000);
-		
+
 		if (response.error) {
 			vscode.window.showErrorMessage(response.error.message);
 		}
+	}
+
+	async refreshWorkspaceFolders(): Promise<void> {
+		const folders = await FabricApiService.getList<iFabricApiWorkspaceFolder>(this.apiPath + "folders");
+
+		for (let folder of folders.success) {
+			this._workspaceFolders.push(folder);
+		}
+	}
+
+	get workspaceFolders(): iFabricApiWorkspaceFolder[] {
+		return this._workspaceFolders;
 	}
 }

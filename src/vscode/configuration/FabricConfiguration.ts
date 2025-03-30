@@ -135,6 +135,8 @@ interface iItemTypeFormat {
 	useItemNameAsFileName: boolean;
 }
 
+export type WorkspaceViewGrouping = "by ItemType" | "by Folder";
+
 export abstract class FabricConfiguration {
 	static get logLevel(): vscode.LogLevel { return this.getValue("logLevel"); }
 
@@ -201,6 +203,8 @@ export abstract class FabricConfiguration {
 	static set adminFilter(value: string) { this.setValue("adminFilter", value); }
 	static get adminFilterRegEx(): RegExp { return new RegExp(this.getValue("adminFilter"), "i"); }
 
+
+
 	static get itemTypeFormats(): iItemTypeFormat[] {
 		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];
 
@@ -266,6 +270,11 @@ export abstract class FabricConfiguration {
 	static get iconStyle(): string {
 		return this.getValue("iconStyle");
 	}
+
+	static get workspaceViewGrouping(): WorkspaceViewGrouping {
+		return this.getValue<WorkspaceViewGrouping>("workspaceViewGrouping");
+	}
+
 
 	static get apiUrl(): string {
 		//

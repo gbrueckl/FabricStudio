@@ -5,13 +5,22 @@ import { ThisExtension } from '../../../ThisExtension';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { Helper } from '@utils/Helper';
-import { iFabricApiWorkspace } from '../../../fabric/_types';
+import { iFabricApiItem, iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
+import { FabricItem } from './FabricItem';
+import { FabricLakehouse } from './FabricLakehouse';
+import { FabricSqlEndpoint } from './FabricSqlEndpoint';
+import { FabricDataPipeline } from './FabricDataPipeline';
+import { FabricEnvironment } from './FabricEnvironment';
+import { FabricGraphQLApi } from './FabricGraphQLApi';
+import { FabricNotebook } from './FabricNotebook';
+import { FabricMirroredDatabase } from './FabricMirroredDatabase';
+import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<FabricWorkspaceTreeItem> {
@@ -137,5 +146,41 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		FabricConfiguration.workspaceFilter = filter;
 
 		this.refresh(null, true);
+	}
+
+	public static getFromApiDefinition(item: iFabricApiItem, parent: FabricWorkspaceTreeItem): FabricItem {
+		// this method was placed here as it causes issues with circular dependencies in FabricWorkspaceTreeItem, FabricItem, etc.
+		let itemToAdd: FabricItem;
+
+		if (item.type == "Lakehouse") {
+			itemToAdd = new FabricLakehouse(item, parent);
+		}
+		else if (item.type == "SQLEndpoint") {
+			itemToAdd = new FabricSqlEndpoint(item, parent);
+		}
+		else if (item.type == "DataPipeline") {
+			itemToAdd = new FabricDataPipeline(item, parent);
+		}
+		else if (item.type == "Environment") {
+			itemToAdd = new FabricEnvironment(item, parent);
+		}
+		else if (item.type == "GraphQLApi") {
+			itemToAdd = new FabricGraphQLApi(item, parent);
+		}
+		else if (item.type == "Notebook") {
+			itemToAdd = new FabricNotebook(item, parent);
+		}
+		else if (item.type == "MirroredDatabase") {
+			itemToAdd = new FabricMirroredDatabase(item, parent);
+		}
+		else {
+			itemToAdd = new FabricItem(item, parent);
+		}
+
+		if (parent instanceof FabricWorkspaceFolder) {
+			itemToAdd.folderId = parent.folderId
+		}
+
+		return itemToAdd;
 	}
 }

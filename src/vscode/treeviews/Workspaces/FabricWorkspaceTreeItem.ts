@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 
-import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
+
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType } from '../../../fabric/_types';
@@ -10,10 +11,8 @@ import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
-import { FabricFSCache } from '../../filesystemProvider/FabricFSCache';
-import { iGenericApiError } from '@utils/_types';
-
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
+	protected _folderId: UniqueId;
 
 	constructor(
 		id: UniqueId,
@@ -90,11 +89,38 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return this.workspace.itemId;
 	}
 
+	get folderId(): UniqueId {
+		return this._folderId;
+	}
+
+	set folderId(value: UniqueId) {
+		this._folderId = value;
+	}
+
 	get asQuickPickItem(): FabricQuickPickItem {
 		let qpItem = new FabricQuickPickItem(this.itemName, this.itemId, this.itemId, `\tWorkspace: ${this.workspace.itemName} - ${this.workspaceId}`);
 		qpItem.apiItem = this;
 
 		return qpItem;
+	}
+
+	get itemPath(): string {
+		if(FabricConfiguration.workspaceViewGrouping == "by ItemType") {
+			return super.itemPath;
+		}
+
+		if(FabricConfiguration.workspaceViewGrouping == "by Folder") {
+			const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
+			if (this.itemType == "Workspace") {
+				return Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId), "/");
+			}
+			
+			let itemPath = Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemId), "/");
+			return itemPath;
+		}
+
+		// should never happen, but just in case
+		throw new Error("Invalid workspace view grouping: " + FabricConfiguration.workspaceViewGrouping);
 	}
 
 	get fabricFsUri(): FabricFSUri {
@@ -103,13 +129,30 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.itemId}`));
 		}
 
-		let itemFsPath = this.itemPath;
+		if (this.itemType == "WorkspaceFolder") {
+			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.workspaceId}`));
+		}
+
+		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
+		let itemFsPath = Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemName), "/");
+
+		const fabricFsUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
+		return fabricFsUri;
+
+		//let itemFsPath = this.itemPath;
 		// as we return the URI by name, we also have to add the item to the mapping
 		if (Helper.isGuid(this.itemId)) {
 			itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(1, -1).join("/"), this.itemName), "/");
 			FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
 			itemFsPath = "workspaces/" + itemFsPath;
 		}
+
+		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
+	}
+
+	get fabricFsItemUri(): FabricFSUri {
+		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
+		let itemFsPath = Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemName);
 
 		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
 	}

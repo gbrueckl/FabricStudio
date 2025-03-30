@@ -14,7 +14,6 @@ import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricItemDefinition } from './FabricItemDefinition';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 
-
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItem extends FabricWorkspaceTreeItem {
 	constructor(
@@ -27,7 +26,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 		this.contextValue = this._contextValue;
 		this.tooltip = this.getToolTip(this.itemDefinition);
 
-		FabricFSUri.addItemNameIdMap(this.itemPath, this.itemId);
+		FabricFSUri.addItemNameIdMap(this.itemName, this.itemId, this.workspaceId, this.itemType);
 
 		this.iconPath = this.getIconPath();
 	}
@@ -52,7 +51,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			return element.getChildren();
 		}
 		else {
-			if(this.contextValue.includes("EDIT_")) {
+			if (this.contextValue.includes("EDIT_")) {
 				children.push(new FabricItemDefinition(this));
 			}
 			// Connections

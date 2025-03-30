@@ -243,9 +243,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	get itemPath(): string {
-
 		let urlParts: string[] = [];
-
 		let apiItem: FabricApiTreeItem = this;
 
 		while (apiItem) {

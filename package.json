@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.11.0",
+	"version": "1.12.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -198,6 +198,15 @@
 						"type": "boolean",
 						"default": false,
 						"markdownDescription": "Whether regular Pro workspaces without a capacity should be shown or not. This might make sense for Power BI items as you can still use the TMDL/PBIR editor of Fabric Studio."
+					},
+					"fabricStudio.workspaceViewGrouping": {
+						"type": "string",
+						"description": "The grouping to use for the Fabric Studio Workspaces view.",
+						"enum": [
+							"by ItemType",
+							"by Folder"
+						],
+						"default": "by Folder"
 					}
 				}
 			}

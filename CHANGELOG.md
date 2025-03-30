@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.12.0**:
+- added new [Folders API](https://learn.microsoft.com/en-us/rest/api/fabric/core/folders) to allow browsing by folders
+- added new config setting `workspaceViewGrouping` which can either be `by Folder` (default) or `by ItemType`
+
 **v1.11.0**:
 - reworked how the connection to the API is initialized
 - fixed issue where `Edit Definition` and the virtual file system did not work if it was the only folder in the workspace

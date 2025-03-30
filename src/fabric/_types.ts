@@ -31,6 +31,8 @@ export type FabricApiItemType =
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
+	| "WorkspaceFolder"			//	A workspace folder.
+
 
 	| "Capacity"
 	| "Dataflow"
@@ -123,6 +125,7 @@ export interface iFabricApiItem {
 	type: FabricApiItemType;
 	workspaceId?: UniqueId;
 	id?: string;
+	folderId?: UniqueId;
 }
 
 export interface iFabricApiWorkspace {
@@ -132,6 +135,13 @@ export interface iFabricApiWorkspace {
 	type: string;
 	capacityId: string;
 	capacityAssignmentProgress: string;
+}
+
+export interface iFabricApiWorkspaceFolder {
+	id: UniqueId;
+	displayName: string;
+	workspaceId: UniqueId;
+	parentFolderId?: UniqueId;
 }
 
 export interface iFabricApiLakehouseProperties {
