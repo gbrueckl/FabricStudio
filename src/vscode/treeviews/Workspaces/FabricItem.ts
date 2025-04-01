@@ -13,6 +13,7 @@ import { FabricItemJobSchedules } from './FabricItemJobSchedules';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricItemDefinition } from './FabricItemDefinition';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
+import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItem extends FabricWorkspaceTreeItem {
@@ -41,7 +42,16 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	}
 
 	get itemApiPath(): string {
-		return Helper.joinPath(this.parent.parent.apiPath, "items", this.itemId) + "/";
+		return Helper.trimChar(Helper.joinPath(this.workspace.apiPath, "items", this.itemId), "/");
+	}
+
+	get apiUrlPart(): string {
+		if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
+			// if "by Folder" is used, we do not have the artificial folder for our item types so we have to add it manually
+			const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
+			return `${itemTypePlural}/${this.itemId}`;
+		}
+		return super.apiUrlPart;
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {

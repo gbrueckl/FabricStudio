@@ -106,12 +106,12 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						}
 					}
 
-					treeItem = new FabricWorkspaceGenericFolder(NO_FOLDER, NO_FOLDER, "WorkspaceFolder", this);
+					treeItem = new FabricWorkspaceGenericFolder(NO_FOLDER, NO_FOLDER, "WorkspaceFolder", this, "");
 					itemGroupings.set(NO_FOLDER, treeItem);
 				}
 
 				for (let item of items.success) {
-					if (FabricConfiguration.workspaceViewGrouping == "by Folder") {	
+					if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
 						if (item.folderId) {
 							const folder = this._workspaceFolders.find(f => f.id == item.folderId);
 							if (folder.parentFolderId) {
@@ -167,15 +167,23 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 					itemToAdd = FabricWorkspacesTreeProvider.getFromApiDefinition(item, this);
 
-					itemGroupings.get(grouping).addChild(itemToAdd);
+					if(grouping == NO_FOLDER) {
+						// set the parent to the workspace (=this)
+						itemGroupings.get(grouping).addChild(itemToAdd, this);
+					}
+					else {
+						itemGroupings.get(grouping).addChild(itemToAdd);
+					}
 				}
 
 				children = Array.from(itemGroupings.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
-				const noFolder: FabricWorkspaceTreeItem = children.pop();
-				const noFolderItems = await noFolder.getChildren();
+				if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
+					const noFolder: FabricWorkspaceTreeItem = children.pop();
+					const noFolderItems = await noFolder.getChildren();
 
-				children.push(...noFolderItems);
+					children.push(...noFolderItems);
+				}
 
 
 				let roleAssignments: FabricWorkspaceRoleAssignments = new FabricWorkspaceRoleAssignments(this);

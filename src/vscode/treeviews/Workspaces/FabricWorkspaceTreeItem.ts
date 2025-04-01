@@ -104,24 +104,6 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return qpItem;
 	}
 
-	get itemPath(): string {
-		if(FabricConfiguration.workspaceViewGrouping == "by ItemType") {
-			return super.itemPath;
-		}
-
-		if(FabricConfiguration.workspaceViewGrouping == "by Folder") {
-			const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
-			if (this.itemType == "Workspace") {
-				return Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId), "/");
-			}
-			
-			let itemPath = Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemId), "/");
-			return itemPath;
-		}
-
-		// should never happen, but just in case
-		throw new Error("Invalid workspace view grouping: " + FabricConfiguration.workspaceViewGrouping);
-	}
 
 	get fabricFsUri(): FabricFSUri {
 		if (this.itemType == "Workspace") {

@@ -56,11 +56,11 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		return this.itemType;
 	}
 
-	addChild(value: FabricWorkspaceTreeItem) {
+	addChild(value: FabricWorkspaceTreeItem, parent: FabricWorkspaceTreeItem = this): void {
 		if (!this._children) {
 			this._children = [];
 		}
-		value.parent = this;
+		value.parent = parent;
 		this._children.push(value);
 	}
 
