@@ -155,6 +155,7 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	public static get NO_ITEMS(): FabricWorkspaceTreeItem {
 		let item = new FabricWorkspaceTreeItem("NO_ITEMS", "No workspaces found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 		item.contextValue = "";
+		item.itemId = "NO_ITEMS";
 		return item;
 	}
 

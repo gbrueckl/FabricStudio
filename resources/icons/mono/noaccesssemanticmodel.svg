@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="lightgray">
+  <path fill="lightgray" fill-rule="evenodd" d="M51 7H13a6 6 0 0 0-6 6v38a6 6 0 0 0 6 6h38a6 6 0 0 0 6-6V13a6 6 0 0 0-6-6ZM13 6a7 7 0 0 0-7 7v38a7 7 0 0 0 7 7h38a7 7 0 0 0 7-7V13a7 7 0 0 0-7-7H13Z" clip-rule="evenodd" />
+  <path fill="lightgray" d="M59.778 44.222c-4.296-4.296-11.26-4.296-15.556 0-4.296 4.296-4.296 11.26 0 15.556 4.296 4.296 11.26 4.296 15.556 0 4.296-4.296 4.296-11.26 0-15.556Z" />
+  <path fill="lightgray" fill-rule="evenodd" d="M44.929 44.93c3.905-3.906 10.237-3.906 14.142 0 3.905 3.905 3.905 10.236 0 14.142-3.905 3.905-10.237 3.905-14.142 0-3.905-3.906-3.905-10.237 0-14.143ZM58.708 46l-12.71 12.708a9 9 0 0 0 12.71-12.709Zm-13.072-.364A9 9 0 0 1 58 45.292L45.292 58.001a9 9 0 0 1 .344-12.364Z" clip-rule="evenodd" />
+  <defs>
+    <linearGradient id="icon-483e195ff183a77c__icon-ea4d0077d088d053__a" x1="20.444" x2="27.022" y1="6" y2="58.622" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-14622c6a842ca51c__icon-1f5713fcf9928460__c" x1="22.792" x2="29.793" y1="6" y2="58.511" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-9c9b3f4b92000bac__icon-36286044840c4e3e__d" x1="15" x2="32.481" y1="22" y2="51.717" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-7b78da590bfa16b9__icon-9f2d2b6e5cc291f2__e" x1="15" x2="32.481" y1="22" y2="51.717" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-05486dade96d6f21__icon-5410803b647d42aa__f" x1="15" x2="32.481" y1="22" y2="51.717" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-d895c3512d02a312__icon-e2849d544a96bb3f__g" x1="15" x2="32.481" y1="22" y2="51.717" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-9ca7c0447cabd0f5__icon-990961a36be24689__h" x1="15" x2="32.481" y1="22" y2="51.717" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <linearGradient id="icon-963834eddd53f72c__icon-b1fdbfb198e3d9e9__i" x1="42" x2="62" y1="42.001" y2="62.001" gradientUnits="userSpaceOnUse">
+      <stop stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </linearGradient>
+    <radialGradient id="icon-379044f00445ca67__icon-62ec5d8e1e2fc4ac__b" cx="0" cy="0" r="1" gradientTransform="rotate(56.31 -6.951 30.895) scale(49.4762 42.8159)" gradientUnits="userSpaceOnUse">
+      <stop offset=".177" stop-color="lightgray" />
+      <stop offset="1" stop-color="lightgray" />
+    </radialGradient>
+  </defs>
+</svg>

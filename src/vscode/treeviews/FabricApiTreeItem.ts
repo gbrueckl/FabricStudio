@@ -10,7 +10,11 @@ import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
 import { iGenericApiError } from '@utils/_types';
+import { FabricWorkspaceTreeItem } from './Workspaces/FabricWorkspaceTreeItem';
 
+
+export const NO_ITEMS_ITEM_ID: string = "NO_ITEMS";
+export const ERROR_ITEM_ID: string = "ERROR_ITEM";
 
 export class FabricApiTreeItem extends vscode.TreeItem {
 	protected _itemType: FabricApiItemType;
@@ -292,7 +296,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	public static get NO_ITEMS(): FabricApiTreeItem {
-		let item = new FabricApiTreeItem("NO_ITEMS", "No items found!", "GenericItem", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		let item = new FabricApiTreeItem(NO_ITEMS_ITEM_ID, "No items found!", "GenericItem", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 		item.contextValue = "";
 		return item;
 	}
@@ -303,6 +307,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		item.description = error.message;
 		item.tooltip = error.details || error.message;
 		item.iconPath = new vscode.ThemeIcon("error");
+		item.itemId = ERROR_ITEM_ID;
 		return item as T;
 	}
 
@@ -317,5 +322,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			items = [this.NO_ITEMS as T];
 		}
 		return items;
+	}
+
+	public static async getValidChildren(item: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
+		let children: FabricApiTreeItem[] = await item.getChildren();
+		children = children.filter((child) => ![NO_ITEMS_ITEM_ID, ERROR_ITEM_ID].includes(child.itemId))
+
+		return children;
 	}
 }

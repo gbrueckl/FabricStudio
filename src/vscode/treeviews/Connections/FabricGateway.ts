@@ -6,6 +6,7 @@ import { ThisExtension } from '../../../ThisExtension';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricGatewayMembers } from './FabricGatewayMembers';
 import { FabricGatewayRoleAssignments } from './FabricGatewayRoleAssignments';
+import { ERROR_ITEM_ID, FabricApiTreeItem, NO_ITEMS_ITEM_ID } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricGateway extends FabricConnectionGenericFolder {
@@ -60,7 +61,7 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 			// Members
 			try {
 				let members = new FabricGatewayMembers(this);
-				const connectionsChildren = await members.getChildren();
+				const connectionsChildren = await FabricApiTreeItem.getValidChildren(members);			
 				if (connectionsChildren.length > 0) {
 					children.push(members);
 				}
@@ -72,7 +73,7 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 			// Role Assignments
 			try {
 				let roleAssignments = new FabricGatewayRoleAssignments(this);
-				const roleAssignmentsChildren = await roleAssignments.getChildren();
+				const roleAssignmentsChildren = await FabricApiTreeItem.getValidChildren(roleAssignments);			
 				if (roleAssignmentsChildren.length > 0) {
 					children.push(roleAssignments);
 				}
