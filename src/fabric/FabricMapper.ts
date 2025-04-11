@@ -21,7 +21,8 @@ export abstract class FabricMapper {
 
 	private static _pluralMappings: Map<string, string> = new Map([
 		["Reflex", "Reflexes"],
-		["MountedDataFactory", "MountedDataFactories"]
+		["MountedDataFactory", "MountedDataFactories"],
+		["VariableLibrary", "VariableLibraries"]
 	]);
 
 	static getItemTypePlural(itemType: string): FabricApiItemType {

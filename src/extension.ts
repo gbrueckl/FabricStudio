@@ -38,6 +38,8 @@ import { FabricFSHelper } from './vscode/filesystemProvider/FabricFSHelper';
 import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
 import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeItem';
 import { FabricAdminGenericViewer } from './vscode/treeviews/Admin/FabricAdminGenericViewer';
+import { FabricReport } from './vscode/treeviews/Workspaces/FabricReport';
+import { FabricSemanticModel } from './vscode/treeviews/Workspaces/FabricSemanticModel';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -139,6 +141,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => treeItem.delete("yesNo"));
 	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.publishToFabric(treeItem.resourceUri, false));
 	vscode.commands.registerCommand('FabricStudio.Item.reloadFromFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.reloadFromFabric(treeItem.resourceUri, false));
+
+	vscode.commands.registerCommand('FabricStudio.PowerBI.downloadBPIP', async (treeItem: FabricReport | FabricSemanticModel) => treeItem.downloadPBIP());
+
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLEndpoint', (treeItem: FabricLakehouse) => treeItem.copySQLEndpoint());

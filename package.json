@@ -127,7 +127,8 @@
 										"MountedDataFactories",
 										"Dataflows",
 										"GraphQLApis",
-										"CopyJobs"
+										"CopyJobs",
+										"VariableLibraries"
 									]
 								},
 								"format": {
@@ -622,6 +623,12 @@
 				"title": "Show Definition",
 				"icon": "$(json)",
 				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.PowerBI.downloadPBIP",
+				"title": "Download as PBIP",
+				"icon": "$(project)",
+				"category": "FabricStudio"
 			}
 		],
 		"menus": {
@@ -841,6 +848,11 @@
 				{
 					"command": "FabricStudio.OneLake.resetCache",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RESET_CACHE,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.PowerBI.downloadPBIP",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DOWNLOAD_PBIP,.*/",
 					"group": "navigation"
 				}
 			],
