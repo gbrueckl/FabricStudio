@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.13.0**:
+- added `Download as PowerBI Project (PBIP)` option to semantic models and reports
+
 **v1.12.0**:
 - added new [Folders API](https://learn.microsoft.com/en-us/rest/api/fabric/core/folders) to allow browsing by folders
 - added new config setting `workspaceViewGrouping` which can either be `by Folder` (default) or `by ItemType`

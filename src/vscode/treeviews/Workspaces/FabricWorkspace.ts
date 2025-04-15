@@ -30,6 +30,8 @@ import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManaged
 import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
+import { FabricReports } from './FabricReports';
+import { FabricSemanticModels } from './FabricSemanticModels';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -151,6 +153,12 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						}
 						else if (grouping == "MirroredDatabase") {
 							treeItem = new FabricMirroredDatabases(this);
+						}
+						else if (grouping == "Report") {
+							treeItem = new FabricReports(this);
+						}
+						else if (grouping == "SemanticModel") {
+							treeItem = new FabricSemanticModels(this);
 						}
 						else {
 							const plural = FabricMapper.getItemTypePlural(grouping);

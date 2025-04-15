@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.12.1",
+	"version": "1.13.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -626,7 +626,7 @@
 			},
 			{
 				"command": "FabricStudio.PowerBI.downloadPBIP",
-				"title": "Download as PBIP",
+				"title": "Download as PowerBI Project (PBIP)",
 				"icon": "$(project)",
 				"category": "FabricStudio"
 			}
@@ -733,12 +733,12 @@
 				{
 					"command": "FabricStudio.Item.editTMDL",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_TMDL,.*/",
-					"group": "navigation"
+					"group": "2_edit"
 				},
 				{
 					"command": "FabricStudio.Item.editPBIR",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_PBIR,.*/",
-					"group": "navigation"
+					"group": "2_edit"
 				},
 				{
 					"command": "FabricStudio.Item.insertPath",
@@ -853,7 +853,7 @@
 				{
 					"command": "FabricStudio.PowerBI.downloadPBIP",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DOWNLOAD_PBIP,.*/",
-					"group": "navigation"
+					"group": "2_edit"
 				}
 			],
 			"explorer/context": [

@@ -1,0 +1,178 @@
+import * as vscode from 'vscode';
+
+import { ThisExtension } from './../ThisExtension';
+
+import { Helper } from './Helper';
+import { FABRIC_SCHEME } from '../vscode/filesystemProvider/FabricFileSystemProvider';
+import { FabricCommandBuilder } from '../vscode/input/FabricCommandBuilder';
+import { FabricQuickPickItem } from '../vscode/input/FabricQuickPickItem';
+import { FabricApiService } from '../fabric/FabricApiService';
+import { iFabricApiItem } from '../fabric/_types';
+
+class PBIPStructure {
+	private _name: string;
+	private _rootUri: vscode.Uri;
+	constructor(
+		name: string,
+		rootUri: vscode.Uri
+	) {
+		this._name = name.replace(".pbip", "");
+		this._rootUri = rootUri;
+	}
+
+	static fromUri(uri: vscode.Uri): PBIPStructure {
+		const name = uri.path.split("/").pop().replace(".pbip", "");
+		const rootUri = uri.with({ path: uri.path.replace(name + ".pbip", "") });
+		return new PBIPStructure(name, rootUri);
+	}
+
+	get basename(): string {
+		return this._name;
+	}
+	get pbipFileName(): string {
+		return this._name + ".pbip";
+	}
+	get pbipFileUri(): vscode.Uri {
+		return vscode.Uri.joinPath(this._rootUri, this.pbipFileName);
+	}
+
+	get reportFolderName(): string {
+		return this._name + ".Report";
+	}
+	get reportFolderUri(): vscode.Uri {
+		return vscode.Uri.joinPath(this._rootUri, this.reportFolderName);
+	}
+	get reportPbirUri(): vscode.Uri {
+		return vscode.Uri.joinPath(this.reportFolderUri, "definition.pbir");
+	}
+
+	get datasetFolderName(): string {
+		return this._name + ".SemanticModel";
+	}
+	get datasetFolderUri(): vscode.Uri {
+		return vscode.Uri.joinPath(this._rootUri, this.datasetFolderName);
+	}
+}
+
+export class PowerBI {
+	private static async showPBIPSaveDialog(defaultName: string): Promise<PBIPStructure | undefined> {
+		if (!defaultName.endsWith(".pbip")) {
+			defaultName += ".pbip";
+		}
+		const output = await vscode.window.showSaveDialog({
+			title: `Download PBIP file`,
+			defaultUri: vscode.Uri.file(defaultName),
+			filters: {
+				"PBIP files": ["pbip"]
+			}
+		});
+
+		if (!output) {
+			return undefined;
+		}
+
+		return new PBIPStructure(
+			output.path.split("/").pop(),
+			Helper.parentUri(output)
+		);
+	}
+
+	private static async downloadReportDefinition(reportId: string, workspaceId: string, targetUri: vscode.Uri): Promise<vscode.Uri> {
+		return PowerBI.downloadDefinition(reportId, workspaceId, "Report", targetUri);
+	}
+
+	private static async downloadDatasetDefinition(datasetId: string, workspaceId: string, targetUri: vscode.Uri): Promise<vscode.Uri> {
+		return PowerBI.downloadDefinition(datasetId, workspaceId, "SemanticModel", targetUri);
+	}
+
+	private static async downloadDefinition(itemId: string, workspaceId: string, itemType: "Report" | "SemanticModel", targetUri: vscode.Uri): Promise<vscode.Uri> {
+		// initialize Fabric FS for the dataset definition
+		const resourceUri = vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${workspaceId}/${itemType}s/${itemId}`);
+		const items = await vscode.workspace.fs.readDirectory(resourceUri);
+
+		ThisExtension.Logger.logInfo(`Downloading PBIP semantic folder file to ${targetUri} ...`);
+
+		await vscode.workspace.fs.copy(resourceUri, targetUri, { overwrite: false });
+
+		return targetUri;
+	}
+
+	public static async downloadReportAsPBIP(reportId: string, workspaceId: string): Promise<vscode.Uri> {
+		// get Report Details from PowerBI API
+		const reportDetails = await FabricApiService.get(`https://api.powerbi.com/v1.0/myorg/groups/${workspaceId}/reports/${reportId}`);
+
+		if (reportDetails.error) {
+			ThisExtension.Logger.logError(reportDetails.error.message);
+			return undefined;
+		}
+		const srcReport = reportDetails.success;
+
+		// QuickPick - live connection or with dataset
+		const connModeQp = await FabricCommandBuilder.showQuickPick(
+			[new FabricQuickPickItem("Live Connection"), new FabricQuickPickItem("Local Dataset")],
+			`How do you want to connect to the data?`, "By choosing `Live Connection`, the PBIP file will use a live connection to the dataset. Chose `Local Dataset` to also download the connected dataset. This requires local access to the datasources and a refresh of the lcoal dataset.",
+			"Live Connection");
+
+		if (!connModeQp) {
+			Helper.showTemporaryInformationMessage("Download cancelled.");
+			return;
+		}
+
+		const pbip = await PowerBI.showPBIPSaveDialog(srcReport.name);
+		if (!pbip) {
+			Helper.showTemporaryInformationMessage("Download cancelled.");
+			return;
+		}
+
+		let connectionMode = connModeQp.value;
+
+		ThisExtension.Logger.logInfo(`Creating local PBIP file at ${pbip.pbipFileUri} ...`);
+		let pbipTemplate = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'templateFiles', 'Empty.pbip'));
+		let pbipContent = Buffer.from(pbipTemplate).toString("utf8").replace('"Empty.Report"', `"${pbip.reportFolderName}"`);
+		await vscode.workspace.fs.writeFile(pbip.pbipFileUri, Buffer.from(pbipContent, "utf8"));
+
+		await PowerBI.downloadReportDefinition(srcReport.id || reportId, workspaceId, pbip.reportFolderUri);
+
+		if (connectionMode == "Local Dataset") {
+			await PowerBI.downloadDatasetDefinition(srcReport.datasetId, srcReport.datasetWorkspaceId, pbip.datasetFolderUri);
+
+			let pbirDef = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'templateFiles', 'Empty.Report', 'definition.pbir'));
+			let pbirDefContent = Buffer.from(pbirDef).toString("utf8").replace('"../Empty.SemanticModel"', `"../${pbip.datasetFolderName}"`);
+
+			await vscode.workspace.fs.writeFile(pbip.reportPbirUri, Buffer.from(pbirDefContent, "utf8"));
+		}
+
+		return undefined;
+	}
+
+	public static async downloadDatasetAsPBIP(datasetId: string, workspaceId: string): Promise<vscode.Uri> {
+		const datasetDetails = await FabricApiService.get<iFabricApiItem>(`/workspaces/${workspaceId}/SemanticModels/${datasetId}`);
+
+		if (datasetDetails.error) {
+			ThisExtension.Logger.logError(datasetDetails.error.message);
+			return undefined;
+		}
+		const srcDataset = datasetDetails.success;
+		const pbip = await PowerBI.showPBIPSaveDialog(srcDataset.displayName);
+
+		if (!pbip) {
+			Helper.showTemporaryInformationMessage("Download cancelled.");
+			return;
+		}
+
+		ThisExtension.Logger.logInfo(`Creating local PBIP file at ${pbip.pbipFileUri.fsPath} ...`);
+		let pbipTemplate = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'templateFiles', 'Empty.pbip'));
+		let pbipContent = Buffer.from(pbipTemplate).toString("utf8").replace('"Empty.Report"', `"${pbip.reportFolderName}"`);
+		await vscode.workspace.fs.writeFile(pbip.pbipFileUri, Buffer.from(pbipContent, "utf8"));
+
+		ThisExtension.Logger.logInfo(`Downloading dummy PBIP report folder to ${pbip.reportFolderUri.fsPath} ...`);
+		let reportTemplate = vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'templateFiles', 'Empty.Report');
+		await vscode.workspace.fs.copy(reportTemplate, pbip.reportFolderUri, { overwrite: false });
+
+		let pbirDef = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'templateFiles', 'Empty.Report', 'definition.pbir'));
+		let pbirDefContent = Buffer.from(pbirDef).toString("utf8").replace('"../Empty.SemanticModel"', `"../${pbip.datasetFolderName}"`);
+		await vscode.workspace.fs.writeFile(pbip.reportPbirUri, Buffer.from(pbirDefContent, "utf8"));
+
+		await PowerBI.downloadDatasetDefinition(datasetId, workspaceId, pbip.datasetFolderUri);
+	}
+}

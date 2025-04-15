@@ -4,6 +4,7 @@ import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
+import { PowerBI } from '@utils/PowerBI';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricSemanticModel extends FabricItem {
@@ -28,15 +29,7 @@ export class FabricSemanticModel extends FabricItem {
 	}
 
 	async downloadPBIP(): Promise<void> {
-		const pbipFileName = this.itemName + ".pbip";
-
-		// QuickPick - live connection or with dataset
-		
-		// initialize Fabric FS for the report definition
-		const items = await vscode.workspace.fs.readDirectory(this.resourceUri);
-
-		// if "with dataset"
-		// get dataset reference from pbir file - get dataset, build resource URI, copy from Fabric FS
+		await PowerBI.downloadDatasetAsPBIP(this.itemId, this.workspaceId);
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */

@@ -142,7 +142,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.publishToFabric(treeItem.resourceUri, false));
 	vscode.commands.registerCommand('FabricStudio.Item.reloadFromFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.reloadFromFabric(treeItem.resourceUri, false));
 
-	vscode.commands.registerCommand('FabricStudio.PowerBI.downloadBPIP', async (treeItem: FabricReport | FabricSemanticModel) => treeItem.downloadPBIP());
+	vscode.commands.registerCommand('FabricStudio.PowerBI.downloadPBIP', async (treeItem: FabricReport | FabricSemanticModel) => treeItem.downloadPBIP());
 
 
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());
