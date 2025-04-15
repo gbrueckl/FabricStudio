@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.13.1**:
+- added `Copy Fabric API Access Token` command
+
 **v1.13.0**:
 - added `Download as PowerBI Project (PBIP)` option to semantic models and reports
 

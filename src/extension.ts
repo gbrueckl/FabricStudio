@@ -213,6 +213,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//#endregion
 
+	vscode.commands.registerCommand('FabricStudio.Api.CopyAccessToken', FabricApiService.copyAccessTokenToClipboard);
+	
+
 	// eventhandles when Fabric documents are saved
 	vscode.workspace.onDidSaveTextDocument(FabricFSCache.onDidSave);
 	vscode.workspace.onDidSaveNotebookDocument(FabricFSCache.onDidSave);

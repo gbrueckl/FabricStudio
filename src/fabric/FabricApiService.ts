@@ -597,4 +597,15 @@ export abstract class FabricApiService {
 
 		return await FabricApiService.awaitWithProgress(progressText, FabricApiService.delete<any>(endpoint, undefined), 3000);
 	}
+
+	static async copyAccessTokenToClipboard(): Promise<void> {
+		const session = await FabricApiService.getVSCodeSession(false);
+
+		if (!session || !session.accessToken) {
+			ThisExtension.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
+			return;
+		}
+
+		await vscode.env.clipboard.writeText(session.accessToken);
+	}
 }

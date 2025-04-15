@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.13.0",
+	"version": "1.13.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -628,6 +628,11 @@
 				"command": "FabricStudio.PowerBI.downloadPBIP",
 				"title": "Download as PowerBI Project (PBIP)",
 				"icon": "$(project)",
+				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.Api.CopyAccessToken",
+				"title": "Copy Fabric API Access Token",
 				"category": "FabricStudio"
 			}
 		],
