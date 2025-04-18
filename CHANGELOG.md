@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.13.2**:
+- fixed issue with `Download as PowerBI Project (PBIP)` when used from [VSCode Web](https://vscode.dev)
+- added progress bar for `Download as PowerBI Project (PBIP)`
+
 **v1.13.1**:
 - added `Copy Fabric API Access Token` command
 
