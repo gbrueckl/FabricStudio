@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.13.2",
+	"version": "1.13.3",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -128,7 +128,8 @@
 										"Dataflows",
 										"GraphQLApis",
 										"CopyJobs",
-										"VariableLibraries"
+										"VariableLibraries",
+										"Dataflows"
 									]
 								},
 								"format": {
@@ -338,7 +339,7 @@
 			},
 			{
 				"command": "FabricStudio.Item.editDefinition",
-				"title": "Edit Definition",
+				"title": "Edit",
 				"icon": "$(pencil)",
 				"category": "FabricStudio"
 			},
@@ -733,7 +734,7 @@
 				{
 					"command": "FabricStudio.Item.editDefinition",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_DEFINITION,.*/",
-					"group": "navigation"
+					"group": "2_edit"
 				},
 				{
 					"command": "FabricStudio.Item.editTMDL",
