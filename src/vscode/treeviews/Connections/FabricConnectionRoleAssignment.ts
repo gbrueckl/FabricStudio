@@ -20,10 +20,7 @@ export class FabricConnectionRoleAssignment extends FabricConnectionGenericViewe
 		this.description = this._description;
 		this.contextValue = this._contextValue;
 
-		this.iconPath = {
-			light: this.getIconPath(),
-			dark: this.getIconPath()
-		};
+		this.iconPath = this.getIconPath();
 
 		this.itemType = "ConnectionRoleAssignment";
 	}

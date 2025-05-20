@@ -18,10 +18,7 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 		this.description = this._description;
 		this.contextValue = this._contextValue;
 
-		this.iconPath = {
-			light: this.getIconPath(),
-			dark: this.getIconPath()
-		};
+		this.iconPath = this.getIconPath();
 
 		this.itemType = "GatewayRoleAssignment";
 	}

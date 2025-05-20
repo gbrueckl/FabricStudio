@@ -21,10 +21,7 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceGenericViewer 
 		this.description = this._description;
 		this.contextValue = this._contextValue;
 
-		this.iconPath = {
-			light: this.getIconPath(),
-			dark: this.getIconPath()
-		};
+		this.iconPath = this.getIconPath();
 	}
 
 	protected getIconPath(): string | vscode.Uri {
