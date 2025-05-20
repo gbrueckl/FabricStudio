@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.13.3",
+	"version": "1.14.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -434,14 +434,20 @@
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.FS.publishTMDL",
-				"title": "Publish TMDL via Fabric Studio",
+				"command": "FabricStudio.FS.publishSemanticModel",
+				"title": "Publish via Fabric Studio",
 				"icon": "$(cloud-upload)",
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.FS.publishPBIR",
-				"title": "Publish PBIR via Fabric Studio",
+				"command": "FabricStudio.FS.publishReport",
+				"title": "Publish via Fabric Studio",
+				"icon": "$(cloud-upload)",
+				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.FS.publishItem",
+				"title": "Publish via Fabric Studio",
 				"icon": "$(cloud-upload)",
 				"category": "FabricStudio"
 			},
@@ -879,13 +885,18 @@
 					"group": "2_workspace"
 				},
 				{
-					"command": "FabricStudio.FS.publishTMDL",
+					"command": "FabricStudio.FS.publishSemanticModel",
 					"when": "(resourcePath =~ /.*\\.SemanticModel(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/SemanticModels\\/.*/)",
 					"group": "2_workspace"
 				},
 				{
-					"command": "FabricStudio.FS.publishPBIR",
+					"command": "FabricStudio.FS.publishReport",
 					"when": "(resourcePath =~ /.*\\.Report(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Reports\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Notebook(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Notebooks\\/.*/)",
 					"group": "2_workspace"
 				}
 			],
@@ -1022,7 +1033,7 @@
 		"@types/mocha": "^9.1.1",
 		"@types/node": "^12.12.0",
 		"@types/rimraf": "^2.0.5",
-		"@types/vscode": "^1.68.0",
+		"@types/vscode": "^1.81.0",
 		"@vscode/test-web": "*",
 		"buffer": "^6.0.3",
 		"eslint": "^8.19.0",

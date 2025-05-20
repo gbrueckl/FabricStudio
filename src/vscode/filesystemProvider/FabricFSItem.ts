@@ -346,7 +346,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 	}
 
 	public async createSubFolder(folderPath: string): Promise<void> {
-		let parts = this.getApiResponse();
+		let parts = this.getApiResponse() || [];
 		const folderPathDecoded = decodeURIComponent(folderPath);
 		let index = parts.findIndex((part) => part.path == folderPathDecoded);
 		if (index >= 0) {

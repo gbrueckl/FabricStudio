@@ -109,12 +109,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.FS.publishToFabric', (uri) => FabricFSCache.publishToFabric(uri, true));
 	vscode.commands.registerCommand('FabricStudio.FS.reloadFromFabric', (uri) => FabricFSCache.reloadFromFabric(uri));
 	vscode.commands.registerCommand('FabricStudio.FS.openInFabric', (uri) => FabricFSUri.openInBrowser(uri));
-	vscode.commands.registerCommand('FabricStudio.FS.publishTMDL', (uri) => FabricFSHelper.publishTMDLFromLocal(uri));
-	vscode.commands.registerCommand('FabricStudio.FS.publishPBIR', (uri) => FabricFSHelper.publishPBIRFromLocal(uri));
+	// Publishing of local items to Fabric (e.g. from a Git-Repository, or PBI Desktop)
+	vscode.commands.registerCommand('FabricStudio.FS.publishItem', (uri) => FabricFSHelper.publishItemFromLocal(uri));
+	vscode.commands.registerCommand('FabricStudio.FS.publishSemanticModel', (uri) => FabricFSHelper.publishSemanticModelFromLocal(uri));
+	vscode.commands.registerCommand('FabricStudio.FS.publishReport', (uri) => FabricFSHelper.publishReportFromLocal(uri));
+	
 	//#endregion
 
 	//#region Fabric Workspaces TreeView
-	vscode.commands.registerCommand('FabricStudio.updateQuickPickList', (treeItem: FabricApiTreeItem) => FabricCommandBuilder.pushQuickPickItem(treeItem));
+	vscode.commands.registerCommand('FabricStudio.updateQuickPickList', (treeItem: FabricApiTreeItem) => FabricCommandBuilder.pushQuickPickApiItem(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricNotebookSerializer.openNewNotebook(treeItem));
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
@@ -219,9 +222,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	// eventhandles when Fabric documents are saved
 	vscode.workspace.onDidSaveTextDocument(FabricFSCache.onDidSave);
 	vscode.workspace.onDidSaveNotebookDocument(FabricFSCache.onDidSave);
-
-
-	
 }
 
 

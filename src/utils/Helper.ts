@@ -6,6 +6,8 @@
 import * as vscode from 'vscode';
 import { ThisExtension } from './../ThisExtension';
 import { FabricQuickPickItem } from '../vscode/input/FabricQuickPickItem';
+import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
+import { FabricApiItemType } from '../fabric/_types';
 
 export type UniqueId = string;
 
@@ -336,5 +338,9 @@ export abstract class Helper {
 
 			return item;
 		});
+	}
+
+	static getIconPath(itemType: FabricApiItemType): vscode.Uri {
+		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', FabricConfiguration.iconStyle, itemType.toLowerCase() + '.svg');
 	}
 }

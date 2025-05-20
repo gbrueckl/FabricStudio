@@ -32,6 +32,7 @@ import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
 import { FabricReports } from './FabricReports';
 import { FabricSemanticModels } from './FabricSemanticModels';
+import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -74,6 +75,15 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 	protected getIconPath(): string | vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'workspace.svg');
+	}
+
+	get asQuickPickItem(): FabricQuickPickItem {
+		let qpItem = new FabricQuickPickItem(this.itemName, this.itemId, this.itemId, `\tCapacityID: ${this.itemDefinition.capacityId}`);
+		qpItem.apiItem = this;
+		qpItem.itemType = this.itemType;
+		qpItem.workspaceId = this.workspaceId;
+
+		return qpItem;
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
@@ -175,7 +185,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 
 					itemToAdd = FabricWorkspacesTreeProvider.getFromApiDefinition(item, this);
 
-					if(grouping == NO_FOLDER) {
+					if (grouping == NO_FOLDER) {
 						// set the parent to the workspace (=this)
 						itemGroupings.get(grouping).addChild(itemToAdd, this);
 					}

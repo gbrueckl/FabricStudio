@@ -18,7 +18,7 @@ export type ApiMethod =
 
 export abstract class FabricCommandBuilder {
 	private static _quickPickLists: Map<FabricApiItemType, FabricQuickPickItem[]>;
-	private static _maxQuickPickListItems: number = 10;
+	private static _maxQuickPickListItems: number = 50;
 
 	static async execute<T>(
 		apiUrl: string,
@@ -93,6 +93,8 @@ export abstract class FabricCommandBuilder {
 			title: title + (description ? (" - " + description) : ""),
 			placeHolder: currentValue,
 			ignoreFocusOut: true,
+			matchOnDescription: true,
+			matchOnDetail: true,
 			/*,
 			onDidSelectItem: item => window.showInformationMessage(`Focus ${++i}: ${item}`)
 			*/
@@ -128,43 +130,7 @@ export abstract class FabricCommandBuilder {
 		return result;
 	}
 
-	static pushQuickPickItem(item: FabricApiTreeItem): void {
-		/* also support DATASET_XMLA
-		if (item.itemType == "DATASET") {
-			if (!this._quickPickLists.has("DATASET_XMLA")) {
-				ThisExtension.Logger.logInfo(`Adding item 'DATASET_XMLA' to QuickPickLists ...`);
-				this._quickPickLists.set("DATASET_XMLA", []);
-			}
-		}
-		*/
-		if (this._quickPickLists == undefined) {
-			ThisExtension.Logger.logInfo(`Initializing QuickPickList ...`);
-			this._quickPickLists = new Map<FabricApiItemType, FabricQuickPickItem[]>();
-		}
-
-		if (!this._quickPickLists.has(item.itemType)) {
-			ThisExtension.Logger.logInfo(`Adding item '${item.itemType}' to QuickPickLists ...`);
-			this._quickPickLists.set(item.itemType, []);
-		}
-
-		let newItem: FabricQuickPickItem = item.asQuickPickItem;
-
-		// if the item already exists, pop it and add it to the top again
-		let existingItemIndex = this._quickPickLists.get(item.itemType).findIndex(x => x.value == newItem.value);
-		if (existingItemIndex >= 0) {
-			this._quickPickLists.get(item.itemType).splice(existingItemIndex, 1);
-		}
-
-		ThisExtension.Logger.logDebug(`Adding item '${newItem.label}(${newItem.value})' to QuickPickList '${item.itemType}'.`);
-		this._quickPickLists.get(item.itemType).push(newItem);
-
-		while (this._quickPickLists.get(item.itemType).length > this._maxQuickPickListItems) {
-			let removed = this._quickPickLists.get(item.itemType).shift();
-			ThisExtension.Logger.logDebug(`Removed item '${removed.label}(${removed.value})' from QuickPickList '${item.itemType}'.`);
-		}
-	}
-
-	static getQuickPickItems(itemType: FabricApiItemType): FabricQuickPickItem[] {
+	static getQuickPickList(itemType: FabricApiItemType): FabricQuickPickItem[] {
 		if (this._quickPickLists == undefined) {
 			ThisExtension.Logger.logInfo(`Initializing QuickPickList ...`);
 			this._quickPickLists = new Map<FabricApiItemType, FabricQuickPickItem[]>();
@@ -173,7 +139,47 @@ export abstract class FabricCommandBuilder {
 		if (!this._quickPickLists.has(itemType)) {
 			ThisExtension.Logger.logInfo(`Adding item '${itemType}' to QuickPickLists ...`);
 			this._quickPickLists.set(itemType, []);
-			Helper.showTemporaryInformationMessage(`No items of type '${itemType}' found. Please navigate to them first.`, 4000);
+		}
+
+		return this._quickPickLists.get(itemType);
+	}
+
+	static pushQuickPickItem(item: FabricQuickPickItem): void {
+		let qpList = this.getQuickPickList(item.itemType);
+
+		// if the item already exists, pop it and add it to the top again
+		let existingItemIndex = qpList.findIndex(x => x.value == item.value);
+		if (existingItemIndex >= 0) {
+			qpList.splice(existingItemIndex, 1);
+		}
+
+		ThisExtension.Logger.logDebug(`Adding item '${item.label}(${item.value})' to QuickPickList '${item.itemType}'.`);
+		qpList.push(item);
+
+		while (qpList.length > this._maxQuickPickListItems) {
+			let removed = qpList.shift();
+			ThisExtension.Logger.logDebug(`Removed item '${removed.label}(${removed.value})' from QuickPickList '${item.itemType}'.`);
+		}
+	}
+
+	static pushQuickPickApiItem(item: FabricApiTreeItem): void {
+		let newItem: FabricQuickPickItem = item.asQuickPickItem;
+
+		this.pushQuickPickItem(newItem);
+	}
+
+	static getQuickPickItems(itemType: FabricApiItemType, showInofMessage: boolean = false): FabricQuickPickItem[] {
+		if (this._quickPickLists == undefined) {
+			ThisExtension.Logger.logInfo(`Initializing QuickPickList ...`);
+			this._quickPickLists = new Map<FabricApiItemType, FabricQuickPickItem[]>();
+		}
+
+		if (!this._quickPickLists.has(itemType)) {
+			ThisExtension.Logger.logInfo(`Adding item '${itemType}' to QuickPickLists ...`);
+			this._quickPickLists.set(itemType, []);
+			if(showInofMessage) {
+				Helper.showTemporaryInformationMessage(`No items of type '${itemType}' found. Please navigate to them first.`, 4000);
+			}
 			return [new FabricQuickPickItem("No items found!", "NO_ITEMS_FOUND", "NO_ITEMS_FOUND", "To populate this list, please navigate to/select the items in the browser first.")];
 		}
 

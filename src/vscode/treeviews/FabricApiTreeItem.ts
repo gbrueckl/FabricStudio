@@ -49,11 +49,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 		this.iconPath = this.getIconPath();
 
-		FabricCommandBuilder.pushQuickPickItem(this);
+		FabricCommandBuilder.pushQuickPickApiItem(this);
 	}
 
 	protected getIconPath(): string | vscode.Uri {
-		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', FabricConfiguration.iconStyle, this.itemType.toLowerCase() + '.svg');
+		return Helper.getIconPath(this.itemType); 
 	}
 
 	// tooltip shown when hovering over the item
@@ -268,6 +268,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	get asQuickPickItem(): FabricQuickPickItem {
 		let qpItem = new FabricQuickPickItem(this.itemName, this.itemId, this.itemId);
 		qpItem.apiItem = this;
+		qpItem.itemType = this.itemType;
 
 		return qpItem;
 	}

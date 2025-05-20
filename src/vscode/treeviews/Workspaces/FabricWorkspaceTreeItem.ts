@@ -100,6 +100,8 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	get asQuickPickItem(): FabricQuickPickItem {
 		let qpItem = new FabricQuickPickItem(this.itemName, this.itemId, this.itemId, `\tWorkspace: ${this.workspace.itemName} - ${this.workspaceId}`);
 		qpItem.apiItem = this;
+		qpItem.itemType = this.itemType;
+		qpItem.workspaceId = this.workspaceId;
 
 		return qpItem;
 	}
