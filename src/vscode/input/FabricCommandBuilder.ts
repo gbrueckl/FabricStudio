@@ -2,11 +2,14 @@ import * as vscode from 'vscode';
 
 import { FabricQuickPickItem } from './FabricQuickPickItem';
 import { FabricCommandInput } from './FabricCommandInput';
-import { FabricApiTreeItem } from '../treeviews/FabricApiTreeItem';
+import { ERROR_ITEM_ID, FabricApiTreeItem, NO_ITEMS_ITEM_ID } from '../treeviews/FabricApiTreeItem';
 import { FabricApiItemType } from '../../fabric/_types';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { ThisExtension } from '../../ThisExtension';
 import { Helper } from '@utils/Helper';
+import { FabricMapper } from '../../fabric/FabricMapper';
+
+export const NO_QP_ITEMS_ITEM_ID: string = "NO_ITEMS_LOADED";
 
 export type ApiMethod =
 	"GET"
@@ -145,6 +148,11 @@ export abstract class FabricCommandBuilder {
 	}
 
 	static pushQuickPickItem(item: FabricQuickPickItem): void {
+		if(item.value == NO_ITEMS_ITEM_ID || item.value == ERROR_ITEM_ID) {
+			ThisExtension.Logger.logDebug(`Item '${item.label}(${item.value})' is not added to QuickPickList '${item.itemType}'.`);
+			return;
+		}
+
 		let qpList = this.getQuickPickList(item.itemType);
 
 		// if the item already exists, pop it and add it to the top again
@@ -169,21 +177,19 @@ export abstract class FabricCommandBuilder {
 	}
 
 	static getQuickPickItems(itemType: FabricApiItemType, showInofMessage: boolean = false): FabricQuickPickItem[] {
-		if (this._quickPickLists == undefined) {
-			ThisExtension.Logger.logInfo(`Initializing QuickPickList ...`);
-			this._quickPickLists = new Map<FabricApiItemType, FabricQuickPickItem[]>();
-		}
+		let qpList = this.getQuickPickList(itemType);
 
-		if (!this._quickPickLists.has(itemType)) {
-			ThisExtension.Logger.logInfo(`Adding item '${itemType}' to QuickPickLists ...`);
-			this._quickPickLists.set(itemType, []);
-			if(showInofMessage) {
-				Helper.showTemporaryInformationMessage(`No items of type '${itemType}' found. Please navigate to them first.`, 4000);
+		if (qpList.length == 0) {
+			ThisExtension.Logger.logInfo(`QuickPickList '${itemType}' is empty!`);
+			
+			if (showInofMessage) {
+				vscode.window.showInformationMessage(`No items found for '${itemType}'!`);
 			}
-			return [new FabricQuickPickItem("No items found!", "NO_ITEMS_FOUND", "NO_ITEMS_FOUND", "To populate this list, please navigate to/select the items in the browser first.")];
+			const plural = FabricMapper.getItemTypePlural(itemType);
+			return [new FabricQuickPickItem(`No ${plural} found!`, NO_QP_ITEMS_ITEM_ID, NO_QP_ITEMS_ITEM_ID, "To populate this list, please navigate to/select the items in the treeview first.")];
 		}
-
-		return this._quickPickLists.get(itemType);;
+		
+		return qpList;
 	}
 }
 

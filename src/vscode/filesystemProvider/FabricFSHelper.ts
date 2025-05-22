@@ -4,7 +4,7 @@ import { ThisExtension } from '../../ThisExtension';
 import { Helper } from '@utils/Helper';
 import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCache } from './FabricFSCache';
-import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
+import { FabricCommandBuilder, NO_QP_ITEMS_ITEM_ID } from '../input/FabricCommandBuilder';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
 import { FabricApiItemType, iFabricApiItem } from '../../fabric/_types';
 import { FabricMapper } from '../../fabric/FabricMapper';
@@ -89,14 +89,14 @@ export abstract class FabricFSHelper {
 			2. check workspace quickpick
 				2.1. if non exist - populate from API with filter
 				2.2. rever to 1.
-		*/
+		*/ 
 
 		let qpItems = FabricCommandBuilder.getQuickPickItems(itemType, false);
 		let workspaces = FabricCommandBuilder.getQuickPickItems("Workspace", false);
 
 		// if nothing has been loaded yet
-		if (qpItems.length == 0 || qpItems[0].value == "NO_ITEMS_FOUND") {
-			// populate the workspaces QuickPic 
+		if (qpItems.length == 0 || qpItems[0].value == NO_QP_ITEMS_ITEM_ID) {
+			// populate the workspaces QuickPick 
 			const dummyRoot = await ThisExtension.TreeViewWorkspaces.getChildren();
 			workspaces = FabricCommandBuilder.getQuickPickItems("Workspace");
 			qpItems = workspaces;
@@ -148,7 +148,7 @@ export abstract class FabricFSHelper {
 				let newItem = new FabricQuickPickItem(item.displayName, item.id, item.displayName, item.description);
 				newItem.itemType = itemType;
 				newItem.workspaceId = targetItem.workspaceId;
-				newItem.detail = `\tWorkspaceID: ${targetItem.workspaceId}`
+				newItem.workspaceName = targetItem.workspaceName;
 				FabricCommandBuilder.pushQuickPickItem(newItem)
 			}
 
@@ -229,7 +229,6 @@ export abstract class FabricFSHelper {
 			this.publishFromUri(sourceUri, itemType, config?.itemsToExclude || [], config?.prePublishActionCreate, config?.prePublishActionUpdate),
 			3000
 		);
-		return this.publishFromUri(sourceUri, itemType, config?.itemsToExclude || [], config?.prePublishActionCreate, config?.prePublishActionUpdate);
 	}
 
 
@@ -301,10 +300,12 @@ export abstract class FabricFSHelper {
 			if (prePublishActionCreate) {
 				const continuePublish = await prePublishActionCreate(fabricUri);
 				if (!continuePublish) {
-					ThisExtension.Logger.logError("Pre-publish action after Create aborted the publish operation.", true);
+					ThisExtension.Logger.logError("Pre-publish action after Create aborted the publish operation.");
 					return;
 				}
 			}
+
+			FabricCommandBuilder.pushQuickPickItem(fabricUri.asQuickPickItem);
 		}
 		else {
 			// mark target as modified
@@ -312,7 +313,7 @@ export abstract class FabricFSHelper {
 			if (prePublishActionUpdate) {
 				const continuePublish = await prePublishActionUpdate(fabricUri);
 				if (!continuePublish) {
-					ThisExtension.Logger.logError("Pre-publish action after Update aborted the publish operation.", true);
+					ThisExtension.Logger.logError("Pre-publish action after Update aborted the publish operation.");
 					return;
 				}
 			}

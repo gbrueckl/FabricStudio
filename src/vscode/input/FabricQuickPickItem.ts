@@ -14,6 +14,7 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 	private _alwaysShow: boolean = false;
 	private _apiItem?: FabricApiTreeItem;
 	private _workspaceId?: string;
+	private _workspaceName?: string;
 	private _itemType?: FabricApiItemType;
 
 	constructor(
@@ -74,7 +75,16 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 
 	// A human-readable string which is rendered less prominent in a separate line.
 	get detail(): string {
-		return this._details;
+		if (this._details) {
+			return this._details;
+		}
+		else {
+			let detail = `\tWorkspace: ${this.workspaceName}`;
+			if (this.workspaceId) {
+				detail += ` - ${this.workspaceId}`;
+			}
+			return detail;
+		}
 	}
 
 	set detail(value: string) {
@@ -94,7 +104,7 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 	get alwaysShow(): boolean {
 		return this._alwaysShow;
 	}
-	
+
 	set alwaysShow(value: boolean) {
 		this._alwaysShow = value;
 	}
@@ -112,6 +122,14 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 	}
 	set workspaceId(value: string) {
 		this._workspaceId = value;
+	}
+
+	get workspaceName(): string {
+		return this._workspaceName;
+	}
+
+	set workspaceName(value: string) {
+		this._workspaceName = value;
 	}
 
 	get itemType(): FabricApiItemType {

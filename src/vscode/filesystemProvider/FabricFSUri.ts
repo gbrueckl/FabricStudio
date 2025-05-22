@@ -13,6 +13,7 @@ import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
+import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 
 // regex with a very basic check for valid GUIDs
 const REGEX_FABRIC_URI = /fabric:\/\/workspaces\/(?<workspace>[0-9a-fA-F-]{36})?(\/(?<itemType>[a-zA-Z]*))?(\/(?<Item>[0-9a-fA-F-]{36}))?(\/(?<part>.*))?($|\?)/gm
@@ -245,5 +246,22 @@ export class FabricFSUri {
 		// fabric://workspaces/<workspace-id>/<itemType>/<item-id>/<part1/part2/part3> to fabric://workspaces/<workspace-id>/<itemType>/<item-id>
 		let uri = vscode.Uri.parse(this.uri.toString().split("/").filter((path) => path.length > 0).slice(undefined, 5).join("/"));
 		return new FabricFSUri(uri);
+	}
+
+	get asQuickPickItem(): FabricQuickPickItem {
+		const itemUrl = this.fabricItemUri;
+
+		const singular = FabricMapper.getItemTypeSingular(itemUrl.itemType);
+		let qpItem = new FabricQuickPickItem(itemUrl.item, itemUrl.itemId, singular);
+		qpItem.itemType = singular;
+		qpItem.workspaceId = this.workspaceId;
+		for(const [key, value] of FabricFSUri._workspaceNameIdMap) {
+			if (value == itemUrl.workspaceId) {
+				qpItem.workspaceName = key;
+				break;
+			}
+		}
+
+		return qpItem;
 	}
 }

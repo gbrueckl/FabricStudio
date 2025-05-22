@@ -31,8 +31,20 @@ export abstract class FabricMapper {
 		}
 
 		const plural = this._pluralMappings.get(itemType) || itemType + "s";
-
 		return plural as FabricApiItemType;
+	}
+
+	static getItemTypeSingular(itemType: string): FabricApiItemType {
+		for (let item of this._pluralMappings.entries()) {
+			if (item[1] == itemType) {
+				return item[0] as FabricApiItemType;
+			}
+		}
+		if(itemType.endsWith("s")) {	
+			return itemType.slice(0, -1) as FabricApiItemType;
+		}
+
+		return itemType as FabricApiItemType;
 	}
 
 	private static _jobTypeMapping: Map<FabricApiItemType, string> = new Map([
