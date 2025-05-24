@@ -112,24 +112,26 @@
 									"markdownDescription": "The ItemType to configure the file format for.",
 									"required": true,
 									"enum": [
+										"CopyJobs",
+										"Dataflows",
 										"DataPipelines",
+										"Eventhouses",
+										"GraphQLApis",
+										"HLSCohorts",
+										"KQLDatabases",
+										"KQLDashboards",
+										"KQLQuerysets",
+										"MirroredDatabases",
+										"MountedDataFactories",
+										"Environments",
 										"Notebooks",
 										"Reports",
 										"SemanticModels",
-										"SparkJobDefinitions",
-										"MirroredDatabases",
-										"Eventhouses",
-										"KQLDatabases",
-										"KQLQuerysets",
 										"KQLDashboards",
-										"Reflexes",
 										"Eventstreams",
-										"MountedDataFactories",
-										"Dataflows",
-										"GraphQLApis",
-										"CopyJobs",
-										"VariableLibraries",
-										"Dataflows"
+										"Reflexes",
+										"SparkJobDefinitions",
+										"VariableLibraries"
 									]
 								},
 								"format": {
@@ -430,18 +432,6 @@
 			{
 				"command": "FabricStudio.FS.publishToFabric",
 				"title": "Publish to Fabric",
-				"icon": "$(cloud-upload)",
-				"category": "FabricStudio"
-			},
-			{
-				"command": "FabricStudio.FS.publishSemanticModel",
-				"title": "Publish via Fabric Studio",
-				"icon": "$(cloud-upload)",
-				"category": "FabricStudio"
-			},
-			{
-				"command": "FabricStudio.FS.publishReport",
-				"title": "Publish via Fabric Studio",
 				"icon": "$(cloud-upload)",
 				"category": "FabricStudio"
 			},
@@ -872,31 +862,116 @@
 				{
 					"command": "FabricStudio.FS.publishToFabric",
 					"when": "resourceScheme == fabric && resource =~ /^fabric:[\\/]+workspaces\\/[^\\/]*?\\/[^\\/]*?\\/[^\\/]*?$/",
-					"group": "2_workspace"
+					"group": "1_fabric"
 				},
 				{
 					"command": "FabricStudio.FS.openInFabric",
 					"when": "resourceScheme == fabric && resource =~ /^fabric:(([\\/]+[^\\/]+?)?|([\\/]+[^\\/]+?){4})$/",
-					"group": "2_workspace"
+					"group": "1_fabric"
 				},
 				{
 					"command": "FabricStudio.FS.reloadFromFabric",
 					"when": "resourceScheme == fabric",
+					"group": "1_fabric"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.CopyJob(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/CopyJobs\\/.*/)",
 					"group": "2_workspace"
 				},
 				{
-					"command": "FabricStudio.FS.publishSemanticModel",
-					"when": "(resourcePath =~ /.*\\.SemanticModel(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/SemanticModels\\/.*/)",
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Dataflow(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Dataflows\\/.*/)",
 					"group": "2_workspace"
 				},
 				{
-					"command": "FabricStudio.FS.publishReport",
-					"when": "(resourcePath =~ /.*\\.Report(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Reports\\/.*/)",
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.DataPipeline(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/DataPipelines\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Eventhouse(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Eventhouses\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.GraphQLApi(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/GraphQLApis\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.HLSCohort(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/HLSCohorts\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.KQLDatabase(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/KQLDatabases\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.KQLDashboard(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/KQLDashboards\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.KQLQueryset(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/KQLQuerysets\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.MirroredDatabase(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/MirroredDatabases\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.MountedDataFactory(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/MountedDataFactories\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Environment(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Environments\\/.*/)",
 					"group": "2_workspace"
 				},
 				{
 					"command": "FabricStudio.FS.publishItem",
 					"when": "(resourcePath =~ /.*\\.Notebook(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Notebooks\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Report(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Reports\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.SemanticModel(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/SemanticModels\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.KQLDashboard(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/KQLDashboards\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Eventstream(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Eventstreams\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.Reflex(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/Reflexes\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.SparkJobDefinition(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/SparkJobDefinitions\\/.*/)",
+					"group": "2_workspace"
+				},
+				{
+					"command": "FabricStudio.FS.publishItem",
+					"when": "(resourcePath =~ /.*\\.VariableLibrary(\\\\|$).*/) || (resourceScheme == fabric && resourcePath =~ /.*\\/VariableLibraries\\/.*/)",
 					"group": "2_workspace"
 				}
 			],

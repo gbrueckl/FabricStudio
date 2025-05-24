@@ -76,15 +76,16 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 	// A human-readable string which is rendered less prominent in a separate line.
 	get detail(): string {
 		if (this._details) {
-			return this._details;
+			return this._details.trim();
 		}
-		else {
+		else if (this.workspaceName) {
 			let detail = `\tWorkspace: ${this.workspaceName}`;
 			if (this.workspaceId) {
 				detail += ` - ${this.workspaceId}`;
 			}
 			return detail;
 		}
+		return undefined;
 	}
 
 	set detail(value: string) {

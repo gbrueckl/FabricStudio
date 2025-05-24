@@ -80,7 +80,7 @@ export abstract class FabricFSHelper {
 		}
 	}
 
-	private static async getTargetFromQuickPick(itemType: FabricApiItemType, includeNewOption: boolean = true, promptPart: string = "to overwrite"): Promise<FabricQuickPickItem> {
+	private static async getTargetFromQuickPick(itemType: FabricApiItemType, includeNewOption: boolean = true, promptPart: string = "to publish"): Promise<FabricQuickPickItem> {
 		/*
 			1. check item-type quickpick + NEW option
 				1.1. if non exist - SKIP to 2.
@@ -93,22 +93,45 @@ export abstract class FabricFSHelper {
 
 		let qpItems = FabricCommandBuilder.getQuickPickItems(itemType, false);
 		let workspaces = FabricCommandBuilder.getQuickPickItems("Workspace", false);
+		let targetWorkspace: FabricQuickPickItem = undefined;
 
 		// if nothing has been loaded yet
 		if (qpItems.length == 0 || qpItems[0].value == NO_QP_ITEMS_ITEM_ID) {
 			// populate the workspaces QuickPick 
 			const dummyRoot = await ThisExtension.TreeViewWorkspaces.getChildren();
 			workspaces = FabricCommandBuilder.getQuickPickItems("Workspace");
-			qpItems = workspaces;
+
+			targetWorkspace = await FabricCommandBuilder.showQuickPick(workspaces, `Select a workspace ${promptPart} to`, "", "");
+
+			if (!targetWorkspace) {
+				ThisExtension.Logger.logError("No workspace selected, aborting publish operation.", true);
+				return undefined;
+			}
+
+			const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
+			const items = await FabricApiService.getList<iFabricApiItem>("/workspaces/" + targetWorkspace.workspaceId + "/" + itemTypePlural);
+
+			for (const item of items.success) {
+				let newItem = new FabricQuickPickItem(item.displayName, item.id, item.displayName, item.description);
+				newItem.itemType = itemType;
+				newItem.workspaceId = targetWorkspace.workspaceId;
+				newItem.workspaceName = targetWorkspace.workspaceName;
+				FabricCommandBuilder.pushQuickPickItem(newItem)
+			}
+
+			qpItems = FabricCommandBuilder.getQuickPickItems(itemType, false);
 		}
 
 		if (includeNewOption) {
-			let newOption: FabricQuickPickItem = new FabricQuickPickItem(`New ${itemType}`, NEW_ITEM_ID, `Create a new ${itemType}`, "----------------------------------");
+			let newOption: FabricQuickPickItem = new FabricQuickPickItem(`NEW ${itemType}`, NEW_ITEM_ID, `Create a NEW ${itemType}`, "╠════════════ NEW ════════════╣");
 			newOption.alwaysShow = true;
+			newOption.iconPath = Helper.getIconPath(itemType);
+			newOption.itemType = itemType;
+
 			qpItems = [newOption].concat(qpItems);
 		}
 
-		let msg = `Select existing ${itemType} ${promptPart}`
+		let msg = `Select existing ${itemType} ${promptPart} to`
 		if (includeNewOption) { msg = msg + ` or 'New ${itemType}'`; }
 		const targetItem = await FabricCommandBuilder.showQuickPick(qpItems, msg, "", "");
 
@@ -116,12 +139,10 @@ export abstract class FabricFSHelper {
 			ThisExtension.Logger.logError("No item selected, aborting publish operation.", true);
 			return undefined;
 		}
-		else if (targetItem.value != NEW_ITEM_ID && targetItem.itemType != "Workspace") {
-			// a real item has been selected already
-			return targetItem;
-		}
 		else if (includeNewOption && targetItem.value == NEW_ITEM_ID) {
-			const targetWorkspace = await FabricCommandBuilder.showQuickPick(workspaces, `Select target workspace for the new ${itemType}`, "", "");
+			if(!targetWorkspace) {
+				targetWorkspace = await FabricCommandBuilder.showQuickPick(workspaces, `Select target workspace for the new ${itemType}`, "", "");
+			}
 			if (!targetWorkspace) {
 				ThisExtension.Logger.logError("No target workspace selected, aborting publish operation.", true);
 				return undefined;
@@ -136,23 +157,15 @@ export abstract class FabricFSHelper {
 			}
 			let newItem = new FabricQuickPickItem(newItemName);
 			newItem.workspaceId = targetWorkspace.value;
+			newItem.workspaceName = targetWorkspace.label;
+			newItem.iconPath = Helper.getIconPath(itemType);
+			newItem.itemType = itemType;
 
 			return newItem;
 		}
-
 		else {
-			const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
-			const items = await FabricApiService.getList<iFabricApiItem>("/workspaces/" + targetItem.workspaceId + "/" + itemTypePlural);
-
-			for (const item of items.success) {
-				let newItem = new FabricQuickPickItem(item.displayName, item.id, item.displayName, item.description);
-				newItem.itemType = itemType;
-				newItem.workspaceId = targetItem.workspaceId;
-				newItem.workspaceName = targetItem.workspaceName;
-				FabricCommandBuilder.pushQuickPickItem(newItem)
-			}
-
-			return this.getTargetFromQuickPick(itemType, false, promptPart);
+			// a real item has been selected already
+			return targetItem;
 		}
 	}
 
@@ -161,16 +174,6 @@ export abstract class FabricFSHelper {
 
 		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
 		return await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, target.label)}`), true);
-
-	}
-
-
-	static async publishSemanticModelFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
-		return this.publishItemFromLocal(sourceUri);
-	}
-
-	static async publishReportFromLocal(sourceUri: vscode.Uri): Promise<FabricFSUri> {
-		return this.publishItemFromLocal(sourceUri);
 	}
 
 	static async updateReportConnection(targetUri: FabricFSUri): Promise<boolean> {
@@ -180,7 +183,7 @@ export abstract class FabricFSHelper {
 
 		// if a local reference is used, we need to change it to a connection reference
 		if (pbirObj["datasetReference"]["byPath"]) {
-			const targetDataset = await FabricFSHelper.getTargetFromQuickPick("SemanticModel", false, "to connect to");
+			const targetDataset = await FabricFSHelper.getTargetFromQuickPick("SemanticModel", false, "to connect the report");
 
 			if (!targetDataset) {
 				ThisExtension.Logger.logError("No target dataset selected, aborting publish operation.", true);

@@ -111,8 +111,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.FS.openInFabric', (uri) => FabricFSUri.openInBrowser(uri));
 	// Publishing of local items to Fabric (e.g. from a Git-Repository, or PBI Desktop)
 	vscode.commands.registerCommand('FabricStudio.FS.publishItem', (uri) => FabricFSHelper.publishItemFromLocal(uri));
-	vscode.commands.registerCommand('FabricStudio.FS.publishSemanticModel', (uri) => FabricFSHelper.publishSemanticModelFromLocal(uri));
-	vscode.commands.registerCommand('FabricStudio.FS.publishReport', (uri) => FabricFSHelper.publishReportFromLocal(uri));
 	
 	//#endregion
 

@@ -115,7 +115,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			switch (confirmation) {
 				case "yesNo":
 					const confirmQp = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${item.itemType.toLowerCase()} '${item.itemName}'?`, undefined, undefined);
-					confirm = confirmQp.value;
+					confirm = confirmQp?.value || "no";
 					break;
 				case "name":
 					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${item.itemType.toLowerCase()} name '${item.itemName}' again.`, undefined, undefined);
@@ -139,7 +139,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		}
 		else {
 			const successMsg = `Deleted ${item.itemType.toLowerCase()} '${item.itemName}'!`
-			Helper.showTemporaryInformationMessage(successMsg, 5000);
+			Helper.showTemporaryInformationMessage(successMsg, 3000);
 
 			if (item.parent) {
 				ThisExtension.refreshTreeView(item.TreeProvider, item.parent);

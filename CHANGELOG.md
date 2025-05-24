@@ -2,6 +2,7 @@
 
 **v1.14.0**:
 - reworked `Publish via Fabric Stduio` from local items
+- added new items to `Edit Definition`
 
 **v1.13.3**:
 - added `Edit Definition` for new Dataflows Gen2-CICD
