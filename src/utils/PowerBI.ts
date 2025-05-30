@@ -143,9 +143,14 @@ export class PowerBI {
 		const srcReport = reportDetails.success;
 
 		// QuickPick - live connection or with dataset
+		let qpLiveConnection = new FabricQuickPickItem("Live Connection", "Live Connection", "The downloaded report will use a live connection to the dataset.");
+		qpLiveConnection.iconPath = new vscode.ThemeIcon("globe");
+		let qpLocalDataset = new FabricQuickPickItem("Local Dataset", "Local Dataset", "Also download the definitions connected dataset locally. This requires access to the datasource(s) and a refresh of the local dataset.");
+		qpLocalDataset.iconPath = new vscode.ThemeIcon("debug-disconnect");
 		const connModeQp = await FabricCommandBuilder.showQuickPick(
-			[new FabricQuickPickItem("Live Connection"), new FabricQuickPickItem("Local Dataset")],
-			`How do you want to connect to the data?`, "By choosing `Live Connection`, the PBIP file will use a live connection to the dataset. Chose `Local Dataset` to also download the connected dataset. This requires local access to the datasources and a refresh of the lcoal dataset.",
+			[qpLiveConnection, qpLocalDataset],
+			`How do you want to connect to the data?`, 
+			undefined,
 			"Live Connection");
 
 		if (!connModeQp) {

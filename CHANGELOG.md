@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.14.1**:
+- improved `Download as PBI Project` experience
+
 **v1.14.0**:
 - reworked `Publish via Fabric Stduio` from local items
 - added new items to `Edit Definition`

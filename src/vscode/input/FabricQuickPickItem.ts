@@ -10,7 +10,7 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 	private _description?: string;
 	private _details?: string;
 	private _picked?: boolean;
-	private _iconPath?: vscode.Uri;
+	private _iconPath?: vscode.Uri | vscode.ThemeIcon;
 	private _alwaysShow: boolean = false;
 	private _apiItem?: FabricApiTreeItem;
 	private _workspaceId?: string;
@@ -51,7 +51,7 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 	}
 
 	// The icon path for the QuickPickItem.
-	get iconPath(): vscode.Uri {
+	get iconPath(): vscode.Uri | vscode.ThemeIcon {
 		if (this._iconPath) {
 			return this._iconPath;
 		}
@@ -60,7 +60,7 @@ export class FabricQuickPickItem implements vscode.QuickPickItem {
 		}
 	}
 
-	set iconPath(value: vscode.Uri) {
+	set iconPath(value: vscode.Uri | vscode.ThemeIcon) {
 		this._iconPath = value;
 	}
 
