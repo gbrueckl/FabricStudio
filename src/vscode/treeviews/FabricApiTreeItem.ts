@@ -76,7 +76,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	// description is show next to the label
 	get _description(): string {
-		return this._itemId;
+		return `${this.itemType} - ID: ${this.itemId}`;
 	}
 
 	// used in package.json to filter commands via viewItem =~ /.*,GROUP,.*/

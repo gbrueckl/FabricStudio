@@ -94,6 +94,8 @@ export type FabricApiItemType =
 	| "WorkspaceManagedPrivateEndpoint"		//	A workspace managed private endpoint.
 	| "AdminTenantSettings"					//	Folder for admin tenant settings.
 	| "AdminTenantSetting"					//	An admin tenant setting.
+	| "MirroredAzureDatabricksCatalogs"		//	Folder for mirrored Azure Databricks catalogs.
+	| "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
 	;
 
 export enum FabricApiWorkspaceType {
@@ -144,6 +146,8 @@ export interface iFabricApiWorkspaceFolder {
 	parentFolderId?: UniqueId;
 }
 
+
+
 export interface iFabricApiLakehouseProperties {
 	oneLakeTablesPath: string;
 	oneLakeFilesPath: string;
@@ -152,6 +156,10 @@ export interface iFabricApiLakehouseProperties {
 		connectionString: string;
 		provisioningStatus: string;
 	}
+}
+
+export interface iFabricApiLakehouse extends iFabricApiItem {
+	properties: iFabricApiLakehouseProperties;
 }
 
 export interface iFabricApiLakehouseTable {

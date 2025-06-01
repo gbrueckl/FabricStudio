@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItem, iFabricApiLakehouseProperties } from '../../../fabric/_types';
+import { iFabricApiItem, iFabricApiLakehouse, iFabricApiLakehouseProperties } from '../../../fabric/_types';
 import { FabricLakehouseTables } from './FabricLakehouseTables';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
@@ -13,11 +13,12 @@ export class FabricLakehouse extends FabricItem {
 	private _properties: iFabricApiLakehouseProperties;
 
 	constructor(
-		definition: iFabricApiItem,
+		definition: iFabricApiLakehouse,
 		parent: FabricWorkspaceTreeItem
 	) {
 		super(definition, parent);
 
+		this.itemDefinition = definition;
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 		this.contextValue = this._contextValue;
 	}
@@ -36,6 +37,14 @@ export class FabricLakehouse extends FabricItem {
 		];
 
 		return orig + actions.join(",") + ",";
+	}
+
+	get itemDefinition(): iFabricApiLakehouse {
+		return <iFabricApiLakehouse>this._itemDefinition;
+	}
+
+	set itemDefinition(value: iFabricApiLakehouse) {
+		this._itemDefinition = value;		
 	}
 
 

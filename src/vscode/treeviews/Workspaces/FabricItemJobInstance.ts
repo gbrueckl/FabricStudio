@@ -44,8 +44,14 @@ export class FabricItemJobInstance extends FabricWorkspaceGenericViewer {
 			else if (this.itemDefinition.status.includes("Failed")) {
 				return new vscode.ThemeIcon("error");
 			}
-			else {
+			else if (this.itemDefinition.status.includes("Cancelled")) {
+				return new vscode.ThemeIcon("stop-circle");
+			}
+			else if (this.itemDefinition.status.includes("InProgress")) {
 				return new vscode.ThemeIcon("sync~spin");
+			}
+			else {
+				return new vscode.ThemeIcon("question");
 			}
 		}
 	}

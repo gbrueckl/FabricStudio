@@ -11,6 +11,7 @@ import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
+import { FabricFSCache } from '../../filesystemProvider/FabricFSCache';
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	protected _folderId: UniqueId;
 
@@ -121,6 +122,8 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
 		let itemFsPath = Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemName), "/");
 
+		// TODO: there is a bug if the item resides in a workspace folder
+		FabricFSUri.addItemNameIdMap(this.itemName, this.itemId, this.workspaceId, this.itemType);
 		const fabricFsUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
 		return fabricFsUri;
 

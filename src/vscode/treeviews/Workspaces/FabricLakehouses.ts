@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiLakehouse } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricLakehouse } from './FabricLakehouse';
@@ -27,7 +27,7 @@ export class FabricLakehouses extends FabricWorkspaceGenericFolder {
 			let children: FabricLakehouse[] = [];
 
 			try {
-				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
+				const items = await FabricApiService.getList<iFabricApiLakehouse>(this.apiPath);
 
 				if (items.error) {
 					ThisExtension.Logger.logError(items.error.message);

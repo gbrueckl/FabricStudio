@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "1.14.1",
+	"version": "1.14.3",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -121,6 +121,7 @@
 										"KQLDatabases",
 										"KQLDashboards",
 										"KQLQuerysets",
+										"MirroredAzureDatabricksCatalogs",
 										"MirroredDatabases",
 										"MountedDataFactories",
 										"Environments",

@@ -1,5 +1,13 @@
 # Change Log
 
+**v1.14.3**:
+- added `Edit Definition` for Mirrored Azure Databricks Catalogs
+- fixed issue with Job Instances status not displaying correctly
+
+**v1.14.2**:
+- added item type to preview
+- fixed issue with Mirrored Database Tables
+
 **v1.14.1**:
 - improved `Download as PBI Project` experience
 

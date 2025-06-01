@@ -35,14 +35,14 @@ export class FabricMirroredDatabaseTables extends FabricWorkspaceGenericFolder {
 			let children: FabricMirroredDatabaseTable[] = [];
 
 			try {
-				const items = await FabricApiService.getList<iFabricApiTableMirroringStatusResponse>(this.apiPath, undefined, "data", "sourceTableName");
+				const items = await FabricApiService.post(this.apiPath, undefined);
 
 				if (items.error) {
 					ThisExtension.Logger.logError(items.error.message);
 					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
 				}
 
-				for (let item of items.success) {
+				for (let item of items.success.data) {
 					let treeItem = new FabricMirroredDatabaseTable(item, this);
 					children.push(treeItem);
 				}

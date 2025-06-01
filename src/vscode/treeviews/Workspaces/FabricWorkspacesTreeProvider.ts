@@ -5,7 +5,7 @@ import { ThisExtension } from '../../../ThisExtension';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { Helper } from '@utils/Helper';
-import { iFabricApiItem, iFabricApiWorkspace } from '../../../fabric/_types';
+import { iFabricApiItem, iFabricApiLakehouse, iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
@@ -155,7 +155,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		let itemToAdd: FabricItem;
 
 		if (item.type == "Lakehouse") {
-			itemToAdd = new FabricLakehouse(item, parent);
+			itemToAdd = new FabricLakehouse(item as iFabricApiLakehouse, parent);
 		}
 		else if (item.type == "SQLEndpoint") {
 			itemToAdd = new FabricSqlEndpoint(item, parent);

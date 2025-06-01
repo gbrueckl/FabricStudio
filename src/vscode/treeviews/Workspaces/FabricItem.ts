@@ -42,6 +42,14 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 		return orig + actions.join(",") + ",";
 	}
 
+	get itemDefinition(): iFabricApiItem {
+		return this._itemDefinition;
+	}
+
+	set itemDefinition(value: iFabricApiItem) {
+		this._itemDefinition = value;
+	}
+
 	get itemApiPath(): string {
 		return Helper.trimChar(Helper.joinPath(this.workspace.apiPath, "items", this.itemId), "/");
 	}
@@ -141,14 +149,6 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 
 			return children;
 		}
-	}
-
-	get itemDefinition(): iFabricApiItem {
-		return this._itemDefinition;
-	}
-
-	set itemDefinition(value: iFabricApiItem) {
-		this._itemDefinition = value;
 	}
 
 	// Item-specific functions
