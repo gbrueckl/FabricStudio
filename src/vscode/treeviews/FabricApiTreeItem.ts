@@ -226,7 +226,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	public getBrowserLink(): vscode.Uri {
 		//https://app.powerbi.com/groups/ccce57d1-10af-1234-1234-665f8bbd8458/datasets/7cdff921-9999-8888-b0c8-34be20567742
 
-		return vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), FabricMapper.mapForBrowserUrl(this.itemPath));
+		return vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), FabricMapper.mapForBrowserUrl(this.itemPath.toLowerCase()));
 	}
 
 	public openInBrowser(): void {

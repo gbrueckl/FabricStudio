@@ -1,5 +1,9 @@
 # Change Log
 
+**v1.14.4**:
+- fix issue with `Open in Fabric Service`
+- added default value for the new item in `Publish via Fabric Studio` from `.platform` file
+
 **v1.14.3**:
 - added `Edit Definition` for Mirrored Azure Databricks Catalogs
 - fixed issue with Job Instances status not displaying correctly

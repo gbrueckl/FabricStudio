@@ -6,11 +6,12 @@ import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricCommandBuilder, NO_QP_ITEMS_ITEM_ID } from '../input/FabricCommandBuilder';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
-import { FabricApiItemType, iFabricApiItem } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem, iFabricPlatformFile } from '../../fabric/_types';
 import { FabricMapper } from '../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
+import { platform } from 'os';
 
 const NEW_ITEM_ID = "__NEW_ITEM";
 
@@ -48,20 +49,11 @@ export abstract class FabricFSHelper {
 	}
 
 	static async getDefinitionRoot(uri: vscode.Uri, rootFolderRegEx: RegExp): Promise<vscode.Uri> {
-
 		const match = rootFolderRegEx.exec(uri.toString());
 
 		if (match) {
 			return vscode.Uri.parse(match[1])
 		}
-
-		const parts = uri.toString().split("/")
-
-		// return parent of rootFolderName
-		// if (parts.includes(rootFolderName)) {
-		// 	const definitionUri = Helper.trimChar(Helper.joinPath(...parts.slice(undefined, parts.indexOf(rootFolderName))), "/");
-		// 	return vscode.Uri.parse(definitionUri);
-		// }
 
 		return undefined;
 	}
@@ -80,7 +72,12 @@ export abstract class FabricFSHelper {
 		}
 	}
 
-	private static async getTargetFromQuickPick(itemType: FabricApiItemType, includeNewOption: boolean = true, promptPart: string = "to publish"): Promise<FabricQuickPickItem> {
+	private static async getTargetFromQuickPick(
+		itemType: FabricApiItemType, 
+		includeNewOption: boolean = true, 
+		promptPart: string = "to publish",
+		platformContent: iFabricPlatformFile = undefined
+		): Promise<FabricQuickPickItem> {
 		/*
 			1. check item-type quickpick + NEW option
 				1.1. if non exist - SKIP to 2.
@@ -90,6 +87,9 @@ export abstract class FabricFSHelper {
 				2.1. if non exist - populate from API with filter
 				2.2. rever to 1.
 		*/ 
+		if(platformContent) {
+			itemType = platformContent.metadata.type;
+		}
 
 		let qpItems = FabricCommandBuilder.getQuickPickItems(itemType, false);
 		let workspaces = FabricCommandBuilder.getQuickPickItems("Workspace", false);
@@ -148,8 +148,11 @@ export abstract class FabricFSHelper {
 				return undefined;
 			}
 			const newItemName = await vscode.window.showInputBox({
+				title: `Publish new ${itemType}`,
+				ignoreFocusOut: true,
 				prompt: `Enter name for new ${itemType}`,
-				placeHolder: `My New ${itemType}`
+				placeHolder: `My New ${itemType}`,
+				value: platformContent?.metadata?.displayName || `My New ${itemType}`
 			});
 			if (!newItemName) {
 				ThisExtension.Logger.logError("No name for new item selected, aborting publish operation.", true);
@@ -169,8 +172,9 @@ export abstract class FabricFSHelper {
 		}
 	}
 
-	static async getTarget(itemType: FabricApiItemType): Promise<FabricFSUri> {
-		const target = await this.getTargetFromQuickPick(itemType, true);
+	static async getTarget(platformContent: iFabricPlatformFile): Promise<FabricFSUri> {
+		const itemType = platformContent.metadata.type;
+		const target = await this.getTargetFromQuickPick(itemType, true, undefined, platformContent);
 
 		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
 		return await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, target.label)}`), true);
@@ -243,16 +247,22 @@ export abstract class FabricFSHelper {
 		prePublishActionUpdate: (targetUri: FabricFSUri) => Promise<boolean> = undefined
 	): Promise<FabricFSUri> {
 		const rootRegex = await this.getRegex(itemType);
-		const target = await this.getTarget(itemType);
-		if (!target) {
-			ThisExtension.Logger.logError("No target selected, aborting publish operation.", true);
-			return;
-		}
-
 		const sourceFsUri: vscode.Uri = await FabricFSHelper.getDefinitionRoot(sourceUri, rootRegex);
 
 		if (!sourceFsUri) {
 			ThisExtension.Logger.logError(`Could not find matching regex '${rootRegex}' in '${sourceUri.toString()}'!`, true);
+			return;
+		}
+
+		const platformFileUri = vscode.Uri.joinPath(sourceFsUri, ".platform");
+		let platformFile = Buffer.from(await vscode.workspace.fs.readFile(platformFileUri)).toString("utf8");
+		const platformContent: iFabricPlatformFile = JSON.parse(platformFile) as iFabricPlatformFile;
+
+		itemType = platformContent["metadata"]["itemType"] || itemType;
+
+		const target = await this.getTarget(platformContent);
+		if (!target) {
+			ThisExtension.Logger.logError("No target selected, aborting publish operation.", true);
 			return;
 		}
 

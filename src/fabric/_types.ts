@@ -27,7 +27,7 @@ export type FabricApiItemType =
 	| "Eventhouse"
 	| "Reflex"					//	Reflex item.
 	| "MountedDataFactory" 		//	A MountedDataFactory item.
-	
+
 
 	// custom types
 	| "GenericViewer"			//	A generic viewer item.
@@ -491,4 +491,16 @@ export interface iFabricApiAdminTenantSetting {
 	settingName: string; // The name of the tenant setting.
 	tenantSettingGroup: string; // Tenant setting group name.
 	title: string; // The title of the tenant setting.
+}
+
+export interface iFabricPlatformFile {
+	$schema: string;
+	metadata: {
+		type: FabricApiItemType;
+		displayName: string;
+	},
+	config: {
+		version: string;
+		logicalId: string;
+	}
 }
