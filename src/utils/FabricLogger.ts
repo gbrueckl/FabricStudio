@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { Helper } from './Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricLogger {
@@ -37,8 +38,12 @@ export class FabricLogger {
 		this.log(text, vscode.LogLevel.Debug);
 	}
 
-	public logInfo(text: string): void {
+	public logInfo(text: string, infoWindowTimeout: number = undefined): void {
 		this.log(text, vscode.LogLevel.Info);
+
+		if (infoWindowTimeout && infoWindowTimeout > 0) {
+			Helper.showTemporaryInformationMessage(text, infoWindowTimeout);
+		} 
 	}
 
 	public logWarning(text: string, showWarningWindow: boolean = false): void {

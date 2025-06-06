@@ -5,6 +5,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { ThisExtension } from '../../../ThisExtension';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricNotebook extends FabricItem {
@@ -40,10 +41,10 @@ export class FabricNotebook extends FabricItem {
 		const response = await FabricApiService.post(endpoint, body, { "raw": false, "awaitLongRunningOperation": false });
 
 		if (response.error) {
-			vscode.window.showErrorMessage(response.error.message);
+			ThisExtension.Logger.logError(`Notebook job failed for '${notebook.itemName}': ${response.error.message}`, true);
 		}
 		else {
-			Helper.showTemporaryInformationMessage(`Notebook job started for '${notebook.itemName}'. (Tracking: GET ${response.success.url})`, 10000);
+			ThisExtension.Logger.logInfo(`Notebook job started for '${notebook.itemName}'. (Tracking: GET ${response.success.url})`, 5000);
 		}
 	}
 }

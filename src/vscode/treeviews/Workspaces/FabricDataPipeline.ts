@@ -5,6 +5,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { ThisExtension } from '../../../ThisExtension';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricDataPipeline extends FabricItem {
@@ -41,10 +42,10 @@ export class FabricDataPipeline extends FabricItem {
 		const response = await FabricApiService.post(endpoint, body, { "raw": false, "awaitLongRunningOperation": false });
 
 		if (response.error) {
-			vscode.window.showErrorMessage(response.error.message);
+			ThisExtension.Logger.logError(`DataPipeline job failed for '${this.itemName}': ${response.error.message}`, true);
 		}
 		else {
-			Helper.showTemporaryInformationMessage(`Pipeline job started for '${this.itemName}'. (Tracking: GET ${response.success.url})`, 10000);
+			ThisExtension.Logger.logInfo(`DataPipeline job started for '${this.itemName}'. (Tracking: GET ${response.success.url})`, 5000);
 		}
 		
 

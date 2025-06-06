@@ -1,8 +1,9 @@
 # Change Log
 
 **v1.14.4**:
-- fix issue with `Open in Fabric Service`
+- fixed issue with `Open in Fabric Service`
 - added default value for the new item in `Publish via Fabric Studio` from `.platform` file
+- reworked `Sync Metadata` for SQL Endpoints to use the new, [official API](https://learn.microsoft.com/en-us/rest/api/fabric/sqlendpoint/items/refresh-sql-endpoint-metadata?tabs=HTTP)
 
 **v1.14.3**:
 - added `Edit Definition` for Mirrored Azure Databricks Catalogs

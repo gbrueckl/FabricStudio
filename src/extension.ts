@@ -152,7 +152,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeTablesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
 
-	vscode.commands.registerCommand('FabricStudio.SQLEndpoint.syncMetadata', (sqlEndpoint: FabricSqlEndpoint) => sqlEndpoint.syncMetadata());
+	vscode.commands.registerCommand('FabricStudio.SQLEndpoint.syncMetadata', (sqlEndpoint: FabricSqlEndpoint) => FabricSqlEndpoint.syncMetadata(sqlEndpoint));
 
 
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.updateMirroringStatus', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.updateMirroringStatus());

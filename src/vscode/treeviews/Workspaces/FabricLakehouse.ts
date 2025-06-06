@@ -7,6 +7,8 @@ import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItem } from './FabricItem';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
+import { FabricSqlEndpoints } from './FabricSqlEndpoints';
+import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricLakehouse extends FabricItem {
@@ -66,7 +68,11 @@ export class FabricLakehouse extends FabricItem {
 			type: "SQLEndpoint"
 		};
 
-		let sqlEndpoint = new FabricSqlEndpoint(sqlEndpointDefinition, this);
+		let sqlEndpointParent = new FabricSqlEndpoints(this.workspace) as FabricWorkspaceTreeItem;
+		if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
+			sqlEndpointParent = this.workspace
+		}
+		let sqlEndpoint = new FabricSqlEndpoint(sqlEndpointDefinition, sqlEndpointParent);
 		sqlEndpoint.id = sqlEndpointProp.id + "/Lakehouse";
 
 		children.push(sqlEndpoint)
