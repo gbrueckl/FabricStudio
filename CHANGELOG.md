@@ -1,5 +1,8 @@
 # Change Log
 
+**v1.14.5**:
+- fixed issue when deleting a folder in the workspace browser ([#13](/../../issues/13))
+
 **v1.14.4**:
 - fixed issue with `Open in Fabric Service`
 - added default value for the new item in `Publish via Fabric Studio` from `.platform` file

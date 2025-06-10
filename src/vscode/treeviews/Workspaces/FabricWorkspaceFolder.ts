@@ -37,6 +37,10 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'genericfolder.svg');
 	}
 
+	get canDelete(): boolean {
+		return false;
+	}
+
 	get itemDefinition(): iFabricApiWorkspaceFolder {
 		return this._itemDefinition;
 	}
