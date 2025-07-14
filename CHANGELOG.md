@@ -1,5 +1,13 @@
 # Change Log
 
+**v2.0.0**:
+- added Completion Provider for REST API notebooks
+- added Swagger definition from official API documentation
+- improved API Notebooks to show endpoints from all methods
+- added Agent instructions for future coding
+- updated dependent libraries
+
+
 **v1.14.5**:
 - fixed issue when deleting a folder in the workspace browser ([#13](/../../issues/13))
 

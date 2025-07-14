@@ -189,7 +189,7 @@ This section provides pointers to important files and common patterns within the
 
 These files control which files should be ignored by AI tools and indexing systems:
 
-- @.agentignore : Specifies files that should be ignored by the Cursor IDE, including:
+- @.agentignore : Specifies files that should be ignored by the IDE, including:
   - Build and distribution directories
   - Environment and configuration files
   - Large data files (parquet, arrow, pickle, etc.)
@@ -199,7 +199,7 @@ These files control which files should be ignored by AI tools and indexing syste
   - IDE and editor files
   - Compiled binaries and media files
 
-- @.agentindexignore : Controls which files are excluded from Cursor's indexing to improve performance, including:
+- @.agentindexignore : Controls which files are excluded from indexing to improve performance, including:
   - All files in `.agentignore`
   - Files that may contain sensitive information
   - Large JSON data files

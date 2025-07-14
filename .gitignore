@@ -13,3 +13,5 @@ svg-icons.tgz
 temp-icons/
 .vscode-test-web/
 *.local.*
+
+utils/Swagger/definition/

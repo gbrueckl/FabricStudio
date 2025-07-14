@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 
 import { Buffer } from '@env/buffer';
+import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../ThisExtension';
 import { ApiEndpointDetails, FabricAPILanguage, SwaggerFile } from './_types';
 import { FabricNotebookContext } from '../notebook/FabricNotebookContext';
-import { Helper } from '@utils/Helper';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { iFabricApiItem } from '../../fabric/_types';
-
+import * as SwaggerParser from "@apidevtools/swagger-parser";
 
 
 /** Supported trigger characters */
@@ -39,8 +39,20 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		context.subscriptions.push(completionProvider);
 	}
 
-	async loadSwaggerFile(): Promise<void> {
+	static async onDidOpenNotebookDocument(document: vscode.NotebookDocument): Promise<void> {
+		if (document.uri.fsPath.endsWith('.fabnb')) {
+			ThisExtension.Logger.logDebug("Loading Swagger file for Fabric API Completion Provider ...");
+			await FabricAPICompletionProvider.loadSwaggerFile();
+		}
+	}
+
+	static async loadSwaggerFile(): Promise<void> {
+		if (FabricAPICompletionProvider.swagger) {
+			return;
+		}
 		const swaggerPath = vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'API', 'swagger.json');
+
+		//let api = await SwaggerParser.validate(swaggerPath.fsPath, { validate: { spec: false, schema: false } });
 		const swaggerText = Buffer.from(await vscode.workspace.fs.readFile(swaggerPath)).toString();
 		FabricAPICompletionProvider.swagger = JSON.parse(swaggerText);
 	}
@@ -55,25 +67,25 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		let matches: ApiEndpointDetails[] = [];
 		let matchesDifferentMethod: ApiEndpointDetails[] = [];
 		for (let item of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths)) {
-			
+
 			// within the same path as the typed path 
-			if (item.startsWith(searchPath))
-			{
+			if (item.startsWith(searchPath)) {
 				const parts = item.split("/");
 				// all APIs directly below the current path and all dynamic paths
-				if(parts.length == searchParts.length + 1 
-					// special case for Dataset queryScaleOut which has two fixed parts after the searchPath
-					|| (parts.length == searchParts.length + 2 && ["queryScaleOut"].includes(parts[searchParts.length]))
+				if (parts.length == searchParts.length + 1
 					|| (parts.length > searchParts.length && parts[searchParts.length].startsWith("{"))) {
 					for (let m of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths[item])) {
-						if (!method || m == method) {
-							let itemToAdd = FabricAPICompletionProvider.swagger.paths[item][m];
+						let itemToAdd = { ...FabricAPICompletionProvider.swagger.paths[item][m] };
+						if (m && m == method) {
 							itemToAdd.path = item;
 							itemToAdd.sortText = item;
+
+							if (!method) {
+								itemToAdd.methodOverwrite = m;
+							}
 							matches.push(itemToAdd);
 						}
-						else if(showOtherMethods) {
-							let itemToAdd = FabricAPICompletionProvider.swagger.paths[item][m];
+						else {
 							itemToAdd.path = item;
 							itemToAdd.sortText = 'ZZZ' + item;
 							itemToAdd.methodOverwrite = m;
@@ -91,28 +103,28 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 	async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext): Promise<vscode.CompletionItem[]> {
 		if (context.triggerCharacter == "%" && position.line == 0 && position.character == 1) {
 			let apiMagic: vscode.CompletionItem = {
-						label: "API",
-						insertText: "api",
-						commitCharacters: [" "],
-						detail: "Power BI REST API",
-						documentation: "Execute arbitrary Power BI REST API calls"
-					};
+				label: "API",
+				insertText: "api",
+				commitCharacters: [" "],
+				detail: "Power BI REST API",
+				documentation: "Execute arbitrary Power BI REST API calls"
+			};
 
 			let cmdMagic: vscode.CompletionItem = {
-						label: "CMD",
-						insertText: "cmd",
-						commitCharacters: [" "],
-						detail: "Notebook Commands",
-						documentation: "Set variables in the current notebook",
-					};
+				label: "CMD",
+				insertText: "cmd",
+				commitCharacters: [" "],
+				detail: "Notebook Commands",
+				documentation: "Set variables in the current notebook",
+			};
 
 			let graphQLMagic: vscode.CompletionItem = {
-						label: "GraphQL",
-						insertText: "grapql",
-						commitCharacters: [" "],
-						detail: "GraphQL Query",
-						documentation: "Run a GraphQL query against the current endpoint.",
-					};
+				label: "GraphQL",
+				insertText: "grapql",
+				commitCharacters: [" "],
+				detail: "GraphQL Query",
+				documentation: "Run a GraphQL query against the current endpoint.",
+			};
 
 			return [apiMagic, cmdMagic, graphQLMagic];
 		}
@@ -130,8 +142,8 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 				ThisExtension.Logger.logDebug("CompletionProvider started!");
 				let currentLine = document.lineAt(position.line).text;
 				let method = currentLine.split(" ")[0];
-				let showOtherMethods = false; // for future use to also display other Methods and overwrite it then
-				if(method.startsWith('%')) { //when overwriting the API for a specific magic, we only show GET methods
+				let showOtherMethods = true; // for future use to also display other Methods and overwrite it then
+				if (method.startsWith('%')) { //when overwriting the API for a specific magic, we only show GET methods
 					method = 'GET';
 					showOtherMethods = false;
 				}
@@ -139,10 +151,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 
 				if (currentPath.startsWith('./')) {
 					const nbContext = FabricNotebookContext.getForUri(document.uri);
-					currentPath = Helper.joinPath(`/v1`, nbContext.apiRootPath, currentPath.slice(2));
-				}
-				else if (currentPath.startsWith('/') && !currentPath.startsWith('/v1')) {
-					currentPath = Helper.joinPath(`/v1`, currentPath);
+					currentPath = Helper.joinPath(nbContext.apiRootPath, currentPath.slice(2));
 				}
 
 				// replace multiple slashes with one
@@ -175,9 +184,14 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 						insertText: insertText,
 						commitCharacters: TRIGGER_CHARS,
 						detail: api.summary,
-						documentation: api.description,
-						sortText: api.sortText
+						documentation: new vscode.MarkdownString(api.description),
+						sortText: api.sortText,
 					};
+
+					if (api.methodOverwrite) {
+						completionItem.label = api.methodOverwrite.toUpperCase() + " " + completionItem.label;
+						completionItem.additionalTextEdits = [vscode.TextEdit.replace(new vscode.Range(position.line, 0, position.line, method.length), api.methodOverwrite.toUpperCase())];
+					}
 
 					if (!completionItems.find((item) => item.label == completionItem.label) && nextToken != "/" && nextToken != "") {
 						ThisExtension.Logger.logDebug("Adding '" + nextToken + "' to completion list! (from '" + api.path + "')");
@@ -189,24 +203,36 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 						if (bodyParameter) {
 							let examples = Object.getOwnPropertyNames(api["x-ms-examples"]);
 							for (let example of examples) {
-								let exampleBody = api["x-ms-examples"][example].parameters[bodyParameter.name];
+								try {
+									const exampleDef = api["x-ms-examples"][example];
+									// check if the example has a $ref property, which means it is not a valid example
+									// and should be skipped
+									if (exampleDef.$ref) {
+										ThisExtension.Logger.logDebug("Skipping example '" + example + "' as it is not a valid example!");
+										continue;
+									}
+									let exampleBody = api["x-ms-examples"][example].parameters[bodyParameter.name];
 
-								let completionItem: vscode.CompletionItem = {
-									label: nextToken + ": " + example,
-									kind: vscode.CompletionItemKind.Snippet,
-									insertText: insertText + "\n" + JSON.stringify(exampleBody, null, 4),
-									commitCharacters: TRIGGER_CHARS,
-									detail: example
-								};
+									let completionItem: vscode.CompletionItem = {
+										label: nextToken + ": " + example,
+										kind: vscode.CompletionItemKind.Snippet,
+										insertText: insertText + "\n" + JSON.stringify(exampleBody, null, 4),
+										commitCharacters: TRIGGER_CHARS,
+										detail: example
+									};
 
-								completionItems.push(completionItem);
+									completionItems.push(completionItem);
+								}
+								catch (error) {
+									ThisExtension.Logger.logDebug("Error while processing example '" + example + "': " + error);
+								}
 							}
 						}
 					}
 				}
 				ThisExtension.Logger.logInfo("Found " + completionItems.length + " completions! (filtered duplicates)");
 
-				if(completionItems.length == 0) {
+				if (completionItems.length == 0) {
 					completionItems.push({
 						label: "No completion items found!",
 						insertText: ""
@@ -218,7 +244,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 				ThisExtension.Logger.logError("ERROR: " + error);
 			}
 		}
-		
+
 		return [];
 	}
 
@@ -235,7 +261,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		completionItem.label = apiItem.name ?? apiItem.displayName ?? apiItem[itemTypeOverwrite];
 		completionItem.detail = await this.getCompletionItemDetail(apiItem)
 		completionItem.insertText = apiItem[itemTypeOverwrite] ?? apiItem.id,
-		completionItem.commitCharacters = TRIGGER_CHARS;
+			completionItem.commitCharacters = TRIGGER_CHARS;
 
 		return completionItem;
 	}

@@ -1,1 +1,1 @@
-https://github.com/microsoft/PowerBI-CSharp/blob/master/sdk/swaggers/swagger.json
+https://github.com/microsoft/fabric-rest-api-specs

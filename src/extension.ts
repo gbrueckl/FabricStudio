@@ -40,6 +40,7 @@ import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeIte
 import { FabricAdminGenericViewer } from './vscode/treeviews/Admin/FabricAdminGenericViewer';
 import { FabricReport } from './vscode/treeviews/Workspaces/FabricReport';
 import { FabricSemanticModel } from './vscode/treeviews/Workspaces/FabricSemanticModel';
+import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -103,8 +104,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		FabricNotebookContext.set(e.metadata.guid, metadata);
 	});
 
-	//const completionProvider = new FabricAPICompletionProvider(context);
-	//completionProvider.loadSwaggerFile();
+	const completionProvider = new FabricAPICompletionProvider(context);
 
 	vscode.commands.registerCommand('FabricStudio.FS.publishToFabric', (uri) => FabricFSCache.publishToFabric(uri, true));
 	vscode.commands.registerCommand('FabricStudio.FS.reloadFromFabric', (uri) => FabricFSCache.reloadFromFabric(uri));
@@ -220,6 +220,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// eventhandles when Fabric documents are saved
 	vscode.workspace.onDidSaveTextDocument(FabricFSCache.onDidSave);
 	vscode.workspace.onDidSaveNotebookDocument(FabricFSCache.onDidSave);
+
+	vscode.workspace.onDidOpenNotebookDocument(FabricAPICompletionProvider.onDidOpenNotebookDocument);
 }
 
 
