@@ -8,7 +8,8 @@
 		"paths": {
 			"@env/*": ["./src/env/node/*"],
 			"@utils/*": ["./src/utils/*"]
-		}
+		},
+		"esModuleInterop": true
 	},
 	"exclude": [
 		"node_modules",

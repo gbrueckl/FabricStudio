@@ -246,6 +246,7 @@ export abstract class FabricApiService {
 
 			let success: TSuccess;
 			let error: iGenericApiError;
+			let responseHeaders = Object.fromEntries(response.headers.entries());
 
 			if (response.ok) {
 				if (!resultText || resultText == "") {
@@ -274,7 +275,7 @@ export abstract class FabricApiService {
 				throw new Error(error.message);
 			}
 
-			return { success: success, error: error } as iGenericApiResponse<TSuccess, iGenericApiError>;
+			return { success: success, error: error, responseHeaders: responseHeaders } as iGenericApiResponse<TSuccess, iGenericApiError>;
 
 		} catch (error) {
 			this.handleApiException(error, false, config.raiseErrorOnFailure);
@@ -385,15 +386,20 @@ export abstract class FabricApiService {
 
 			let success: TSuccess;
 			let error: iFabricErrorResponse;
+			let responseHeaders = Object.fromEntries(response.headers.entries());
 
 			if (response.ok) {
 				if (response.status == 202) {
 					if (config.awaitLongRunningOperation) {
-						return await this.longRunningOperation<TSuccess>(response, 2000);
+						
+						let lroResult = await this.longRunningOperation<TSuccess>(response, 2000);
+						lroResult.responseHeaders = responseHeaders;
+
+						return lroResult;
 					}
 					else {
 						this.Logger.logInfo("Long Running Operation started! Status available via GET " + response.headers.get("location"));
-						success = ({ message: "Long Running Operation started!", url: response.headers.get("location") }) as TSuccess;
+						success = ({ message: "Long Running Operation started!", url: response.headers.get("location"), responseHeaders: responseHeaders }) as TSuccess;
 					}
 				}
 				else {
@@ -424,7 +430,7 @@ export abstract class FabricApiService {
 				throw new Error(error.message);
 			}
 
-			return { success: success, error: error } as iGenericApiResponse<TSuccess, iGenericApiError>;
+			return { success: success, error: error, responseHeaders: responseHeaders } as iGenericApiResponse<TSuccess, iGenericApiError>;
 
 		} catch (error) {
 			this.handleApiException(error, false, config.raiseErrorOnFailure);

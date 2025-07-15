@@ -1102,8 +1102,8 @@
 		"lint": "eslint src --ext ts",
 		"test": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/web/extension.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-		"combine-swagger": "ts-node utils/Swagger/combine-swagger.ts",
-		"download-api-specs": "ts-node utils/Swagger/download-api-specs.ts"
+		"download-api-specs": "ts-node utils/Swagger/download-api-specs.ts",
+		"create-single-swagger": "ts-node utils/Swagger/create-single-swagger.ts"
 	},
 	"devDependencies": {
 		"@apidevtools/swagger-parser": "^12.0.0",
@@ -1119,6 +1119,7 @@
 		"glob": "^9.0.0",
 		"https-agent": "^1.0.0",
 		"https-proxy-agent": "^5.0.1",
+		"json-serialize-refs": "^0.1.0-0",
 		"mocha": "^11.7.0",
 		"native-ext-loader": "^2.3.0",
 		"node-fetch": "^3.3.2",
@@ -1128,5 +1129,8 @@
 		"typescript": "^4.7.4",
 		"webpack": "^5.74.0",
 		"webpack-cli": "^4.10.0"
+	},
+	"dependencies": {
+		"swagger-combine": "^1.4.0"
 	}
 }

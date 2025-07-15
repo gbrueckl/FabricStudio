@@ -3,10 +3,12 @@
 **v2.0.0**:
 - added Completion Provider for REST API notebooks
 - added Swagger definition from official API documentation
+- added new `-H` flag to be used with API calls to also show the response header of the initial request
+- added examples from API definitions
 - improved API Notebooks to show endpoints from all methods
 - added Agent instructions for future coding
 - updated dependent libraries
-
+- added scripts to update Swagger definition
 
 **v1.14.5**:
 - fixed issue when deleting a folder in the workspace browser ([#13](/../../issues/13))

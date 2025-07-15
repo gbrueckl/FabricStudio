@@ -1,4 +1,4 @@
-import { iGenericApiError } from "@utils/_types";
+import { iGenericApiError, iGenericApiResponse } from "@utils/_types";
 import { UniqueId } from "@utils/Helper";
 
 // https://learn.microsoft.com/en-us/rest/api/fabric/core/items/get-item?tabs=HTTP#itemtype
@@ -217,16 +217,14 @@ export interface iFabricErrorResponseDetails {
 	relatedResource: iFabricErrorRelatedResource; //The error related resource details.
 }
 export interface iFabricErrorResponse extends iGenericApiError {
-	errorCode: string; 	// A specific identifier that provides information about an error condition, allowing for standardized communication between our service and its users.
-	message: string; 	// human readable representation of the error.
 	moreDetails?: iFabricErrorResponseDetails[] 		// List of additional error details.
 	relatedResource?: iFabricErrorRelatedResource 	// The error related resource details.
-	requestId?: string 	// ID of the request associated with the error.
 }
 
-export interface iFabricApiResponse<TSucces = any, TError = iFabricErrorResponse> {
+export interface iFabricApiResponse<TSucces = any, TError = iFabricErrorResponse> extends iGenericApiResponse<TSucces, TError> {
 	success?: TSucces;
 	error?: TError;
+	responseHeaders?: { [key: string]: string }; 
 }
 
 export interface iFabricApiGitItemIdentifier {

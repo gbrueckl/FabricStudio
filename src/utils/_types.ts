@@ -11,6 +11,7 @@ export interface iGenericApiError {
 export interface iGenericApiResponse<TSucces = any, TError = iGenericApiError> {
 	success?: TSucces;
 	error?: TError;
+	responseHeaders?: { [key: string]: string };
 }
 
 export interface iGenericApiCallConfig {

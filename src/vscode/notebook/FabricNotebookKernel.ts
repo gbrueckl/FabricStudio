@@ -227,6 +227,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 			let magic: NotebookMagic = null;
 			let language: QueryLanguage = null;
 			let customApi: string = null;
+			let flags: string[] = [];
 
 			[language, commandText, magic, customApi] = this.parseCell(cell);
 
@@ -239,11 +240,16 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 			switch (magic) {
 				case "api":
 
-					const parseRegEx = /(?<method>.+?)\s+(?<endpoint>.+?)\s*(?<body>{.*})?\s*$/s;
+					const parseRegEx = /(?<method>\w+?)\s+(?<endpoint>[\.\-\w\/]+)(\s+|$)?(?<flags>[\w\s-]+?)?(\s+|$)?(?<body>{.*})?\s*$/s;
 					const match = commandTextClean.match(parseRegEx);
 					let method = match.groups["method"].trim().toUpperCase();
 					let endpoint = match.groups["endpoint"].trim();
+					let flagsString = match.groups["flags"];
 					let bodyString = match.groups["body"];
+
+					if (flagsString) {	
+						flags = flagsString.split(" ").map(f => f.trim()).filter(f => f != "");
+					}
 
 					let body = undefined;
 					if (bodyString) {
@@ -344,6 +350,20 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 				let output: vscode.NotebookCellOutput;
 
+				if (flags.includes("-H")) {
+					let responseHeaders = result.responseHeaders || {};
+					if (Object.keys(responseHeaders).length > 0) {
+						execution.appendOutput(new vscode.NotebookCellOutput([
+							vscode.NotebookCellOutputItem.json(responseHeaders, 'application/json'),
+							vscode.NotebookCellOutputItem.text(JSON.stringify(responseHeaders), 'text/plain')
+						]));
+					} else {
+						execution.appendOutput(new vscode.NotebookCellOutput([
+							vscode.NotebookCellOutputItem.text("No response headers returned.", 'text/plain')
+						]));
+					}
+				}
+
 				if (result.success) {
 					if (result.success.value) {
 						output = new vscode.NotebookCellOutput([
@@ -368,6 +388,8 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 					execution.end(false, Date.now());
 					return;
 				}
+
+				
 			}
 		} catch (error) {
 			execution.appendOutput(new vscode.NotebookCellOutput([

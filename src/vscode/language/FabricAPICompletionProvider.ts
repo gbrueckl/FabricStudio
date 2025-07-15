@@ -154,6 +154,14 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 					currentPath = Helper.joinPath(nbContext.apiRootPath, currentPath.slice(2));
 				}
 
+				if (currentPath.startsWith('./')) {
+					const nbContext = FabricNotebookContext.getForUri(document.uri);
+					currentPath = Helper.joinPath('/v1', nbContext.apiRootPath, currentPath.slice(2));
+				}
+				else if (currentPath.startsWith('/') && !currentPath.startsWith('/v1')) {
+					currentPath = Helper.joinPath('/v1', currentPath);
+				}
+
 				// replace multiple slashes with one
 				currentPath = currentPath.replace(/\/+/gm, "/");
 
@@ -269,7 +277,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 	async getCompletionItemDetail(apiItem: any): Promise<string> {
 		let details = {};
 		for (let property of Object.getOwnPropertyNames(apiItem)) {
-			if (DETAILS_BLACKLIST.includes(property) || apiItem[property].toString().length > 100) {
+			if (DETAILS_BLACKLIST.includes(property) || !apiItem[property] || apiItem[property].toString().length > 100) {
 				continue
 			}
 			details[property] = apiItem[property];
