@@ -67,12 +67,12 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		let matches: ApiEndpointDetails[] = [];
 		let matchesDifferentMethod: ApiEndpointDetails[] = [];
 		for (let item of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths)) {
-
 			// within the same path as the typed path 
 			if (item.startsWith(searchPath)) {
 				const parts = item.split("/");
 				// all APIs directly below the current path and all dynamic paths
 				if (parts.length == searchParts.length + 1
+					|| (parts.length == searchParts.length + 2 && parts[searchParts.length] == "jobs") // exception for jobs
 					|| (parts.length > searchParts.length && parts[searchParts.length].startsWith("{"))) {
 					for (let m of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths[item])) {
 						let itemToAdd = { ...FabricAPICompletionProvider.swagger.paths[item][m] };
@@ -219,26 +219,27 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 										ThisExtension.Logger.logDebug("Skipping example '" + example + "' as it is not a valid example!");
 										continue;
 									}
+									let exampleInsertText = insertText;
 									let exampleBody = {}
-									let queryParameters = {}
+									let exampleQueryParameters = {}
 									for (const param of Object.getOwnPropertyNames(exampleDef.parameters)) {
 										const origParam = api.parameters.find((p) => p.name == param);
 										if (origParam.in == "body") {
-											exampleBody[param] = exampleDef.parameters[param];
+											exampleBody = exampleDef.parameters[param];
 										}
-										if (origParam.in == "query") {
-											queryParameters[param] = exampleDef.parameters[param];
+										if (origParam.in == "query" && !exampleInsertText.includes(param + "=")) {
+											exampleQueryParameters[param] = exampleDef.parameters[param];
 										}
 									}
 
-									if (queryParameters && Object.keys(queryParameters).length > 0) {
-										insertText = insertText + "?" + Object.keys(queryParameters).map(key => `${key}=${queryParameters[key]}`).join("&");
+									if (exampleQueryParameters && Object.keys(exampleQueryParameters).length > 0) {
+										exampleInsertText = exampleInsertText + "?" + Object.keys(exampleQueryParameters).map(key => `${key}=${exampleQueryParameters[key]}`).join("&");
 									}
 
 									let completionItem: vscode.CompletionItem = {
 										label: nextToken + ": " + example,
 										kind: vscode.CompletionItemKind.Snippet,
-										insertText: insertText + "\n" + JSON.stringify(exampleBody, null, 4),
+										insertText: exampleInsertText + "\n" + JSON.stringify(exampleBody, null, 4),
 										commitCharacters: TRIGGER_CHARS,
 										detail: example
 									};

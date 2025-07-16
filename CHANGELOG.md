@@ -3,7 +3,7 @@
 **v2.0.0**:
 - added Completion Provider for REST API notebooks
 - added Swagger definition from official API documentation
-- added new `-H` flag to be used with API calls to also show the response header of the initial request
+- added new `-H` flag to be used with API calls to also show the response header of the initial request ([#14](/../../issues/14))
 - added examples from API definitions
 - improved API Notebooks to show endpoints from all methods + examples
 - added Agent instructions for future coding
