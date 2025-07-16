@@ -1102,7 +1102,6 @@
 		"lint": "eslint src --ext ts",
 		"test": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/web/extension.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-		"download-api-specs": "ts-node utils/Swagger/download-api-specs.ts",
 		"create-single-swagger": "ts-node utils/Swagger/create-single-swagger.ts"
 	},
 	"devDependencies": {
