@@ -229,6 +229,11 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 										detail: example
 									};
 
+									if (api.methodOverwrite) {
+										completionItem.label = api.methodOverwrite.toUpperCase() + " " + completionItem.label;
+										completionItem.additionalTextEdits = [vscode.TextEdit.replace(new vscode.Range(position.line, 0, position.line, method.length), api.methodOverwrite.toUpperCase())];
+									}
+
 									completionItems.push(completionItem);
 								}
 								catch (error) {

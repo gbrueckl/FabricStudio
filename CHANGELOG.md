@@ -5,7 +5,7 @@
 - added Swagger definition from official API documentation
 - added new `-H` flag to be used with API calls to also show the response header of the initial request
 - added examples from API definitions
-- improved API Notebooks to show endpoints from all methods
+- improved API Notebooks to show endpoints from all methods + examples
 - added Agent instructions for future coding
 - updated dependent libraries
 - added scripts to update Swagger definition
