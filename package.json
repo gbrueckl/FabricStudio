@@ -1128,8 +1128,5 @@
 		"typescript": "^4.7.4",
 		"webpack": "^5.74.0",
 		"webpack-cli": "^4.10.0"
-	},
-	"dependencies": {
-		"swagger-combine": "^1.4.0"
 	}
 }
