@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 
+import { Helper } from '@utils/Helper';
+
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiItem, iFabricApiWorkspaceFolder } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
@@ -13,6 +15,7 @@ import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricNotebook } from './FabricNotebook';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
+
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
@@ -106,6 +109,29 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
 		return children;
-
 	}
+
+	static async moveToFolder(sourceFolder: iFabricApiWorkspaceFolder, targetFolder?: iFabricApiWorkspaceFolder): Promise<void> {
+			// https://learn.microsoft.com/en-us/rest/api/fabric/core/folders/move-folder?tabs=HTTP
+			/*
+			POST https://api.fabric.microsoft.com/v1/workspaces/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb/folders/dddddddd-9999-0000-1111-eeeeeeeeeeee/move
+			{
+				"targetFolderId": "cccccccc-8888-9999-0000-dddddddddddd"
+			}
+			*/
+	
+			const apiPath = `v1/workspaces/${sourceFolder.workspaceId}/folders/${sourceFolder.id}/move`;
+			let body = {};
+			if (targetFolder) {
+				body = { "targetFolderId": targetFolder.id };
+			}
+			const response = await FabricApiService.post(apiPath, body);
+	
+			if (response.error) {
+				vscode.window.showErrorMessage(response.error.message);
+			}
+			else {
+				Helper.showTemporaryInformationMessage(`Successfully moved Folder '${sourceFolder.displayName}' to Folder '${targetFolder.displayName}'!`, 3000);
+			}
+		}
 }

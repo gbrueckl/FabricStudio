@@ -14,6 +14,7 @@ import { FabricGatewayRoleAssignments } from './treeviews/Connections/FabricGate
 import { FabricConnectionRoleAssignment } from './treeviews/Connections/FabricConnectionRoleAssignment';
 import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricConnectionRoleAssignments';
 import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
+import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFolder';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -27,7 +28,30 @@ class FabricObjectTransferItem extends vscode.DataTransferItem {
 	}
 
 	async asString(): Promise<string> {
-		return this.jsonifyObject(this.value, 3);
+		try {
+			const ret = JSON.stringify(this._nodes, this.getCircularReplacer());
+			return ret;
+		} catch (error) {
+			ThisExtension.Logger.logError("Error converting FabricApiTreeItem to string: " + error);
+			return "";
+		}
+
+		//const ret = this.jsonifyObject(this._nodes, 3);
+
+
+	}
+
+	getCircularReplacer() {
+		const seen = new WeakSet();
+		return (key: any, value: any) => {
+			if (typeof value === "object" && value !== null) {
+				if (seen.has(value)) {
+					return;
+				}
+				seen.add(value);
+			}
+			return value;
+		};
 	}
 
 	jsonifyObject(obj: Object, maxLevels: number = 2, currentLevel: number = 0): string {
@@ -202,7 +226,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					await target.addRoleAssignment(sourceItem.itemDefinition);
 					ThisExtension.TreeViewConnections.refresh(target.parent, false);
 				}
-				
+
 				actions.set("Add GatewayRoleAssignment", addRoleAssignment);
 			}
 		}
@@ -232,6 +256,42 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 				actions.set("Assign to Capacity", assignToCapacity);
 			}
 		}
+		else if (source_Item0.itemType == "WorkspaceFolder") {
+			const sourceItem = source_Item0 as FabricWorkspaceFolder;
+			if (["WorkspaceFolder"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricWorkspaceFolder;
+
+				if (sourceItem.workspaceId != target.workspaceId) {
+					const msg: string = "Moving folders between workspaces is not allowed!"
+					ThisExtension.Logger.logWarning(msg, true);
+					return;
+				}
+
+				const moveToFolder = async () => {
+					await FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition, target.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+				treeViewtoRefresh = sourceGroup.TreeProvider
+				actions.set("Move to Folder", moveToFolder);
+			}
+			else if (["Workspace"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricWorkspace;
+
+				if (sourceItem.workspaceId != target.workspaceId) {
+					const msg: string = "Moving folders between workspaces is not allowed!"
+					ThisExtension.Logger.logWarning(msg, true);
+					return;
+				}
+
+				const moveToWorkspaceRoot = async () => {
+					FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+				treeViewtoRefresh = target.TreeProvider;
+				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
+
+			}
+		}
 
 
 		// if (source.itemType == "Workspace") {
@@ -248,7 +308,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		// 	}
 		// }
 		// else if (source.itemType == "REPORT") {
-			
+
 		// 	const clone = async (targetWorkspaceId, targetModelId = undefined) => {
 		// 			const defaultName = targetGroup == sourceGroup ? source.name + " - Copy" : source.name;
 		// 			const newReportName = await FabricCommandBuilder.showInputBox(defaultName, "Clone Report", "Enter a name for the cloned report");
@@ -288,7 +348,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 			for (const key of actions.keys()) {
 				items.push(new FabricQuickPickItem(key));
 			}
-			const action: FabricQuickPickItem = await vscode.window.showQuickPick(items, {"canPickMany": false, "title": "Select action to perform"});
+			const action: FabricQuickPickItem = await vscode.window.showQuickPick(items, { "canPickMany": false, "title": "Select action to perform" });
 
 			if (!action) {
 				return;
@@ -300,8 +360,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		}
 		else {
 			const msg: string = "No action defined when dropping a '" + source_Item0.itemType + "' on a '" + targetItem.itemType + "'!"
-			ThisExtension.Logger.logWarning(msg);
-			vscode.window.showWarningMessage(msg);
+			ThisExtension.Logger.logWarning(msg, true);
 		}
 	}
 }

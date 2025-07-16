@@ -10,8 +10,6 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
-import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricItem } from './FabricItem';
 import { FabricLakehouse } from './FabricLakehouse';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';

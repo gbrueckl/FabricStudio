@@ -9,6 +9,7 @@
 - added Agent instructions for future coding
 - updated dependent libraries
 - added scripts to update Swagger definition
+- added Drag&Drop support to move WorkspaceFolders
 
 **v1.14.5**:
 - fixed issue when deleting a folder in the workspace browser ([#13](/../../issues/13))
