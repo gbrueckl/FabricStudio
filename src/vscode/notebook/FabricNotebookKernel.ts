@@ -182,7 +182,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 				const output = cell.notebook.cellAt(cell.index + parseInt(cellRef)).outputs[0];
 				const jsonOutput = output.items.find(i => i.mime === 'application/json');
 				let json = undefined;
-				if("data" in jsonOutput) {
+				if ("data" in jsonOutput) {
 					json = JSON.parse(jsonOutput.data.toString());
 				}
 				else {
@@ -239,25 +239,30 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 			let result: iFabricApiResponse = undefined;
 			switch (magic) {
 				case "api":
-
-					const parseRegEx = /(?<method>\w+?)\s+(?<endpoint>[\.\-\w\/]+)(\s+|$)?(?<flags>[\w\s-]+?)?(\s+|$)?(?<body>{.*})?\s*$/s;
+					const parseRegEx = /(?<method>\w+?)\s+(?<endpoint>[^\s]+)(\s+|$)?(?<flags>[\w\s-]+?)?(\s+|$)?(?<body>{.*})?\s*$/s;
 					const match = commandTextClean.match(parseRegEx);
-					let method = match.groups["method"].trim().toUpperCase();
-					let endpoint = match.groups["endpoint"].trim();
-					let flagsString = match.groups["flags"];
-					let bodyString = match.groups["body"];
 
-					if (flagsString) {	
-						flags = flagsString.split(" ").map(f => f.trim()).filter(f => f != "");
+					let method: string = "ERROR"; // will be overwritten unless an invalid command is given
+					let endpoint: string = "";
+					let body: any = {};
+
+					if (match) {
+						method = match.groups["method"].trim().toUpperCase();
+						endpoint = match.groups["endpoint"].trim();
+						let flagsString = match.groups["flags"];
+						let bodyString = match.groups["body"];
+
+						if (flagsString) {
+							flags = flagsString.split(" ").map(f => f.trim()).filter(f => f != "");
+						}
+
+						if (bodyString) {
+							// for parsing GraphQL queries with Newline/Linebreak: https://stackoverflow.com/questions/42068/how-do-i-handle-newlines-in-json
+							body = JSON.parse(bodyString);
+						}
+
+						endpoint = this.resolveRelativePath(endpoint, customApi);
 					}
-
-					let body = undefined;
-					if (bodyString) {
-						// for parsing GraphQL queries with Newline/Linebreak: https://stackoverflow.com/questions/42068/how-do-i-handle-newlines-in-json
-						body = JSON.parse(bodyString);
-					}
-
-					endpoint = this.resolveRelativePath(endpoint, customApi);
 
 					switch (method) {
 						case "GET":
@@ -279,6 +284,14 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 						case "DELETE":
 							result = (await FabricApiService.delete<any>(endpoint, body));
 							break;
+
+						case "ERROR":
+							execution.appendOutput(new vscode.NotebookCellOutput([
+								vscode.NotebookCellOutputItem.text("Invalid command format! Please use the format: \nMETHOD /endpoint [flags] \n[body]"),
+							]));
+
+							execution.end(false, Date.now());
+							return;
 
 						default:
 							execution.appendOutput(new vscode.NotebookCellOutput([
@@ -388,8 +401,6 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 					execution.end(false, Date.now());
 					return;
 				}
-
-				
 			}
 		} catch (error) {
 			execution.appendOutput(new vscode.NotebookCellOutput([

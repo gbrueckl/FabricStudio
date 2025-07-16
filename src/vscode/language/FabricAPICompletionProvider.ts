@@ -166,7 +166,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 				currentPath = currentPath.replace(/\/+/gm, "/");
 
 				// replace guids with placeholders from previous path
-				let pathSearch = currentPath.replace(/\/([a-z]*?)\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gm, "/$1/{$1XXXId}").replace(new RegExp("sXXX", "g"), "");
+				let pathSearch = currentPath.replace(/\/([a-zA-Z]*?)\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gm, "/$1/{$1XXXId}").replace(new RegExp("sXXX", "g"), "");
 
 				let matchingApis = await this.getAvailableEndpoints(pathSearch, method, showOtherMethods);
 				let completionItems: vscode.CompletionItem[] = [];
@@ -219,7 +219,21 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 										ThisExtension.Logger.logDebug("Skipping example '" + example + "' as it is not a valid example!");
 										continue;
 									}
-									let exampleBody = api["x-ms-examples"][example].parameters[bodyParameter.name];
+									let exampleBody = {}
+									let queryParameters = {}
+									for (const param of Object.getOwnPropertyNames(exampleDef.parameters)) {
+										const origParam = api.parameters.find((p) => p.name == param);
+										if (origParam.in == "body") {
+											exampleBody[param] = exampleDef.parameters[param];
+										}
+										if (origParam.in == "query") {
+											queryParameters[param] = exampleDef.parameters[param];
+										}
+									}
+
+									if (queryParameters && Object.keys(queryParameters).length > 0) {
+										insertText = insertText + "?" + Object.keys(queryParameters).map(key => `${key}=${queryParameters[key]}`).join("&");
+									}
 
 									let completionItem: vscode.CompletionItem = {
 										label: nextToken + ": " + example,
