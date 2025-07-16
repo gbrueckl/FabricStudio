@@ -22,7 +22,7 @@ if (!fs.existsSync(outputDir)) {
 
 async function processJsonFile(file: string) {
 	console.log(`Processing file: ${file}`);
-	
+
 	let singleJson = await SwaggerParser.dereference(file);
 	if (!singleJson["swagger"]) {
 		throw new Error(`File ${file} does not contain a valid Swagger definition.`);
@@ -42,11 +42,11 @@ async function combineJsonFiles(files: string[]) {
 
 	for (const file of files.slice(1)) {
 		try {
-		let singleJson = await processJsonFile(file)
+			let singleJson = await processJsonFile(file)
 
-		for (const prop of ["paths", "definitions"]) {
-			combinedJson[prop] = {...combinedJson[prop],...singleJson[prop]};
-		}
+			for (const prop of ["paths", "definitions"]) {
+				combinedJson[prop] = { ...combinedJson[prop], ...singleJson[prop] };
+			}
 		}
 		catch (error) {
 			console.error(`Error processing file ${file}: ${error.message}`);
@@ -73,4 +73,4 @@ combineJsonFiles(jsonFiles)
 		fs.writeFileSync(outputFile, outputContent, 'utf8');
 		console.log(`Combined JSON written to ${outputFile}`);
 	})
-	//.catch(error => console.error(`Error combining JSON files: ${error.message}`));
+	.catch(error => console.error(`Error combining JSON files: ${error.message}`));
