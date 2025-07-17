@@ -43,6 +43,7 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		let actions: string[] = [
 			"CREATE_FOLDER",
 			"RENAME",
+			"DELETE",
 		];
 
 		return orig + actions.join(",") + ",";

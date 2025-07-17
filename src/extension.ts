@@ -124,7 +124,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
 
-	
 	vscode.commands.registerCommand('FabricStudio.Workspace.rename', (item: FabricWorkspaceTreeItem = undefined) => item.rename());
 	vscode.commands.registerCommand('FabricStudio.Workspace.createFolder', (item: FabricWorkspaceTreeItem = undefined) => FabricWorkspaceFolder.createFolder(item));
 	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace) => item.manageSourceControl());

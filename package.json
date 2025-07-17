@@ -646,6 +646,22 @@
 				"category": "FabricStudio"
 			}
 		],
+		"contributes": {
+			"keybindings": [
+				{
+					"command": "FabricStudio.Workspace.rename",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RENAME,.*/",
+					"key": "f2",
+					"mac": "f2"
+				},
+				{
+					"command": "FabricStudio.Item.delete",
+					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioConnections)/ && viewItem =~ /.*,DELETE,.*/",
+					"key": "delete",
+					"mac": "delete"
+				}
+			]
+		},
 		"menus": {
 			"view/title": [
 				{
@@ -715,7 +731,7 @@
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_FOLDER,.*/",
 					"group": "2_edit"
 				},
-								{
+				{
 					"command": "FabricStudio.Workspace.rename",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RENAME,.*/",
 					"group": "3_delete"
