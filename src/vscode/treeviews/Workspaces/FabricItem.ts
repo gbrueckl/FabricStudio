@@ -40,6 +40,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 
 		let actions: string[] = [
 			"FABRIC_ITEM",
+			"RENAME",
 		];
 
 		return orig + actions.join(",") + ",";
@@ -177,5 +178,43 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 		else {
 			Helper.showTemporaryInformationMessage(`Successfully moved ${sourceItem.type} '${sourceItem.displayName}' to Folder '${targetFolder.displayName}'!`, 3000);
 		}
+	}
+
+	static async rename(item: FabricWorkspaceTreeItem): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/items/update-item?tabs=HTTP
+		/*
+		PATCH https://api.fabric.microsoft.com/v1/workspaces/cfafbeb1-8037-4d0c-896e-a46fb27ff229/items/5b218778-e7a5-4d73-8187-f10824047715
+		{
+			"displayName": "Item's New name",
+			"description": "Item's New description"
+		}
+		*/
+		const newName = await vscode.window.showInputBox({
+			title: `Rename Item`,
+			ignoreFocusOut: true,
+			prompt: `Enter new name for ${item.itemType} ${item.itemName}`,
+			placeHolder: item.itemName,
+			value: item.itemName
+		});
+		if (!newName) {
+			ThisExtension.Logger.logError("No name to rename item provided, aborting operation.", true);
+			return undefined;
+		}
+
+		const apiPath = `v1/workspaces/${item.workspaceId}/items/${item.itemId}`;
+		let body = {
+			"displayName": newName,
+		};
+
+		const response = await FabricApiService.patch(apiPath, body);
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			Helper.showTemporaryInformationMessage(`Successfully renamed Folder '${item.itemName}' to '${newName}'!`, 3000);
+		}
+
+		ThisExtension.TreeViewWorkspaces.refresh(item.parent, false);
 	}
 }

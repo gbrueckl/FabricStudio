@@ -313,9 +313,15 @@
 			},
 			{
 				"category": "FabricStudio",
-				"command": "FabricStudio.Workspaces.createFolder",
-				"title": "Create Folder",
+				"command": "FabricStudio.Workspace.createFolder",
+				"title": "New Folder",
 				"icon": "$(new-folder)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Workspace.rename",
+				"title": "Rename...",
+				"icon": "$(pencil)"
 			},
 			{
 				"category": "FabricStudio",
@@ -354,13 +360,13 @@
 			},
 			{
 				"command": "FabricStudio.Item.editTMDL",
-				"title": "Edit using TMDL",
+				"title": "Edit",
 				"icon": "$(pencil)",
 				"category": "FabricStudio"
 			},
 			{
 				"command": "FabricStudio.Item.editPBIR",
-				"title": "Edit using PBIR",
+				"title": "Edit",
 				"icon": "$(pencil)",
 				"category": "FabricStudio"
 			},
@@ -705,9 +711,14 @@
 			],
 			"view/item/context": [
 				{
-					"command": "FabricStudio.Workspaces.createFolder",
+					"command": "FabricStudio.Workspace.createFolder",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_FOLDER,.*/",
-					"group": "navigation"
+					"group": "2_edit"
+				},
+								{
+					"command": "FabricStudio.Workspace.rename",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RENAME,.*/",
+					"group": "3_delete"
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",

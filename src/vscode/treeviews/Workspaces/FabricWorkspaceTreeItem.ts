@@ -11,7 +11,7 @@ import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
-import { FabricFSCache } from '../../filesystemProvider/FabricFSCache';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	protected _folderId: UniqueId;
 
@@ -167,5 +167,41 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 	public static handleEmptyItems<FabricWorkspaceTreeItem>(items: FabricWorkspaceTreeItem[], filter: RegExp = undefined): FabricWorkspaceTreeItem[] {
 		return super.handleEmptyItems<FabricWorkspaceTreeItem>(items, filter, "workspace");
+	}
+
+	async rename(): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/items/update-item?tabs=HTTP
+		/*
+		PATCH https://api.fabric.microsoft.com/v1/workspaces/cfafbeb1-8037-4d0c-896e-a46fb27ff229/items/5b218778-e7a5-4d73-8187-f10824047715
+		{
+			"displayName": "Item's New name",
+			"description": "Item's New description"
+		}
+		*/
+		const newName = await vscode.window.showInputBox({
+			title: `Rename ${this.itemType}`,
+			ignoreFocusOut: true,
+			prompt: `Enter new name for ${this.itemType} '${this.itemName}'`,
+			placeHolder: this.itemName,
+			value: this.itemName
+		});
+		if (!newName) {
+			ThisExtension.Logger.logError("No name for rename provided, aborting operation.", true);
+			return undefined;
+		}
+		let body = {
+			"displayName": newName,
+		};
+
+		const response = await FabricApiService.patch(this.apiPath, body);
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			Helper.showTemporaryInformationMessage(`Successfully renamed ${this.itemType} '${this.itemName}' to '${newName}'!`, 3000);
+		}
+
+		ThisExtension.TreeViewWorkspaces.refresh(this.parent, false);
 	}
 }
