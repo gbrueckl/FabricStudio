@@ -2,6 +2,8 @@
 
 **v2.0.0**:
 - added Completion Provider for REST API notebooks
+- added Drag&Drop support to move Items and WorkspaceFolders
+- added `Rename` for Items and WorkspaceFolders
 - added Swagger definition from official API documentation
 - added new `-H` flag to be used with API calls to also show the response header of the initial request ([#14](/../../issues/14))
 - added examples from API definitions
@@ -9,7 +11,7 @@
 - added Agent instructions for future coding
 - updated dependent libraries
 - added scripts to update Swagger definition
-- added Drag&Drop support to move WorkspaceFolders
+
 
 **v1.14.5**:
 - fixed issue when deleting a folder in the workspace browser ([#13](/../../issues/13))
