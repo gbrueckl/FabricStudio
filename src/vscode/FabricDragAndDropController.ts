@@ -308,7 +308,13 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		// 	}
 		// }
 
-		if (actions.size > 0) {
+		if(actions.size == 1) {
+			const action = actions.values().next().value
+			await action();
+
+			ThisExtension.refreshTreeView(treeViewtoRefresh);
+		}
+		else if (actions.size >= 2) {
 			let items: FabricQuickPickItem[] = [];
 			for (const key of actions.keys()) {
 				items.push(new FabricQuickPickItem(key));
