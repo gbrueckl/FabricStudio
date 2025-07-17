@@ -313,6 +313,12 @@
 			},
 			{
 				"category": "FabricStudio",
+				"command": "FabricStudio.Workspaces.createFolder",
+				"title": "Create Folder",
+				"icon": "$(new-folder)"
+			},
+			{
+				"category": "FabricStudio",
 				"command": "FabricStudio.WorkspaceRoleAssignment.update",
 				"title": "Update",
 				"icon": "$(pencil)"
@@ -698,6 +704,11 @@
 				}
 			],
 			"view/item/context": [
+				{
+					"command": "FabricStudio.Workspaces.createFolder",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_FOLDER,.*/",
+					"group": "navigation"
+				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/ && viewItem =~ /.*,OPEN_API_NOTEBOOK,.*/",

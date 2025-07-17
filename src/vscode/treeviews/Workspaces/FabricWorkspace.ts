@@ -57,6 +57,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 			//"BROWSE_IN_ONELAKE", // disabled for now as OneLake API does not work well with blanks in workspace names
 			"EDIT_DEFINITION",
 			"RESET_CACHE",
+			"CREATE_FOLDER",
 		];
 
 		if (this.capacityId) {
@@ -280,6 +281,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	async refreshWorkspaceFolders(): Promise<void> {
 		const folders = await FabricApiService.getList<iFabricApiWorkspaceFolder>(this.apiPath + "folders");
 
+		this._workspaceFolders = [];
 		for (let folder of folders.success) {
 			this._workspaceFolders.push(folder);
 		}

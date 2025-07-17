@@ -36,12 +36,23 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		this.iconPath = this.getIconPath();
 	}
 
+	/* Overwritten properties from FabricApiTreeItem */
+	get _contextValue(): string {
+		let orig: string = super._contextValue;
+
+		let actions: string[] = [
+			"CREATE_FOLDER",
+		];
+
+		return orig + actions.join(",") + ",";
+	}
+
 	protected getIconPath(): string | vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'genericfolder.svg');
 	}
 
 	get canDelete(): boolean {
-		return false;
+		return true;
 	}
 
 	get itemDefinition(): iFabricApiWorkspaceFolder {
@@ -49,7 +60,7 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 	}
 
 	get apiUrlPart(): string {
-		return "";
+		return ""
 	}
 
 	addChild(value: FabricWorkspaceTreeItem) {
@@ -99,7 +110,7 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 				}
 				treeItems = Array.from(treeItems.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
-				children = children.concat(treeItems);	
+				children = children.concat(treeItems);
 			}
 			catch (e) {
 				ThisExtension.Logger.logError("Could not load items for folder " + this.itemDefinition.displayName, true);
@@ -112,26 +123,65 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 	}
 
 	static async moveToFolder(sourceFolder: iFabricApiWorkspaceFolder, targetFolder?: iFabricApiWorkspaceFolder): Promise<void> {
-			// https://learn.microsoft.com/en-us/rest/api/fabric/core/folders/move-folder?tabs=HTTP
-			/*
-			POST https://api.fabric.microsoft.com/v1/workspaces/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb/folders/dddddddd-9999-0000-1111-eeeeeeeeeeee/move
-			{
-				"targetFolderId": "cccccccc-8888-9999-0000-dddddddddddd"
-			}
-			*/
-	
-			const apiPath = `v1/workspaces/${sourceFolder.workspaceId}/folders/${sourceFolder.id}/move`;
-			let body = {};
-			if (targetFolder) {
-				body = { "targetFolderId": targetFolder.id };
-			}
-			const response = await FabricApiService.post(apiPath, body);
-	
-			if (response.error) {
-				vscode.window.showErrorMessage(response.error.message);
-			}
-			else {
-				Helper.showTemporaryInformationMessage(`Successfully moved Folder '${sourceFolder.displayName}' to Folder '${targetFolder.displayName}'!`, 3000);
-			}
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/folders/move-folder?tabs=HTTP
+		/*
+		POST https://api.fabric.microsoft.com/v1/workspaces/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb/folders/dddddddd-9999-0000-1111-eeeeeeeeeeee/move
+		{
+			"targetFolderId": "cccccccc-8888-9999-0000-dddddddddddd"
 		}
+		*/
+
+		const apiPath = `v1/workspaces/${sourceFolder.workspaceId}/folders/${sourceFolder.id}/move`;
+		let body = {};
+		if (targetFolder) {
+			body = { "targetFolderId": targetFolder.id };
+		}
+		const response = await FabricApiService.post(apiPath, body);
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			Helper.showTemporaryInformationMessage(`Successfully moved Folder '${sourceFolder.displayName}' to Folder '${targetFolder.displayName}'!`, 3000);
+		}
+	}
+
+	static async createFolder(parent: FabricWorkspaceTreeItem): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/folders/create-folder?tabs=HTTP
+		/*
+		POST https://api.fabric.microsoft.com/v1/workspaces/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb/folders
+		{
+			"displayName": "Q3",
+			"parentFolderId": "bbbbbbbb-1111-2222-3333-cccccccccccc"
+		}
+		*/
+		const newName = await vscode.window.showInputBox({
+				title: `Create new Folder`,
+				ignoreFocusOut: true,
+				prompt: `Enter name for new Folder`,
+				placeHolder: `My New Folder`,
+				value: `My New Folder`
+			});
+			if (!newName) {
+				ThisExtension.Logger.logError("No name for new folder provided, aborting publish operation.", true);
+				return undefined;
+			}
+		const apiPath = `v1/workspaces/${parent.workspaceId}/folders`;
+		let body = {
+			"displayName": newName,
+		};
+		if (parent.itemType == "WorkspaceFolder") {
+			body["parentFolderId"] = parent.id;
+		}
+		const response = await FabricApiService.post(apiPath, body);
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			Helper.showTemporaryInformationMessage(`Successfully created Folder '${newName}' under '${parent.label}'!`, 3000);
+		}
+
+		ThisExtension.TreeViewWorkspaces.refresh(parent, false);
+	}
 }

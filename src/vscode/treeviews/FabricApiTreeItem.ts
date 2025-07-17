@@ -11,6 +11,7 @@ import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
 import { iGenericApiError } from '@utils/_types';
 import { FabricWorkspaceTreeItem } from './Workspaces/FabricWorkspaceTreeItem';
+import { FabricWorkspaceFolder } from './Workspaces/FabricWorkspaceFolder';
 
 
 export const NO_ITEMS_ITEM_ID: string = "NO_ITEMS";
@@ -53,7 +54,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	protected getIconPath(): string | vscode.Uri {
-		return Helper.getIconPath(this.itemType); 
+		return Helper.getIconPath(this.itemType);
 	}
 
 	// tooltip shown when hovering over the item
@@ -247,11 +248,23 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	get itemPath(): string {
+		// the parent-structure of the treeview due to WorkspaceFolders cannot be translated to the API path directly
+		// if the root item is a WorkspaceFolder, we need to add the folderId and "folders" to the path
+		// if and item resides in a workspaceFolder
 		let urlParts: string[] = [];
 		let apiItem: FabricApiTreeItem = this;
+		let folder: FabricWorkspaceFolder = undefined;
+		let rootItemIsFolder: boolean = apiItem.itemType === "WorkspaceFolder";
+
+		if (rootItemIsFolder) {
+			urlParts.push(apiItem.itemId, "folders");
+		}
 
 		while (apiItem) {
-			if (apiItem.apiUrlPart) {
+			if (apiItem.itemType === "WorkspaceFolder") {
+				// skip workspace folders when building the API path
+			}
+			else if (apiItem.apiUrlPart) {
 				urlParts.push(apiItem.apiUrlPart)
 			}
 			apiItem = apiItem.parent;

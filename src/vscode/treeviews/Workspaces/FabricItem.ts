@@ -4,7 +4,7 @@ import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem, iFabricApiWorkspaceFolder } from '../../../fabric/_types';
 import { FabricItemConnections } from './FabricItemConnections';
 import { FabricItemShortcuts } from './FabricItemShortcuts';
 import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
@@ -15,6 +15,7 @@ import { FabricItemDefinition } from './FabricItemDefinition';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { ERROR_ITEM_ID, FabricApiTreeItem, NO_ITEMS_ITEM_ID } from '../FabricApiTreeItem';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItem extends FabricWorkspaceTreeItem {
@@ -37,7 +38,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = [];
+		let actions: string[] = [
+			"FABRIC_ITEM",
+		];
 
 		return orig + actions.join(",") + ",";
 	}
@@ -77,7 +80,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			let supportedItemTypes: FabricApiItemType[] = [];
 			try {
 				let connections = new FabricItemConnections(this);
-				const connectionsChildren = await FabricApiTreeItem.getValidChildren(connections);	
+				const connectionsChildren = await FabricApiTreeItem.getValidChildren(connections);
 				if (connectionsChildren.length > 0) {
 					children.push(connections);
 				}
@@ -91,7 +94,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let shortcuts = new FabricItemShortcuts(this);
-					const shortcutsChildren = await FabricApiTreeItem.getValidChildren(shortcuts);	
+					const shortcutsChildren = await FabricApiTreeItem.getValidChildren(shortcuts);
 					if (shortcutsChildren.length > 0) {
 						children.push(shortcuts);
 					}
@@ -106,7 +109,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let jobInstances = new FabricItemJobInstances(this);
-					const jobInstancesChildren = await FabricApiTreeItem.getValidChildren(jobInstances);	
+					const jobInstancesChildren = await FabricApiTreeItem.getValidChildren(jobInstances);
 					if (jobInstancesChildren.length > 0) {
 						children.push(jobInstances);
 					}
@@ -120,7 +123,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (FabricMapper.ItemTypesWithJob.includes(this.itemType)) {
 				try {
 					let jobSchedules = new FabricItemJobSchedules(this);
-					const jobSchedulesChildren = await FabricApiTreeItem.getValidChildren(jobSchedules);	
+					const jobSchedulesChildren = await FabricApiTreeItem.getValidChildren(jobSchedules);
 					if (jobSchedulesChildren.length > 0) {
 						children.push(jobSchedules);
 					}
@@ -135,7 +138,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let accessRoles = new FabricItemDataAccessRoles(this);
-					const accessRolesChildren = await FabricApiTreeItem.getValidChildren(accessRoles);	
+					const accessRolesChildren = await FabricApiTreeItem.getValidChildren(accessRoles);
 					if (accessRolesChildren.length > 0) {
 						children.push(accessRoles);
 					}
@@ -152,4 +155,27 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	}
 
 	// Item-specific functions
+	static async moveToFolder(sourceItem: iFabricApiItem, targetFolder?: iFabricApiWorkspaceFolder): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/folders/move-folder?tabs=HTTP
+		/*
+		POST https://api.fabric.microsoft.com/v1/workspaces/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb/folders/dddddddd-9999-0000-1111-eeeeeeeeeeee/move
+		{
+			"targetFolderId": "cccccccc-8888-9999-0000-dddddddddddd"
+		}
+		*/
+
+		const apiPath = `v1/workspaces/${sourceItem.workspaceId}/items/${sourceItem.id}/move`;
+		let body = {};
+		if (targetFolder) {
+			body = { "targetFolderId": targetFolder.id };
+		}
+		const response = await FabricApiService.post(apiPath, body);
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			Helper.showTemporaryInformationMessage(`Successfully moved ${sourceItem.type} '${sourceItem.displayName}' to Folder '${targetFolder.displayName}'!`, 3000);
+		}
+	}
 }

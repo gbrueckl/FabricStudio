@@ -41,6 +41,7 @@ import { FabricAdminGenericViewer } from './vscode/treeviews/Admin/FabricAdminGe
 import { FabricReport } from './vscode/treeviews/Workspaces/FabricReport';
 import { FabricSemanticModel } from './vscode/treeviews/Workspaces/FabricSemanticModel';
 import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
+import { FabricWorkspaceFolder } from './vscode/treeviews/Workspaces/FabricWorkspaceFolder';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -122,6 +123,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
+	vscode.commands.registerCommand('FabricStudio.Workspaces.createFolder', (item: FabricWorkspaceTreeItem = undefined) => FabricWorkspaceFolder.createFolder(item));
+
+	
+
 
 	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace) => item.manageSourceControl());
 	vscode.commands.registerCommand('FabricStudio.OneLake.resetCache', (item: FabricWorkspace) => item.refreshCache());

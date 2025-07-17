@@ -15,6 +15,7 @@ import { FabricConnectionRoleAssignment } from './treeviews/Connections/FabricCo
 import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricConnectionRoleAssignments';
 import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
 import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFolder';
+import { FabricItem } from './treeviews/Workspaces/FabricItem';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -32,16 +33,12 @@ class FabricObjectTransferItem extends vscode.DataTransferItem {
 			const ret = JSON.stringify(this._nodes, this.getCircularReplacer());
 			return ret;
 		} catch (error) {
-			ThisExtension.Logger.logError("Error converting FabricApiTreeItem to string: " + error);
+			ThisExtension.Logger.logError("Error converting FabricApiTreeItem to string: " + error, true);
 			return "";
 		}
-
-		//const ret = this.jsonifyObject(this._nodes, 3);
-
-
 	}
 
-	getCircularReplacer() {
+	private getCircularReplacer() {
 		const seen = new WeakSet();
 		return (key: any, value: any) => {
 			if (typeof value === "object" && value !== null) {
@@ -54,66 +51,7 @@ class FabricObjectTransferItem extends vscode.DataTransferItem {
 		};
 	}
 
-	jsonifyObject(obj: Object, maxLevels: number = 2, currentLevel: number = 0): string {
-
-		if (currentLevel == maxLevels) {
-			return "\"MaxRecrusionlevelReached!\"";
-		}
-		var arrOfKeyVals = [],
-			arrVals = [],
-			objKeys = [];
-
-		/*********CHECK FOR PRIMITIVE TYPES**********/
-		if (typeof obj === 'number' || typeof obj === 'boolean' || obj === null)
-			return '' + obj;
-		else if (typeof obj === 'string')
-			return JSON.stringify(obj);
-
-		/*********CHECK FOR ARRAY**********/
-		else if (Array.isArray(obj)) {
-			//check for empty array
-			if (obj[0] === undefined)
-				return '[]';
-			else {
-				obj.forEach((el) => {
-					arrVals.push(this.jsonifyObject(el, maxLevels, currentLevel + 1));
-				});
-				return '[' + arrVals + ']';
-			}
-		}
-		/*********CHECK FOR OBJECT**********/
-		else if (obj instanceof Object) {
-			//get object keys
-			//objKeys = Object.keys(obj);
-			objKeys = this.getAllProperties(obj)
-			//set key output;
-			objKeys.forEach((key) => {
-				var keyOut = JSON.stringify(key) + ':';
-				var keyValOut = obj[key];
-				//skip functions and undefined properties
-				if (keyValOut instanceof Function || typeof keyValOut === undefined)
-					arrOfKeyVals.push(keyOut + JSON.stringify("function " + keyValOut + "()"));
-				else if (typeof keyValOut === 'string')
-					arrOfKeyVals.push(keyOut + JSON.stringify(keyValOut));
-				else if (typeof keyValOut === 'boolean' || typeof keyValOut === 'number' || keyValOut === null)
-					arrOfKeyVals.push(keyOut + keyValOut);
-				//check for nested objects, call recursively until no more objects
-				else if (keyValOut instanceof Object) {
-					arrOfKeyVals.push(keyOut + this.jsonifyObject(keyValOut, maxLevels, currentLevel + 1));
-				}
-			});
-			return '{' + arrOfKeyVals + '}';
-		}
-	};
-
-	getAllProperties(obj) {
-		let properties = new Set()
-		let currentObj = obj
-		do {
-			Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
-		} while ((currentObj = Object.getPrototypeOf(currentObj)))
-		return [...properties.keys()].filter((item: string) => !item.startsWith("_"))
-	}
+	
 }
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
@@ -187,14 +125,6 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 	}
 
 	public async handleFabricDrop(sourceItems: FabricApiTreeItem[], targetItem: FabricApiTreeItem): Promise<void> {
-
-		/* 
-		// TODO
-		Workspace -> PipelineStage
-		Report -> Dataset (Clone, Rebind)
-		Report -> Reports, Workspace (Clone)
-		Dashboard -> Dashboard, Workspace (Clone) ?
-		*/
 		const source_Item0: FabricApiTreeItem = sourceItems[0];
 
 		let actions: Map<string, () => Promise<void>> = new Map<string, () => Promise<void>>();
@@ -292,7 +222,42 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 			}
 		}
+		// there are multiple item types for Fabric Items, so we cannot rely on the itemType but use the contextvalue instead
+		else if (source_Item0.contextValue.includes("FABRIC_ITEM")) {
+			const sourceItem = source_Item0 as FabricItem;
+			if (["WorkspaceFolder"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricWorkspaceFolder;
 
+				if (sourceItem.workspaceId != target.workspaceId) {
+					const msg: string = "Moving items between workspaces is not allowed!"
+					ThisExtension.Logger.logWarning(msg, true);
+					return;
+				}
+
+				const moveToFolder = async () => {
+					await FabricItem.moveToFolder(sourceItem.itemDefinition, target.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+				treeViewtoRefresh = sourceGroup.TreeProvider
+				actions.set("Move to Folder", moveToFolder);
+			}
+			else if (["Workspace"].includes(targetItem.itemType)) {
+				const target = targetItem as FabricWorkspace;
+
+				if (sourceItem.workspaceId != target.workspaceId) {
+					const msg: string = "Moving folders between workspaces is not allowed!"
+					ThisExtension.Logger.logWarning(msg, true);
+					return;
+				}
+
+				const moveToWorkspaceRoot = async () => {
+					FabricItem.moveToFolder(sourceItem.itemDefinition);
+					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+				}
+				treeViewtoRefresh = target.TreeProvider;
+				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
+			}
+		}
 
 		// if (source.itemType == "Workspace") {
 		// 	// dropping a Group/Workspace on a Capacity --> assign to that capacity
