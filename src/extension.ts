@@ -38,6 +38,8 @@ import { FabricFSHelper } from './vscode/filesystemProvider/FabricFSHelper';
 import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
 import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeItem';
 import { FabricAdminGenericViewer } from './vscode/treeviews/Admin/FabricAdminGenericViewer';
+import { FabricAdminTag } from './vscode/treeviews/Admin/FabricAdminTag';
+import { FabricAdminDomain } from './vscode/treeviews/Admin/FabricAdminDomain';
 import { FabricReport } from './vscode/treeviews/Workspaces/FabricReport';
 import { FabricSemanticModel } from './vscode/treeviews/Workspaces/FabricSemanticModel';
 import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
@@ -202,7 +204,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.Admin.refresh', (item: FabricAdminTreeItem = undefined, showInfoMessage: boolean = true) => fabricAdminTreeViewProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Admin.filter', (item: FabricAdminTreeItem = undefined) => fabricAdminTreeViewProvider.filter());
-	
+	vscode.commands.registerCommand('FabricStudio.Admin.rename', (item: FabricAdminTreeItem = undefined) => item.rename());
+
 	vscode.commands.registerCommand('FabricStudio.Admin.showDefintion', async (item: FabricAdminGenericViewer) => item.showDefinition());
 	//#endregion
 

@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { TreeProviderId } from '../../../ThisExtension';
+import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { iGenericApiError } from '@utils/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 export class FabricAdminTreeItem extends FabricApiTreeItem {
 
@@ -43,17 +44,16 @@ export class FabricAdminTreeItem extends FabricApiTreeItem {
 		this._parent = value;
 	}
 
-	get apiUrlPart(): string {
-		return "admin";
-	}
-
 	public static get NO_ITEMS(): FabricAdminTreeItem {
-		let item = new FabricAdminTreeItem("NO_ITEMS", "No settings found!", "AdminTenantSettings", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		let item = new FabricAdminTreeItem("NO_ITEMS", "No items found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 		item.contextValue = "";
+		item.itemId = "NO_ITEMS";
+		item.tooltip = "No items found!";
+		item.description = "No items found!";
 		return item;
 	}
 
-	public static handleEmptyItems<FabricAdminTreeItem>(items: FabricAdminTreeItem[], filter: RegExp = undefined): FabricAdminTreeItem[] {
-		return super.handleEmptyItems<FabricAdminTreeItem>(items, filter, "setting");
+	public static handleEmptyItems<FabricAdminTreeItem>(items: FabricAdminTreeItem[], filter: RegExp = undefined, itemType: string = "item"): FabricAdminTreeItem[] {
+		return super.handleEmptyItems<FabricAdminTreeItem>(items, filter, itemType);
 	}
 }

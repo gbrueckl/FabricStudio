@@ -41,9 +41,7 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		let orig: string = super._contextValue;
 
 		let actions: string[] = [
-			"CREATE_FOLDER",
-			"RENAME",
-			"DELETE",
+			"CREATE_FOLDER"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -54,6 +52,10 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 	}
 
 	get canDelete(): boolean {
+		return true;
+	}
+
+	get canRename(): boolean {
 		return true;
 	}
 

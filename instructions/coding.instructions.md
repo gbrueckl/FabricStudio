@@ -96,6 +96,8 @@ async def do_something(...):
 ## 7. Fabric REST API
 
 - All access to the Fabric REST APIs is encapsulated in `src\fabric\FabricApiService.ts`
+- The Fabric REST API is documented at [aka.ms/Fabric-REST-API](https://aka.ms/Fabric-REST-API)
+- A Swagger definition of the Fabric REST API is available at `resources\API\swagger.json`
 - Data contracts are defined in `src\fabric\_types.ts`
 
 ## 10. Directory-Specific AGENTS.md Files

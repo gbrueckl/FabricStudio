@@ -97,6 +97,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		if (this.canDelete) {
 			actions.push("DELETE");
 		}
+		if (this.canRename) {
+			actions.push("RENAME");
+		}
 		return `,${actions.join(',')},`;
 	}
 
@@ -108,6 +111,10 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	// can be overwritten in derived classes to disable "Delete"
 	public get canDelete(): boolean {
 		return true;
+	}
+
+	public get canRename(): boolean {
+		return false;
 	}
 
 	public async delete(confirmation: "yesNo" | "name" | undefined = undefined, item: FabricApiTreeItem = this): Promise<void> {
@@ -146,6 +153,46 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 				ThisExtension.refreshTreeView(item.TreeProvider, item.parent);
 			}
 		}
+	}
+
+	async rename(): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/admin/domains/update-domain
+		/*
+		PATCH https://api.fabric.microsoft.com/v1/admin/domains/{domainId}
+		{
+			"displayName": "Domain's new name",
+			"description": "Domain's new description",
+			"contributorsScope": "SpecificUsersAndGroups"
+		}
+		*/
+		const newName = await vscode.window.showInputBox({
+			title: `Rename ${this.itemType}`,
+			ignoreFocusOut: true,
+			prompt: `Enter new name for ${this.itemType} '${this.itemName}'`,
+			placeHolder: this.itemName,
+			value: this.itemName
+		});
+		if (!newName) {
+			ThisExtension.Logger.logError("No name for rename provided, aborting operation.", true);
+			return undefined;
+		}
+		let body = {
+			"displayName": newName,
+		};
+
+		const response = await FabricApiService.patch(this.apiPath, body);
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			Helper.showTemporaryInformationMessage(`Successfully renamed ${this.itemType} '${this.itemName}' to '${newName}'!`, 3000);
+			// Update the local domain data
+			this.itemName = newName;
+			this.label = newName;
+		}
+
+		ThisExtension.TreeViewAdmin.refresh(this.parent, false);
 	}
 
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {

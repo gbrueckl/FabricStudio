@@ -74,6 +74,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		return false;
 	}
 
+	public get canRename(): boolean {
+		return true;
+	}
+
 	protected getIconPath(): string | vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'workspace.svg');
 	}

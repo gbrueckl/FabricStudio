@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.1.0**:
+- added Admin Domains
+- added Admin Tags
+- reworked `Rename`
+
 **v2.0.0**:
 - added Completion Provider for REST API notebooks
 - added Drag&Drop support to move Items and WorkspaceFolders

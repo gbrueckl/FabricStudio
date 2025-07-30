@@ -17,14 +17,17 @@ Fabric Studio is a VSCode extension that surfaces Microsoft Fabric REST APIs thr
 
 ### Key Patterns & Inheritance Hierarchy
 ```typescript
-FabricApiTreeItem                    // Base for all tree items
-├── FabricWorkspaceTreeItem         // Base for workspace-scoped items
-│   ├── FabricWorkspace            // Workspace container
-│   ├── FabricItem                 // Generic Fabric item
-│   ├── FabricNotebook             // Notebook-specific logic
-│   └── FabricLakehouse            // Lakehouse-specific logic
-├── FabricConnectionTreeItem        // Connection management
-└── FabricCapacityTreeItem         // Capacity management
+FabricApiTreeItem                       // Base for all tree items
+├── FabricWorkspaceTreeItem             // Base for workspace-scoped items
+│   ├── FabricWorkspace                 // Workspace container
+│   ├── FabricItem                      // Generic Fabric item
+│   │   └── FabricDataPipeline          // DataPipeline-specific logic
+│   │   ├── FabricNotebook              // Notebook-specific logic
+│   │   └── FabricLakehouse             // Lakehouse-specific logic
+│   ├── FabricWorkspaceGenericFolder    // Base for generic workspace folders
+│   └── FabricWorkspaceFolder           // WorkspaceFolder-specific logic
+├── FabricConnectionTreeItem            // Connection management
+└── FabricCapacityTreeItem              // Capacity management
 ```
 
 ### Environment & Build Dual-Target

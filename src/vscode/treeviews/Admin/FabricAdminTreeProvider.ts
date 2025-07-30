@@ -8,6 +8,8 @@ import { FabricAdminTreeItem } from './FabricAdminTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricAdminTenantSettings } from './FabricAdminTenantSettings';
+import { FabricAdminDomains } from './FabricAdminDomains';
+import { FabricAdminTags } from './FabricAdminTags';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAdminTreeItem> {
@@ -62,6 +64,8 @@ export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAd
 		let children: FabricAdminTreeItem[] = [];
 
 		children.push(new FabricAdminTenantSettings());
+		children.push(new FabricAdminDomains());
+		children.push(new FabricAdminTags());
 
 		return children;
 	}

@@ -94,6 +94,12 @@ export type FabricApiItemType =
 	| "WorkspaceManagedPrivateEndpoint"		//	A workspace managed private endpoint.
 	| "AdminTenantSettings"					//	Folder for admin tenant settings.
 	| "AdminTenantSetting"					//	An admin tenant setting.
+	| "AdminDomains"						//	Folder for admin domains.
+	| "AdminDomain"							//	An admin domain.
+	| "AdminDomainWorkspaces"				//	Folder for admin domain workspaces.
+	| "AdminDomainWorkspace"				//	An admin domain workspace.
+	| "AdminTags"							//	Folder for admin tags.
+	| "AdminTag"							//	An admin tag.
 	| "MirroredAzureDatabricksCatalogs"		//	Folder for mirrored Azure Databricks catalogs.
 	| "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
 	;
@@ -489,6 +495,24 @@ export interface iFabricApiAdminTenantSetting {
 	settingName: string; // The name of the tenant setting.
 	tenantSettingGroup: string; // Tenant setting group name.
 	title: string; // The title of the tenant setting.
+}
+
+export interface iFabricApiAdminDomain {
+	id: string; // The domain ID.
+	displayName: string; // The domain display name.
+	description?: string; // The domain description.
+	parentDomainId?: string; // The parent domain ID.
+	contributorsScope: "AllInTheTenant" | "SpecificUsersAndGroups"; // The contributors scope for the domain.
+}
+
+export interface iFabricApiAdminDomainWorkspace {
+	id: string; // The workspace ID.
+	displayName: string; // The workspace display name.
+}
+
+export interface iFabricApiAdminTag {
+	id: string; // The tag ID.
+	displayName: string; // The tag display name.
 }
 
 export interface iFabricPlatformFile {
