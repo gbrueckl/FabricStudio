@@ -48,7 +48,7 @@ jobs:
           body_path: CHANGELOG_Short.md
           tag_name: ${{ steps.calculatePackageVersion.outputs.PackageVersion }}
           files: |
-            fabricstudio-*.vsix
+            *.vsix
             CHANGELOG.md
 
       - name: Publish extension
