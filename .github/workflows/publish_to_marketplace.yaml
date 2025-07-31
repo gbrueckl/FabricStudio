@@ -16,7 +16,7 @@ on:
 permissions:
   contents: write
 
-name: Create Release
+name: Create Release and Publish to Marketplace
 jobs:
   deploy:
     runs-on: ubuntu-latest
