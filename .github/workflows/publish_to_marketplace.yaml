@@ -20,7 +20,7 @@ jobs:
           echo "package version = $PACKAGE_VERSION"
       
       - name: Package extension
-        run: npm run vsce package
+        run: vsce package
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -34,4 +34,4 @@ jobs:
       - name: Publish extension
         env:
           VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
-        run: npm run vsce --publish -p $VSCE_PUBLISH_TOKEN
+        run: vsce publish -p $VSCE_PUBLISH_TOKEN
