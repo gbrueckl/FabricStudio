@@ -40,6 +40,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: CHANGELOG.md
           files: |
             FabricStudio-*.vsix
             CHANGELOG.md
