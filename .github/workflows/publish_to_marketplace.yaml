@@ -51,8 +51,10 @@ jobs:
             fabricstudio-*.vsix
             CHANGELOG.md
 
+      - run : echo ""${{ github.event_name }}"
+
       - name: Publish extension
-        if: ${{ inputs.publish == 'true' }}
+        if: ${{ inputs.publish == 'true' }} || ${{ github.event_name == 'push' }}
         env:
           VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
         run: vsce publish -p $VSCE_PUBLISH_TOKEN
