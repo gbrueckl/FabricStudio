@@ -29,12 +29,12 @@ jobs:
       - name: Install vsce
         run: npm i -g vsce
 
-      - name: Calculate version from package.json
+      - name: Calculate version/tag-name from package.json
         id: calculatePackageVersion
         run: |
           PACKAGE_VERSION=`cat package.json | jq ".version" -M | sed 's/\"//g'`
-          echo "PackageVersion=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
-          echo "package version = $PACKAGE_VERSION"
+          echo "PackageVersion=v$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "package version = v$PACKAGE_VERSION"
       
       - name: Package extension
         run: vsce package
@@ -46,7 +46,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body_path: CHANGELOG_Short.md
-          tag_name: test12${{ steps.calculatePackageVersion.outputs.PackageVersion }}
+          tag_name: ${{ steps.calculatePackageVersion.outputs.PackageVersion }}
           files: |
             fabricstudio-*.vsix
             CHANGELOG.md
