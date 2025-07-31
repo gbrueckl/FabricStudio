@@ -3,7 +3,8 @@
 **v2.1.0**:
 - added Admin Domains
 - added Admin Tags
-- reworked `Rename`
+- reworked `Rename` for all Treeviews
+- added Github action to automatically publish to Marketplace
 
 **v2.0.0**:
 - added Completion Provider for REST API notebooks
