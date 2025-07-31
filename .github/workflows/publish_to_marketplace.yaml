@@ -1,5 +1,14 @@
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to Marketplace'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
   push:
     branches:
       - main
@@ -7,7 +16,7 @@ on:
 permissions:
   contents: write
 
-name: Create Release and Publish to Marketplace
+name: Create Release
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,7 +33,7 @@ jobs:
         id: calculatePackageVersion
         run: |
           PACKAGE_VERSION=`cat package.json | jq ".version" -M | sed 's/\"//g'`
-          echo "::set-output name=PackageVersion::$PACKAGE_VERSION"
+          echo "PackageVersion=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
           echo "package version = $PACKAGE_VERSION"
       
       - name: Package extension
@@ -42,7 +51,8 @@ jobs:
             fabricstudio-*.vsix
             CHANGELOG.md
 
-      # - name: Publish extension
-      #   env:
-      #     VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
-      #   run: vsce publish -p $VSCE_PUBLISH_TOKEN
+      - name: Publish extension
+        if: ${{ inputs.publish == 'true' }}
+        env:
+          VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
+        run: vsce publish -p $VSCE_PUBLISH_TOKEN
