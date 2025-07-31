@@ -1,6 +1,6 @@
 # Change Log
 
-**v2.1.0**:
+**v2.1.2**:
 - added deployment via Github action
 
 **v2.1.0**:
