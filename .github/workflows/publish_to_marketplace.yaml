@@ -4,6 +4,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 name: Create Release and Publish to Marketplace
 jobs:
   deploy:
@@ -31,12 +34,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body_path: CHANGELOG.md
-          tag_name: v${{ steps.calculatePackageVersion.outputs.PackageVersion }}
+          tag_name: test${{ steps.calculatePackageVersion.outputs.PackageVersion }}
           files: |
             FabricStudio-*.vsix
             CHANGELOG.md
 
-      - name: Publish extension
-        env:
-          VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
-        run: vsce publish -p $VSCE_PUBLISH_TOKEN
+      # - name: Publish extension
+      #   env:
+      #     VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
+      #   run: vsce publish -p $VSCE_PUBLISH_TOKEN
