@@ -10,7 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
+
+      - name: Install npm
+        run: npm install
+
+      - name: Install vsce
+        run: npm i -g vsce
 
       - name: Calculate version from package.json
         id: calculatePackageVersion
