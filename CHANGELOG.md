@@ -1,6 +1,9 @@
 # Change Log
 
 **v2.1.0**:
+- added deployment via Github action
+
+**v2.1.0**:
 - added Admin Domains
 - added Admin Tags
 - reworked `Rename` for all Treeviews

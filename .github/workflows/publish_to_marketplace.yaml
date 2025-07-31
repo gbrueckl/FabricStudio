@@ -1,46 +1,58 @@
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to Marketplace'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 name: Create Release and Publish to Marketplace
 jobs:
-  validate:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Calculate version from package.json
+
+      - name: Install npm
+        run: npm install
+
+      - name: Install vsce
+        run: npm i -g vsce
+
+      - name: Calculate version/tag-name from package.json
         id: calculatePackageVersion
         run: |
           PACKAGE_VERSION=`cat package.json | jq ".version" -M | sed 's/\"//g'`
-          echo "::set-output name=PackageVersion::$PACKAGE_VERSION"
-          echo "package version = $PACKAGE_VERSION"
-      - name: Compare Tag and Package Version
-        id: compareVersion
-        run: |
-          if [ "${{ github.ref }}" != "refs/tags/v${{ steps.calculatePackageVersion.outputs.PackageVersion }}" ]; then
-            echo "Tag and package version do not match. Tag: ${{ github.ref }}, Package Version: v${{ steps.calculatePackageVersion.outputs.PackageVersion }}"
-            exit 1
-          else
-            echo "Tag and package version match."
-          fi
-  deploy:
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v2
-      - run: npm install
+          echo "PackageVersion=v$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "package version = v$PACKAGE_VERSION"
       
-      - uses: lannonbr/vsce-action@4.0.0
-        with:
-          args: "publish -p $VSCE_TOKEN"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
-      - name: Release
+      - name: Package extension
+        run: vsce package
+
+      - name: Top 50 Changelog.md
+        run: head -n 50 CHANGELOG.md >> CHANGELOG_Short.md
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: CHANGELOG.md
+          body_path: CHANGELOG_Short.md
+          tag_name: ${{ steps.calculatePackageVersion.outputs.PackageVersion }}
           files: |
-            FabricStudio-*.vsix
+            fabricstudio-*.vsix
             CHANGELOG.md
+
+      - name: Publish extension
+        if: ${{ inputs.publish == 'true' }}
+        env:
+          VSCE_PUBLISH_TOKEN: ${{ secrets.VSCE_PUBLISH_TOKEN }}
+        run: vsce publish -p $VSCE_PUBLISH_TOKEN
