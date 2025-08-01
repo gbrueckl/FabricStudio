@@ -4,6 +4,7 @@
 - update REST API definitions (Swagger)
 - fixed issue with API Notebook AutoComplete for `/admin` endpoints
 - improved API Notebook AutoComplete
+- fixed issue when treeviews were not refreshed properly after a `Rename`
 
 **v2.1.2**:
 - added deployment via Github action

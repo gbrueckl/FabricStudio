@@ -21,10 +21,17 @@ export class FabricAdminTreeItem extends FabricApiTreeItem {
 		collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
 	) {
 		super(id, name, type, parent, definition, description, collapsibleState);
+
+		this.description = this._description;
 	}
 
 	get TreeProvider(): TreeProviderId {
 		return "application/vnd.code.tree.fabricstudioadmin";
+	}
+
+		// description is show next to the label
+	get _description(): string {
+		return `${this.itemId}`;
 	}
 
 	public get canDelete(): boolean {
@@ -55,5 +62,8 @@ export class FabricAdminTreeItem extends FabricApiTreeItem {
 
 	public static handleEmptyItems<FabricAdminTreeItem>(items: FabricAdminTreeItem[], filter: RegExp = undefined, itemType: string = "item"): FabricAdminTreeItem[] {
 		return super.handleEmptyItems<FabricAdminTreeItem>(items, filter, itemType);
+	}
+
+	public async checkboxChanged(newState: vscode.TreeItemCheckboxState): Promise<void> {
 	}
 }

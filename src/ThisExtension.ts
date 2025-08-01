@@ -18,6 +18,7 @@ import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/Fabr
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
 import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
 import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
+import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeItem';
 
 
 export type TreeProviderId =
@@ -284,8 +285,12 @@ export abstract class ThisExtension {
 			case "application/vnd.code.tree.fabricstudiocapacities":
 				await this.TreeViewCapacities.refresh(item as FabricCapacityTreeItem);
 				break;
+			case "application/vnd.code.tree.fabricstudioadmin":
+				await this.TreeViewAdmin.refresh(item as FabricAdminTreeItem);
+				break;
 			default:
 				this.Logger.logError(`TreeProviderId '${id}' not found!`, true, true);
+				throw new Error(`TreeProviderId '${id}' not found!`);
 		}
 	}
 

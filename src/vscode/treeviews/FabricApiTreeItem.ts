@@ -155,7 +155,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		}
 	}
 
-	async rename(): Promise<void> {
+	public async rename(): Promise<void> {
 		// https://learn.microsoft.com/en-us/rest/api/fabric/admin/domains/update-domain
 		/*
 		PATCH https://api.fabric.microsoft.com/v1/admin/domains/{domainId}
@@ -192,7 +192,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			this.label = newName;
 		}
 
-		ThisExtension.TreeViewAdmin.refresh(this.parent, false);
+		if (this.parent) {
+			ThisExtension.refreshTreeView(this.TreeProvider, this.parent);
+		}
 	}
 
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
