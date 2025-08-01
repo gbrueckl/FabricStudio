@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.2.0**:
+- update REST API definitions (Swagger)
+- fixed issue with API Notebook AutoComplete for `/admin` endpoints
+- improved API Notebook AutoComplete
+
 **v2.1.2**:
 - added deployment via Github action
 
@@ -20,7 +25,6 @@
 - added Agent instructions for future coding
 - updated dependent libraries
 - added scripts to update Swagger definition
-
 
 **v1.14.5**:
 - fixed issue when deleting a folder in the workspace browser ([#13](/../../issues/13))
