@@ -17,10 +17,12 @@ export class FabricAdminTenantSetting extends FabricAdminGenericViewer {
 		super(definition.title, parent, "AdminTenantSetting");
 
 		if (definition.enabled) {
-			this.iconPath = new vscode.ThemeIcon("check");
+			this.iconPath = undefined; //new vscode.ThemeIcon("check");
+			this.checkboxState = vscode.TreeItemCheckboxState.Checked;
 		}
 		else {
-			this.iconPath = new vscode.ThemeIcon("close");
+			this.iconPath = undefined; //new vscode.ThemeIcon("close");
+			this.checkboxState = vscode.TreeItemCheckboxState.Unchecked;
 		}
 
 		this.itemDefinition = definition;
@@ -36,4 +38,10 @@ export class FabricAdminTenantSetting extends FabricAdminGenericViewer {
 	}
 
 	/* Overwritten properties from FabricAdminTreeItem */
+	public async checkboxChanged(newState: vscode.TreeItemCheckboxState): Promise<void> {
+		ThisExtension.Logger.logError(`It is currently not supported to change Tenant Settings via the UI!`, true, true);
+		// this.checkboxState = newState;
+		// this.itemDefinition.enabled = (newState === vscode.TreeItemCheckboxState.Checked);
+		// await FabricApiService.updateTenantSetting(this.itemDefinition);
+	}
 }

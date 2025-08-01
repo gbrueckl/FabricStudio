@@ -1,22 +1,22 @@
 export const FabricAPILanguage: string = 'fabric-api';
 
-interface KeyValuePair<T> {
+export interface KeyValuePair<T> {
 	[key: string]: T;
 }
 
 export interface ApiEndpointDetails {
 	path: string;
-	tags: string[];
-	summary: string;
-	description: string;
-	operationId: string;
-	consumes: string[];
-	produces: string[];
-	parameters: any[];
-	responses: any;
-	deprecated: boolean;
-	sortText: string;
-	methodOverwrite: string;
+	tags?: string[];
+	summary?: string;
+	description?: string;
+	operationId?: string;
+	consumes?: string[];
+	produces?: string[];
+	parameters?: any[];
+	responses?: any;
+	deprecated?: boolean;
+	sortText?: string;
+	methodOverwrite?: string;
 }
 
 export interface ApiEndpointParameter {

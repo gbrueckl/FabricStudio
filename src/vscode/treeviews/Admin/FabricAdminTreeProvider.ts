@@ -32,11 +32,18 @@ export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAd
 		context.subscriptions.push(view);
 
 		view.onDidChangeSelection((event) => this._onDidChangeSelection(event.selection));
+		view.onDidChangeCheckboxState((event) => this._onDidChangeCheckboxState(event.items));
 
 		ThisExtension.TreeViewAdmin = this;
 	}
 
 	private async _onDidChangeSelection(items: readonly FabricAdminTreeItem[]): Promise<void> {
+	}
+
+	private async _onDidChangeCheckboxState(items: readonly [FabricAdminTreeItem, vscode.TreeItemCheckboxState][]): Promise<void> {
+		for (const [item, newState] of items) {
+			await item.checkboxChanged(newState);
+		}
 	}
 
 	public get Selection(): readonly FabricAdminTreeItem[] {

@@ -4,11 +4,12 @@ import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../ThisExtension';
-import { ApiEndpointDetails, FabricAPILanguage, SwaggerFile } from './_types';
+import { ApiEndpointDetails, FabricAPILanguage, KeyValuePair, SwaggerFile } from './_types';
 import { FabricNotebookContext } from '../notebook/FabricNotebookContext';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { iFabricApiItem } from '../../fabric/_types';
 import * as SwaggerParser from "@apidevtools/swagger-parser";
+import { sortedLastIndex } from 'lodash';
 
 
 /** Supported trigger characters */
@@ -73,6 +74,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 				// all APIs directly below the current path and all dynamic paths
 				if (parts.length == searchParts.length + 1
 					|| (parts.length == searchParts.length + 2 && parts[searchParts.length] == "jobs") // exception for jobs
+					|| (parts.length == searchParts.length + 2 && parts[searchParts.length] == "admin") // exception for jobs
 					|| (parts.length > searchParts.length && parts[searchParts.length].startsWith("{"))) {
 					for (let m of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths[item])) {
 						let itemToAdd = { ...FabricAPICompletionProvider.swagger.paths[item][m] };
@@ -90,6 +92,23 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 							itemToAdd.sortText = 'ZZZ' + item;
 							itemToAdd.methodOverwrite = m;
 							matchesDifferentMethod.push(itemToAdd);
+						}
+					}
+				}
+				else if (parts.length > searchParts.length + 1) {
+					for (let m of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths[item])) {
+						let itemShort = parts.slice(0, searchParts.length + 1).join("/");
+						let itemToAdd: ApiEndpointDetails = {
+							path: itemShort
+						};
+
+						if (m && m == method) {
+							itemToAdd.sortText = itemShort;
+
+							if (!method) {
+								itemToAdd.methodOverwrite = m;
+							}
+							matches.push(itemToAdd);
 						}
 					}
 				}

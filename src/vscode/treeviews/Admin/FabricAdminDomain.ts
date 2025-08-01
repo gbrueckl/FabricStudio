@@ -18,7 +18,7 @@ export class FabricAdminDomain extends FabricAdminTreeItem {
 	) {
 		super(domain.id, domain.displayName, "AdminDomain", parent, domain, domain.description);
 
-		this.iconPath = new vscode.ThemeIcon("target")
+		this.iconPath = new vscode.ThemeIcon("terminal-ubuntu")
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 	}
 

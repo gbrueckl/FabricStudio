@@ -4,9 +4,6 @@ import * as glob from 'glob';
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { stringifyRefs, parseRefs, PreserveType } from "json-serialize-refs";
 
-
-
-
 const definitionDir = path.join(__dirname, 'definition');
 const outputDir = path.join(__dirname, '..', '..', 'resources', 'API');
 const outputFile = path.join(outputDir, 'swagger.json');
@@ -18,6 +15,17 @@ console.log(`Output file: ${outputFile}`);
 // Ensure output directory exists
 if (!fs.existsSync(outputDir)) {
 	fs.mkdirSync(outputDir, { recursive: true });
+}
+
+function sort(obj) {
+	if (obj === null || obj === undefined)
+		return obj;
+	if (typeof obj !== "object" || Array.isArray(obj))
+		return obj;
+	const sortedObject = {};
+	const keys = Object.keys(obj).sort();
+	keys.forEach(key => sortedObject[key] = sort(obj[key]));
+	return sortedObject;
 }
 
 async function processJsonFile(file: string) {
@@ -67,9 +75,16 @@ jsonFiles = jsonFiles.filter(file => !file.includes("\\examples\\"));
 
 combineJsonFiles(jsonFiles)
 	.then(combinedJson => {
+		// stringifyRefs removes recursive references
 		let outputContent = stringifyRefs(combinedJson, null, 4, PreserveType.Objects);
 		outputContent = outputContent.replace(/[\r\n]*.*"\$id":.*,/gm, ''); // Remove $id properties
 		outputContent = outputContent.replace(/[\r\n,]*.*"\$id":.*/gm, ''); // Remove $id if last property
+
+		let outputObject = JSON.parse(outputContent);
+		outputObject = sort(outputObject);
+
+		outputContent = JSON.stringify(outputObject, null, 4);
+
 		fs.writeFileSync(outputFile, outputContent, 'utf8');
 		console.log(`Combined JSON written to ${outputFile}`);
 	})

@@ -296,7 +296,12 @@ export abstract class FabricApiService {
 			response = await this.get<iFabricListResponse<TSuccess>>(endpoint, params);
 
 			if (response.error) {
-				return { "error": response.error };
+				return response;
+			}
+
+			if (listProperty && !response.success[listProperty]) {
+				ThisExtension.Logger.logWarning(`List property '${listProperty}' not found in response!`);
+				listProperty = Object.keys(response.success).find(x => !x.startsWith("continuation")); // fallback to first real property
 			}
 
 			ret = ret.concat(response.success[listProperty]);
@@ -308,7 +313,10 @@ export abstract class FabricApiService {
 			Helper.sortArrayByProperty(ret, listSortProperty);
 		}
 
-		return { "success": ret };
+		return {
+			"success": ret,
+			"responseHeaders": response.responseHeaders
+		};
 	}
 
 	static async longRunningOperation<TSuccess = any>(
@@ -391,7 +399,7 @@ export abstract class FabricApiService {
 			if (response.ok) {
 				if (response.status == 202) {
 					if (config.awaitLongRunningOperation) {
-						
+
 						let lroResult = await this.longRunningOperation<TSuccess>(response, 2000);
 						lroResult.responseHeaders = responseHeaders;
 
