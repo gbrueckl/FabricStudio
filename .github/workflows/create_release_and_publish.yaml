@@ -32,7 +32,6 @@ jobs:
         env:
           INPUTS: ${{ toJSON(inputs) }}
         run: echo "${INPUTS}"
-        run: npasdfasm install
 
       - name: Install npm
         run: npm install
