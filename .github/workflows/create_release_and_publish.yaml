@@ -23,6 +23,24 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Dump vars context
+        env:
+          VARS_JSON: ${{ toJSON(vars) }}
+        run: echo "${VARS_JSON}"
+
+      - name: Dump GITHUB context
+        env:
+          GITHUB: ${{ toJSON(github) }}
+        run: echo "${GITHUB}"
+
+      - name: Dump input context
+        env:
+          INPUTS: ${{ toJSON(inputs) }}
+        run: echo "${INPUTS}"
+
+      - name: FAIL
+        run: npasdfasm install
+
       - name: Install npm
         run: npm install
 
