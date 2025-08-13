@@ -29,6 +29,12 @@ jobs:
       - name: Install vsce
         run: npm i -g vsce
 
+      - name: Download latest Swagger definitions
+        run: npm run download-api-specs
+
+      - name: Create single Swagger for package
+        run: npm run create-single-swagger
+
       # we first publish to VSCode gallery 
       # in case that version is already there, it would fail and also not overwrite the Github Release
       - name: Publish extension
