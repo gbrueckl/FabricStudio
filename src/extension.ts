@@ -125,6 +125,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
+	vscode.commands.registerCommand('FabricStudio.Workspaces.deleteItems', () => fabricWorkspacesTreeProvider.deleteSelectedItems());
+
 
 	vscode.commands.registerCommand('FabricStudio.Workspace.rename', (item: FabricWorkspaceTreeItem = undefined) => item.rename());
 	vscode.commands.registerCommand('FabricStudio.Workspace.createFolder', (item: FabricWorkspaceTreeItem = undefined) => FabricWorkspaceFolder.createFolder(item));
@@ -144,7 +146,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.editTMDL', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editPBIR', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.showDefintion', async (treeItem: FabricWorkspaceGenericViewer) => treeItem.showDefinition());
-	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => treeItem.delete("yesNo"));
+	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => FabricApiTreeItem.delete("yesNo", treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.publishToFabric(treeItem.resourceUri, false));
 	vscode.commands.registerCommand('FabricStudio.Item.reloadFromFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.reloadFromFabric(treeItem.resourceUri, false));
 

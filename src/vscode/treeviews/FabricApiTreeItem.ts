@@ -117,7 +117,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return false;
 	}
 
-	public async delete(confirmation: "yesNo" | "name" | undefined = undefined, item: FabricApiTreeItem = this): Promise<void> {
+	public static async delete(confirmation: "yesNo" | "name" | "none" | undefined = undefined, item: FabricApiTreeItem): Promise<void> {
 		if (confirmation) {
 			let confirm: string
 			switch (confirmation) {
@@ -128,6 +128,8 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 				case "name":
 					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the ${item.itemType.toLowerCase()} name '${item.itemName}' again.`, undefined, undefined);
 					break;
+				case "none":
+					confirm = "none";
 			}
 
 			if (!confirm
@@ -149,7 +151,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			const successMsg = `Deleted ${item.itemType.toLowerCase()} '${item.itemName}'!`
 			Helper.showTemporaryInformationMessage(successMsg, 3000);
 
-			if (item.parent) {
+			if (item.parent && confirmation != "none") {
 				ThisExtension.refreshTreeView(item.TreeProvider, item.parent);
 			}
 		}

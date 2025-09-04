@@ -108,6 +108,14 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return qpItem;
 	}
 
+	get canDelete(): boolean {
+		return false;
+	}
+
+	get canMove(): boolean {
+		return false;
+	}
+
 
 	get fabricFsUri(): FabricFSUri {
 		if (this.itemType == "Workspace") {
@@ -159,14 +167,16 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	}
 
 	public static get NO_ITEMS(): FabricWorkspaceTreeItem {
-		let item = new FabricWorkspaceTreeItem("NO_ITEMS", "No workspaces found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		let item = new FabricWorkspaceTreeItem("NO_ITEMS", "No items found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 		item.contextValue = "";
+		item.description = undefined;
+		item.tooltip = undefined;
 		item.itemId = "NO_ITEMS";
 		return item;
 	}
 
-	public static handleEmptyItems<FabricWorkspaceTreeItem>(items: FabricWorkspaceTreeItem[], filter: RegExp = undefined): FabricWorkspaceTreeItem[] {
-		return super.handleEmptyItems<FabricWorkspaceTreeItem>(items, filter, "workspace");
+	public static handleEmptyItems<FabricWorkspaceTreeItem>(items: FabricWorkspaceTreeItem[], filter: RegExp = undefined, itemType: string = "workspace"): FabricWorkspaceTreeItem[] {
+		return super.handleEmptyItems<FabricWorkspaceTreeItem>(items, filter, itemType);
 	}
 
 	async rename(): Promise<void> {

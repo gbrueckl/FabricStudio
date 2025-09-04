@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -304,6 +304,12 @@
 				"command": "FabricStudio.Workspaces.editItems",
 				"title": "Edit Items",
 				"icon": "$(pencil)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Workspaces.deleteItems",
+				"title": "Delete Items",
+				"icon": "$(close)"
 			},
 			{
 				"category": "FabricStudio",
@@ -683,6 +689,11 @@
 				{
 					"command": "FabricStudio.Workspaces.editItems",
 					"when": "view == FabricStudioWorkspaces",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Workspaces.deleteItems",
+					"when": "view == FabricStudioWorkspaces && Fabric.Workspaces.allowDeleteItems",
 					"group": "navigation"
 				},
 				{

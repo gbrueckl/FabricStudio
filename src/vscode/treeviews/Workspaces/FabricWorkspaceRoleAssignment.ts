@@ -77,6 +77,10 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceGenericViewer 
 		this._itemDefinition = value;
 	}
 
+	get canDelete(): boolean {
+		return true;
+	}
+
 
 	// properties of iFabricApiWorkspaceRoleAssignment
 	async update(): Promise<void> {

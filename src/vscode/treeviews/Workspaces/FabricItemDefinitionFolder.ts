@@ -58,8 +58,7 @@ export class FabricItemDefinitionFolder extends FabricWorkspaceGenericFolder {
 		}
 	}
 
-	public async delete(confirmation: "yesNo" | "name" | undefined = undefined): Promise<void> {
-		// currently disabled - TreeView is read-only!
-		this.definitionRoot.delete(confirmation, this);
+	get canDelete(): boolean {
+		return false;
 	}
 }

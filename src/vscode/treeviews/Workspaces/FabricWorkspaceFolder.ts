@@ -123,6 +123,8 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 
 		children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
+		children = FabricWorkspaceTreeItem.handleEmptyItems(children, undefined, "items");
+
 		return children;
 	}
 

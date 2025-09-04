@@ -6,7 +6,6 @@ import { FabricApiTreeItem } from './treeviews/FabricApiTreeItem';
 import { FabricWorkspace } from './treeviews/Workspaces/FabricWorkspace';
 import { FabricWorkspaceTreeItem } from './treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { FabricQuickPickItem } from './input/FabricQuickPickItem';
-import { Helper } from '@utils/Helper';
 import { FabricWorkspaceRoleAssignment } from './treeviews/Workspaces/FabricWorkspaceRoleAssignment';
 import { FabricWorkspaceRoleAssignments } from './treeviews/Workspaces/FabricWorkspaceRoleAssignments';
 import { FabricGatewayRoleAssignment } from './treeviews/Connections/FabricGatewayRoleAssignment';
@@ -16,6 +15,7 @@ import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricC
 import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
 import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFolder';
 import { FabricItem } from './treeviews/Workspaces/FabricItem';
+import { FabricApiService } from '../fabric/FabricApiService';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -186,7 +186,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 				actions.set("Assign to Capacity", assignToCapacity);
 			}
 		}
-		else if (source_Item0.itemType == "WorkspaceFolder") {
+		else if (source_Item0.itemType == "WorkspaceFolder" && sourceItems.length == 1) {
 			const sourceItem = source_Item0 as FabricWorkspaceFolder;
 			if (["WorkspaceFolder"].includes(targetItem.itemType)) {
 				const target = targetItem as FabricWorkspaceFolder;
@@ -224,40 +224,33 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		}
 		// there are multiple item types for Fabric Items, so we cannot rely on the itemType but use the contextvalue instead
 		else if (source_Item0.contextValue.includes("FABRIC_ITEM")) {
-			const sourceItem = source_Item0 as FabricItem;
-			if (["WorkspaceFolder"].includes(targetItem.itemType)) {
-				const target = targetItem as FabricWorkspaceFolder;
+			const sourceItem = source_Item0 as FabricWorkspaceTreeItem;
+			const items = sourceItems.map(x => x as FabricWorkspaceTreeItem);
+			const target = targetItem as FabricWorkspaceTreeItem;
 
-				if (sourceItem.workspaceId != target.workspaceId) {
-					const msg: string = "Moving items between workspaces is not allowed!"
-					ThisExtension.Logger.logWarning(msg, true);
-					return;
-				}
+			if(items.every(x => x.canMove)) {
+				const bulkMoveItems = async () => {
+					let body = {
+						"items": items.map(x => x.itemId)
+					};
+					// if the target is a folder, we need to pass the targetFolderId
+					if (["WorkspaceFolder"].includes(targetItem.itemType)) {
+						body["targetFolderId"] = target.itemId;
+					}
 
-				const moveToFolder = async () => {
-					await FabricItem.moveToFolder(sourceItem.itemDefinition, target.itemDefinition);
+					FabricApiService.post(`/v1/workspaces/${target.workspaceId}/items/bulkMove`, body);
 					ThisExtension.TreeViewConnections.refresh(target.parent, false);
 				}
-				treeViewtoRefresh = sourceGroup.TreeProvider
-				actions.set("Move to Folder", moveToFolder);
+
+				actions.set(`Move Item(s)`, bulkMoveItems);
 			}
-			else if (["Workspace"].includes(targetItem.itemType)) {
-				const target = targetItem as FabricWorkspace;
-
-				if (sourceItem.workspaceId != target.workspaceId) {
-					const msg: string = "Moving folders between workspaces is not allowed!"
-					ThisExtension.Logger.logWarning(msg, true);
-					return;
-				}
-
-				const moveToWorkspaceRoot = async () => {
-					FabricItem.moveToFolder(sourceItem.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
-				}
-				treeViewtoRefresh = target.TreeProvider;
-				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
+			else {
+				const msg: string = "One or more of the dropped items cannot be moved!"
+				ThisExtension.Logger.logWarning(msg, true);
+				return;
 			}
 		}
+
 
 		// if (source.itemType == "Workspace") {
 		// 	// dropping a Group/Workspace on a Capacity --> assign to that capacity
