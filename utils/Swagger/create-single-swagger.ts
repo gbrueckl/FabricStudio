@@ -4,7 +4,7 @@ import * as glob from 'glob';
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { stringifyRefs, parseRefs, PreserveType } from "json-serialize-refs";
 
-const definitionDir = path.join(__dirname, 'definition');
+const definitionDir = path.join(__dirname, 'definition', 'fabric-rest-api-specs-main');
 const outputDir = path.join(__dirname, '..', '..', 'resources', 'API');
 const outputFile = path.join(outputDir, 'swagger.json');
 
@@ -79,6 +79,8 @@ combineJsonFiles(jsonFiles)
 		let outputContent = stringifyRefs(combinedJson, null, 4, PreserveType.Objects);
 		outputContent = outputContent.replace(/[\r\n]*.*"\$id":.*,/gm, ''); // Remove $id properties
 		outputContent = outputContent.replace(/[\r\n,]*.*"\$id":.*/gm, ''); // Remove $id if last property
+		outputContent = outputContent.replace(/[\r\n]*.*"\$ref":.*,/gm, ''); // Remove $ref properties
+		outputContent = outputContent.replace(/[\r\n,]*.*"\$ref":.*/gm, ''); // Remove $ref if last property
 
 		let outputObject = JSON.parse(outputContent);
 		outputObject = sort(outputObject);

@@ -27,7 +27,6 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 
 	private _filter: string;
 	private _treeView: vscode.TreeView<FabricWorkspaceTreeItem>;
-	private _previousSelection: { item: FabricWorkspaceTreeItem, time: number };
 	private _onDidChangeTreeData: vscode.EventEmitter<FabricWorkspaceTreeItem | undefined> = new vscode.EventEmitter<FabricWorkspaceTreeItem | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<FabricWorkspaceTreeItem | undefined> = this._onDidChangeTreeData.event;
 
@@ -35,7 +34,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		const view = vscode.window.createTreeView<FabricWorkspaceTreeItem>('FabricStudioWorkspaces', {
 			treeDataProvider: this,
 			showCollapseAll: true,
-			canSelectMany: false,
+			canSelectMany: true,
 			dragAndDropController: new FabricDragAndDropController()
 		});
 		this._treeView = view;
@@ -48,6 +47,16 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 	}
 
 	private async _onDidChangeSelection(items: readonly FabricWorkspaceTreeItem[]): Promise<void> {
+		let allow_delete: boolean = false;
+		if (items.every((item) => item.canDelete)) {
+			allow_delete = true;
+		}
+
+		vscode.commands.executeCommand(
+				"setContext",
+				"Fabric.Workspaces.allowDeleteItems",
+				allow_delete
+			);
 	}
 
 	public get Selection(): readonly FabricWorkspaceTreeItem[] {
@@ -144,6 +153,29 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 
 		this._filter = filter;
 		FabricConfiguration.workspaceFilter = filter;
+
+		this.refresh(null, true);
+	}
+
+	async deleteSelectedItems(): Promise<void> {
+
+		const items: readonly FabricWorkspaceTreeItem[] = this.Selection;
+
+		if (!items || items.length === 0) {
+			vscode.window.showInformationMessage("No items selected for deletion.");
+			return;
+		}
+
+		const delItems = await vscode.window.showQuickPick(items.map(item => item.asQuickPickItem), { canPickMany: true, placeHolder: "Select items to delete" });
+
+		if (!delItems || delItems.length === 0) {
+			vscode.window.showInformationMessage("No items selected for deletion.");
+			return;
+		}
+
+		for (let delItem of delItems) {
+			FabricWorkspaceTreeItem.delete("none", delItem.apiItem as FabricWorkspaceTreeItem); // we know it is a FabricApiTreeItem because FabricWorkspaceTreeItem extends it
+		}
 
 		this.refresh(null, true);
 	}

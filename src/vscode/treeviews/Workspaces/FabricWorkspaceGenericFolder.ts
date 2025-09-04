@@ -11,7 +11,7 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	protected _customApiUrlPart: string;
 	protected _defaultChildCollapsibleState: vscode.TreeItemCollapsibleState;
-	protected _children: FabricWorkspaceTreeItem[];
+	protected _children: FabricWorkspaceTreeItem[] = undefined;
 
 	constructor(
 		id: string,
@@ -56,8 +56,12 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		return this.itemType;
 	}
 
+	get hasChildrenAdded(): boolean {
+		return this._children != undefined && this._children.length > 0;
+	}
+
 	addChild(value: FabricWorkspaceTreeItem, parent: FabricWorkspaceTreeItem = this): void {
-		if (!this._children) {
+		if (this._children == undefined) {
 			this._children = [];
 		}
 		value.parent = parent;

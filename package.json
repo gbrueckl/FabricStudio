@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.2.0",
+	"version": "2.2.2",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -304,6 +304,12 @@
 				"command": "FabricStudio.Workspaces.editItems",
 				"title": "Edit Items",
 				"icon": "$(pencil)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Workspaces.deleteItems",
+				"title": "Delete Items",
+				"icon": "$(close)"
 			},
 			{
 				"category": "FabricStudio",
@@ -683,6 +689,11 @@
 				{
 					"command": "FabricStudio.Workspaces.editItems",
 					"when": "view == FabricStudioWorkspaces",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.Workspaces.deleteItems",
+					"when": "view == FabricStudioWorkspaces && Fabric.Workspaces.allowDeleteItems",
 					"group": "navigation"
 				},
 				{
@@ -1151,14 +1162,15 @@
 		"lint": "eslint src --ext ts",
 		"test": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/web/extension.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-		"create-single-swagger": "ts-node utils/Swagger/create-single-swagger.ts"
+		"create-single-swagger": "ts-node utils/Swagger/create-single-swagger.ts",
+		"download-api-specs": "ts-node utils/Swagger/download-api-specs.ts"
 	},
 	"devDependencies": {
 		"@apidevtools/swagger-parser": "^12.0.0",
 		"@types/glob": "^8.1.0",
 		"@types/lodash": "^4.17.7",
 		"@types/mocha": "^10.0.10",
-		"@types/node": "^12.12.0",
+		"@types/node": "^12.20.55",
 		"@types/vscode": "^1.81.0",
 		"@vscode/test-web": "*",
 		"buffer": "^6.0.3",
@@ -1168,6 +1180,7 @@
 		"https-agent": "^1.0.0",
 		"https-proxy-agent": "^5.0.1",
 		"json-serialize-refs": "^0.1.0-0",
+		"lodash": "^4.17.21",
 		"mocha": "^11.7.0",
 		"native-ext-loader": "^2.3.0",
 		"node-fetch": "^3.3.2",
@@ -1176,6 +1189,6 @@
 		"typescript": "^4.7.4",
 		"webpack": "^5.74.0",
 		"webpack-cli": "^4.10.0",
-		"lodash": "^4.17.21"
+		"adm-zip": "^0.5.16"
 	}
 }

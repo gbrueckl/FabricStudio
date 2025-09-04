@@ -1,5 +1,11 @@
 # Change Log
 
+**v2.2.2**:
+- enabled multi-select for the Workspace Browser:
+  - added support for drag-and-drop to move multiple items in bulk
+  - added support to delete multiple items in bulk
+- added deployment to OpenVSX
+
 **v2.2.0**:
 - update REST API definitions (Swagger)
 - fixed issue with API Notebook AutoComplete for `/admin` endpoints

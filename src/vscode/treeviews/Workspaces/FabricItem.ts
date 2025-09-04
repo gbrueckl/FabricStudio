@@ -67,7 +67,15 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	}
 
 	get canRename(): boolean {
-		return true;	
+		return true;
+	}
+
+	get canDelete(): boolean {
+		return true;
+	}
+
+	get canMove(): boolean {
+		return true;
 	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {

@@ -66,6 +66,10 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 		}
 	}
 
+	get canDelete(): boolean {
+		return false;
+	}
+
 	getCommand(): vscode.Command {
 		return {
 			"title": "Show Definition",
@@ -128,37 +132,4 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 	}
 
 	// Item-specific functions
-	public async delete(confirmation: "yesNo" | "name" | undefined = undefined, item: FabricWorkspaceTreeItem): Promise<void> {
-		throw new Error("Deletion of definition items in the Treeview is currently not supported!");
-		// currently disabled - TreeView is read-only!
-		if (confirmation) {
-			let confirm: string
-			switch (confirmation) {
-				case "yesNo":
-					const confirmQp = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete '${item.itemName}'?`, undefined, undefined);
-					confirm = confirmQp.value;
-					break;
-				case "name":
-					confirm = await FabricCommandBuilder.showInputBox("", `Confirm deletion by typeing the name '${item.itemName}' again.`, undefined, undefined);
-					break;
-			}
-
-			if (!confirm
-				|| (confirmation == "name" && confirm != item.itemName)
-				|| (confirmation == "yesNo" && confirm != "yes")) {
-				const abortMsg = `Aborted deletion of ${item.itemType.toLowerCase()} '${item.itemName}'!`
-				ThisExtension.Logger.logWarning(abortMsg);
-				Helper.showTemporaryInformationMessage(abortMsg, 2000)
-				return;
-			}
-		}
-
-		vscode.workspace.fs.delete(item.resourceUri, { recursive: true });
-		const successMsg = `Deleted '${item.itemName}'!`
-		Helper.showTemporaryInformationMessage(successMsg, 5000);
-
-		if (item.parent) {
-			ThisExtension.refreshTreeView(item.TreeProvider, item.parent);
-		}
-	}
 }

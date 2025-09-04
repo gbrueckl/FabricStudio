@@ -83,7 +83,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	get asQuickPickItem(): FabricQuickPickItem {
-		let qpItem = super.asQuickPickItem; new FabricQuickPickItem(this.itemName, this.itemId, this.itemId, );
+		let qpItem = super.asQuickPickItem; 
 		qpItem.detail = `\tCapacityID: ${this.itemDefinition.capacityId}`;
 
 		return qpItem;
@@ -200,10 +200,22 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				children = Array.from(itemGroupings.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
 				if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
-					const noFolder: FabricWorkspaceTreeItem = children.pop();
-					const noFolderItems = await noFolder.getChildren();
-
-					children.push(...noFolderItems);
+					if (items.success.length == 0) {
+						if (this._workspaceFolders.length == 0) {
+							children = [FabricItem.NO_ITEMS];
+						}
+						else {
+							children.pop();
+						}
+					}
+					else {
+						// remove the No Folder placeholder and place the children in the workspace directly
+						var noFolder: FabricWorkspaceGenericFolder = children.pop() as FabricWorkspaceGenericFolder;
+						if (noFolder.hasChildrenAdded) {
+							const noFolderItems = await noFolder.getChildren();
+							children.push(...noFolderItems);
+						}
+					}
 				}
 
 
