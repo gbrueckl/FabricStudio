@@ -33,7 +33,7 @@ export class FabricPipelineTreeItem extends FabricApiTreeItem implements iFabric
 		this.contextValue = this._contextValue;
 	}
 
-	get TreeProvider(): TreeProviderId {
+	get treeProvider(): TreeProviderId {
 		return "application/vnd.code.tree.fabricstudiodeploymentpipelines";
 	}
 

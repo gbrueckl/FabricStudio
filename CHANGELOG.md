@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.2.3**:
+- fix issues with Drag&Drop across different Treeviews (e.g. Workspace -> Capacity)
+
 **v2.2.2**:
 - enabled multi-select for the Workspace Browser:
   - added support for drag-and-drop to move multiple items in bulk

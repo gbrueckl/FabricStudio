@@ -27,46 +27,22 @@ class FabricObjectTransferItem extends vscode.DataTransferItem {
 	asObject(): readonly FabricApiTreeItem[] {
 		return this._nodes;
 	}
-
-	async asString(): Promise<string> {
-		try {
-			const ret = JSON.stringify(this._nodes, this.getCircularReplacer());
-			return ret;
-		} catch (error) {
-			ThisExtension.Logger.logError("Error converting FabricApiTreeItem to string: " + error, true);
-			return "";
-		}
-	}
-
-	private getCircularReplacer() {
-		const seen = new WeakSet();
-		return (key: any, value: any) => {
-			if (typeof value === "object" && value !== null) {
-				if (seen.has(value)) {
-					return;
-				}
-				seen.add(value);
-			}
-			return value;
-		};
-	}
-
-	
 }
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricDragAndDropController implements vscode.TreeDragAndDropController<FabricApiTreeItem> {
+	// seems like adding the mimeTypes explicitly here does not work ?!?
+	readonly dropMimeTypes: readonly string[] = [
+		// FabricDragMIMEType,
+		"text/uri-list"
+	].concat(ThisExtension.TreeProviderIdsForDragAndDrop.map((x) => x.toString()));
 
-	dropMimeTypes: readonly string[] = ThisExtension.TreeProviderIdsForDragAndDrop.map((x) => x.toString()).concat([
-		FabricDragMIMEType,
-		"text/uri-list" // to support drag and drop from the file explorer (not yet working)
-	]);
-	dragMimeTypes: readonly string[] = ThisExtension.TreeProviderIdsForDragAndDrop.map((x) => x.toString()).concat([
-		FabricDragMIMEType
-	]);
+	readonly dragMimeTypes: readonly string[] = [
+		// FabricDragMIMEType
+	]//.concat(ThisExtension.TreeProviderIdsForDragAndDrop.map((x) => x.toString()));
 
 	public async handleDrag?(source: readonly FabricApiTreeItem[], dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
-		dataTransfer.set(source[0].TreeProvider, new FabricObjectTransferItem(source));
+		// dataTransfer.set(source[0].TreeProvider, new FabricObjectTransferItem(source));
 		dataTransfer.set(FabricDragMIMEType, new FabricObjectTransferItem(source));
 	}
 
@@ -74,34 +50,34 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		ThisExtension.Logger.logInfo("Dropped item(s) on " + target.itemType + " ...");
 
 		// when a PBIX file is dropped on a Group/Workspace or its Datasets folder
-		let uriList = await dataTransfer.get("text/uri-list");
-		if (uriList != null) {
-			if (["XXX_GROUP", "XXX_DATASETS"].includes(target.itemType)) {
-				const uriListString = (await uriList.asString());
-				ThisExtension.Logger.logInfo("File(s) dropped on Fabric Group: " + uriListString.toString());
-				const fileUris = uriListString.split("\r\n").filter((x) => x.startsWith("file://") && x.endsWith(".pbix")).map((x) => vscode.Uri.parse(x.trim()));
+		// let uriList = await dataTransfer.get("text/uri-list");
+		// if (uriList != null) {
+		// 	if (["XXX_GROUP", "XXX_DATASETS"].includes(target.itemType)) {
+		// 		const uriListString = (await uriList.asString());
+		// 		ThisExtension.Logger.logInfo("File(s) dropped on Fabric Group: " + uriListString.toString());
+		// 		const fileUris = uriListString.split("\r\n").filter((x) => x.startsWith("file://") && x.endsWith(".pbix")).map((x) => vscode.Uri.parse(x.trim()));
 
-				const targetGroup: FabricWorkspace = target.getParentByType("Workspace") as FabricWorkspace;
+		// 		const targetGroup: FabricWorkspace = target.getParentByType("Workspace") as FabricWorkspace;
 
-				const pbixImport = undefined //await FabricWorkspace.uploadPbixFiles(targetGroup, fileUris);
-				if (pbixImport) {
-					ThisExtension.Logger.logInfo("Imported PBIX: " + pbixImport[0].name + " (" + pbixImport[0].id + ")");
-					ThisExtension.refreshTreeView(target.TreeProvider, targetGroup);
-				}
-				else {
-					ThisExtension.Logger.logError("ERROR importing PBIX: " + JSON.stringify(pbixImport, null, 4), true);
-				}
-				return;
-			}
-			else {
-				ThisExtension.Logger.logWarning("File(s) dropped on Fabric Item but no drop-handler was defined for " + target.itemType);
-			}
-		}
+		// 		const pbixImport = undefined //await FabricWorkspace.uploadPbixFiles(targetGroup, fileUris);
+		// 		if (pbixImport) {
+		// 			ThisExtension.Logger.logInfo("Imported PBIX: " + pbixImport[0].name + " (" + pbixImport[0].id + ")");
+		// 			ThisExtension.refreshTreeView(target.TreeProvider, targetGroup);
+		// 		}
+		// 		else {
+		// 			ThisExtension.Logger.logError("ERROR importing PBIX: " + JSON.stringify(pbixImport, null, 4), true);
+		// 		}
+		// 		return;
+		// 	}
+		// 	else {
+		// 		ThisExtension.Logger.logWarning("File(s) dropped on Fabric Item but no drop-handler was defined for " + target.itemType);
+		// 	}
+		// }
 
-		const transferItem = dataTransfer.get(FabricDragMIMEType);
+		let transferItem = dataTransfer.get(FabricDragMIMEType);
 
 		if (!transferItem) {
-			ThisExtension.Logger.logWarning("Item dropped on Fabric Workspace Tree-View - but MimeType 'application/vnd.code.tree.Fabricworkspaces' was not found!");
+			ThisExtension.Logger.logWarning(`Item dropped on Fabric Workspace Tree-View - but MimeType '${FabricDragMIMEType}' was not found!`);
 			return;
 		}
 
@@ -130,9 +106,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		let actions: Map<string, () => Promise<void>> = new Map<string, () => Promise<void>>();
 
 		// by default we refresh the treeview of the target item
-		let treeViewtoRefresh: TreeProviderId = targetItem.TreeProvider;
-		const targetGroup = (targetItem as FabricWorkspaceTreeItem).workspace;
-		const sourceGroup = (source_Item0 as FabricWorkspaceTreeItem).workspace;
+		let treeViewtoRefresh: TreeProviderId = targetItem.treeProvider;
 
 		if (source_Item0.itemType == "WorkspaceRoleAssignment") {
 			const sourceItem = source_Item0 as FabricWorkspaceRoleAssignment;
@@ -182,7 +156,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					await FabricCapacity.assignWorkspace(sourceItem.itemDefinition, target.itemDefinition);
 					ThisExtension.TreeViewConnections.refresh(target.parent, false);
 				}
-				treeViewtoRefresh = sourceGroup.TreeProvider
+				treeViewtoRefresh = sourceItem.treeProvider
 				actions.set("Assign to Capacity", assignToCapacity);
 			}
 		}
@@ -201,7 +175,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					await FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition, target.itemDefinition);
 					ThisExtension.TreeViewConnections.refresh(target.parent, false);
 				}
-				treeViewtoRefresh = sourceGroup.TreeProvider
+				treeViewtoRefresh = sourceItem.treeProvider;
 				actions.set("Move to Folder", moveToFolder);
 			}
 			else if (["Workspace"].includes(targetItem.itemType)) {
@@ -217,7 +191,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition);
 					ThisExtension.TreeViewConnections.refresh(target.parent, false);
 				}
-				treeViewtoRefresh = target.TreeProvider;
+				treeViewtoRefresh = target.treeProvider;
 				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
 
 			}
@@ -228,7 +202,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 			const items = sourceItems.map(x => x as FabricWorkspaceTreeItem);
 			const target = targetItem as FabricWorkspaceTreeItem;
 
-			if(items.every(x => x.canMove)) {
+			if (items.every(x => x.canMove)) {
 				const bulkMoveItems = async () => {
 					let body = {
 						"items": items.map(x => x.itemId)
@@ -301,7 +275,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		// 	}
 		// }
 
-		if(actions.size == 1) {
+		if (actions.size == 1) {
 			const action = actions.values().next().value
 			await action();
 

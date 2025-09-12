@@ -25,7 +25,7 @@ export class FabricAdminTreeItem extends FabricApiTreeItem {
 		this.description = this._description;
 	}
 
-	get TreeProvider(): TreeProviderId {
+	get treeProvider(): TreeProviderId {
 		return "application/vnd.code.tree.fabricstudioadmin";
 	}
 
