@@ -152,7 +152,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			Helper.showTemporaryInformationMessage(successMsg, 3000);
 
 			if (item.parent && confirmation != "none") {
-				ThisExtension.refreshTreeView(item.TreeProvider, item.parent);
+				ThisExtension.refreshTreeView(item.treeProvider, item.parent);
 			}
 		}
 	}
@@ -195,7 +195,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		}
 
 		if (this.parent) {
-			ThisExtension.refreshTreeView(this.TreeProvider, this.parent);
+			ThisExtension.refreshTreeView(this.treeProvider, this.parent);
 		}
 	}
 
@@ -245,7 +245,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		this._parent = value;
 	}
 
-	get TreeProvider(): TreeProviderId {
+	get treeProvider(): TreeProviderId {
 		throw new Error("Method not implemented.");
 	}
 
@@ -394,5 +394,20 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		children = children.filter((child) => ![NO_ITEMS_ITEM_ID, ERROR_ITEM_ID].includes(child.itemId))
 
 		return children;
+	}
+
+	public toJSON(): any {
+		return {
+			itemId: this.itemId,
+			itemName: this.itemName,
+			apiPath: this.apiPath,
+			itemType: this.itemType,
+			itemDefinition: this.itemDefinition,
+			canDelete: this.canDelete,
+			canRename: this.canRename,
+			canOpenInBrowser: this.canOpenInBrowser,
+			treeProvider: this.treeProvider,
+			contextValue: this.contextValue
+		};	
 	}
 }

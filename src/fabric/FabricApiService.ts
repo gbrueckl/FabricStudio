@@ -185,7 +185,7 @@ export abstract class FabricApiService {
 		}
 		else if (this._initializationState == "loading") {
 			ThisExtension.Logger.logDebug(`Connection Initialization in progress - waiting ... `);
-			const initialized = await Helper.awaitCondition(async () => this._initializationState != "loading", 5000, 100);
+			const initialized = await Helper.awaitCondition(async () => this._initializationState != "loading", 30000, 100);
 
 			if (initialized) {
 				ThisExtension.Logger.logDebug(`Connection Initialization SUCCESSFUL!`);

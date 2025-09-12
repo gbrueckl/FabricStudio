@@ -171,7 +171,8 @@ export abstract class ThisExtension {
 	public static get TreeProviderIdsForDragAndDrop(): TreeProviderId[] {
 		return [
 			"application/vnd.code.tree.fabricstudioworkspaces",
-			"application/vnd.code.tree.fabricstudiodeploymentpipelines"
+			"application/vnd.code.tree.fabricstudiodeploymentpipelines",
+			"application/vnd.code.tree.fabricstudiocapacities"
 		];
 	}
 

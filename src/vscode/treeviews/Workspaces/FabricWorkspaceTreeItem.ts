@@ -61,7 +61,7 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return undefined;
 	}
 
-	get TreeProvider(): TreeProviderId {
+	get treeProvider(): TreeProviderId {
 		return "application/vnd.code.tree.fabricstudioworkspaces";
 	}
 

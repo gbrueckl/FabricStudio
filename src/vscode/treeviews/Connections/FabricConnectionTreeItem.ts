@@ -22,7 +22,7 @@ export class FabricConnectionTreeItem extends FabricApiTreeItem {
 		super(id, name, type, parent, definition, description, collapsibleState);
 	}
 
-	get TreeProvider(): TreeProviderId {
+	get treeProvider(): TreeProviderId {
 		return "application/vnd.code.tree.fabricstudioconnections";
 	}
 
