@@ -108,7 +108,7 @@ export class FabricSQLItem extends FabricItem {
 			return properties.connectionString;
 		}
 		catch (error) {
-			ThisExtension.Logger.logError(`Error getting SQL Endpoint for '${this.itemName}': ${error}`, true);
+			ThisExtension.Logger.logError(`Error getting SQL Endpoint for '${this.itemName}' from properties: ${error}`, false);
 		}
 	}
 
