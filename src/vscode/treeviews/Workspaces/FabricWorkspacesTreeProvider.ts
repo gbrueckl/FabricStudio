@@ -5,13 +5,14 @@ import { ThisExtension } from '../../../ThisExtension';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { Helper } from '@utils/Helper';
-import { iFabricApiItem, iFabricApiLakehouse, iFabricApiWorkspace } from '../../../fabric/_types';
+import { iFabricApiItem, iFabricApiLakehouse, iFabricApiWarehouse, iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricItem } from './FabricItem';
 import { FabricLakehouse } from './FabricLakehouse';
+import { FabricWarehouse } from './FabricWarehouse';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricDataPipeline } from './FabricDataPipeline';
 import { FabricEnvironment } from './FabricEnvironment';
@@ -186,6 +187,9 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 
 		if (item.type == "Lakehouse") {
 			itemToAdd = new FabricLakehouse(item as iFabricApiLakehouse, parent);
+		}
+		else if (item.type == "Warehouse") {
+			itemToAdd = new FabricWarehouse(item as iFabricApiWarehouse, parent);
 		}
 		else if (item.type == "SQLEndpoint") {
 			itemToAdd = new FabricSqlEndpoint(item, parent);

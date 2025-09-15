@@ -38,6 +38,7 @@ export type FabricApiItemType =
 	| "Dataflow"
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.
+	| "Warehouses"							//	Folder for Warehouse item.
 	| "SQLEndpoints"						//	Folder for SQLEndpoint item.
 	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
@@ -175,6 +176,19 @@ export interface iFabricApiLakehouseTable {
 	type: string		//Table type.
 }
 
+
+export interface iFabricApiWarehouse extends iFabricApiItem {
+	properties: iFabricApiWarehouseProperties;
+}
+
+export interface iFabricApiWarehouseProperties {
+	collationType: string; // The collation type of the warehouse.
+	connectionString: string; // The SQL connection string connected to the workspace containing this warehouse.
+	createdDate: string; // The date and time the warehouse was created.
+	lastUpdatedTime: string; // The date and time the warehouse was last updated.
+}
+
+
 export interface iFabricApiCapacity {
 	id: string;
 	displayName: string;
@@ -182,7 +196,6 @@ export interface iFabricApiCapacity {
 	sku: string;
 	region: string;
 }
-
 
 
 export type FabricApiPayloadType = "InlineBase64" | "VSCodeFolder";

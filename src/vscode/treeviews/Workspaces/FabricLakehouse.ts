@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 
+import { ThisExtension } from '../../../ThisExtension';
+import { Helper } from '@utils/Helper';
+
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem, iFabricApiLakehouse, iFabricApiLakehouseProperties } from '../../../fabric/_types';
 import { FabricLakehouseTables } from './FabricLakehouseTables';
@@ -34,8 +37,8 @@ export class FabricLakehouse extends FabricItem {
 			"COPY_SQL_CONNECTION_STRING",
 			"COPY_ONELAKE_FILES_PATH",
 			"COPY_ONELAKE_TABLES_PATH",
-			"COPY_SQL_CONNECTION_STRING",
-			"COPY_SQL_ENDPOINT"
+			"COPY_SQL_ENDPOINT",
+			"OPEN_IN_MSSQL_EXTENSION"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -46,7 +49,7 @@ export class FabricLakehouse extends FabricItem {
 	}
 
 	set itemDefinition(value: iFabricApiLakehouse) {
-		this._itemDefinition = value;		
+		this._itemDefinition = value;
 	}
 
 
@@ -57,10 +60,10 @@ export class FabricLakehouse extends FabricItem {
 
 		/*
 		"sqlEndpointProperties": {
-            "connectionString": "rglfde36zlluzctg4s47lhizmm-nkhspyxse5qufn2zauvvsnsqwa.datawarehouse.fabric.microsoft.com",
-            "id": "72d28969-e787-4e79-a4f9-5b40edafd80c",
-            "provisioningStatus": "Success"
-        }
+			"connectionString": "rglfde36zlluzctg4s47lhizmm-nkhspyxse5qufn2zauvvsnsqwa.datawarehouse.fabric.microsoft.com",
+			"id": "72d28969-e787-4e79-a4f9-5b40edafd80c",
+			"provisioningStatus": "Success"
+		}
 		*/
 		const sqlEndpointDefinition: iFabricApiItem = {
 			id: sqlEndpointProp.id,
@@ -78,7 +81,7 @@ export class FabricLakehouse extends FabricItem {
 		children.push(sqlEndpoint)
 
 		children = children.concat(await super.getChildren());
-		
+
 		children.push(new FabricLakehouseTables(this));
 
 		return children;
@@ -133,9 +136,14 @@ export class FabricLakehouse extends FabricItem {
 	}
 
 	get oneLakeUri(): vscode.Uri {
-	// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
+		// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
 		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
-		
+
 		return vscode.Uri.parse(`onelake://${workspace.itemId}/${this.itemId}`);
+	}
+
+	public async openInMSSQLExtension(): Promise<void> {
+		const sqlEndpoint = await this.getSQLEndpoint();
+		ThisExtension.openInMSSQLExtension(sqlEndpoint, this.itemName);
 	}
 }

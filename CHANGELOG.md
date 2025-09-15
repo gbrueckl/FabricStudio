@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.2.4**:
+- added better support for Fabric Warehouses
+- add `Open in MSSQL Extension` to all SQL items ([MSSQL extension](https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql))
+
 **v2.2.3**:
 - fix issues with Drag&Drop across different Treeviews (e.g. Workspace -> Capacity)
 

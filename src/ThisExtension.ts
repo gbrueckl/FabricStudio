@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 
 import { ENVIRONMENT } from './env/node/env';
+import { Helper } from '@utils/Helper';
 import { FabricLogger } from '@utils/FabricLogger';
+
 import { FabricConfiguration } from './vscode/configuration/FabricConfiguration';
 import { FabricApiService } from './fabric/FabricApiService';
 import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
@@ -9,7 +11,6 @@ import { FabricNotebookKernel } from './vscode/notebook/FabricNotebookKernel';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
 import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
-import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
 import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
@@ -304,21 +305,47 @@ export abstract class ThisExtension {
 	}
 
 	static async browseInOneLake(treeItem: FabricWorkspaceTreeItem): Promise<void> {
-		const databricksExtension: vscode.Extension<any> = vscode.extensions.getExtension("GerhardBrueckl.onelake-vscode");
-		if (!databricksExtension) {
-			let result = await vscode.window.showErrorMessage("Please install the OneLake VSCode extension ('GerhardBrueckl.onelake-vscode') first!", "Install OneLake Extension");
-			
-			if(result === "Install OneLake Extension") {
-				vscode.commands.executeCommand("workbench.extensions.installExtension", "GerhardBrueckl.onelake-vscode");
-			}
+		const extensionId = "GerhardBrueckl.onelake-vscode";
+		const oneLakeExtensionInstalled = await Helper.ensureExtensionInstalled(extensionId, "OneLake");
+
+		if (!oneLakeExtensionInstalled) {
 			return;
 		}
+
 		if (treeItem.oneLakeUri) {
 			Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true);
 		}
 		else {
 			vscode.window.showErrorMessage("Item/Folder cannot be browsed in OneLake!");
 		}
+	}
+
+	static async openInMSSQLExtension(server: string, database: string, properties: { [key: string]: string } = {}): Promise<void> {
+		const extensionId = "ms-mssql.mssql";
+		const mssqlExtensionInstalled = await Helper.ensureExtensionInstalled(extensionId, "MS-SQL");
+
+		if (!mssqlExtensionInstalled) {
+			return;
+		}
+
+		ThisExtension.Logger.logInfo(`Opening MS SQL Extension for server '${server}' and database '${database}' ...`);
+		let uri = vscode.Uri.parse(`vscode://${extensionId}/connect?server=${server}&database=${database}&authenticationType=AzureMFA`);
+
+		let baseProperties = {
+			"server": server,
+			"database": database,
+			"email": FabricApiService.SessionUserEmail,
+			"accountId": FabricApiService.SessionUserId,
+			"authenticationType": "AzureMFA"
+		};
+		if(FabricApiService.TenantId){
+			baseProperties["tenantId"] = FabricApiService.TenantId;
+		}
+		let query = { ...properties, ...baseProperties };
+
+		const mssqlUri = vscode.Uri.parse(`vscode://${extensionId}/connect?${new URLSearchParams(query).toString()}`);
+
+		Helper.openLink(mssqlUri);
 	}
 }
 
