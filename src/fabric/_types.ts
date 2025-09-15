@@ -27,6 +27,9 @@ export type FabricApiItemType =
 	| "Eventhouse"
 	| "Reflex"					//	Reflex item.
 	| "MountedDataFactory" 		//	A MountedDataFactory item.
+	| "SQLDatabase"				//	A SQL Database item.
+	| "MirroredDatabase"		//	A Mirrored Database item.
+	| "MirroredWarehouse"		//	A Mirrored Warehouse item.
 
 
 	// custom types
@@ -78,7 +81,6 @@ export type FabricApiItemType =
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
 	| "MirroredDatabases"					//	Folder for mirrored databases.
-	| "MirroredDatabase"					//	A mirrored database.
 	| "MirroredDatabaseSynchronization"		//	A mirrored database synchronization.
 	| "MirroredDatabaseTables"				//	Folder for mirrored database tables.
 	| "MirroredDatabaseTable"				//	A mirrored database table.
