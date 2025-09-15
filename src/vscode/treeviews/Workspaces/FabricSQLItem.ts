@@ -15,7 +15,7 @@ export class FabricSQLItem extends FabricItem {
 	private _properties: any;
 	private _sqlEndpointId: string;
 
-	// maps a SQL Endpoint ID to the physical item (Warehouse, Lakehouse, MirroredDatabase, ...)
+	// maps a SQL Endpoint ID  or <WorkspaceId>/<ItemName> to the physical item (Warehouse, Lakehouse, MirroredDatabase, ...)
 	// to be able to get the OneLake path from the SQL Endpoint item aswell
 	private static _sqlEndpointPhyiscalItemMap: Map<string, FabricSQLItem> = new Map<string, FabricSQLItem>();
 
@@ -55,6 +55,11 @@ export class FabricSQLItem extends FabricItem {
 					// Update static mapping
 					FabricSQLItem.setPhysicalSQLItem(this._sqlEndpointId, this);
 				}
+				else {
+					FabricSQLItem.setPhysicalSQLItem(`${definition.workspaceId}/${definition.displayName}`, this);
+				}
+			}).catch((error) => {
+				FabricSQLItem.setPhysicalSQLItem(`${definition.workspaceId}/${definition.displayName}`, this);
 			});
 		}
 		else {
@@ -62,11 +67,15 @@ export class FabricSQLItem extends FabricItem {
 		}
 	}
 
-	public static getPhysicalSQLItem(sqlEndpointId: string): FabricSQLItem {
-		if (!this._sqlEndpointPhyiscalItemMap.has(sqlEndpointId)) {
-			return undefined;
+	public static getPhysicalSQLItem(sqlEndpointId: string, workspaceAndName?: string): FabricSQLItem {
+		if (this._sqlEndpointPhyiscalItemMap.has(sqlEndpointId)) {
+			return this._sqlEndpointPhyiscalItemMap.get(sqlEndpointId);
 		}
-		return this._sqlEndpointPhyiscalItemMap.get(sqlEndpointId);
+		if (this._sqlEndpointPhyiscalItemMap.has(workspaceAndName)) {
+
+			return this._sqlEndpointPhyiscalItemMap.get(workspaceAndName);
+		}
+		return undefined;
 	}
 
 	private static setPhysicalSQLItem(sqlEndpointId: string, value: FabricSQLItem) {
@@ -99,7 +108,7 @@ export class FabricSQLItem extends FabricItem {
 			return properties.connectionString;
 		}
 		catch (error) {
-			ThisExtension.Logger.logError(`Error getting SQL Endpoint for '${this.itemName}': ${error}`, true);
+			ThisExtension.Logger.logError(`Error getting SQL Endpoint for '${this.itemName}' from properties: ${error}`, false);
 		}
 	}
 
@@ -160,11 +169,11 @@ export class FabricSQLItem extends FabricItem {
 	}
 
 	public get oneLakeUri(): vscode.Uri {
-		if(this.itemType == "SQLEndpoint") {
-			return vscode.Uri.parse(`onelake://${this.workspace.itemId}/${FabricSQLItem.getPhysicalSQLItem(this._sqlEndpointId).itemId}`);
+		if (this.itemType == "SQLEndpoint") {
+			return vscode.Uri.parse(`onelake://${this.workspace.itemId}/${FabricSQLItem.getPhysicalSQLItem(this._sqlEndpointId, `${this.workspaceId}/${this.itemName}`).itemId}`);
 			//return vscode.Uri.parse(`onelake://${this.workspace.itemName}/${this.itemName}.${this.itemType}`);
 		}
-		return vscode.Uri.parse(`onelake://${this.workspace.itemId}/${FabricSQLItem.getPhysicalSQLItem(this._sqlEndpointId).itemId}`);
+		return vscode.Uri.parse(`onelake://${this.workspace.itemId}/${FabricSQLItem.getPhysicalSQLItem(this._sqlEndpointId, `${this.workspaceId}/${this.itemName}`).itemId}`);
 		//return vscode.Uri.parse(`onelake://${this.workspace.itemName}/${this.itemName}.${this.itemType}`);
 	}
 
