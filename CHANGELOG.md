@@ -1,4 +1,8 @@
 # Change Log
+
+**v2.3.1**:
+- fixed issue with `Browse in OneLake` for SQL Endpoints of SQL Database and Mirrored Azure Databricks Catalog
+
 **v2.3.0**:
 - added profile name when using `Open in MSSQL Extension`
 - added MSSQL and OneLake integration for addiotional items (`MirroredAzureDatabricksCatalog`, `SQLDatabase`, `MirroredWarehouse`)
