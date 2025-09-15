@@ -1,4 +1,7 @@
 # Change Log
+**v2.3.0**:
+- added profile name when using `Open in MSSQL Extension`
+- added MSSQL and OneLake integration for addiotional items (`MirroredAzureDatabricksCatalog`, `SQLDatabase`, `MirroredWarehouse`)
 
 **v2.2.4**:
 - added better support for Fabric Warehouses

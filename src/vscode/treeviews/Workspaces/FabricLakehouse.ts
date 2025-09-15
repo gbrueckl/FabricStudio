@@ -6,17 +6,13 @@ import { Helper } from '@utils/Helper';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem, iFabricApiLakehouse, iFabricApiLakehouseProperties } from '../../../fabric/_types';
 import { FabricLakehouseTables } from './FabricLakehouseTables';
-import { FabricWorkspace } from './FabricWorkspace';
-import { FabricApiService } from '../../../fabric/FabricApiService';
-import { FabricItem } from './FabricItem';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricSqlEndpoints } from './FabricSqlEndpoints';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
+import { FabricSQLItem } from './FabricSQLItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricLakehouse extends FabricItem {
-	private _properties: iFabricApiLakehouseProperties;
-
+export class FabricLakehouse extends FabricSQLItem {
 	constructor(
 		definition: iFabricApiLakehouse,
 		parent: FabricWorkspaceTreeItem
@@ -29,21 +25,6 @@ export class FabricLakehouse extends FabricItem {
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
-	get _contextValue(): string {
-		let orig: string = super._contextValue;
-
-		let actions: string[] = [
-			"BROWSE_IN_ONELAKE",
-			"COPY_SQL_CONNECTION_STRING",
-			"COPY_ONELAKE_FILES_PATH",
-			"COPY_ONELAKE_TABLES_PATH",
-			"COPY_SQL_ENDPOINT",
-			"OPEN_IN_MSSQL_EXTENSION"
-		];
-
-		return orig + actions.join(",") + ",";
-	}
-
 	get itemDefinition(): iFabricApiLakehouse {
 		return <iFabricApiLakehouse>this._itemDefinition;
 	}
@@ -56,7 +37,7 @@ export class FabricLakehouse extends FabricItem {
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceTreeItem[] = [];
 
-		const sqlEndpointProp = (await this.getProperties()).sqlEndpointProperties;
+		const sqlEndpointProp = (await this.getProperties())["sqlEndpointProperties"];
 
 		/*
 		"sqlEndpointProperties": {
@@ -85,65 +66,5 @@ export class FabricLakehouse extends FabricItem {
 		children.push(new FabricLakehouseTables(this));
 
 		return children;
-	}
-
-	public async getProperties(): Promise<iFabricApiLakehouseProperties> {
-		if (this._properties == null) {
-			this._properties = (await FabricApiService.get(this.apiPath)).success;
-		}
-
-		return this._properties["properties"];
-	}
-
-	public async getSQLConnectionString(): Promise<string> {
-		let sqlEndpoint = await this.getSQLEndpoint();
-
-		return `Data Source=${sqlEndpoint},1433;Initial Catalog=${this.itemName};Encrypt=True;Trust Server Certificate=True;`
-	}
-
-	public async copySQLConnectionString(): Promise<void> {
-		vscode.env.clipboard.writeText(await this.getSQLConnectionString());
-	}
-
-	public async getSQLEndpoint(): Promise<string> {
-		let properties = await this.getProperties();
-
-		return properties.sqlEndpointProperties.connectionString;
-	}
-
-	public async copySQLEndpoint(): Promise<void> {
-		vscode.env.clipboard.writeText(await this.getSQLEndpoint());
-	}
-
-	public async getOneLakeFilesPath(): Promise<string> {
-		let properties = await this.getProperties();
-
-		return properties.oneLakeFilesPath;
-	}
-
-	public async copyOneLakeFilesPath(): Promise<void> {
-		vscode.env.clipboard.writeText(await this.getOneLakeFilesPath());
-	}
-
-	public async getOneLakeTablesPath(): Promise<string> {
-		let properties = await this.getProperties();
-
-		return properties.oneLakeTablesPath;
-	}
-
-	public async copyOneLakeTablesPath(): Promise<void> {
-		vscode.env.clipboard.writeText(await this.getOneLakeTablesPath());
-	}
-
-	get oneLakeUri(): vscode.Uri {
-		// onelake:/<WorkspaceName>/<ItemName>.<ItemType>
-		const workspace = this.getParentByType<FabricWorkspace>("Workspace");
-
-		return vscode.Uri.parse(`onelake://${workspace.itemId}/${this.itemId}`);
-	}
-
-	public async openInMSSQLExtension(): Promise<void> {
-		const sqlEndpoint = await this.getSQLEndpoint();
-		ThisExtension.openInMSSQLExtension(sqlEndpoint, this.itemName);
 	}
 }

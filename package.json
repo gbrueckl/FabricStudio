@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.2.4",
+	"version": "2.3.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -413,16 +413,10 @@
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.Item.browseInOneLake",
-				"title": "Browse in OneLake",
-				"icon": "$(link-external)",
-				"category": "Fabric.Item"
-			},
-			{
 				"command": "FabricStudio.Item.delete",
 				"title": "Delete",
 				"icon": "$(close)",
-				"category": "Fabric.Item"
+				"category": "FabricStudio.Item"
 			},
 			{
 				"command": "FabricStudio.Item.publishToFabric",
@@ -446,7 +440,7 @@
 				"command": "FabricStudio.FS.openInFabric",
 				"title": "Open in Fabric",
 				"icon": "$(globe)",
-				"category": "Fabric"
+				"category": "FabricStudio"
 			},
 			{
 				"command": "FabricStudio.FS.publishToFabric",
@@ -477,6 +471,12 @@
 				"title": "Open in MS SQL Extension",
 				"icon": "$(database)",
 				"category": "FabricStudio.SQL"
+			},
+			{
+				"command": "FabricStudio.OneLake.browseInOneLake",
+				"title": "Browse in OneLake",
+				"icon": "$(link-external)",
+				"category": "FabricStudio.OneLake"
 			},
 			{
 				"command": "FabricStudio.OneLake.copyOneLakeFilesPath",
@@ -815,11 +815,6 @@
 					"group": "inline"
 				},
 				{
-					"command": "FabricStudio.Item.browseInOneLake",
-					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,BROWSE_IN_ONELAKE,.*/",
-					"group": "navigation"
-				},
-				{
 					"command": "FabricStudio.Item.delete",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,DELETE,.*/",
 					"group": "3_delete"
@@ -853,6 +848,11 @@
 					"command": "FabricStudio.OneLake.copyOneLakeFilesPath",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_FILES_PATH,.*/",
 					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.OneLake.browseInOneLake",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,BROWSE_IN_ONELAKE,.*/",
+					"group": "navigation"
 				},
 				{
 					"command": "FabricStudio.OneLake.copyOneLakeTablesPath",

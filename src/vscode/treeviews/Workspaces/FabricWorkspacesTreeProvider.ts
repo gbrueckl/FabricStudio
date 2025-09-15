@@ -22,6 +22,7 @@ import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
 import { FabricReport } from './FabricReport';
 import { FabricSemanticModel } from './FabricSemanticModel';
+import { FabricSQLItem } from './FabricSQLItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<FabricWorkspaceTreeItem> {
@@ -214,6 +215,12 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		}
 		else if (item.type == "SemanticModel") {
 			itemToAdd = new FabricSemanticModel(item, parent);
+		}
+		else if (item.type == "MirroredAzureDatabricksCatalog" 
+			|| item.type == "SQLDatabase"
+			|| item.type == "MirroredWarehouse") 
+			{
+			itemToAdd = new FabricSQLItem(item, parent);
 		}
 		else {
 			itemToAdd = new FabricItem(item, parent);

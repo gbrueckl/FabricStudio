@@ -78,7 +78,6 @@ export abstract class ThisExtension {
 	}
 
 	private static async setContext(): Promise<void> {
-		// we hide the Connections Tab as we load all information from the Databricks Extension
 		vscode.commands.executeCommand(
 			"setContext",
 			"Fabric.Core.isInBrowser",
@@ -302,22 +301,6 @@ export abstract class ThisExtension {
 
 	static get NotebookKernel(): FabricNotebookKernel {
 		return this._notebookKernel;
-	}
-
-	static async browseInOneLake(treeItem: FabricWorkspaceTreeItem): Promise<void> {
-		const extensionId = "GerhardBrueckl.onelake-vscode";
-		const oneLakeExtensionInstalled = await Helper.ensureExtensionInstalled(extensionId, "OneLake");
-
-		if (!oneLakeExtensionInstalled) {
-			return;
-		}
-
-		if (treeItem.oneLakeUri) {
-			Helper.addToWorkspace(treeItem.oneLakeUri, `OneLake - ${treeItem.label}`, true, true);
-		}
-		else {
-			vscode.window.showErrorMessage("Item/Folder cannot be browsed in OneLake!");
-		}
 	}
 
 	static async openInMSSQLExtension(server: string, database: string, properties: { [key: string]: string } = {}): Promise<void> {

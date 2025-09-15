@@ -8,7 +8,6 @@ import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
 import { FabricCommandBuilder } from './vscode/input/FabricCommandBuilder';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWorkspaceTreeItem';
-import { FabricLakehouse } from './vscode/treeviews/Workspaces/FabricLakehouse';
 import { FabricLakehouseTable } from './vscode/treeviews/Workspaces/FabricLakehouseTable';
 import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
 import { FabricFSFileDecorationProvider } from './vscode/fileDecoration/FabricFileDecorationProvider';
@@ -38,13 +37,12 @@ import { FabricFSHelper } from './vscode/filesystemProvider/FabricFSHelper';
 import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
 import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeItem';
 import { FabricAdminGenericViewer } from './vscode/treeviews/Admin/FabricAdminGenericViewer';
-import { FabricAdminTag } from './vscode/treeviews/Admin/FabricAdminTag';
-import { FabricAdminDomain } from './vscode/treeviews/Admin/FabricAdminDomain';
 import { FabricReport } from './vscode/treeviews/Workspaces/FabricReport';
 import { FabricSemanticModel } from './vscode/treeviews/Workspaces/FabricSemanticModel';
 import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
 import { FabricWorkspaceFolder } from './vscode/treeviews/Workspaces/FabricWorkspaceFolder';
 import { FabricWarehouse } from './vscode/treeviews/Workspaces/FabricWarehouse';
+import { FabricSQLItem } from './vscode/treeviews/Workspaces/FabricSQLItem';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -115,7 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.FS.openInFabric', (uri) => FabricFSUri.openInBrowser(uri));
 	// Publishing of local items to Fabric (e.g. from a Git-Repository, or PBI Desktop)
 	vscode.commands.registerCommand('FabricStudio.FS.publishItem', (uri) => FabricFSHelper.publishItemFromLocal(uri));
-	
+
 	//#endregion
 
 	//#region Fabric Workspaces TreeView
@@ -142,7 +140,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPathToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPropertiesToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricApiTreeItem) => treeItem.insertCode());
-	vscode.commands.registerCommand('FabricStudio.Item.browseInOneLake', (treeItem: FabricWorkspaceTreeItem) => ThisExtension.browseInOneLake(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editTMDL', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editPBIR', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
@@ -154,11 +151,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.PowerBI.downloadPBIP', async (treeItem: FabricReport | FabricSemanticModel) => treeItem.downloadPBIP());
 
 
-	vscode.commands.registerCommand('FabricStudio.SQL.copySQLConnectionString', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copySQLConnectionString());
-	vscode.commands.registerCommand('FabricStudio.SQL.copySQLEndpoint', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copySQLEndpoint());
-	vscode.commands.registerCommand('FabricStudio.SQL.openInMSSQLExtension', (treeItem: FabricWarehouse) => treeItem.openInMSSQLExtension());
-	vscode.commands.registerCommand('FabricStudio.OneLake.copyOneLakeFilesPath', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copyOneLakeFilesPath());
-	vscode.commands.registerCommand('FabricStudio.OneLake.copyOneLakeTablesPath', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copyOneLakeTablesPath());
+	vscode.commands.registerCommand('FabricStudio.SQL.copySQLConnectionString', (treeItem: FabricSQLItem) => treeItem.copySQLConnectionString());
+	vscode.commands.registerCommand('FabricStudio.SQL.copySQLEndpoint', (treeItem: FabricSQLItem) => treeItem.copySQLEndpoint());
+	vscode.commands.registerCommand('FabricStudio.SQL.openInMSSQLExtension', (treeItem: FabricSQLItem) => treeItem.openInMSSQLExtension());
+	vscode.commands.registerCommand('FabricStudio.OneLake.browseInOneLake', (treeItem: FabricSQLItem) => treeItem.browseInOneLake());
+	vscode.commands.registerCommand('FabricStudio.OneLake.copyOneLakeFilesPath', (treeItem: FabricSQLItem) => treeItem.copyOneLakeFilesPath());
+	vscode.commands.registerCommand('FabricStudio.OneLake.copyOneLakeTablesPath', (treeItem: FabricSQLItem) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
 
 	vscode.commands.registerCommand('FabricStudio.SQLEndpoint.syncMetadata', (sqlEndpoint: FabricSqlEndpoint) => FabricSqlEndpoint.syncMetadata(sqlEndpoint));
@@ -170,13 +168,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 	vscode.commands.registerCommand('FabricStudio.GrapqhQLApi.copyEndpoint', (graphQlApi: FabricGraphQLApi) => graphQlApi.copyGraphQLEndpoint());
-	
+
 	vscode.commands.registerCommand('FabricStudio.Notebook.run', (notebook: FabricItem) => FabricNotebook.runNotebook(notebook));
 
 	vscode.commands.registerCommand('FabricStudio.SparkJob.run', (sparkJob: FabricItem) => FabricSparkJob.runSparkJob(sparkJob));
-	
+
 	vscode.commands.registerCommand('FabricStudio.DataPipeline.run', (dataPipeline: FabricDataPipeline) => dataPipeline.runPipeline());
-	
+
 	//#endregion
 
 
@@ -186,7 +184,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.refresh', (item: FabricPipelineTreeItem = undefined, showInfoMessage: boolean = true) => fabricDeploymentPipelinesTreeProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deploySelection', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(undefined));
 	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deployItem', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(item));
-	
+
 	//#endregion
 
 	//#region Fabric Connections TreeView
@@ -225,7 +223,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	//#endregion
 
 	vscode.commands.registerCommand('FabricStudio.Api.CopyAccessToken', FabricApiService.copyAccessTokenToClipboard);
-	
+
 
 	// eventhandles when Fabric documents are saved
 	vscode.workspace.onDidSaveTextDocument(FabricFSCache.onDidSave);
