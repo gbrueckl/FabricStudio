@@ -183,6 +183,29 @@ export abstract class Helper {
 		}
 	}
 
+	static async ensureExtensionInstalled(extensionId: string, extensionName: string = extensionId): Promise<boolean> {
+		const extension: vscode.Extension<any> = vscode.extensions.getExtension(extensionId);
+		if (extension) {
+			ThisExtension.Logger.logInfo(`Extension ${extensionName} (${extensionId}) is already installed!`);
+			return true;
+		}
+		else {
+			let result = await vscode.window.showErrorMessage(`Please install the ${extensionName} (${extensionId}) extension first!`, `Install ${extensionName} Extension`);
+			if (result === `Install ${extensionName} Extension`) {
+				ThisExtension.Logger.logInfo(`Installing extension ${extensionName} (${extensionId}) ...`);
+				vscode.commands.executeCommand("workbench.extensions.installExtension", extensionId);
+			}
+			else {
+				const msg = `Installation of extension  ${extensionName} (${extensionId}) aborted!`
+				ThisExtension.Logger.logInfo(msg);
+				vscode.window.showWarningMessage(msg);
+			}
+		}
+		return false;
+	}
+
+	
+
 	static bytesToSize(bytes: number): string {
 		let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 		if (bytes == 0) return '0 Byte';

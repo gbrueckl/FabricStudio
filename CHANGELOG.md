@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.2.4**:
+- added better support for Fabric Warehouses
+- added `Open in MSSQL Extension` to all SQL items ([MSSQL extension](https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql))
+- fixed issue with URL query parameters being ignored in API notebooks
+
 **v2.2.3**:
 - fix issues with Drag&Drop across different Treeviews (e.g. Workspace -> Capacity)
 

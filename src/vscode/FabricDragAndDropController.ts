@@ -14,7 +14,6 @@ import { FabricConnectionRoleAssignment } from './treeviews/Connections/FabricCo
 import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricConnectionRoleAssignments';
 import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
 import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFolder';
-import { FabricItem } from './treeviews/Workspaces/FabricItem';
 import { FabricApiService } from '../fabric/FabricApiService';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";

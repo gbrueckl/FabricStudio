@@ -44,6 +44,7 @@ import { FabricReport } from './vscode/treeviews/Workspaces/FabricReport';
 import { FabricSemanticModel } from './vscode/treeviews/Workspaces/FabricSemanticModel';
 import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompletionProvider';
 import { FabricWorkspaceFolder } from './vscode/treeviews/Workspaces/FabricWorkspaceFolder';
+import { FabricWarehouse } from './vscode/treeviews/Workspaces/FabricWarehouse';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -153,10 +154,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.PowerBI.downloadPBIP', async (treeItem: FabricReport | FabricSemanticModel) => treeItem.downloadPBIP());
 
 
-	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLConnectionString', (treeItem: FabricLakehouse) => treeItem.copySQLConnectionString());
-	vscode.commands.registerCommand('FabricStudio.Lakehouse.copySQLEndpoint', (treeItem: FabricLakehouse) => treeItem.copySQLEndpoint());
-	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeFilesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeFilesPath());
-	vscode.commands.registerCommand('FabricStudio.Lakehouse.copyOneLakeTablesPath', (treeItem: FabricLakehouse) => treeItem.copyOneLakeTablesPath());
+	vscode.commands.registerCommand('FabricStudio.SQL.copySQLConnectionString', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copySQLConnectionString());
+	vscode.commands.registerCommand('FabricStudio.SQL.copySQLEndpoint', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copySQLEndpoint());
+	vscode.commands.registerCommand('FabricStudio.SQL.openInMSSQLExtension', (treeItem: FabricWarehouse) => treeItem.openInMSSQLExtension());
+	vscode.commands.registerCommand('FabricStudio.OneLake.copyOneLakeFilesPath', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copyOneLakeFilesPath());
+	vscode.commands.registerCommand('FabricStudio.OneLake.copyOneLakeTablesPath', (treeItem: FabricLakehouse | FabricWarehouse) => treeItem.copyOneLakeTablesPath());
 	vscode.commands.registerCommand('FabricStudio.Lakehouse.Table.maintain', (lakehouseTable: FabricLakehouseTable) => lakehouseTable.runMaintainanceJob());
 
 	vscode.commands.registerCommand('FabricStudio.SQLEndpoint.syncMetadata', (sqlEndpoint: FabricSqlEndpoint) => FabricSqlEndpoint.syncMetadata(sqlEndpoint));

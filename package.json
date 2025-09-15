@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.2.3",
+	"version": "2.2.4",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -461,28 +461,34 @@
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.Lakehouse.copySQLConnectionString",
+				"command": "FabricStudio.SQL.copySQLConnectionString",
 				"title": "Copy SQL ConnectionString",
 				"icon": "$(debug-disconnect)",
-				"category": "FabricStudio.Lakehouse"
+				"category": "FabricStudio.SQL"
 			},
 			{
-				"command": "FabricStudio.Lakehouse.copySQLEndpoint",
+				"command": "FabricStudio.SQL.copySQLEndpoint",
 				"title": "Copy SQL Endpoint",
 				"icon": "$(debug-disconnect)",
-				"category": "FabricStudio.Lakehouse"
+				"category": "FabricStudio.SQL"
 			},
 			{
-				"command": "FabricStudio.Lakehouse.copyOneLakeFilesPath",
+				"command": "FabricStudio.SQL.openInMSSQLExtension",
+				"title": "Open in MS SQL Extension",
+				"icon": "$(database)",
+				"category": "FabricStudio.SQL"
+			},
+			{
+				"command": "FabricStudio.OneLake.copyOneLakeFilesPath",
 				"title": "Copy OneLake Files Path",
 				"icon": "$(file-binary)",
-				"category": "FabricStudio.Lakehouse"
+				"category": "FabricStudio.OneLake"
 			},
 			{
-				"command": "FabricStudio.Lakehouse.copyOneLakeTablesPath",
+				"command": "FabricStudio.OneLake.copyOneLakeTablesPath",
 				"title": "Copy OneLake Tables Path",
 				"icon": "$(layout-panel-justify)",
-				"category": "FabricStudio.Lakehouse"
+				"category": "FabricStudio.OneLake"
 			},
 			{
 				"command": "FabricStudio.Lakehouse.Table.maintain",
@@ -829,22 +835,27 @@
 					"group": "navigation"
 				},
 				{
-					"command": "FabricStudio.Lakehouse.copySQLConnectionString",
+					"command": "FabricStudio.SQL.copySQLConnectionString",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL_CONNECTION_STRING,.*/",
 					"group": "6_copypath"
 				},
 				{
-					"command": "FabricStudio.Lakehouse.copySQLEndpoint",
+					"command": "FabricStudio.SQL.copySQLEndpoint",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_SQL_ENDPOINT,.*/",
 					"group": "6_copypath"
 				},
 				{
-					"command": "FabricStudio.Lakehouse.copyOneLakeFilesPath",
+					"command": "FabricStudio.SQL.openInMSSQLExtension",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,OPEN_IN_MSSQL_EXTENSION,.*/",
+					"group": "navigation"
+				},
+				{
+					"command": "FabricStudio.OneLake.copyOneLakeFilesPath",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_FILES_PATH,.*/",
 					"group": "6_copypath"
 				},
 				{
-					"command": "FabricStudio.Lakehouse.copyOneLakeTablesPath",
+					"command": "FabricStudio.OneLake.copyOneLakeTablesPath",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,COPY_ONELAKE_TABLES_PATH,.*/",
 					"group": "6_copypath"
 				},

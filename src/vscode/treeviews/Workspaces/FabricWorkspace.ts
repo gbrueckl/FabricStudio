@@ -9,22 +9,15 @@ import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricA
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricDataPipelines } from './FabricDataPipelines';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
-import { FabricLakehouse } from './FabricLakehouse';
-import { FabricDataPipeline } from './FabricDataPipeline';
 import { FabricGitRepositories } from '../../sourceControl/FabricGitRepositories';
 import { FabricEnvironments } from './FabricEnvironments';
-import { FabricEnvironment } from './FabricEnvironment';
 import { FabricGraphQLApis } from './FabricGraphQLApis';
-import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricItem } from './FabricItem';
 import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricNotebooks } from './FabricNotebooks';
-import { FabricNotebook } from './FabricNotebook';
 import { FabricMirroredDatabases } from './FabricMirroredDatabases';
-import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricMapper } from '../../../fabric/FabricMapper';
-import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricSqlEndpoints } from './FabricSqlEndpoints';
 import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManagedPrivateEndpoints';
 import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
@@ -33,6 +26,7 @@ import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
 import { FabricReports } from './FabricReports';
 import { FabricSemanticModels } from './FabricSemanticModels';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
+import { FabricWarehouses } from './FabricWarehouses';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -148,6 +142,9 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						}
 						else if (grouping == "Lakehouse") {
 							treeItem = new FabricLakehouses(this);
+						}
+						else if (grouping == "Warehouse") {
+							treeItem = new FabricWarehouses(this);
 						}
 						else if (grouping == "SQLEndpoint") {
 							treeItem = new FabricSqlEndpoints(this);
