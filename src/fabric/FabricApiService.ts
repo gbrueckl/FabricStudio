@@ -197,7 +197,7 @@ export abstract class FabricApiService {
 		return this._headers;
 	}
 
-	protected static getFullUrl(endpoint: string, params?: object): string {
+	protected static getFullUrl(endpoint: string, params: any = undefined): string {
 		let baseItems = this._apiBaseUrl.split("/");
 		baseItems = baseItems.concat(["v1"]);
 		let pathItems = endpoint.split("/").filter(x => x);
@@ -210,11 +210,11 @@ export abstract class FabricApiService {
 		let uri = vscode.Uri.parse(endpoint);
 
 		if (params) {
-			let urlParams = []
+			let urlParams = new URLSearchParams(uri.query);
 			for (let kvp of Object.entries(params)) {
-				urlParams.push(`${kvp[0]}=${kvp[1] as number | string | boolean}`)
+				urlParams.set(kvp[0], `${kvp[1] as number | string | boolean}`);
 			}
-			uri = uri.with({ query: urlParams.join('&') })
+			uri = uri.with({ query: urlParams.toString() });
 		}
 
 		return uri.toString(true);

@@ -244,7 +244,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 					let method: string = "ERROR"; // will be overwritten unless an invalid command is given
 					let endpoint: string = "";
-					let body: any = {};
+					let body: any = undefined;
 
 					if (match) {
 						method = match.groups["method"].trim().toUpperCase();
