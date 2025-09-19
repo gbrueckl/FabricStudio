@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.4.0**:
+- added `OneLake` item to browse OneLake directly from the workspace browser
+
 **v2.3.1**:
 - fixed issue with `Browse in OneLake` for SQL Endpoints of SQL Database and Mirrored Azure Databricks Catalog
 
