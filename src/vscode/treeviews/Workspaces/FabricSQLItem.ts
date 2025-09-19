@@ -9,6 +9,7 @@ import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItem } from './FabricItem';
 import { update } from 'lodash';
+import { FabricItemOneLake } from './FabricItemOneLake';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricSQLItem extends FabricItem {
@@ -45,6 +46,34 @@ export class FabricSQLItem extends FabricItem {
 		];
 
 		return orig + actions.join(",") + ",";
+	}
+
+	get canRename(): boolean {
+		return false;
+	}
+
+	get canDelete(): boolean {
+		return false;
+	}
+
+	get canMove(): boolean {
+		return false;
+	}
+
+	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
+		let children: FabricWorkspaceTreeItem[] = [];
+
+		if (element != null && element != undefined) {
+			return element.getChildren();
+		}
+		else {
+			children.push(new FabricItemOneLake(this));
+			children.push(...(await super.getChildren()));
+			
+			//children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+			return children;
+		}
 	}
 
 	private updatePhysicalItemMapping(definition: iFabricApiItem) {

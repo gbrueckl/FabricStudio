@@ -78,6 +78,9 @@ export type FabricApiItemType =
 	| "ItemDefinition"						//	An Item definition.	
 	| "ItemDefinitionFile"					//	An Item definition file.
 	| "ItemDefinitionFolder"				//	Folder for item definition files.
+	| "OneLake"						//	An Item OneLake root folder.
+	| "OneLakeFolder"					//	A folder in the Item OneLake.
+	| "OneLakeFile"						//	A file in the Item OneLake.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
 	| "MirroredDatabases"					//	Folder for mirrored databases.

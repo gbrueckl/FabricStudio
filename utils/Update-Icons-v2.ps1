@@ -47,5 +47,6 @@ Copy-Item "$iconsFolder/mirroredgenericdatabase.svg" "$iconsFolder/mirroredwareh
 
 Copy-Item "$outFolderIcons/group_workspace_64_non-item.svg" "$iconsFolder/workspace.svg" -Force
 Copy-Item "$outFolderIcons/folder_64_non-item.svg" "$iconsFolder/genericfolder.svg" -Force
+Copy-Item "$outFolderIcons/one_lake_48_color.svg" "$iconsFolder/onelake.svg" -Force
 
 
