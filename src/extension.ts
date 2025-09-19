@@ -43,6 +43,7 @@ import { FabricAPICompletionProvider } from './vscode/language/FabricAPICompleti
 import { FabricWorkspaceFolder } from './vscode/treeviews/Workspaces/FabricWorkspaceFolder';
 import { FabricWarehouse } from './vscode/treeviews/Workspaces/FabricWarehouse';
 import { FabricSQLItem } from './vscode/treeviews/Workspaces/FabricSQLItem';
+import { FabricUriHandler } from './vscode/uriHandler/FabricUriHandler';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -175,6 +176,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.DataPipeline.run', (dataPipeline: FabricDataPipeline) => dataPipeline.runPipeline());
 
+	//#endregion
+
+	//#region Uri Handler
+	const uriHandler = new FabricUriHandler(context);
 	//#endregion
 
 

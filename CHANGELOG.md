@@ -2,6 +2,7 @@
 
 **v2.4.0**:
 - added `OneLake` item to browse OneLake directly from the workspace browser
+- added UriHandler to open Fabric Studio in [VSCode Web](https://vscode.dev) via a link (EXPERIMENTAL)
 
 **v2.3.1**:
 - fixed issue with `Browse in OneLake` for SQL Endpoints of SQL Database and Mirrored Azure Databricks Catalog
