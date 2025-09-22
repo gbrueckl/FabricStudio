@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.5.0**:
+- added support for [Warehouse Snapshots](https://learn.microsoft.com/en-us/rest/api/fabric/warehousesnapshot/items) and [Warehouse Restore Points](https://learn.microsoft.com/en-us/rest/api/fabric/warehouse/restore-points)
+
 **v2.4.0**:
 - added `OneLake` item to browse OneLake directly from the workspace browser
 - added UriHandler to open Fabric Studio in [VSCode Web](https://vscode.dev) via a link (EXPERIMENTAL)

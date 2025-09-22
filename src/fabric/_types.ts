@@ -23,6 +23,7 @@ export type FabricApiItemType =
 	| "SemanticModel"			//	PowerBI semantic model.
 	| "SparkJobDefinition"		//	A spark job definition.
 	| "Warehouse"				//	A warehouse item.
+	| "WarehouseSnapshot"		//	A warehouse snapshot item.
 	| "DeploymentPipeline"		//	A deployment pipeline.
 	| "Eventhouse"
 	| "Reflex"					//	Reflex item.
@@ -42,6 +43,8 @@ export type FabricApiItemType =
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.
 	| "Warehouses"							//	Folder for Warehouse item.
+	| "WarehouseRestorePoints"			//	Folder for Warehouse Restore Point item.
+	| "WarehouseRestorePoint"			//	A Warehouse Restore Point item.
 	| "SQLEndpoints"						//	Folder for SQLEndpoint item.
 	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
@@ -193,6 +196,24 @@ export interface iFabricApiWarehouseProperties {
 	lastUpdatedTime: string; // The date and time the warehouse was last updated.
 }
 
+export interface iFabricApiWarehouseSnapshot extends iFabricApiItem {
+	properties: iFabricApiWarehouseSnapshotProperties;
+}
+
+export interface iFabricApiWarehouseSnapshotProperties {
+	connectionString: string; // The SQL connection string connected to the workspace containing this warehouse.
+	parentWarehouseId: string; // The parent Warehouse ID.
+	snapshotDateTime: string; // The current warehouse snapshot date and time in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
+}
+
+export interface iFabricApiWarehouseRestorePoint extends iFabricApiItem {
+	creationDetails: {
+		eventDateTime: string;
+		eventInitiator: iFabricApiGenericPrincipal;
+	};
+	creationMode: "UserDefined" | "SystemCreated"; // The creation mode of the restore point. Possible values are: "" (default) and "" (user initiated).
+};
+
 
 export interface iFabricApiCapacity {
 	id: string;
@@ -248,7 +269,7 @@ export interface iFabricErrorResponse extends iGenericApiError {
 export interface iFabricApiResponse<TSucces = any, TError = iFabricErrorResponse> extends iGenericApiResponse<TSucces, TError> {
 	success?: TSucces;
 	error?: TError;
-	responseHeaders?: { [key: string]: string }; 
+	responseHeaders?: { [key: string]: string };
 }
 
 export interface iFabricApiGitItemIdentifier {

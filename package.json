@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.4.0",
+	"version": "2.5.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -599,43 +599,43 @@
 				"category": "Fabric.SparkJob"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.Connections",
 				"command": "FabricStudio.Connections.refresh",
 				"title": "Refresh Connections",
 				"icon": "$(refresh)"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.Connections",
 				"command": "FabricStudio.Connections.filter",
 				"title": "Filter Connections",
 				"icon": "$(filter)"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.Capacities",
 				"command": "FabricStudio.Capacities.refresh",
 				"title": "Refresh Capacities",
 				"icon": "$(refresh)"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.Capacities",
 				"command": "FabricStudio.Capacities.filter",
 				"title": "Filter Capacities",
 				"icon": "$(filter)"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.OneLake",
 				"command": "FabricStudio.OneLake.resetCache",
 				"title": "Reset OneLake Cache",
 				"icon": "$(file-symlink-directory)"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.Admin",
 				"command": "FabricStudio.Admin.refresh",
 				"title": "Refresh Admin Settings",
 				"icon": "$(refresh)"
 			},
 			{
-				"category": "FabricStudio",
+				"category": "FabricStudio.Admin",
 				"command": "FabricStudio.Admin.filter",
 				"title": "Filter Admin Settings",
 				"icon": "$(filter)"
@@ -644,24 +644,39 @@
 				"command": "FabricStudio.Admin.showDefinition",
 				"title": "Show Definition",
 				"icon": "$(json)",
-				"category": "FabricStudio"
+				"category": "FabricStudio.Admin"
 			},
 			{
 				"command": "FabricStudio.Admin.rename",
 				"title": "Rename",
 				"icon": "$(edit)",
-				"category": "FabricStudio"
+				"category": "FabricStudio.Admin"
 			},
 			{
 				"command": "FabricStudio.PowerBI.downloadPBIP",
 				"title": "Download as PowerBI Project (PBIP)",
 				"icon": "$(project)",
-				"category": "FabricStudio"
+				"category": "FabricStudio.PowerBI"
 			},
 			{
 				"command": "FabricStudio.Api.CopyAccessToken",
 				"title": "Copy Fabric API Access Token",
-				"category": "FabricStudio"
+				"category": "FabricStudio.Core"
+			},
+			{
+				"command": "FabricStudio.Warehouse.createSnapshot",
+				"title": "Create Snapshot",
+				"category": "FabricStudio.Warehouse"
+			},
+			{
+				"command": "FabricStudio.Warehouse.createRestorePoint",
+				"title": "Create Restore Point",
+				"category": "FabricStudio.Warehouse"
+			},
+			{
+				"command": "FabricStudio.Warehouse.restore",
+				"title": "Restore to Restore Point",
+				"category": "FabricStudio.Warehouse"
 			}
 		],
 		"contributes": {
@@ -927,6 +942,21 @@
 				{
 					"command": "FabricStudio.PowerBI.downloadPBIP",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DOWNLOAD_PBIP,.*/",
+					"group": "2_edit"
+				},
+				{
+					"command": "FabricStudio.Warehouse.createSnapshot",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_SNAPSHOT,.*/",
+					"group": "2_edit"
+				},
+				{
+					"command": "FabricStudio.Warehouse.createRestorePoint",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_RESTORE_POINT,.*/",
+					"group": "2_edit"
+				},
+				{
+					"command": "FabricStudio.Warehouse.restore",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WAREHOUSERESTOREPOINT,.*/ && viewItem =~ /.*,RESTORE,.*/",
 					"group": "2_edit"
 				}
 			],
