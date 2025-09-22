@@ -119,11 +119,8 @@ export abstract class Helper {
 		let direction_num: number = (direction == "ASC" ? 1 : -1);
 
 		unsortedArray.sort((t1, t2) => {
-			if (!t1.hasOwnProperty(property) || !t2.hasOwnProperty(property)) {
-				ThisExtension.Logger.logWarning("sortArrayByProperty: property '" + property + "' does not exist on one of the items.\n" + JSON.stringify(t1) + "\n" + JSON.stringify(t2));
-				return 0;
-			}
 			if (t1[property] == undefined || t2[property] == undefined) {
+				ThisExtension.Logger.logWarning("sortArrayByProperty: property '" + property + "' does not exist on one of the items.\n" + JSON.stringify(t1) + "\n" + JSON.stringify(t2));
 				return 0;
 			}
 			const name1 = t1[property].toString().toLowerCase();

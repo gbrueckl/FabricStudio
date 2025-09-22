@@ -5,7 +5,7 @@ import { ThisExtension } from '../../../ThisExtension';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { Helper } from '@utils/Helper';
-import { iFabricApiItem, iFabricApiLakehouse, iFabricApiWarehouse, iFabricApiWorkspace } from '../../../fabric/_types';
+import { iFabricApiItem, iFabricApiLakehouse, iFabricApiWarehouse, iFabricApiWarehouseSnapshot, iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
@@ -23,6 +23,7 @@ import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
 import { FabricReport } from './FabricReport';
 import { FabricSemanticModel } from './FabricSemanticModel';
 import { FabricSQLItem } from './FabricSQLItem';
+import { FabricWarehouseSnapshot } from './FabricWarehouseSnapshot';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<FabricWorkspaceTreeItem> {
@@ -191,6 +192,9 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		}
 		else if (item.type == "Warehouse") {
 			itemToAdd = new FabricWarehouse(item as iFabricApiWarehouse, parent);
+		}
+		else if (item.type == "WarehouseSnapshot") {
+			itemToAdd = new FabricWarehouseSnapshot(item as iFabricApiWarehouseSnapshot, parent);
 		}
 		else if (item.type == "SQLEndpoint") {
 			itemToAdd = new FabricSqlEndpoint(item, parent);

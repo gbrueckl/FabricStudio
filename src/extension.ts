@@ -162,6 +162,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.SQLEndpoint.syncMetadata', (sqlEndpoint: FabricSqlEndpoint) => FabricSqlEndpoint.syncMetadata(sqlEndpoint));
 
+	vscode.commands.registerCommand('FabricStudio.Warehouse.createRestorePoint', (warehouse: FabricWarehouse) => warehouse.createRestorePoint());
+
 
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.updateMirroringStatus', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.updateMirroringStatus());
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.startMirroring', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.startMirroring());
