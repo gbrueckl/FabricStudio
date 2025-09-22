@@ -3,6 +3,9 @@ import * as vscode from 'vscode';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiWarehouseRestorePoint } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
+import { FabricApiService } from '../../../fabric/FabricApiService';
+import { ThisExtension } from '../../../ThisExtension';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWarehouseRestorePoint extends FabricWorkspaceGenericViewer {
@@ -16,13 +19,14 @@ export class FabricWarehouseRestorePoint extends FabricWorkspaceGenericViewer {
 		this.itemDefinition = definition;
 
 		this.label = this._label;
+		this.itemType = "WarehouseRestorePoint";
 		this.description = this._description;
 		this.contextValue = this._contextValue;
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
 	get _label(): string {
-		if(this.itemDefinition.creationMode === "SystemCreated") {
+		if (this.itemDefinition.creationMode === "SystemCreated") {
 			return `${this.itemDefinition.creationDetails.eventDateTime} (SYSTEM)`;
 		}
 		else {
@@ -42,9 +46,11 @@ export class FabricWarehouseRestorePoint extends FabricWorkspaceGenericViewer {
 	get _contextValue(): string {
 		let orig: string = super._contextValue;
 
-		let actions: string[] = [];
-		
-		if(this.itemDefinition?.creationMode === "UserDefined") {
+		let actions: string[] = [
+			"RESTORE"
+		];
+
+		if (this.itemDefinition?.creationMode === "UserDefined") {
 			actions.push("DELETE");
 		}
 
@@ -62,8 +68,14 @@ export class FabricWarehouseRestorePoint extends FabricWorkspaceGenericViewer {
 	get eventDateTime(): string {
 		return this.itemDefinition.creationDetails.eventDateTime;
 	}
-	
+
 	get canDelete(): boolean {
 		return false; // delete-logic is implemented in _contextValue
+	}
+
+	public async restore(): Promise<void> {
+		const endpoint = Helper.joinPath(this.apiPath, "restore");
+
+		const response = await FabricApiService.awaitWithProgress(`Restoring to '${this.label}'`, FabricApiService.post(endpoint, {}));
 	}
 }

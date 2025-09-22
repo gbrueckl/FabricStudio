@@ -25,7 +25,8 @@ export class FabricWarehouse extends FabricSQLItem {
 		let orig: string = super._contextValue;
 
 		let actions: string[] = [
-			"CREATE_RESTORE_POINT"
+			"CREATE_RESTORE_POINT",
+			"CREATE_SNAPSHOT"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -54,7 +55,7 @@ export class FabricWarehouse extends FabricSQLItem {
 		const endpoint = Helper.joinPath(this.apiPath, "restorePoints");
 
 		const displayName = await vscode.window.showInputBox({
-			prompt: "Enter a name for the Restore Point (optional)",
+			prompt: "Enter a name for the Restore Point",
 			placeHolder: "My Restore Point",
 			ignoreFocusOut: true
 		});
@@ -68,15 +69,43 @@ export class FabricWarehouse extends FabricSQLItem {
 			"displayName": displayName
 		}
 
-		const response = await FabricApiService.post(endpoint, body);
+		const response = await FabricApiService.awaitWithProgress(`Creating restore point '${displayName}'`, FabricApiService.post(endpoint, body));
+	}
 
-		if (response.error) {
-			ThisExtension.Logger.logError(response.error.message, true, true);
+	public async createSnapshot(): Promise<void> {
+		const endpoint = Helper.joinPath(this.workspace.apiPath, "warehousesnapshots");
+
+		const displayName = await vscode.window.showInputBox({
+			prompt: "Enter a name for the Snapshot",
+			placeHolder: "My Snapshot",
+			ignoreFocusOut: true
+		});
+
+		if(!displayName) {
+			vscode.window.showInformationMessage("Snapshot creation cancelled.");
+			return;
 		}
-		else {
-			// const msg = `Successfully created restore point '${displayName}' for ${response.success.creationDetails.eventDateTime}.`;
-			const msg = `Successfully created restore point '${displayName}'.`;
-			ThisExtension.Logger.logInfo(msg, 5000);
+
+		const snapshotTime = await vscode.window.showInputBox({
+			prompt: "Enter a time for the Snapshot",
+			placeHolder: "YYYY-MM-DDTHH:mm:ss.sssZ",
+			value: new Date().toISOString(),
+			ignoreFocusOut: true
+		});
+
+		if(!snapshotTime) {
+			vscode.window.showInformationMessage("Snapshot creation cancelled.");
+			return;
 		}
+
+		const body = {
+			"displayName": displayName,
+			"creationPayload": {
+				"parentWarehouseId": this.itemId,
+				"snapshotDateTime": snapshotTime
+			}
+		}
+
+		const response = await FabricApiService.awaitWithProgress(`Creating snapshot '${displayName}'`, FabricApiService.post(endpoint, body));
 	}
 }

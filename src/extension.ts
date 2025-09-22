@@ -44,6 +44,7 @@ import { FabricWorkspaceFolder } from './vscode/treeviews/Workspaces/FabricWorks
 import { FabricWarehouse } from './vscode/treeviews/Workspaces/FabricWarehouse';
 import { FabricSQLItem } from './vscode/treeviews/Workspaces/FabricSQLItem';
 import { FabricUriHandler } from './vscode/uriHandler/FabricUriHandler';
+import { FabricWarehouseRestorePoint } from './vscode/treeviews/Workspaces/FabricWarehouseRestorePoint';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -162,7 +163,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.SQLEndpoint.syncMetadata', (sqlEndpoint: FabricSqlEndpoint) => FabricSqlEndpoint.syncMetadata(sqlEndpoint));
 
+	vscode.commands.registerCommand('FabricStudio.Warehouse.createSnapshot', (warehouse: FabricWarehouse) => warehouse.createSnapshot());
 	vscode.commands.registerCommand('FabricStudio.Warehouse.createRestorePoint', (warehouse: FabricWarehouse) => warehouse.createRestorePoint());
+	vscode.commands.registerCommand('FabricStudio.Warehouse.restore', (restorePoint: FabricWarehouseRestorePoint) => restorePoint.restore());
 
 
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.updateMirroringStatus', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.updateMirroringStatus());

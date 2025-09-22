@@ -664,8 +664,18 @@
 				"category": "FabricStudio.Core"
 			},
 			{
+				"command": "FabricStudio.Warehouse.createSnapshot",
+				"title": "Create Snapshot",
+				"category": "FabricStudio.Warehouse"
+			},
+			{
 				"command": "FabricStudio.Warehouse.createRestorePoint",
 				"title": "Create Restore Point",
+				"category": "FabricStudio.Warehouse"
+			},
+			{
+				"command": "FabricStudio.Warehouse.restore",
+				"title": "Restore to Restore Point",
 				"category": "FabricStudio.Warehouse"
 			}
 		],
@@ -935,8 +945,18 @@
 					"group": "2_edit"
 				},
 				{
+					"command": "FabricStudio.Warehouse.createSnapshot",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_SNAPSHOT,.*/",
+					"group": "2_edit"
+				},
+				{
 					"command": "FabricStudio.Warehouse.createRestorePoint",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,CREATE_RESTORE_POINT,.*/",
+					"group": "2_edit"
+				},
+				{
+					"command": "FabricStudio.Warehouse.restore",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WAREHOUSERESTOREPOINT,.*/ && viewItem =~ /.*,RESTORE,.*/",
 					"group": "2_edit"
 				}
 			],
