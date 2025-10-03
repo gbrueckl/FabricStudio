@@ -14,11 +14,11 @@ export type NotebookMagic =
 	;
 
 // https://code.visualstudio.com/blogs/2021/11/08/custom-notebooks
-export class FabricNotebookKernel implements vscode.NotebookController {
-	private static baseId: string = 'fabric-';
-	private static _instance: FabricNotebookKernel;
+export class FabricNotebookApiKernel implements vscode.NotebookController {
+	private static baseId: string = 'fabric-api-';
+	private static _instance: FabricNotebookApiKernel;
 
-	readonly notebookType: string = 'fabric-notebook';
+	readonly notebookType: string = 'fabric-api-notebook';
 	readonly label: string;
 	readonly supportedLanguages = ["fabric-api", "graphql"]; // any for now, should be DAX, M, ... in the future
 	readonly supportsExecutionOrder: boolean = true;
@@ -33,14 +33,14 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 		this._executionOrder = 0;
 	}
 
-	static async getInstance(): Promise<FabricNotebookKernel> {
-		if (FabricNotebookKernel._instance) {
-			return FabricNotebookKernel._instance;
+	static async getInstance(): Promise<FabricNotebookApiKernel> {
+		if (FabricNotebookApiKernel._instance) {
+			return FabricNotebookApiKernel._instance;
 		}
 
-		let kernel = new FabricNotebookKernel();
+		let kernel = new FabricNotebookApiKernel();
 
-		ThisExtension.Logger.logInfo("Creating new Fabric kernel '" + kernel.id + "'");
+		ThisExtension.Logger.logInfo("Creating new Fabric API Kernel '" + kernel.id + "'");
 		kernel._controller = vscode.notebooks.createNotebookController(kernel.id, kernel.notebookType, kernel.label);
 
 		kernel._controller.label = kernel.label;
@@ -66,7 +66,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 
 	// #region Cluster-properties
 	get id(): string {
-		return FabricNotebookKernel.baseId + "generic";
+		return FabricNotebookApiKernel.baseId + "generic";
 	}
 
 	// appears next to the label
@@ -139,7 +139,7 @@ export class FabricNotebookKernel implements vscode.NotebookController {
 				language = magicText as QueryLanguage;
 			}
 			else {
-				throw new Error("Invalid magic! only %dax, %api and %cmd are supported");
+				throw new Error("Invalid magic! Only %api and %cmd are supported");
 			}
 		}
 		else {

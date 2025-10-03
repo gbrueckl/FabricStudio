@@ -10,6 +10,7 @@ import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricSqlEndpoints } from './FabricSqlEndpoints';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricSQLItem } from './FabricSQLItem';
+import { FabricSparkKernelManager } from '../../notebook/spark/FabricSparkKernelManager';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricLakehouse extends FabricSQLItem {
@@ -22,6 +23,8 @@ export class FabricLakehouse extends FabricSQLItem {
 		this.itemDefinition = definition;
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 		this.contextValue = this._contextValue;
+
+		FabricSparkKernelManager.createKernels(this.itemDefinition);
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */

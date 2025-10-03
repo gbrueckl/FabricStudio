@@ -1,0 +1,165 @@
+import * as vscode from 'vscode';
+import { Helper } from '@utils/Helper';
+import { FabricApiService } from '../../../fabric/FabricApiService';
+import { iFabricApiLakehouseLivySession, iFabricApiResponse, iFabricLivyStatementCreation, iFabricLivyStatementResult } from '../../../fabric/_types';
+import { ThisExtension } from '../../../ThisExtension';
+import { SparkNotebookLanguage } from './_types';
+
+export class FabricSparkLivySession {
+	public workspaceId: string;
+	public lakehouseId: string;
+	public sessionId: string;
+
+	constructor(workspaceId: string, lakehouseId: string, sessionId: string) {
+		this.workspaceId = workspaceId;
+		this.lakehouseId = lakehouseId;
+		this.sessionId = sessionId;
+	}
+
+	get apiRootEndpoint(): string {
+		return `/v1/workspaces/${this.workspaceId}/lakehouses/${this.lakehouseId}/livyapi/versions/2023-12-01/sessions`;
+	}
+
+	get apiSessionEndpoint(): string {
+		return `${this.apiRootEndpoint}/${this.sessionId}`;
+	}
+
+	static async getNewSession(workspaceId: string, lakehouseId: string, language: SparkNotebookLanguage = "pyspark"): Promise<FabricSparkLivySession> {
+		const body = {
+			"kind": language
+		};
+
+		const response = await FabricApiService.post<iFabricApiLakehouseLivySession>(`/v1/workspaces/${workspaceId}/lakehouses/${lakehouseId}/livyapi/versions/2023-12-01/sessions`, body);
+		if (response.error) {
+			throw new Error(response.error.message);
+		}
+
+		return new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id);
+	}
+
+	async waitTillStarted(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
+		await Helper.awaitWithProgress("Starting Spark Session", this.waitTillStartedMain(pollInterval, timeout));
+	}
+
+	private async waitTillStartedMain(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
+		let isStarted: boolean = false;
+		let timeElapsed: number = 0;
+		while (!isStarted && timeElapsed < timeout) {
+			await Helper.delay(pollInterval);
+			timeElapsed += pollInterval;
+			// get the session status
+			const response = await FabricApiService.get<iFabricApiLakehouseLivySession>(this.apiSessionEndpoint);
+
+			if (response.error) {
+				ThisExtension.Logger.logError(response.error.message, true, true);
+			}
+
+			else if (response.success.state == "idle") {
+				isStarted = true;
+			}
+			else if (response.success.state == "error" || response.success.state == "dead" || response.success.state == "killed") {
+				ThisExtension.Logger.logError(`Session ${this.sessionId} is in state ${response.success.state}`, true, true);
+			}
+			else {
+				ThisExtension.Logger.logInfo(`Session ${this.sessionId} is in state ${response.success.state}, waiting...`);
+			}
+		}
+
+		if (!isStarted) {
+			ThisExtension.Logger.logError(`Session ${this.sessionId} did not start within the timeout period of ${timeout} ms`, true, true);
+		}
+	}
+
+	async stop(): Promise<void> {
+		const response = await FabricApiService.delete<void>(this.apiSessionEndpoint, {});
+		if (response.error) {
+			ThisExtension.Logger.logError(response.error.message, true, true);
+		}
+		else {
+			ThisExtension.Logger.logInfo(`Session ${this.sessionId} stopped successfully`);
+		}
+	}
+
+	async executeCommand(commandText: string, language: SparkNotebookLanguage = undefined): Promise<iFabricApiResponse<iFabricLivyStatementCreation>> {
+		const body = {
+			"code": commandText,
+			"kind": language
+		};
+
+		const createCommand = await FabricApiService.post<iFabricLivyStatementCreation>(`${this.apiSessionEndpoint}/statements`, body);
+
+		return createCommand;
+	}
+
+	async waitForCommandResult(commandId: number, pollInterval: number = 500, timeout: number = undefined): Promise<iFabricApiResponse<iFabricLivyStatementResult>> {
+		let result: iFabricApiResponse<iFabricLivyStatementResult> = undefined;
+		let timeElapsed: number = 0;
+
+		while ((result === undefined || (result.success && result.success?.state !== "available"))) {
+			await Helper.delay(pollInterval);
+			timeElapsed += pollInterval;
+			result = await FabricApiService.get<iFabricLivyStatementResult>(Helper.joinPath(this.apiSessionEndpoint, `statements/${commandId}`));
+		}
+
+		return result;
+	}
+
+	//#region static methods to track the context of the notebook
+	private static _sessions: Map<string, FabricSparkLivySession> = new Map<string, FabricSparkLivySession>();
+
+
+	static loadFromMetadata(metadata?: { [key: string]: any }): { [key: string]: any } {
+
+		if (metadata == undefined) {
+			metadata = {};
+		}
+		let newContext: FabricSparkLivySession = FabricSparkLivySession.generateFromOriginalMetadata(metadata);
+		let guid = Helper.newGuid(); // we always generate a new guid for the current session
+
+		FabricSparkLivySession.set(guid, newContext);
+
+		metadata.guid = guid;
+		// remove context so it is not used unintentionally
+		metadata.context = undefined;
+
+		// we only return the guid as metadata
+		return metadata;
+	}
+
+	static saveToMetadata(metadata: { [key: string]: any }): { [key: string]: any } {
+		if (metadata?.guid) {
+			metadata.context = FabricSparkLivySession.get(metadata.guid);
+			metadata.guid = undefined;
+		}
+
+		// we only return the context as metadata
+		return metadata;
+	}
+
+	static generateFromOriginalMetadata(metadata?: { [key: string]: any }): FabricSparkLivySession {
+		let newContext = new FabricSparkLivySession('x', 'x', 'x');
+
+		if (metadata?.context) {
+			if (metadata.context.apiRootPath) {
+				newContext.workspaceId = metadata.context.apiRootPath;
+			}
+			if (metadata.context.uri) {
+				newContext.lakehouseId = metadata.context.uri;
+			}
+			if (metadata.context.variables) {
+				newContext.sessionId = metadata.context.variables;
+			}
+		}
+
+		return newContext;
+	}
+
+	static set(guid: string, context: FabricSparkLivySession): void {
+		FabricSparkLivySession._sessions.set(guid, context);
+	}
+
+	static get(guid: string): FabricSparkLivySession {
+		return FabricSparkLivySession._sessions.get(guid);
+	}
+	//#endregion
+}

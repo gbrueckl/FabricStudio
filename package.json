@@ -48,7 +48,7 @@
 		"Analytics"
 	],
 	"activationEvents": [
-		"onNotebook:fabric-notebook",
+		"onNotebook:fabric-api-notebook",
 		"onFileSystem:fabric"
 	],
 	"main": "./dist/node/extension.js",
@@ -112,11 +112,13 @@
 									"markdownDescription": "The ItemType to configure the file format for.",
 									"required": true,
 									"enum": [
+										"GraphQLApis",
+										"AnomalyDetectors",
 										"CopyJobs",
 										"Dataflows",
 										"DataPipelines",
 										"Eventhouses",
-										"GraphQLApis",
+										"GraphQuerysets",
 										"HLSCohorts",
 										"KQLDatabases",
 										"KQLDashboards",
@@ -132,7 +134,9 @@
 										"Eventstreams",
 										"Reflexes",
 										"SparkJobDefinitions",
-										"VariableLibraries"
+										"VariableLibraries",
+										"Maps",
+										"UserDataFunctions"
 									]
 								},
 								"format": {
@@ -1163,11 +1167,20 @@
 		},
 		"notebooks": [
 			{
-				"type": "fabric-notebook",
-				"displayName": "Fabric Notebook",
+				"type": "fabric-api-notebook",
+				"displayName": "Fabric REST API Notebook",
 				"selector": [
 					{
 						"filenamePattern": "*.fabnb"
+					}
+				]
+			},
+			{
+				"type": "fabric-spark-notebook",
+				"displayName": "Fabric Spark Notebook",
+				"selector": [
+					{
+						"filenamePattern": "*.ipynb"
 					}
 				]
 			}

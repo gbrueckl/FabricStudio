@@ -31,6 +31,7 @@ export type FabricApiItemType =
 	| "SQLDatabase"				//	A SQL Database item.
 	| "MirroredDatabase"		//	A Mirrored Database item.
 	| "MirroredWarehouse"		//	A Mirrored Warehouse item.
+	| "AnomalyDetector"			//	Anomaly Detector item.
 
 
 	// custom types
@@ -43,8 +44,8 @@ export type FabricApiItemType =
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.
 	| "Warehouses"							//	Folder for Warehouse item.
-	| "WarehouseRestorePoints"			//	Folder for Warehouse Restore Point item.
-	| "WarehouseRestorePoint"			//	A Warehouse Restore Point item.
+	| "WarehouseRestorePoints"				//	Folder for Warehouse Restore Point item.
+	| "WarehouseRestorePoint"				//	A Warehouse Restore Point item.
 	| "SQLEndpoints"						//	Folder for SQLEndpoint item.
 	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
@@ -564,4 +565,37 @@ export interface iFabricPlatformFile {
 		version: string;
 		logicalId: string;
 	}
+}
+
+export interface iFabricApiLakehouseLivySession {
+	fabricSessionStateInfo: any;
+	id: string;
+	artifactId: string;
+	submitterName: string;
+	state: string;
+	tags: { [key: string]: string };
+}
+
+export interface iFabricLivyStatementCreation {
+	id: number;
+	code: string;
+	state: string;
+}
+
+export interface iFabricLivyStatementResult {
+	id: number;
+	code: string;
+	state: "waiting" | "running" | "available" | "error" | "cancelling" | "cancelled";
+	output?: {
+		status: "ok" | "error" | "aborted";
+		execution_count: number;
+		data?: {
+			[key: string]: any;
+		};
+		// error properties
+		ename?: string;
+		evalue?: string;
+		traceback?: string[];
+	};
+	
 }
