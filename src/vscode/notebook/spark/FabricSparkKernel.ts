@@ -189,14 +189,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 
 			ThisExtension.Logger.logInfo("Executing " + language + ":\n" + commandText);
 
-			execution.token.onCancellationRequested(() => {
-				execution.appendOutput(new vscode.NotebookCellOutput([
-					vscode.NotebookCellOutputItem.text("Execution cancelled!", 'text/plain'),
-				]));
-
-				execution.end(false, Date.now());
-				return;
-			});
+			
 
 			const commentChar = SparkLanguageConfigs.getCommentCharByLanguage(language);
 			const commandTextClean = this.parseCommandText(commandText, commentChar);
@@ -212,7 +205,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			}	
 
 			// TODO handle cancellation?!
-			const result = await livySession.waitForCommandResult(createCommand.success.id)
+			const result = await livySession.waitForCommandResult(createCommand.success.id, execution.token)
 
 			if (result.success) {
 				if (result.success.output.status == "error") {

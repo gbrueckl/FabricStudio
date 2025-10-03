@@ -91,14 +91,31 @@ export class FabricSparkLivySession {
 		return createCommand;
 	}
 
-	async waitForCommandResult(commandId: number, pollInterval: number = 500, timeout: number = undefined): Promise<iFabricApiResponse<iFabricLivyStatementResult>> {
+	async waitForCommandResult(commandId: number, token: vscode.CancellationToken, pollInterval: number = 500, timeout: number = undefined): Promise<iFabricApiResponse<iFabricLivyStatementResult>> {
 		let result: iFabricApiResponse<iFabricLivyStatementResult> = undefined;
 		let timeElapsed: number = 0;
 
-		while ((result === undefined || (result.success && result.success?.state !== "available"))) {
+		let cancelled = false
+
+		token.onCancellationRequested(() => {
+			ThisExtension.Logger.logInfo(`Command ${commandId} cancelled by user`);
+			cancelled = true;
+		});
+
+		while (result === undefined || (result.success && result.success?.state !== "available")) {
 			await Helper.delay(pollInterval);
 			timeElapsed += pollInterval;
 			result = await FabricApiService.get<iFabricLivyStatementResult>(Helper.joinPath(this.apiSessionEndpoint, `statements/${commandId}`));
+
+			if (cancelled) {
+				result = {
+					error: {
+						"message": "Command cancelled by user",
+						"errorCode": "CommandCancelled"
+					}
+				};
+				break;
+			}
 		}
 
 		return result;
