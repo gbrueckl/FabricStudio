@@ -33,23 +33,26 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 
 	/* Overwritten properties from FabricApiTreeItem */
 	get _contextValue(): string {
+		// opposed to all other items, we want the context value to be based on the parent/super item!
+		// this also means we need to set all generic actions again
+		
 		let actions: string[] = [
 			this.itemType.toUpperCase(),
 			"RELOAD_FROM_FABRIC"
 		];
 
-		// const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.parent.itemType);
-		// if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
-		// 	if (itemTypePlural == "SemanticModels") {
-		// 		actions.push("EDIT_TMDL")
-		// 	}
-		// 	else if (itemTypePlural == "Reports") {
-		// 		actions.push("EDIT_PBIR")
-		// 	}
-		// 	else {
-		// 		actions.push("EDIT_DEFINITION");
-		// 	}
-		// }
+		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.parent.itemType);
+		if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
+			if (itemTypePlural == "SemanticModels") {
+				actions.push("EDIT_TMDL")
+			}
+			else if (itemTypePlural == "Reports") {
+				actions.push("EDIT_PBIR")
+			}
+			else {
+				actions.push("EDIT_DEFINITION");
+			}
+		}
 
 		if(this.resourceUri && FabricFSCache.unpublishedChanges(this.resourceUri)) {
 			actions.push("PUBLISH");
