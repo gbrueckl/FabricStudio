@@ -1,9 +1,51 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as glob from 'glob';
+import AdmZip from 'adm-zip';
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { stringifyRefs, parseRefs, PreserveType } from "json-serialize-refs";
 
+const REPO_NAME = "fabric-rest-api-specs";
+const BRANCH = "main"
+const REPOSITORY_URL = `https://github.com/microsoft/${REPO_NAME}`;
+const SCRIPT_DIRECTORY = path.resolve(__dirname)
+const ZIP_FILE_NAME = `${SCRIPT_DIRECTORY}/FabricRESTAPI.zip`;
+const OUTPUT_DIRECTORY = `${SCRIPT_DIRECTORY}/definition`;
+
+const url = `${REPOSITORY_URL}/archive/refs/heads/${BRANCH}.zip`;
+
+function downloadFile(url: string, outputPath: string) {
+	return fetch(url)
+		.then(x => x.arrayBuffer())
+		//.then(x => writeFile(outputPath, Buffer.from(x)));
+		.then(x => {fs.writeFileSync(outputPath, Buffer.from(x)); console.log(`File written to ${outputPath}`);})
+}
+
+downloadFile(url, ZIP_FILE_NAME)
+	.then(() => {
+		console.log(`Downloaded ${url} \n\tto ${ZIP_FILE_NAME}`);
+	})
+	.then(() => {
+		console.log('Unzipping files');
+		var zip = new AdmZip(ZIP_FILE_NAME);
+		const folderName = `${REPO_NAME}-${BRANCH}/`;
+		const folderEntry = zip.getEntry(folderName);
+		if (!folderEntry) {
+			throw new Error(`Folder entry ${folderName} not found in zip`);
+		}
+		console.log(folderEntry.entryName);
+		console.log(`Start unzip of ${REPO_NAME}-${BRANCH}/...`);
+		zip.extractEntryTo(folderEntry, OUTPUT_DIRECTORY, /*overwrite*/ true);
+		console.log('Finished unzip!');
+	})
+	.catch(err => {
+		console.error(`Error downloading ${url}:`, err);
+	});
+
+
+/*
+COMBINE SWAGGER FILES
+*/
 const definitionDir = path.join(__dirname, 'definition', 'fabric-rest-api-specs-main');
 const outputDir = path.join(__dirname, '..', '..', 'resources', 'API');
 const outputFile = path.join(outputDir, 'swagger.json');
@@ -17,12 +59,12 @@ if (!fs.existsSync(outputDir)) {
 	fs.mkdirSync(outputDir, { recursive: true });
 }
 
-function sort(obj) {
+function sort(obj: any) {
 	if (obj === null || obj === undefined)
 		return obj;
 	if (typeof obj !== "object" || Array.isArray(obj))
 		return obj;
-	const sortedObject = {};
+	const sortedObject: any = {};
 	const keys = Object.keys(obj).sort();
 	keys.forEach(key => sortedObject[key] = sort(obj[key]));
 	return sortedObject;
@@ -31,7 +73,7 @@ function sort(obj) {
 async function processJsonFile(file: string) {
 	console.log(`Processing file: ${file}`);
 
-	let singleJson = await SwaggerParser.dereference(file);
+	let singleJson: any = await SwaggerParser.dereference(file);
 	if (!singleJson["swagger"]) {
 		throw new Error(`File ${file} does not contain a valid Swagger definition.`);
 	}
@@ -56,7 +98,7 @@ async function combineJsonFiles(files: string[]) {
 				combinedJson[prop] = { ...combinedJson[prop], ...singleJson[prop] };
 			}
 		}
-		catch (error) {
+		catch (error: any) {
 			console.error(`Error processing file ${file}: ${error.message}`);
 			continue; // Skip this file and continue with the next
 		}

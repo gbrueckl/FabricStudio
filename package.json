@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.5.0",
+	"version": "2.6.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -1216,17 +1216,18 @@
 		"lint": "eslint src --ext ts",
 		"test": "vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=dist/web/extension.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-		"create-single-swagger": "ts-node utils/Swagger/create-single-swagger.ts",
-		"download-api-specs": "ts-node utils/Swagger/download-api-specs.ts"
+		"update-api-specs": "ts-node utils/Swagger/update-api-specs.ts"
 	},
 	"devDependencies": {
 		"@apidevtools/swagger-parser": "^12.0.0",
+		"@types/adm-zip": "^0.5.7",
 		"@types/glob": "^8.1.0",
 		"@types/lodash": "^4.17.7",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "^12.20.55",
 		"@types/vscode": "^1.81.0",
 		"@vscode/test-web": "*",
+		"adm-zip": "^0.5.16",
 		"buffer": "^6.0.3",
 		"eslint": "^9.0.0",
 		"form-data": "^4.0.0",
@@ -1242,7 +1243,6 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^4.7.4",
 		"webpack": "^5.74.0",
-		"webpack-cli": "^4.10.0",
-		"adm-zip": "^0.5.16"
+		"webpack-cli": "^4.10.0"
 	}
 }

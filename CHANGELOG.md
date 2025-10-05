@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.6.0**:
+- added support for Livy Sessions for `Lakehouses`, `Notebooks` and `SparkJobDefinitions`
+- **PREVIEW** Notebook Kernel for Lakehouses to run `.ipynb` notebooks against a Fabric cluster
+- reworked the code to update the Swagger API definition
+
 **v2.5.0**:
 - added support for [Warehouse Snapshots](https://learn.microsoft.com/en-us/rest/api/fabric/warehousesnapshot/items) and [Warehouse Restore Points](https://learn.microsoft.com/en-us/rest/api/fabric/warehouse/restore-points)
 
