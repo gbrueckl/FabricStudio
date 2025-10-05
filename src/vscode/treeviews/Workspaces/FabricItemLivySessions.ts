@@ -1,25 +1,22 @@
 import * as vscode from 'vscode';
 
+import { Helper, UniqueId } from '@utils/Helper';
+
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiItem } from '../../../fabric/_types';
+import { iFabricApiItemDataAccessRole, iFabricApiLivySession } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
-import { FabricDataPipeline } from './FabricDataPipeline';
+import { FabricItem } from './FabricItem';
+import { FabricItemDataAccessRole } from './FabricItemDataAccessRole';
+import { FabricItemLivySession } from './FabricItemLivySession';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
-export class FabricDataPipelines extends FabricWorkspaceGenericFolder {
+export class FabricItemLivySessions extends FabricWorkspaceGenericFolder {
 	constructor(
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(
-			`${parent.itemId}/dataPipelines`, 
-			"DataPipelines", 
-			"DataPipelines", 
-			parent, 
-			"DataPipelines");
-
-		this.id = parent.itemId + "/" + this.itemType;
+		super(`${parent.id}/LivySessions`, "Livy Sessions", "LivySessions", parent, "livySessions");
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
@@ -28,10 +25,10 @@ export class FabricDataPipelines extends FabricWorkspaceGenericFolder {
 			return element.getChildren();
 		}
 		else {
-			let children: FabricDataPipeline[] = [];
+			let children: FabricWorkspaceTreeItem[] = [];
 
 			try {
-				const items = await FabricApiService.getList<iFabricApiItem>(this.apiPath);
+				const items = await FabricApiService.getList<iFabricApiLivySession>(this.apiPath);
 
 				if (items.error) {
 					ThisExtension.Logger.logError(items.error.message);
@@ -39,12 +36,12 @@ export class FabricDataPipelines extends FabricWorkspaceGenericFolder {
 				}
 
 				for (let item of items.success) {
-					let treeItem = new FabricDataPipeline(item, this);
+					let treeItem = new FabricItemLivySession(item, this);
 					children.push(treeItem);
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load pipelines for workspace " + this.workspace.itemName, true);
+				ThisExtension.Logger.logError("Could not load livy sessions for item " + this.parent.itemName, true);
 			}
 
 			return children;

@@ -5,6 +5,8 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricItemLivyMixin } from './mixins/FabricItemLivyMixin';
+import { applyMixins } from './mixins/FabricMixin';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricSparkJob extends FabricItem {
@@ -13,19 +15,19 @@ export class FabricSparkJob extends FabricItem {
 		parent: FabricWorkspaceTreeItem
 	) {
 		super(definition, parent);
-
-		this.contextValue = this._contextValue;
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
-	get _contextValue(): string {
-		let orig: string = super._contextValue;
 
-		let actions: string[] = [
-			"EDIT_DEFINITION"
-		];
+	
+	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
+		let children: FabricWorkspaceTreeItem[] = [];
 
-		return orig + actions.join(",") + ",";
+		children = children.concat(await super.getChildren());
+
+		children.push(await this.getChildItemLivySessions(this));
+
+		return children;
 	}
 
 	static async runSparkJob(sparkJob: FabricItem): Promise<void> {
@@ -47,3 +49,7 @@ export class FabricSparkJob extends FabricItem {
 		}
 	}
 }
+
+
+export interface FabricSparkJob extends FabricItemLivyMixin { }
+applyMixins(FabricSparkJob, [FabricItemLivyMixin]);

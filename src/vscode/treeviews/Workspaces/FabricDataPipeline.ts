@@ -15,21 +15,9 @@ export class FabricDataPipeline extends FabricItem {
 		parent: FabricWorkspaceTreeItem
 	) {
 		super(definition, parent);
-
-		this.contextValue = this._contextValue;
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
-	get _contextValue(): string {
-		let orig: string = super._contextValue;
-
-		let actions: string[] = [
-			"EDIT_DEFINITION"
-		];
-
-		return orig + actions.join(",") + ",";
-	}
-
 	async runPipeline(): Promise<void> {
 		// https://learn.microsoft.com/en-us/fabric/data-factory/pipeline-rest-api#run-on-demand-item-job
 		

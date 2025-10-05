@@ -3,7 +3,7 @@ import * as lodash from 'lodash';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
-import { iFabricApiLakehouse, iFabricApiLakehouseLivySession, iFabricApiResponse, iFabricLivyStatementCreation, iFabricLivyStatementResult } from '../../../fabric/_types';
+import { iFabricApiLakehouse } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { NotebookType, SparkLanguageConfigs, SparkNotebookLanguage, SparkNotebookMagic, SparkVSCodeLanguage } from './_types';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
@@ -188,8 +188,6 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			[language, commandText, magic] = this.parseCell(cell);
 
 			ThisExtension.Logger.logInfo("Executing " + language + ":\n" + commandText);
-
-			
 
 			const commentChar = SparkLanguageConfigs.getCommentCharByLanguage(language);
 			const commandTextClean = this.parseCommandText(commandText, commentChar);

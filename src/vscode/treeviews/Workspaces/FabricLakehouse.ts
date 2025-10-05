@@ -11,6 +11,8 @@ import { FabricSqlEndpoints } from './FabricSqlEndpoints';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricSQLItem } from './FabricSQLItem';
 import { FabricSparkKernelManager } from '../../notebook/spark/FabricSparkKernelManager';
+import { FabricItemLivyMixin } from './mixins/FabricItemLivyMixin';
+import { applyMixins } from './mixins/FabricMixin';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricLakehouse extends FabricSQLItem {
@@ -67,7 +69,13 @@ export class FabricLakehouse extends FabricSQLItem {
 		children = children.concat(await super.getChildren());
 
 		children.push(new FabricLakehouseTables(this));
+		children.push(await this.getChildItemLivySessions(this));
 
 		return children;
 	}
 }
+
+
+export interface FabricLakehouse extends FabricItemLivyMixin {}
+applyMixins(FabricLakehouse, [FabricItemLivyMixin]);
+//Object.assign(FabricLakehouse.prototype, FabricItemLivyMixin);

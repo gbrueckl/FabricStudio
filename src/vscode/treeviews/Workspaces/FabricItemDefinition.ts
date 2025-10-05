@@ -35,22 +35,21 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 	get _contextValue(): string {
 		let actions: string[] = [
 			this.itemType.toUpperCase(),
-			"RELOAD_FROM_FABRIC",
-			"COPY_NAME"
+			"RELOAD_FROM_FABRIC"
 		];
 
-		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.parent.itemType);
-		if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
-			if (itemTypePlural == "SemanticModels") {
-				actions.push("EDIT_TMDL")
-			}
-			else if (itemTypePlural == "Reports") {
-				actions.push("EDIT_PBIR")
-			}
-			else {
-				actions.push("EDIT_DEFINITION");
-			}
-		}
+		// const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.parent.itemType);
+		// if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
+		// 	if (itemTypePlural == "SemanticModels") {
+		// 		actions.push("EDIT_TMDL")
+		// 	}
+		// 	else if (itemTypePlural == "Reports") {
+		// 		actions.push("EDIT_PBIR")
+		// 	}
+		// 	else {
+		// 		actions.push("EDIT_DEFINITION");
+		// 	}
+		// }
 
 		if(this.resourceUri && FabricFSCache.unpublishedChanges(this.resourceUri)) {
 			actions.push("PUBLISH");

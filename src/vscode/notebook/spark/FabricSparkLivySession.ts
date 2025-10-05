@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Helper } from '@utils/Helper';
 import { FabricApiService } from '../../../fabric/FabricApiService';
-import { iFabricApiLakehouseLivySession, iFabricApiResponse, iFabricLivyStatementCreation, iFabricLivyStatementResult } from '../../../fabric/_types';
+import { iFabricApiLivySessionCreation, iFabricApiResponse, iFabricLivyStatementCreation, iFabricLivyStatementResult } from '../../../fabric/_types';
 import { ThisExtension } from '../../../ThisExtension';
 import { SparkNotebookLanguage } from './_types';
 
@@ -29,7 +29,7 @@ export class FabricSparkLivySession {
 			"kind": language
 		};
 
-		const response = await FabricApiService.post<iFabricApiLakehouseLivySession>(`/v1/workspaces/${workspaceId}/lakehouses/${lakehouseId}/livyapi/versions/2023-12-01/sessions`, body);
+		const response = await FabricApiService.post<iFabricApiLivySessionCreation>(`/v1/workspaces/${workspaceId}/lakehouses/${lakehouseId}/livyapi/versions/2023-12-01/sessions`, body);
 		if (response.error) {
 			throw new Error(response.error.message);
 		}
@@ -48,13 +48,13 @@ export class FabricSparkLivySession {
 			await Helper.delay(pollInterval);
 			timeElapsed += pollInterval;
 			// get the session status
-			const response = await FabricApiService.get<iFabricApiLakehouseLivySession>(this.apiSessionEndpoint);
+			const response = await FabricApiService.get<iFabricApiLivySessionCreation>(this.apiSessionEndpoint);
 
 			if (response.error) {
 				ThisExtension.Logger.logError(response.error.message, true, true);
 			}
 
-			else if (response.success.state == "idle") {
+			else if (response.success.state == "Idle") {
 				isStarted = true;
 			}
 			else if (response.success.state == "error" || response.success.state == "dead" || response.success.state == "killed") {
