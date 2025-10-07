@@ -681,6 +681,20 @@
 				"command": "FabricStudio.Warehouse.restore",
 				"title": "Restore to Restore Point",
 				"category": "FabricStudio.Warehouse"
+			},
+			{
+				"command": "FabricStudio.Notebook.stopSession",
+				"title": "Stop Fabric Spark Session",
+				"shortTitle": "Stop",
+				"icon": "$(notebook-stop)",
+				"category": "Jupyter"
+			},
+			{
+				"command": "FabricStudio.Notebook.restartSession",
+				"title": "Restart Fabric Spark Session",
+				"shortTitle": "Restart",
+				"icon": "$(debug-restart)",
+				"category": "Jupyter"
 			}
 		],
 		"contributes": {
@@ -962,6 +976,18 @@
 					"command": "FabricStudio.Warehouse.restore",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,WAREHOUSERESTOREPOINT,.*/ && viewItem =~ /.*,RESTORE,.*/",
 					"group": "2_edit"
+				}
+			],
+			"notebook/toolbar": [
+				{
+					"command": "FabricStudio.Notebook.restartSession",
+					"group": "navigation/execute@1",
+					"when": "notebookKernel =~ /^GerhardBrueckl.fabricstudio\\// && notebookType =~ /jupyter-notebook|fabrick-spark-notebook/ && isWorkspaceTrusted"
+				},
+				{
+					"command": "FabricStudio.Notebook.stopSession",
+					"group": "navigation/execute@1",
+					"when": "notebookKernel =~ /^GerhardBrueckl.fabricstudio\\// && notebookType =~ /jupyter-notebook|fabrick-spark-notebook/ && isWorkspaceTrusted"
 				}
 			],
 			"explorer/context": [

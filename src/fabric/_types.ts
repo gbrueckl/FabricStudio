@@ -187,7 +187,7 @@ export interface iFabricApiLakehouseProperties {
 }
 
 export interface iFabricApiLakehouse extends iFabricApiItem {
-	properties: iFabricApiLakehouseProperties;
+	properties?: iFabricApiLakehouseProperties;
 }
 
 export interface iFabricApiLakehouseTable {

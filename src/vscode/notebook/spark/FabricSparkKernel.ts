@@ -4,11 +4,9 @@ import * as lodash from 'lodash';
 import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
 import { iFabricApiLakehouse } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
-import { NotebookType, SparkLanguageConfigs, SparkNotebookLanguage, SparkNotebookMagic, SparkVSCodeLanguage } from './_types';
+import { iFabricApiLivySessionJsonResultSet, NotebookType, SparkLanguageConfigs, SparkNotebookLanguage, SparkNotebookMagic, SparkVSCodeLanguage } from './_types';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricSparkLivySession } from './FabricSparkLivySession';
-import { error } from 'console';
 
 // https://code.visualstudio.com/blogs/2021/11/08/custom-notebooks
 export class FabricSparkKernel implements vscode.NotebookController {
@@ -93,20 +91,12 @@ export class FabricSparkKernel implements vscode.NotebookController {
 		this.Controller.dispose(); // bound to disposeController() above
 	}
 
-	public setNotebookLivySession(notebook: vscode.NotebookDocument, session: FabricSparkLivySession): void {
-		FabricSparkLivySession.set(notebook.uri.toString(), session);
-		//FabricSparkLivySession.set(notebook.metadata.guid, session);
-	}
-
-	public getNotebookLivySession(notebook: vscode.NotebookDocument): FabricSparkLivySession {
-		return FabricSparkLivySession.get(notebook.uri.toString());
-		return FabricSparkLivySession.get(notebook.metadata.guid);
-	}
-
 	private async initializeNotebookLivySession(notebook: vscode.NotebookDocument): Promise<FabricSparkLivySession> {
 		const language = notebook.metadata?.metadata?.language_info?.name as SparkNotebookLanguage;
 
 		let session: FabricSparkLivySession = await FabricSparkLivySession.getNewSession(this.lakehouse.workspaceId, this.lakehouse.id, language);
+		// persist the session for this notebook
+		FabricSparkLivySession.set(notebook.uri.toString(), session);
 
 		await session.waitTillStarted();
 
@@ -114,7 +104,17 @@ export class FabricSparkKernel implements vscode.NotebookController {
 	}
 
 	async restart(notebookUri: vscode.Uri = undefined): Promise<void> {
-		throw new Error('Method not implemented.');
+		if (notebookUri == undefined) {
+			ThisExtension.Logger.logInfo(`Restarting notebook kernel ${this.Controller.id} ...`)
+			// we simply remove the current execution context and close it on the Cluster
+			// the next execution will then create a new context
+			await this.disposeController();
+		}
+		else {
+			let livySession: FabricSparkLivySession = await FabricSparkLivySession.get(notebookUri.toString());
+			ThisExtension.Logger.logInfo(`Restarting notebook kernel ${this.Controller.id} for notebook ${notebookUri.toString()} ...`);
+			await livySession.stop();
+		}
 	}
 
 	createNotebookCellExecution(cell: vscode.NotebookCell): vscode.NotebookCellExecution {
@@ -126,12 +126,11 @@ export class FabricSparkKernel implements vscode.NotebookController {
 	updateNotebookAffinity(notebook: vscode.NotebookDocument, affinity: vscode.NotebookControllerAffinity): void { }
 
 	async executeHandler(cells: vscode.NotebookCell[], notebook: vscode.NotebookDocument, controller: vscode.NotebookController): Promise<void> {
-		let livySession: FabricSparkLivySession = this.getNotebookLivySession(notebook);
+		let livySession: FabricSparkLivySession = await FabricSparkLivySession.get(notebook.uri.toString());
 		if (!livySession) {
 			ThisExtension.Logger.logInfo("Initializing Kernel ...");
 			// for databricks-notebook type the language is in the metadata, for jupyter-notebook it defaults to the Kernel default "python"
 			livySession = await this.initializeNotebookLivySession(notebook);
-			this.setNotebookLivySession(notebook, livySession);
 
 			ThisExtension.Logger.logInfo("Kernel initialized!");
 		}
@@ -146,13 +145,15 @@ export class FabricSparkKernel implements vscode.NotebookController {
 		let commandText: string = cmd;
 
 		// defaults should come from current session?!
-		let language: SparkNotebookLanguage = "pyspark";
-		let magicText: string = "pyspark";
+		const defaultLanguage = cell.notebook.metadata?.metadata?.language_info?.name as SparkNotebookLanguage;
+		let language: SparkNotebookLanguage = defaultLanguage || "pyspark";
+		let magicText: string = defaultLanguage || "pyspark";
 
-		if (cmd[0] == "%") {
+		// Fabric uses '%%' for magics - Jupyter uses '%'
+		if (cmd[0] == "%" && cmd[1] == "%") {
 			let lines = cmd.split('\n');
 			const firstLineTokens = lines[0].split(" ").map(t => t.trim()).filter(t => t != "");
-			magicText = firstLineTokens[0].slice(1).toLowerCase();
+			magicText = firstLineTokens[0].slice(2).toLowerCase();
 			commandText = lines.slice(1).join('\n');
 
 			language = SparkLanguageConfigs.getLanguageByMagic(magicText as SparkNotebookMagic);
@@ -195,12 +196,11 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			const createCommand = await livySession.executeCommand(commandTextClean, language);
 			if (createCommand.error) {
 				execution.appendOutput(new vscode.NotebookCellOutput([
-					vscode.NotebookCellOutputItem.error(new Error(createCommand.error.message)) // to be used by proper JSON/table renderers,
-
+					new vscode.NotebookCellOutputItem(Buffer.from(createCommand.error.message), "application/vnd.code.notebook.error")
 				]))
 				execution.end(false, Date.now());
 				return;
-			}	
+			}
 
 			// TODO handle cancellation?!
 			const result = await livySession.waitForCommandResult(createCommand.success.id, execution.token)
@@ -210,13 +210,33 @@ export class FabricSparkKernel implements vscode.NotebookController {
 					let errorMsg: string = `${result.success.output.ename}: ${result.success.output.evalue}\n`;
 					errorMsg += result.success.output.traceback.join("\n");
 					execution.appendOutput(new vscode.NotebookCellOutput([
-						vscode.NotebookCellOutputItem.error(new Error(errorMsg))
+						vscode.NotebookCellOutputItem.text(errorMsg, "text/plain")
 					]));
 					execution.end(false, Date.now());
 					return;
 				}
 
 				for (let [mimeType, data] of Object.entries(result.success.output.data)) {
+					if (mimeType == "application/json") {
+						const jsonData = data as iFabricApiLivySessionJsonResultSet;
+						let jsonResult: any[] = [];
+
+						if (jsonData.data && jsonData.data.length == 0) {
+							execution.appendOutput(new vscode.NotebookCellOutput([
+								vscode.NotebookCellOutputItem.text("<Empty result set>", 'text/plain')
+							]));
+						}
+						else {
+							for (let row of jsonData.data) {
+								let newRow: any = {};
+								for (let [index, col] of jsonData.schema.fields.entries()) {
+									newRow[col.name] = row[index];
+								}
+								jsonResult.push(newRow);
+							}
+						}
+						data = JSON.stringify(jsonResult);
+					}
 					execution.appendOutput(new vscode.NotebookCellOutput([
 						new vscode.NotebookCellOutputItem(Buffer.from(data), mimeType)
 					]));
@@ -226,16 +246,14 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			}
 			else {
 				execution.appendOutput(new vscode.NotebookCellOutput([
-					vscode.NotebookCellOutputItem.error(new Error(result.error.message)) // to be used by proper JSON/table renderers,
-
+					vscode.NotebookCellOutputItem.text(result.error.message, "text/plain") // to be used by proper JSON/table renderers,
 				]))
 				execution.end(false, Date.now());
 				return;
 			}
 		} catch (error) {
 			execution.appendOutput(new vscode.NotebookCellOutput([
-				vscode.NotebookCellOutputItem.text(error, 'text/plain'),
-				vscode.NotebookCellOutputItem.error(new Error(error.message))
+				vscode.NotebookCellOutputItem.text(error.message, "text/plain")
 			]));
 
 			execution.end(false, Date.now());

@@ -13,12 +13,14 @@ export type NotebookMagic =
 	| "cmd"
 	;
 
-// https://code.visualstudio.com/blogs/2021/11/08/custom-notebooks
-export class FabricNotebookApiKernel implements vscode.NotebookController {
-	private static baseId: string = 'fabric-api-';
-	private static _instance: FabricNotebookApiKernel;
+export const FABRIC_API_NOTEBOOK_TYPE = 'fabric-api-notebook';
 
-	readonly notebookType: string = 'fabric-api-notebook';
+// https://code.visualstudio.com/blogs/2021/11/08/custom-notebooks
+export class FabricApiNotebookKernel implements vscode.NotebookController {
+	private static baseId: string = 'fabric-api-';
+	private static _instance: FabricApiNotebookKernel;
+
+	readonly notebookType: string = FABRIC_API_NOTEBOOK_TYPE;
 	readonly label: string;
 	readonly supportedLanguages = ["fabric-api", "graphql"]; // any for now, should be DAX, M, ... in the future
 	readonly supportsExecutionOrder: boolean = true;
@@ -33,12 +35,12 @@ export class FabricNotebookApiKernel implements vscode.NotebookController {
 		this._executionOrder = 0;
 	}
 
-	static async getInstance(): Promise<FabricNotebookApiKernel> {
-		if (FabricNotebookApiKernel._instance) {
-			return FabricNotebookApiKernel._instance;
+	static async getInstance(): Promise<FabricApiNotebookKernel> {
+		if (FabricApiNotebookKernel._instance) {
+		return FabricApiNotebookKernel._instance;
 		}
 
-		let kernel = new FabricNotebookApiKernel();
+		let kernel = new FabricApiNotebookKernel();
 
 		ThisExtension.Logger.logInfo("Creating new Fabric API Kernel '" + kernel.id + "'");
 		kernel._controller = vscode.notebooks.createNotebookController(kernel.id, kernel.notebookType, kernel.label);
@@ -66,7 +68,7 @@ export class FabricNotebookApiKernel implements vscode.NotebookController {
 
 	// #region Cluster-properties
 	get id(): string {
-		return FabricNotebookApiKernel.baseId + "generic";
+		return FabricApiNotebookKernel.baseId + "generic";
 	}
 
 	// appears next to the label

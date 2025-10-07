@@ -1,23 +1,26 @@
-export type NotebookType =
-	"jupyter-notebook"
-	| "fabric-spark-notebook"
-	;
+export const FABRIC_SPARK_NOTEBOOK_TYPE = "fabric-spark-notebook";
+export const FABRIC_SPARK_JUPYTER_NOTEBOOK_TYPE = "jupyter-notebook";
 
-export type SparkNotebookLanguage = 
+export enum NotebookType {
+	FabricSparkCustomNotebook = FABRIC_SPARK_NOTEBOOK_TYPE,
+	FabricSparkJupyterNotebook = FABRIC_SPARK_JUPYTER_NOTEBOOK_TYPE
+}
+
+export type SparkNotebookLanguage =
 	"sql"
 	| "spark" // = scala
 	| "sparkr"
 	| "pyspark"
 	;
 
-export type SparkNotebookMagic = 
+export type SparkNotebookMagic =
 	"sql"
 	| "spark" // = scala
 	| "sparkr"
 	| "pyspark"
 	;
 
-export type SparkVSCodeLanguage = 
+export type SparkVSCodeLanguage =
 	"sql"
 	| "scala" // = scala
 	| "r"
@@ -56,3 +59,17 @@ export class SparkLanguageConfigs {
 	}
 }
 
+
+export interface iFabricApiLivySessionJsonResultSet {
+	schema: {
+					type: string;
+					fields: 
+						{
+							name: string;
+							type: string;
+							nullable: boolean;
+							metadata: any;
+						}[]
+	};
+	data: any[][];
+}

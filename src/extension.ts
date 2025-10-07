@@ -2,8 +2,7 @@
 
 import * as vscode from 'vscode';
 import { ThisExtension } from './ThisExtension';
-import { FabricNotebookSerializer } from './vscode/notebook/FabricNotebookSerializer';
-import { FabricNotebookType } from './vscode/notebook/FabricNotebook';
+import { FabricApiNotebookSerializer } from './vscode/notebook/FabricApiNotebookSerializer';
 import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
 import { FabricCommandBuilder } from './vscode/input/FabricCommandBuilder';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
@@ -45,6 +44,10 @@ import { FabricWarehouse } from './vscode/treeviews/Workspaces/FabricWarehouse';
 import { FabricSQLItem } from './vscode/treeviews/Workspaces/FabricSQLItem';
 import { FabricUriHandler } from './vscode/uriHandler/FabricUriHandler';
 import { FabricWarehouseRestorePoint } from './vscode/treeviews/Workspaces/FabricWarehouseRestorePoint';
+import { FABRIC_API_NOTEBOOK_TYPE } from './vscode/notebook/FabricApiNotebookKernel';
+import { NotebookType } from './vscode/notebook/spark/_types';
+import { Helper } from '@utils/Helper';
+import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKernelManager';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -89,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.workspace.registerNotebookSerializer(
-			FabricNotebookType, new FabricNotebookSerializer(), { transientOutputs: true }
+			FABRIC_API_NOTEBOOK_TYPE, new FabricApiNotebookSerializer(), { transientOutputs: true }
 		)
 	);
 
@@ -100,13 +103,43 @@ export async function activate(context: vscode.ExtensionContext) {
 	TempFileSystemProvider.register(context);
 
 
-	vscode.workspace.onDidOpenNotebookDocument((e) => {
-		const metadata = FabricNotebookContext.get(e.metadata.guid.toString());
+	vscode.workspace.onDidOpenNotebookDocument(async (e) => {
+		// the metadata of an notebook is immutable - so we need to track the context of the notebook here
+		if(e.notebookType == FABRIC_API_NOTEBOOK_TYPE) {
+			// for our Fabric notebooks we always have a GUID in the metadata which we use manage the context
+			const metadata = FabricNotebookContext.get(e.metadata.guid.toString());
 
-		metadata.uri = e.uri;
+			// store the URI of the opened notebook as this is the only refernce we have in the kernel
+			metadata.uri = e.uri;
 
-		FabricNotebookContext.set(e.metadata.guid, metadata);
+			FabricNotebookContext.set(e.metadata.guid, metadata);
+		}
+		else if(e.notebookType == NotebookType.FabricSparkJupyterNotebook) {
+			// for Jupyter notebooks we do not have a GUID in the metadata - so we use the URI as key
+			try {
+				ThisExtension.Logger.logInfo("Detected Spark Jupyter Notebook - trying to create Kernels ...");
+				const lakehouseConfig = e.metadata.metadata?.dependencies?.lakehouse;
+
+				await FabricSparkKernelManager.createKernels(
+					{
+						"id": lakehouseConfig?.default_lakehouse,
+						"workspaceId": lakehouseConfig?.default_lakehouse_workspace_id,
+						"displayName": lakehouseConfig?.default_lakehouse_name,
+						"type": "Lakehouse"
+					}
+				)
+			} catch {	
+				ThisExtension.Logger.logWarning("Error creating Kernels for Spark Jupyter Notebook - please make sure that the notebook contains the lakehouse configuration!");
+			}
+		}
 	});
+
+		vscode.commands.registerCommand('FabricStudio.Notebook.restartSession',
+		(notebook: { notebookEditor: { notebookUri: vscode.Uri } } | undefined | vscode.Uri) => FabricSparkKernelManager.restartNotebookSession(notebook)
+	);
+	vscode.commands.registerCommand('FabricStudio.Notebook.stopSession',
+		(notebook: { notebookEditor: { notebookUri: vscode.Uri } } | undefined | vscode.Uri) => FabricSparkKernelManager.stopNotebookSession(notebook)
+	);
 
 	const completionProvider = new FabricAPICompletionProvider(context);
 
@@ -120,7 +153,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//#region Fabric Workspaces TreeView
 	vscode.commands.registerCommand('FabricStudio.updateQuickPickList', (treeItem: FabricApiTreeItem) => FabricCommandBuilder.pushQuickPickApiItem(treeItem));
-	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricNotebookSerializer.openNewNotebook(treeItem));
+	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricApiNotebookSerializer.openNewNotebook(treeItem));
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));

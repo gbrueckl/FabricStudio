@@ -34,7 +34,9 @@ export class FabricSparkLivySession {
 			throw new Error(response.error.message);
 		}
 
-		return new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id);
+		let session = new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id);
+		
+		return session;
 	}
 
 	async waitTillStarted(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
@@ -54,7 +56,7 @@ export class FabricSparkLivySession {
 				ThisExtension.Logger.logError(response.error.message, true, true);
 			}
 
-			else if (response.success.state == "Idle") {
+			else if (response.success.state == "idle") {
 				isStarted = true;
 			}
 			else if (response.success.state == "error" || response.success.state == "dead" || response.success.state == "killed") {
@@ -77,6 +79,14 @@ export class FabricSparkLivySession {
 		}
 		else {
 			ThisExtension.Logger.logInfo(`Session ${this.sessionId} stopped successfully`);
+		}
+	}
+
+	async start(waitTillStarted: boolean = false): Promise<void> {
+		let session = await FabricSparkLivySession.getNewSession(this.workspaceId, this.lakehouseId);
+		this.sessionId = session.sessionId;
+		if (waitTillStarted) {
+			await session.waitTillStarted();
 		}
 	}
 
@@ -119,6 +129,14 @@ export class FabricSparkLivySession {
 		}
 
 		return result;
+	}
+
+	get state(): string {
+		return JSON.stringify({
+			workspaceId: this.workspaceId,
+			lakehouseId: this.lakehouseId,
+			sessionId: this.sessionId
+		})
 	}
 
 	//#region static methods to track the context of the notebook
@@ -171,12 +189,39 @@ export class FabricSparkLivySession {
 		return newContext;
 	}
 
-	static set(guid: string, context: FabricSparkLivySession): void {
-		FabricSparkLivySession._sessions.set(guid, context);
+	static set(notebookUri: string, session: FabricSparkLivySession): void {
+		FabricSparkLivySession._sessions.set(notebookUri, session);
+		ThisExtension.setGlobalState("LivySession" + notebookUri, session.state)
 	}
 
-	static get(guid: string): FabricSparkLivySession {
-		return FabricSparkLivySession._sessions.get(guid);
+	static async get(notebookUri: string): Promise<FabricSparkLivySession> {
+		let session = FabricSparkLivySession._sessions.get(notebookUri);
+
+		if (session) {
+			return session;
+		}
+		else {
+			let sessionInfo = ThisExtension.getGlobalState<string>("LivySession" + notebookUri);
+			if (sessionInfo) {
+				ThisExtension.Logger.logInfo(`Trying to re-attach to previous Livy session`);
+
+				let info = JSON.parse(sessionInfo);
+				// check if session still exists
+				const response = await FabricApiService.get<iFabricApiLivySessionCreation>(`/v1/workspaces/${info.workspaceId}/lakehouses/${info.lakehouseId}/livyapi/versions/2023-12-01/sessions/${info.sessionId}`);
+
+				if (response.success) {
+					ThisExtension.Logger.logInfo(`Re-attaching to existing Livy session ${info.sessionId}!`, 5000);
+
+					let session = new FabricSparkLivySession(info.workspaceId, info.lakehouseId, info.sessionId);
+					FabricSparkLivySession.set(notebookUri, session);
+
+					if(["not_started", "starting"].includes(response.success.state)) {
+						await session.waitTillStarted();
+					}
+					return session;
+				}
+			}
+		}
 	}
 	//#endregion
 }

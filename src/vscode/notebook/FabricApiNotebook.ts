@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
 
-export const FabricNotebookType: string = 'fabric-api-notebook';
-
-export class FabricNotebook extends vscode.NotebookData {
+export class FabricApiNotebook extends vscode.NotebookData {
 	// empty for now, might be extended in the future if new features are added
 }
 
-export class FabricNotebookCell extends vscode.NotebookCellData {
+export class FabricApiNotebookCell extends vscode.NotebookCellData {
 	get magic(): string {
 		if (this.value.startsWith("%")) {
 			return this.value.split(" ")[0];

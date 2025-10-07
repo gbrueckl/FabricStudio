@@ -4,21 +4,22 @@ import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../ThisExtension';
-import { FabricNotebook, FabricNotebookCell, FabricNotebookType } from './FabricNotebook';
+import { FabricApiNotebook, FabricApiNotebookCell } from './FabricApiNotebook';
 import { FabricNotebookContext } from './FabricNotebookContext';
 import { FabricApiTreeItem } from '../treeviews/FabricApiTreeItem';
 import { FabricAPILanguage } from '../language/_types';
+import { FABRIC_API_NOTEBOOK_TYPE } from './FabricApiNotebookKernel';
 
-export class FabricNotebookSerializer implements vscode.NotebookSerializer {
+export class FabricApiNotebookSerializer implements vscode.NotebookSerializer {
 	public readonly label: string = 'Fabric Notebook Serializer';
 
-	public async deserializeNotebook(data: Uint8Array, token: vscode.CancellationToken): Promise<FabricNotebook> {
+	public async deserializeNotebook(data: Uint8Array, token: vscode.CancellationToken): Promise<FabricApiNotebook> {
 		var contents = Buffer.from(data).toString();
 
 		// Read file contents
-		let notebook: FabricNotebook;
+		let notebook: FabricApiNotebook;
 		try {
-			notebook = <FabricNotebook>JSON.parse(contents);
+			notebook = <FabricApiNotebook>JSON.parse(contents);
 		} catch {
 			ThisExtension.Logger.logInfo("Error parsing Notebook file. Creating new Notebook.");
 			notebook = { cells: [] };
@@ -31,9 +32,9 @@ export class FabricNotebookSerializer implements vscode.NotebookSerializer {
 		return notebook;
 	}
 
-	public async serializeNotebook(data: FabricNotebook, token: vscode.CancellationToken): Promise<Uint8Array> {
+	public async serializeNotebook(data: FabricApiNotebook, token: vscode.CancellationToken): Promise<Uint8Array> {
 		// Map the Notebook data into the format we want to save the Notebook data as
-		let notebook: FabricNotebook = data;
+		let notebook: FabricApiNotebook = data;
 
 		notebook.metadata = FabricNotebookContext.saveToMetadata(notebook.metadata);
 
@@ -49,15 +50,15 @@ export class FabricNotebookSerializer implements vscode.NotebookSerializer {
 		}
 
 		let defaultCells = [
-			new FabricNotebookCell(vscode.NotebookCellKind.Markup, "Set API path for relative paths (already executed in the background for you)", "markdown"),
-			new FabricNotebookCell(vscode.NotebookCellKind.Code, '%cmd\nSET API_PATH = ' + apiPath, FabricAPILanguage),
-			new FabricNotebookCell(vscode.NotebookCellKind.Markup, "Type `./` to start autocomplete from relative API path. \n\n Type `/` for absolute API paths", "markdown"),
-			new FabricNotebookCell(vscode.NotebookCellKind.Code, 'GET ./', FabricAPILanguage)
+			new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Set API path for relative paths (already executed in the background for you)", "markdown"),
+			new FabricApiNotebookCell(vscode.NotebookCellKind.Code, '%cmd\nSET API_PATH = ' + apiPath, FabricAPILanguage),
+			new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Type `./` to start autocomplete from relative API path. \n\n Type `/` for absolute API paths", "markdown"),
+			new FabricApiNotebookCell(vscode.NotebookCellKind.Code, 'GET ./', FabricAPILanguage)
 		];
-		let notebook = new FabricNotebook(defaultCells);
+		let notebook = new FabricApiNotebook(defaultCells);
 		notebook.metadata = FabricNotebookContext.loadFromMetadata(notebook.metadata);
 
-		const doc = await vscode.workspace.openNotebookDocument(FabricNotebookType, notebook);
+		const doc = await vscode.workspace.openNotebookDocument(FABRIC_API_NOTEBOOK_TYPE, notebook);
 		let context: FabricNotebookContext = new FabricNotebookContext(apiPath);
 		context.apiRootPath = apiPath;
 		context.uri = doc.uri;
