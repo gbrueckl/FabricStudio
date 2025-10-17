@@ -1,5 +1,15 @@
 # Change Log
 
+**v2.6.0**:
+- added support for Livy Sessions for `Lakehouses`, `Notebooks` and `SparkJobDefinitions`
+- **PREVIEW** Notebook Kernel for Lakehouses to run `.ipynb` notebooks against a Fabric cluster
+  - run code from a notebook against a Fabric Lakehouse using the [Livy API](https://learn.microsoft.com/en-us/fabric/data-engineering/api-livy-overview)
+  - auto-attach to default lakehouse for notebooks opened directly from Fabric
+  - re-use of previous session (in case VSCode was shut down)
+  - added proper visualization for SQL result sets
+  - (there is no support of `display()` via the Livy API as of now!)
+- reworked the code to update the Swagger API definition
+
 **v2.5.0**:
 - added support for [Warehouse Snapshots](https://learn.microsoft.com/en-us/rest/api/fabric/warehousesnapshot/items) and [Warehouse Restore Points](https://learn.microsoft.com/en-us/rest/api/fabric/warehouse/restore-points)
 

@@ -7,7 +7,7 @@ import { FabricLogger } from '@utils/FabricLogger';
 import { FabricConfiguration } from './vscode/configuration/FabricConfiguration';
 import { FabricApiService } from './fabric/FabricApiService';
 import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
-import { FabricNotebookKernel } from './vscode/notebook/FabricNotebookKernel';
+import { FabricApiNotebookKernel } from './vscode/notebook/FabricApiNotebookKernel';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
 import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
@@ -43,7 +43,7 @@ export abstract class ThisExtension {
 	private static _statusBarRight: vscode.StatusBarItem;
 	private static _statusBarLeft: vscode.StatusBarItem;
 
-	private static _notebookKernel: FabricNotebookKernel;
+	private static _notebookKernel: FabricApiNotebookKernel;
 	private static _treeviewWorkspaces: FabricWorkspacesTreeProvider;
 	private static _treeviewPipelines: FabricPipelinesTreeProvider;
 	private static _treeviewConnections: FabricConnectionsTreeProvider;
@@ -62,7 +62,7 @@ export abstract class ThisExtension {
 			let config = FabricConfiguration;
 			config.applySettings();
 
-			this._notebookKernel = await FabricNotebookKernel.getInstance();
+			this._notebookKernel = await FabricApiNotebookKernel.getInstance();
 
 			await this.setContext();
 			return true;
@@ -299,7 +299,7 @@ export abstract class ThisExtension {
 		this.extensionContext.subscriptions.push(item);
 	}
 
-	static get NotebookKernel(): FabricNotebookKernel {
+	static get NotebookKernel(): FabricApiNotebookKernel {
 		return this._notebookKernel;
 	}
 
@@ -330,6 +330,16 @@ export abstract class ThisExtension {
 
 		Helper.openLink(mssqlUri);
 	}
+
+	// #region GlobalState
+	static getGlobalState<T>(key: string): T | undefined {
+		return this.extensionContext.globalState.get<T>(key);
+	}
+
+	static async setGlobalState(key: string, value: any): Promise<void> {
+		await this.extensionContext.globalState.update(key, value);
+	}
+	// #endregion
 }
 
 

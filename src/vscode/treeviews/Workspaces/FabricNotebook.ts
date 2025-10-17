@@ -6,6 +6,8 @@ import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricItem } from './FabricItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { ThisExtension } from '../../../ThisExtension';
+import { FabricItemLivyMixin } from './mixins/FabricItemLivyMixin';
+import { applyMixins } from './mixins/FabricMixin';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricNotebook extends FabricItem {
@@ -14,19 +16,17 @@ export class FabricNotebook extends FabricItem {
 		parent: FabricWorkspaceTreeItem
 	) {
 		super(definition, parent);
-
-		this.contextValue = this._contextValue;
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
-	get _contextValue(): string {
-		let orig: string = super._contextValue;
+	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
+		let children: FabricWorkspaceTreeItem[] = [];
 
-		let actions: string[] = [
-			"EDIT_DEFINITION"
-		];
+		children = children.concat(await super.getChildren());
 
-		return orig + actions.join(",") + ",";
+		children.push(await this.getChildItemLivySessions(this));
+
+		return children;
 	}
 
 	static async runNotebook(notebook: FabricItem): Promise<void> {
@@ -48,3 +48,7 @@ export class FabricNotebook extends FabricItem {
 		}
 	}
 }
+
+
+export interface FabricNotebook extends FabricItemLivyMixin { }
+applyMixins(FabricNotebook, [FabricItemLivyMixin]);

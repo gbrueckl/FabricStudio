@@ -31,6 +31,7 @@ export type FabricApiItemType =
 	| "SQLDatabase"				//	A SQL Database item.
 	| "MirroredDatabase"		//	A Mirrored Database item.
 	| "MirroredWarehouse"		//	A Mirrored Warehouse item.
+	| "AnomalyDetector"			//	Anomaly Detector item.
 
 
 	// custom types
@@ -43,8 +44,8 @@ export type FabricApiItemType =
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.
 	| "Warehouses"							//	Folder for Warehouse item.
-	| "WarehouseRestorePoints"			//	Folder for Warehouse Restore Point item.
-	| "WarehouseRestorePoint"			//	A Warehouse Restore Point item.
+	| "WarehouseRestorePoints"				//	Folder for Warehouse Restore Point item.
+	| "WarehouseRestorePoint"				//	A Warehouse Restore Point item.
 	| "SQLEndpoints"						//	Folder for SQLEndpoint item.
 	| "Notebooks"							//	Folder for Notebook item.
 	| "Environments"						//	Folder for Environment item.
@@ -111,6 +112,8 @@ export type FabricApiItemType =
 	| "AdminTag"							//	An admin tag.
 	| "MirroredAzureDatabricksCatalogs"		//	Folder for mirrored Azure Databricks catalogs.
 	| "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
+	| "LivySessions"						//	Folder for Livy sessions.	
+	| "LivySession"							//	A Livy session.
 	;
 
 export enum FabricApiWorkspaceType {
@@ -133,6 +136,16 @@ export enum FabricApiItemFormat {
 	, Notebook = "ipynb"
 	, SparkJobDefinitionV1 = "SparkJobDefinitionV1"
 }
+
+export type FabricApiLivySessionState =
+	"InProgress"	// Job is in running or is cancelling state.
+	| "Cancelled"	// Job got cancelled.
+	| "NotStarted"	// Job is queued, is starting or in library packaging state.
+	| "Succeeded"	// Job has stopped or is in success state.
+	| "Failed"		// Job failed or its session timed out.
+	| "Unknown"		// Job is in invalid state.
+	;
+
 
 
 // https://learn.microsoft.com/en-us/rest/api/fabric/core/items/get-item?tabs=HTTP#item
@@ -174,7 +187,7 @@ export interface iFabricApiLakehouseProperties {
 }
 
 export interface iFabricApiLakehouse extends iFabricApiItem {
-	properties: iFabricApiLakehouseProperties;
+	properties?: iFabricApiLakehouseProperties;
 }
 
 export interface iFabricApiLakehouseTable {
@@ -564,4 +577,102 @@ export interface iFabricPlatformFile {
 		version: string;
 		logicalId: string;
 	}
+}
+
+
+export interface iFabricApiLivySessionCreation {
+	fabricSessionStateInfo: any;
+	id: string;
+	artifactId: string;
+	submitterName: string;
+	state: string;
+	tags: { [key: string]: string };
+}
+
+export interface iFabricApiLivySessionDuration {
+	value: number;  // Duration value.
+	timeUnit: "Days" | "Hours" | "Minutes" | "Seconds";
+}
+
+export interface iFabricApiLivySessionItemReferenceById {
+	itemId: UniqueId; // The ID of the item.
+	referenceType: "ById";
+	workspaceId: UniqueId; // The workspace ID of the item.
+}
+
+export interface iFabricApiLivySession {
+	attemptNumber: number; // Current attempt number.
+	cancellationReason: string; // Reason for the job cancellation.
+	capacityId: string; // ID of the capacity.
+	consumerId: string; // ID of the consumer.
+	creatorItem: iFabricApiLivySessionItemReferenceById; // ID of the item creator. When isHighConcurrency is set to true this value might be different than itemId.
+	endDateTime: string; // Timestamp when the job ended in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
+	isHighConcurrency: boolean; // Flag indicating high concurrency.
+	item: iFabricApiLivySessionItemReferenceById; // ID of the item.
+	itemName: string; // Name of the item.
+	itemType: FabricApiItemType; // The item type.
+	jobInstanceId: string; // ID of the job instance.
+	jobType: "Unknown" | "SparkSession" | "SparkBatch" | "JupyterSession"; // Current state of the job.
+	livyId: string; // ID of the Livy session or Livy batch.
+	livyName: string; // Name of the Livy session or Livy batch.
+	livySessionItemResourceUri: string; // The URI used to retrieve all Livy sessions for a given item.
+	maxNumberOfAttempts: number; // Maximum number of attempts.
+	operationName: string; // Name of the operation. Possible values include: Notebook run, Notebook HC run and Notebook pipeline run.
+	origin: "SubmittedJob" | "PendingJob"; // Origin of the job.
+	queuedDuration: iFabricApiLivySessionDuration; // Duration for which the job was queued.
+	runningDuration: iFabricApiLivySessionDuration; // Time it took the job to run.
+	runtimeVersion: string; // The fabric runtime version.
+	sparkApplicationId: string; // A Spark application ID is a unique identifier assigned to each Apache Spark application. It also appears in the Spark UI.
+	startDateTime: string; // Timestamp when the job started in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
+	state: FabricApiLivySessionState; // Current state of the job.
+	submittedDateTime: string; // Timestamp when the job was submitted in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
+	submitter: iFabricApiGenericPrincipal; // ID of the submitter.
+	totalDuration: iFabricApiLivySessionDuration; // Total duration of the job.
+}
+
+export interface iFabricLivyStatementCreation {
+	id: number;
+	code: string;
+	state: string;
+}
+
+export interface iFabricLivyStatementResult {
+	id: number;
+	code: string;
+	state: "waiting" | "running" | "available" | "error" | "cancelling" | "cancelled";
+	output?: {
+		status: "ok" | "error" | "aborted";
+		execution_count: number;
+		data?: {
+			[key: string]: any;
+		};
+		// error properties
+		ename?: string;
+		evalue?: string;
+		traceback?: string[];
+	};
+}
+
+export interface iFabricLivyStatementCreation {
+	id: number;
+	code: string;
+	state: string;
+}
+
+export interface iFabricLivyStatementResult {
+	id: number;
+	code: string;
+	state: "waiting" | "running" | "available" | "error" | "cancelling" | "cancelled";
+	output?: {
+		status: "ok" | "error" | "aborted";
+		execution_count: number;
+		data?: {
+			[key: string]: any;
+		};
+		// error properties
+		ename?: string;
+		evalue?: string;
+		traceback?: string[];
+	};
+	
 }

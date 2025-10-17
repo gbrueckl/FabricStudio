@@ -33,10 +33,12 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 
 	/* Overwritten properties from FabricApiTreeItem */
 	get _contextValue(): string {
+		// opposed to all other items, we want the context value to be based on the parent/super item!
+		// this also means we need to set all generic actions again
+		
 		let actions: string[] = [
 			this.itemType.toUpperCase(),
-			"RELOAD_FROM_FABRIC",
-			"COPY_NAME"
+			"RELOAD_FROM_FABRIC"
 		];
 
 		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.parent.itemType);
