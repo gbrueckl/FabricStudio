@@ -3,9 +3,8 @@ import * as vscode from 'vscode';
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiLakehouse, iFabricApiLivySession } from '../../../fabric/_types';
 import { FabricSparkKernel } from './FabricSparkKernel';
-import { FABRIC_SPARK_JUPYTER_NOTEBOOK_TYPE, NotebookType } from './_types';
-import { FABRIC_API_NOTEBOOK_TYPE } from '../FabricApiNotebookKernel';
 import { FabricSparkLivySession } from './FabricSparkLivySession';
+import { NotebookType } from './_types';
 
 
 export abstract class FabricSparkKernelManager {
@@ -14,9 +13,6 @@ export abstract class FabricSparkKernelManager {
 
 	// Kernels are the list of compute resources that can be selected for a notebook
 	private static _kernels: Map<string, FabricSparkKernel> = new Map<string, FabricSparkKernel>();
-	// Sessions are the actual Livy sessions that are created for the notebook sessions
-	private static _sessions: Map<string, FabricSparkLivySession> = new Map<string, FabricSparkLivySession>();
-
 
 	static async initialize(): Promise<void> {
 		// ThisExtension.Logger.logInfo("Initializing Kernels ...");
@@ -76,7 +72,7 @@ export abstract class FabricSparkKernelManager {
 
 	static async createKernels(lakehouse: iFabricApiLakehouse): Promise<void> {
 		if (!this.jupyterKernelExists(lakehouse)) {
-			let SparkKernel: FabricSparkKernel = new FabricSparkKernel(lakehouse, NotebookType.FabricSparkJupyterNotebook);
+			let SparkKernel: FabricSparkKernel = new FabricSparkKernel(lakehouse, "jupyter-notebook" as NotebookType);
 			this.setKernel(this.getJupyterKernelName(lakehouse), SparkKernel);
 
 			ThisExtension.Logger.logInfo(`Notebook Kernel for Fabric cluster '${lakehouse.id}' created!`)
@@ -86,7 +82,7 @@ export abstract class FabricSparkKernelManager {
 		}
 
 		if (!this.fabricSparkKernelExists(lakehouse)) {
-			let fabricSparkKernel: FabricSparkKernel = new FabricSparkKernel(lakehouse, NotebookType.FabricSparkCustomNotebook);
+			let fabricSparkKernel: FabricSparkKernel = new FabricSparkKernel(lakehouse, "fabric-spark-notebook" as NotebookType);
 			this.setKernel(this.getFabricSparkKernelName(lakehouse), fabricSparkKernel);
 
 			ThisExtension.Logger.logInfo(`Fabric Kernel for Fabric cluster '${lakehouse.id}' created!`)
@@ -122,21 +118,22 @@ export abstract class FabricSparkKernelManager {
 		}
 	}
 
-	static setNotebookLivySession(notebookUri: vscode.Uri, livySession: FabricSparkLivySession): void {
-		this._sessions.set(notebookUri.toString(), livySession);
-	}
-
-	static getNotebookLivySession(notebookUri: vscode.Uri): FabricSparkLivySession {
-		return this._sessions.get(notebookUri.toString());
-	}
-
 	static async restartNotebookSession(notebook: { notebookEditor: { notebookUri: vscode.Uri } } | undefined | vscode.Uri): Promise<FabricSparkLivySession> {
 		let session: FabricSparkLivySession;
+		let notebookUri: vscode.Uri;
+
+		if (notebook instanceof vscode.Uri) {
+			notebookUri = notebook;
+		}
+		else if ((notebook as any).notebookEditor.notebookUri) {
+			notebookUri = (notebook as any).notebookEditor.notebookUri;
+		}
 
 		session = await this.stopNotebookSession(notebook);
 
-		if(session) {
+		if (session) {
 			await session.start(true);
+			FabricSparkLivySession.set(notebookUri.toString(), session);
 		}
 		else {
 			// if there is no active session yet, a warning has already been displayed by stopNotebookSession()
@@ -147,16 +144,20 @@ export abstract class FabricSparkKernelManager {
 
 	static async stopNotebookSession(notebook: { notebookEditor: { notebookUri: vscode.Uri } } | undefined | vscode.Uri): Promise<FabricSparkLivySession> {
 		let session: FabricSparkLivySession;
+		let notebookUri: vscode.Uri;
 
-		if(notebook instanceof vscode.Uri) {
-			session = this.getNotebookLivySession(notebook);
+		if (notebook instanceof vscode.Uri) {
+			notebookUri = notebook;
 		}
 		else if ((notebook as any).notebookEditor.notebookUri) {
-			session = this.getNotebookLivySession((notebook as any).notebookEditor.notebookUri);
+			notebookUri = (notebook as any).notebookEditor.notebookUri;
 		}
 
+		session = await FabricSparkLivySession.get(notebookUri.toString());
+
 		if (session) {
-			session.stop();
+			await session.stop();
+			FabricSparkLivySession.set(notebookUri.toString(), undefined);
 		}
 		else {
 			ThisExtension.Logger.logWarning("No active Fabric Spark session found for the current notebook.", true);

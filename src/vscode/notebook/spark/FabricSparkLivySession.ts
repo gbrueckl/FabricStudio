@@ -40,7 +40,7 @@ export class FabricSparkLivySession {
 	}
 
 	async waitTillStarted(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
-		await Helper.awaitWithProgress("Starting Spark Session", this.waitTillStartedMain(pollInterval, timeout));
+		await Helper.awaitWithProgress("Attaching to Spark Session", this.waitTillStartedMain(pollInterval, timeout));
 	}
 
 	private async waitTillStartedMain(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
@@ -191,7 +191,12 @@ export class FabricSparkLivySession {
 
 	static set(notebookUri: string, session: FabricSparkLivySession): void {
 		FabricSparkLivySession._sessions.set(notebookUri, session);
-		ThisExtension.setGlobalState("LivySession" + notebookUri, session.state)
+		if(!session) {
+			ThisExtension.setGlobalState("LivySession" + notebookUri, undefined)
+		}
+		else {
+			ThisExtension.setGlobalState("LivySession" + notebookUri, session.state)
+		}
 	}
 
 	static async get(notebookUri: string): Promise<FabricSparkLivySession> {
@@ -210,13 +215,16 @@ export class FabricSparkLivySession {
 				const response = await FabricApiService.get<iFabricApiLivySessionCreation>(`/v1/workspaces/${info.workspaceId}/lakehouses/${info.lakehouseId}/livyapi/versions/2023-12-01/sessions/${info.sessionId}`);
 
 				if (response.success) {
-					ThisExtension.Logger.logInfo(`Re-attaching to existing Livy session ${info.sessionId}!`, 5000);
-
 					let session = new FabricSparkLivySession(info.workspaceId, info.lakehouseId, info.sessionId);
 					FabricSparkLivySession.set(notebookUri, session);
 
 					if(["not_started", "starting"].includes(response.success.state)) {
+						ThisExtension.Logger.logInfo(`Re-attaching to existing Livy session ${info.sessionId}!`, 5000);
 						await session.waitTillStarted();
+					}
+					else if (["error", "dead", "killed", "shutting_down", "success"].includes(response.success.state)) {
+						ThisExtension.Logger.logError(`Previous Livy session '${info.sessionId}' is in state ${response.success.state} and cannot be reused!`, false, false);
+						return undefined;
 					}
 					return session;
 				}

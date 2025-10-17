@@ -49,6 +49,8 @@
 	],
 	"activationEvents": [
 		"onNotebook:fabric-api-notebook",
+		"onNotebook:jupyter-notebook",
+		"onNotebook:fabric-spark-notebook",
 		"onFileSystem:fabric"
 	],
 	"main": "./dist/node/extension.js",

@@ -8,7 +8,7 @@ import { FabricCommandBuilder } from './vscode/input/FabricCommandBuilder';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricWorkspaceTreeItem } from './vscode/treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { FabricLakehouseTable } from './vscode/treeviews/Workspaces/FabricLakehouseTable';
-import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
+import { FABRIC_SCHEME, FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
 import { FabricFSFileDecorationProvider } from './vscode/fileDecoration/FabricFileDecorationProvider';
 import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
 import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
@@ -104,6 +104,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 	vscode.workspace.onDidOpenNotebookDocument(async (e) => {
+		if(e.uri.scheme === FABRIC_SCHEME) {
+			ThisExtension.Logger.logInfo("Detected Fabric Notebook - waiting until extension is started ...");
+			// initilization is triggered by getHeaders()
+			await FabricApiService.getHeaders();
+		}
 		// the metadata of an notebook is immutable - so we need to track the context of the notebook here
 		if(e.notebookType == FABRIC_API_NOTEBOOK_TYPE) {
 			// for our Fabric notebooks we always have a GUID in the metadata which we use manage the context
@@ -114,7 +119,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			FabricNotebookContext.set(e.metadata.guid, metadata);
 		}
-		else if(e.notebookType == NotebookType.FabricSparkJupyterNotebook) {
+		else if(e.notebookType == "jupyter-notebook") {
 			// for Jupyter notebooks we do not have a GUID in the metadata - so we use the URI as key
 			try {
 				ThisExtension.Logger.logInfo("Detected Spark Jupyter Notebook - trying to create Kernels ...");

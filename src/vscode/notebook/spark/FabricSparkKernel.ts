@@ -17,7 +17,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 	public id: string;
 	public label: string;
 	readonly description: string = 'Execute code on a remote Fabric Spark cluster';
-	readonly notebookType: NotebookType;
+	readonly notebookType: string;
 	readonly supportedLanguages: SparkVSCodeLanguage[] = ["python", "sql", "r", "scala"];
 	readonly supportsExecutionOrder: boolean = true;
 
@@ -196,7 +196,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			const createCommand = await livySession.executeCommand(commandTextClean, language);
 			if (createCommand.error) {
 				execution.appendOutput(new vscode.NotebookCellOutput([
-					new vscode.NotebookCellOutputItem(Buffer.from(createCommand.error.message), "application/vnd.code.notebook.error")
+					vscode.NotebookCellOutputItem.text(createCommand.error.message, "text/plain")
 				]))
 				execution.end(false, Date.now());
 				return;

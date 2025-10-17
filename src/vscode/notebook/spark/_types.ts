@@ -1,10 +1,7 @@
-export const FABRIC_SPARK_NOTEBOOK_TYPE = "fabric-spark-notebook";
-export const FABRIC_SPARK_JUPYTER_NOTEBOOK_TYPE = "jupyter-notebook";
-
-export enum NotebookType {
-	FabricSparkCustomNotebook = FABRIC_SPARK_NOTEBOOK_TYPE,
-	FabricSparkJupyterNotebook = FABRIC_SPARK_JUPYTER_NOTEBOOK_TYPE
-}
+export type NotebookType =
+	"fabric-spark-notebook"
+	| "jupyter-notebook"
+	;
 
 export type SparkNotebookLanguage =
 	"sql"
