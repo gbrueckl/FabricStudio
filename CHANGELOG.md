@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.6.1**:
+- minor fixes (typos, formatting, etc.)
+
 **v2.6.0**:
 - added support for Livy Sessions for `Lakehouses`, `Notebooks` and `SparkJobDefinitions`
 - **PREVIEW** Notebook Kernel for Lakehouses to run `.ipynb` notebooks against a Fabric cluster

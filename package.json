@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.6.0",
+	"version": "2.6.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -984,12 +984,12 @@
 				{
 					"command": "FabricStudio.Notebook.restartSession",
 					"group": "navigation/execute@1",
-					"when": "notebookKernel =~ /^GerhardBrueckl.fabricstudio\\// && notebookType =~ /jupyter-notebook|fabrick-spark-notebook/ && isWorkspaceTrusted"
+					"when": "notebookKernel =~ /^GerhardBrueckl.fabricstudio\\// && notebookType =~ /jupyter-notebook|fabric-spark-notebook/ && isWorkspaceTrusted"
 				},
 				{
 					"command": "FabricStudio.Notebook.stopSession",
 					"group": "navigation/execute@1",
-					"when": "notebookKernel =~ /^GerhardBrueckl.fabricstudio\\// && notebookType =~ /jupyter-notebook|fabrick-spark-notebook/ && isWorkspaceTrusted"
+					"when": "notebookKernel =~ /^GerhardBrueckl.fabricstudio\\// && notebookType =~ /jupyter-notebook|fabric-spark-notebook/ && isWorkspaceTrusted"
 				}
 			],
 			"explorer/context": [

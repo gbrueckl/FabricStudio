@@ -651,28 +651,5 @@ export interface iFabricLivyStatementResult {
 		evalue?: string;
 		traceback?: string[];
 	};
-}
-
-export interface iFabricLivyStatementCreation {
-	id: number;
-	code: string;
-	state: string;
-}
-
-export interface iFabricLivyStatementResult {
-	id: number;
-	code: string;
-	state: "waiting" | "running" | "available" | "error" | "cancelling" | "cancelled";
-	output?: {
-		status: "ok" | "error" | "aborted";
-		execution_count: number;
-		data?: {
-			[key: string]: any;
-		};
-		// error properties
-		ename?: string;
-		evalue?: string;
-		traceback?: string[];
-	};
 	
 }
