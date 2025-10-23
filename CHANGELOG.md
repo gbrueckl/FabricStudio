@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.7.0**:
+- added `Definition` for Fabric SQL Databases
+- added new actions for SQL Databases for mirroring
+- reworked `Copy Properties to Clipboard` to get the most recent definition from the API
+
 **v2.6.1**:
 - minor fixes (typos, formatting, etc.)
 
