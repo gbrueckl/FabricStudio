@@ -136,6 +136,7 @@ export enum FabricApiItemFormat {
 	DEFAULT = "DEFAULT"
 	, Notebook = "ipynb"
 	, SparkJobDefinitionV1 = "SparkJobDefinitionV1"
+	, Source = "fabricGitSource"
 }
 
 export type FabricApiLivySessionState =

@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.8.0**:
+- added support for `%run` when running notebooks against the Fabric Studio kernels
+
 **v2.7.0**:
 - added `Definition` for Fabric SQL Databases
 - added new actions for SQL Databases for mirroring

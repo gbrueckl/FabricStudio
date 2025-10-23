@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
-import * as lodash from 'lodash';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
-import { iFabricApiLakehouse } from '../../../fabric/_types';
+import { FabricApiItemFormat, iFabricApiItem, iFabricApiLakehouse } from '../../../fabric/_types';
 import { iFabricApiLivySessionJsonResultSet, NotebookType, SparkLanguageConfigs, SparkNotebookLanguage, SparkNotebookMagic, SparkVSCodeLanguage } from './_types';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricSparkLivySession } from './FabricSparkLivySession';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://code.visualstudio.com/blogs/2021/11/08/custom-notebooks
 export class FabricSparkKernel implements vscode.NotebookController {
@@ -43,8 +43,8 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			this.label);
 
 		this._controller.supportedLanguages = this.supportedLanguages;
-		this._controller.description = "Fabric Spark Cluster " + this.lakehouse.displayName;
-		this._controller.detail = this.lakehouse.workspaceId;
+		// this._controller.description = "Fabric Spark Cluster " + this.lakehouse.displayName;
+		this._controller.description = `WorkspaceID: ${this.lakehouse.workspaceId}`;
 		this._controller.supportsExecutionOrder = this.supportsExecutionOrder;
 		this._controller.executeHandler = this.executeHandler.bind(this);
 		this._controller.dispose = this.disposeController.bind(this);
@@ -150,19 +150,74 @@ export class FabricSparkKernel implements vscode.NotebookController {
 		let magicText: string = defaultLanguage || "pyspark";
 
 		// Fabric uses '%%' for magics - Jupyter uses '%'
-		if (cmd[0] == "%" && cmd[1] == "%") {
+		if (cmd[0] == "%") {
 			let lines = cmd.split('\n');
 			const firstLineTokens = lines[0].split(" ").map(t => t.trim()).filter(t => t != "");
-			magicText = firstLineTokens[0].slice(2).toLowerCase();
-			commandText = lines.slice(1).join('\n');
 
-			language = SparkLanguageConfigs.getLanguageByMagic(magicText as SparkNotebookMagic);
-			if (!language) {
-				throw new Error("Invalid magic!");
+			if (firstLineTokens[0].startsWith("%run")) {
+				magicText = firstLineTokens[0].slice(1).toLowerCase();
+
+				if (firstLineTokens.length < 2) {
+					throw new Error("Invalid %run command! Please provide the notebook name to run.");
+				}
+				//commandText = firstLineTokens.slice(1).join(" ");
+			}
+			else if (cmd[1] == "%") {
+				magicText = firstLineTokens[0].slice(2).toLowerCase();
+				commandText = lines.slice(1).join('\n');
+
+				language = SparkLanguageConfigs.getLanguageByMagic(magicText as SparkNotebookMagic);
+				if (!language) {
+					throw new Error("Invalid magic!");
+				}
 			}
 		}
 
 		return [language, commandText, magicText as SparkNotebookMagic];
+	}
+
+
+	private async resolveRunMagic(commandText: string, livySession: FabricSparkLivySession): Promise<string> {
+		const regex = /\%run (.+?)$/gm;
+		// get all matches with groups
+		const matches = [...commandText.matchAll(regex)];
+		if (!matches) {
+			return commandText;
+		}
+		const allNotebooks = await FabricApiService.listItems(livySession.workspaceId, "Notebook");
+		if (allNotebooks.error) {
+			throw new Error(allNotebooks.error.message);
+		}
+		// Iterate over all matches found
+		for (const match of matches) {
+			ThisExtension.Logger.logInfo("Found %run match: " + match);
+
+			const notebookName = match[1];
+			const runNotebook = allNotebooks.success.find(n => n.displayName.toLowerCase() == notebookName.toLowerCase());
+
+			if (!runNotebook) {
+				throw new Error(`Notebook '${notebookName}' could not be found!`);
+			}
+
+			// get definition of Notebook in Source format
+			let notebookDefinition = await FabricApiService.getItemDefinitionPart(livySession.workspaceId, runNotebook.id, "notebook-content.py", FabricApiItemFormat.Source);
+
+			if (notebookDefinition.error) {
+				if (notebookDefinition.error.message == "Part with path 'notebook-content.py' not found in item definition!") {
+					throw new Error(`Could not load notebook '${notebookName}': Only Python notebooks are currently supported`);
+				}
+			}
+			// replace metadata and cell tags
+			let notebookCode = notebookDefinition.success;
+			notebookCode = notebookCode.replace(/^.* (META|CELL \*\*\*|Fabric notebook source).*$/gm, "");
+			notebookCode = notebookCode.replace(/^\s*[\r\n]/gm, "");
+			notebookCode = `\r\n${"#".repeat(20)}\r\n# CODE FROM '${notebookName}':\r\n${"#".repeat(20)}\r\n` + notebookCode;
+
+			commandText = commandText.replace(match[0], notebookCode);
+
+			commandText = await this.resolveRunMagic(commandText, livySession);
+		}
+		return commandText.trim();
 	}
 
 	private parseCommandText(commandText: string, commentChar: string): string {
@@ -191,7 +246,15 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			ThisExtension.Logger.logInfo("Executing " + language + ":\n" + commandText);
 
 			const commentChar = SparkLanguageConfigs.getCommentCharByLanguage(language);
-			const commandTextClean = this.parseCommandText(commandText, commentChar);
+			let commandTextClean = this.parseCommandText(commandText, commentChar);
+
+			if (magic == "run") {
+				commandTextClean = await this.resolveRunMagic(commandTextClean, livySession);
+
+				execution.appendOutput(new vscode.NotebookCellOutput([
+					vscode.NotebookCellOutputItem.text(commandTextClean, "text/plain")
+				]))
+			}
 
 			const createCommand = await livySession.executeCommand(commandTextClean, language);
 			if (createCommand.error) {
