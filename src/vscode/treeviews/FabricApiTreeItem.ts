@@ -271,8 +271,20 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		vscode.env.clipboard.writeText(this.apiPath);
 	}
 
-	public copyPropertiesToClipboard(): void {
-		vscode.env.clipboard.writeText(JSON.stringify(this.itemDefinition, null, 4));
+	public async copyPropertiesToClipboard(): Promise<void> {
+		let definition = this.itemDefinition;
+
+		try
+		{
+			const response = await FabricApiService.get(this.apiPath);
+
+			if(response.success) {
+				definition = response.success;
+			}
+		} catch (error) {
+			ThisExtension.Logger.logWarning(`Could not retrieve latest properties for item '${this.itemName}', using cached definition. Error: ${error}`, false);
+		}
+		vscode.env.clipboard.writeText(JSON.stringify(definition, null, 4));
 	}
 
 	public getBrowserLink(): vscode.Uri {

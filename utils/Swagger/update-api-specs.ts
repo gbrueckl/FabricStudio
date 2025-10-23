@@ -6,9 +6,9 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import { stringifyRefs, parseRefs, PreserveType } from "json-serialize-refs";
 
 const REPO_NAME = "fabric-rest-api-specs";
-const BRANCH = "main"
+const BRANCH = "main";
 const REPOSITORY_URL = `https://github.com/microsoft/${REPO_NAME}`;
-const SCRIPT_DIRECTORY = path.resolve(__dirname)
+const SCRIPT_DIRECTORY = path.resolve(__dirname);
 const ZIP_FILE_NAME = `${SCRIPT_DIRECTORY}/FabricRESTAPI.zip`;
 const OUTPUT_DIRECTORY = `${SCRIPT_DIRECTORY}/definition`;
 

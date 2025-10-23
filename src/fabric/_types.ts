@@ -114,6 +114,7 @@ export type FabricApiItemType =
 	| "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
 	| "LivySessions"						//	Folder for Livy sessions.	
 	| "LivySession"							//	A Livy session.
+	| "SqlDatabaseMirroring"
 	;
 
 export enum FabricApiWorkspaceType {
@@ -628,29 +629,6 @@ export interface iFabricApiLivySession {
 	submittedDateTime: string; // Timestamp when the job was submitted in UTC, using the YYYY-MM-DDTHH:mm:ssZ format.
 	submitter: iFabricApiGenericPrincipal; // ID of the submitter.
 	totalDuration: iFabricApiLivySessionDuration; // Total duration of the job.
-}
-
-export interface iFabricLivyStatementCreation {
-	id: number;
-	code: string;
-	state: string;
-}
-
-export interface iFabricLivyStatementResult {
-	id: number;
-	code: string;
-	state: "waiting" | "running" | "available" | "error" | "cancelling" | "cancelled";
-	output?: {
-		status: "ok" | "error" | "aborted";
-		execution_count: number;
-		data?: {
-			[key: string]: any;
-		};
-		// error properties
-		ename?: string;
-		evalue?: string;
-		traceback?: string[];
-	};
 }
 
 export interface iFabricLivyStatementCreation {

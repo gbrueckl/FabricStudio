@@ -26,6 +26,20 @@ class FabricObjectTransferItem extends vscode.DataTransferItem {
 	asObject(): readonly FabricApiTreeItem[] {
 		return this._nodes;
 	}
+
+	asFile(): vscode.DataTransferFile | undefined {
+		if (this._nodes.length == 1) {
+			const item = this._nodes[0] as FabricApiTreeItem;
+
+			if(item.resourceUri) {
+				return {
+					name: item.resourceUri.path.split('/').pop() || "item.json",
+					uri: item.resourceUri,
+					data: async () => await vscode.workspace.fs.readFile(item.resourceUri)
+				};
+			}
+		}
+	}
 }
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html

@@ -45,9 +45,8 @@ import { FabricSQLItem } from './vscode/treeviews/Workspaces/FabricSQLItem';
 import { FabricUriHandler } from './vscode/uriHandler/FabricUriHandler';
 import { FabricWarehouseRestorePoint } from './vscode/treeviews/Workspaces/FabricWarehouseRestorePoint';
 import { FABRIC_API_NOTEBOOK_TYPE } from './vscode/notebook/FabricApiNotebookKernel';
-import { NotebookType } from './vscode/notebook/spark/_types';
-import { Helper } from '@utils/Helper';
 import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKernelManager';
+import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/FabricSqlDatabaseMirroring';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -104,13 +103,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 	vscode.workspace.onDidOpenNotebookDocument(async (e) => {
-		if(e.uri.scheme === FABRIC_SCHEME) {
+		if (e.uri.scheme === FABRIC_SCHEME) {
 			ThisExtension.Logger.logInfo("Detected Fabric Notebook - waiting until extension is started ...");
 			// initilization is triggered by getHeaders()
 			await FabricApiService.getHeaders();
 		}
 		// the metadata of an notebook is immutable - so we need to track the context of the notebook here
-		if(e.notebookType == FABRIC_API_NOTEBOOK_TYPE) {
+		if (e.notebookType == FABRIC_API_NOTEBOOK_TYPE) {
 			// for our Fabric notebooks we always have a GUID in the metadata which we use manage the context
 			const metadata = FabricNotebookContext.get(e.metadata.guid.toString());
 
@@ -119,7 +118,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			FabricNotebookContext.set(e.metadata.guid, metadata);
 		}
-		else if(e.notebookType == "jupyter-notebook") {
+		else if (e.notebookType == "jupyter-notebook") {
 			// for Jupyter notebooks we do not have a GUID in the metadata - so we use the URI as key
 			try {
 				ThisExtension.Logger.logInfo("Detected Spark Jupyter Notebook - trying to create Kernels ...");
@@ -133,13 +132,13 @@ export async function activate(context: vscode.ExtensionContext) {
 						"type": "Lakehouse"
 					}
 				)
-			} catch {	
+			} catch {
 				ThisExtension.Logger.logWarning("Error creating Kernels for Spark Jupyter Notebook - please make sure that the notebook contains the lakehouse configuration!");
 			}
 		}
 	});
 
-		vscode.commands.registerCommand('FabricStudio.Notebook.restartSession',
+	vscode.commands.registerCommand('FabricStudio.Notebook.restartSession',
 		(notebook: { notebookEditor: { notebookUri: vscode.Uri } } | undefined | vscode.Uri) => FabricSparkKernelManager.restartNotebookSession(notebook)
 	);
 	vscode.commands.registerCommand('FabricStudio.Notebook.stopSession',
@@ -209,6 +208,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.updateMirroringStatus', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.updateMirroringStatus());
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.startMirroring', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.startMirroring());
 	vscode.commands.registerCommand('FabricStudio.MirroredDatabase.stopMirroring', (syncrhonization: FabricMirroredDatabaseSynchronization) => syncrhonization.stopMirroring());
+
+	vscode.commands.registerCommand('FabricStudio.SqlDatabase.startMirroring', (mirroring: FabricSqlDatabaseMirroring) => mirroring.startMirroring());
+	vscode.commands.registerCommand('FabricStudio.SqlDatabase.stopMirroring', (mirroring: FabricSqlDatabaseMirroring) => mirroring.stopMirroring());
 
 
 	vscode.commands.registerCommand('FabricStudio.GrapqhQLApi.copyEndpoint', (graphQlApi: FabricGraphQLApi) => graphQlApi.copyGraphQLEndpoint());
