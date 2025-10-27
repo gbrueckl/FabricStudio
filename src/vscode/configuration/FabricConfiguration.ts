@@ -203,7 +203,8 @@ export abstract class FabricConfiguration {
 	static set adminFilter(value: string) { this.setValue("adminFilter", value); }
 	static get adminFilterRegEx(): RegExp { return new RegExp(this.getValue("adminFilter"), "i"); }
 
-
+	static get loadItemDefinitionPlatformFile(): boolean { return this.getValue<boolean>("loadItemDefinitionPlatformFile"); }
+	static set loadItemDefinitionPlatformFile(value: boolean) { this.setValue<boolean>("loadItemDefinitionPlatformFile", value); }
 
 	static get itemTypeFormats(): iItemTypeFormat[] {
 		let confValues = this.getValue("itemTypeFormats") as iItemTypeFormatConfig[];

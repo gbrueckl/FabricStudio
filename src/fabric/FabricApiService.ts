@@ -568,8 +568,27 @@ export abstract class FabricApiService {
 		}
 	}
 
-	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, progressText: string = "Creating Item"): Promise<iFabricApiResponse> {
-		const endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/updateDefinition`;
+	static async getItemDefinitionPart(workspaceId: string, itemId: string, path: string, format?: FabricApiItemFormat): Promise<iFabricApiResponse<string>> {
+		const parts = await FabricApiService.getItemDefinitionParts(workspaceId, itemId, format)
+
+		if (parts.error) {
+			return { error: parts.error };
+		}
+		else {
+			const part = parts.success.find(p => p.path === path);
+			if (!part) {
+				return { error: { errorCode: "PartNotFound", message: `Part with path '${path}' not found in item definition!` } };
+			}
+			return { success: Buffer.from(part.payload, 'base64').toString('utf-8') };
+		}
+	}
+
+	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, updateMetaData: boolean = true, progressText: string = "Creating Item"): Promise<iFabricApiResponse> {
+		let endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/updateDefinition`;
+
+		if(updateMetaData) {
+			endpoint = `${endpoint}?updateMetadata=True`;
+		}
 
 		return await FabricApiService.awaitWithProgress(progressText, FabricApiService.post(endpoint, itemDefinition), 3000);
 	}
@@ -580,7 +599,7 @@ export abstract class FabricApiService {
 		const body = {};
 
 		if (newName) {
-			body["displayName"] = newName;
+			body["displayName"] = decodeURI(newName);
 		}
 		if (newDescription) {
 			body["description"] = newDescription;

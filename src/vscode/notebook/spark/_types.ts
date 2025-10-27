@@ -15,6 +15,7 @@ export type SparkNotebookMagic =
 	| "spark" // = scala
 	| "sparkr"
 	| "pyspark"
+	| "run"
 	;
 
 export type SparkVSCodeLanguage =

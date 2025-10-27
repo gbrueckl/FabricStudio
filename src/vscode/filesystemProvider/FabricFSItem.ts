@@ -116,6 +116,10 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 						// this._apiResponse.push({ "path": fileName + "." + ext, "payloadType": item.payloadType, "payload": origPayload });
 						// this._apiResponse = this._apiResponse.filter((part) => part.path != item.path);
 					}
+					if(item.path == ".platform" && !FabricConfiguration.loadItemDefinitionPlatformFile) {
+						// skip .platform file
+						continue;
+					}
 					files.push([fileName + "." + ext, vscode.FileType.File]);
 				}
 				else {
@@ -267,10 +271,13 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			this.publishAction = FabricFSCache.getLocalChanges(this.FabricUri);
 		}
 
+		// displayName might contain encoded characters like %20 for blank
+		const displayNameClean = decodeURI(this.displayName);
+
 		let response;
 		// if the item was created locally, we need to use CREATE instead of UPDATE
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
-			response = await FabricApiService.createItem(this.workspaceId, this.displayName, this.FabricUri.itemType, definition, `Creating ${itemTypeSingular} '${this.displayName}'`);
+			response = await FabricApiService.createItem(this.workspaceId, displayNameClean, this.FabricUri.itemType, definition, `Creating ${itemTypeSingular} '${displayNameClean}'`);
 			// add NameIdMap for subsequent calls to the created item
 			FabricFSUri.addItemNameIdMap(response.success.itemName, response.success.id, response.success.workspaceId, response.success.type);
 			this.publishAction = FabricFSPublishAction.MODIFIED;
@@ -280,15 +287,15 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 				ThisExtension.Logger.logInfo("Updating items of type '" + itemTypeSingular + "' is not supported yet supported by the APIs!");
 			}
 			else {
-				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
+				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, displayNameClean, this.description);
 			}
 
 			if (!response || !response.error) {
-				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, `Updating ${itemTypeSingular} '${this.displayName}'`);
+				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Updating ${itemTypeSingular} '${displayNameClean}'`);
 			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {
-			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${itemTypeSingular} '${this.displayName || this.FabricUri.item}'`);
+			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${itemTypeSingular} '${displayNameClean || this.FabricUri.item}'`);
 			FabricFSCache.removeCacheItem(this);
 			this.parent.removeChild(this.displayName)
 			ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);

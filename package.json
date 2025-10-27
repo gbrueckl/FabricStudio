@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.7.0",
+	"version": "2.8.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -101,6 +101,11 @@
 							"Service Principal",
 							"API"
 						]
+					},
+					"fabricStudio.loadItemDefinitionPlatformFile": {
+						"type": "boolean",
+						"markdownDescription": "(Optional) Whether the `.platform` file should be loaded when modifying item definitions. Can be used to update name and description of an item.",
+						"default": true
 					},
 					"fabricStudio.itemTypeFormats": {
 						"type": "array",
