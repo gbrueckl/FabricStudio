@@ -2,6 +2,9 @@
 
 **v2.8.0**:
 - added support for `%run` when running notebooks against the Fabric Studio kernels
+- fixed issue with special characters (`%20`, etc.) being encoded in item names after publishing from Fabric Studio ([#20](/../../issues/20))
+- added new config `loadItemDefinitionPlatformFile` to contorl whether the `.platform` file is shown as part of the item definition
+- changes to `.platform` file are now also accepted - e.g. to change the item description
 
 **v2.7.0**:
 - added `Definition` for Fabric SQL Databases

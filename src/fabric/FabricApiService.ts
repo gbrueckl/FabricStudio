@@ -583,8 +583,12 @@ export abstract class FabricApiService {
 		}
 	}
 
-	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, progressText: string = "Creating Item"): Promise<iFabricApiResponse> {
-		const endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/updateDefinition`;
+	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, updateMetaData: boolean = true, progressText: string = "Creating Item"): Promise<iFabricApiResponse> {
+		let endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/updateDefinition`;
+
+		if(updateMetaData) {
+			endpoint = `${endpoint}?updateMetadata=True`;
+		}
 
 		return await FabricApiService.awaitWithProgress(progressText, FabricApiService.post(endpoint, itemDefinition), 3000);
 	}
@@ -595,7 +599,7 @@ export abstract class FabricApiService {
 		const body = {};
 
 		if (newName) {
-			body["displayName"] = newName;
+			body["displayName"] = decodeURI(newName);
 		}
 		if (newDescription) {
 			body["description"] = newDescription;

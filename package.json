@@ -102,6 +102,11 @@
 							"API"
 						]
 					},
+					"fabricStudio.loadItemDefinitionPlatformFile": {
+						"type": "boolean",
+						"markdownDescription": "(Optional) Whether the `.platform` file should be loaded when modifying item definitions. Can be used to update name and description of an item.",
+						"default": true
+					},
 					"fabricStudio.itemTypeFormats": {
 						"type": "array",
 						"markdownDescription": "(Optional) A list of [Fabric Item Types](https://learn.microsoft.com/en-us/rest/api/fabric/core/items/list-items?tabs=HTTP#itemtype) (plural, with 's' at the end) with an optional [Format](https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition#supported-formats) as list of objects.",
