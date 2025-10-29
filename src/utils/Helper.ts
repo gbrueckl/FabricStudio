@@ -283,7 +283,7 @@ export abstract class Helper {
 	}
 
 	static async addToWorkspace(uri: vscode.Uri, name: string, open: boolean = true, showMessage: boolean = false): Promise<void> {
-		await vscode.workspace.updateWorkspaceFolders(
+		let success = await vscode.workspace.updateWorkspaceFolders(
 			vscode.workspace.workspaceFile ? vscode.workspace.workspaceFolders.length : 0,
 			0,
 			{ uri: uri, name: name });

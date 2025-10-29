@@ -14,7 +14,7 @@ import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricItemDefinition } from './FabricItemDefinition';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
-import { ERROR_ITEM_ID, FabricApiTreeItem, NO_ITEMS_ITEM_ID } from '../FabricApiTreeItem';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
