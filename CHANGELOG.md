@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.8.1**:
+- fixed issue with `%run` where it was always resolved in the workspace of the lakehouse instead of relative to the current notebook
+
 **v2.8.0**:
 - added support for `%run` when running notebooks against the Fabric Studio kernels
 - fixed issue with special characters (`%20`, etc.) being encoded in item names after publishing from Fabric Studio ([#20](/../../issues/20))

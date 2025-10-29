@@ -4,16 +4,20 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { iFabricApiLivySessionCreation, iFabricApiResponse, iFabricLivyStatementCreation, iFabricLivyStatementResult } from '../../../fabric/_types';
 import { ThisExtension } from '../../../ThisExtension';
 import { SparkNotebookLanguage } from './_types';
+import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
+import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 
 export class FabricSparkLivySession {
 	public workspaceId: string;
 	public lakehouseId: string;
 	public sessionId: string;
+	public notebookUri: vscode.Uri;
 
-	constructor(workspaceId: string, lakehouseId: string, sessionId: string) {
+	constructor(workspaceId: string, lakehouseId: string, sessionId: string, notebookUri: vscode.Uri = null) {
 		this.workspaceId = workspaceId;
 		this.lakehouseId = lakehouseId;
 		this.sessionId = sessionId;
+		this.notebookUri = notebookUri;
 	}
 
 	get apiRootEndpoint(): string {
@@ -24,7 +28,17 @@ export class FabricSparkLivySession {
 		return `${this.apiRootEndpoint}/${this.sessionId}`;
 	}
 
-	static async getNewSession(workspaceId: string, lakehouseId: string, language: SparkNotebookLanguage = "pyspark"): Promise<FabricSparkLivySession> {
+	async getRunWorkspaceId(): Promise<string> {
+		if(this.notebookUri){
+			if(this.notebookUri.scheme === FABRIC_SCHEME){
+				const fabricUri = await FabricFSUri.getInstance(this.notebookUri, true);
+				return fabricUri.workspaceId;
+			}
+		}
+		return this.workspaceId;
+	}
+
+	static async getNewSession(workspaceId: string, lakehouseId: string, language: SparkNotebookLanguage = "pyspark", notebookUri: vscode.Uri = null): Promise<FabricSparkLivySession> {
 		const body = {
 			"kind": language
 		};
@@ -34,7 +48,7 @@ export class FabricSparkLivySession {
 			throw new Error(response.error.message);
 		}
 
-		let session = new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id);
+		let session = new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id, notebookUri);
 		
 		return session;
 	}
@@ -78,7 +92,7 @@ export class FabricSparkLivySession {
 			ThisExtension.Logger.logError(response.error.message, true, true);
 		}
 		else {
-			ThisExtension.Logger.logInfo(`Session ${this.sessionId} stopped successfully`);
+			ThisExtension.Logger.logInfo(`Session ${this.sessionId} stopped successfully`, 5000);
 		}
 	}
 
@@ -215,7 +229,7 @@ export class FabricSparkLivySession {
 				const response = await FabricApiService.get<iFabricApiLivySessionCreation>(`/v1/workspaces/${info.workspaceId}/lakehouses/${info.lakehouseId}/livyapi/versions/2023-12-01/sessions/${info.sessionId}`);
 
 				if (response.success) {
-					let session = new FabricSparkLivySession(info.workspaceId, info.lakehouseId, info.sessionId);
+					let session = new FabricSparkLivySession(info.workspaceId, info.lakehouseId, info.sessionId, vscode.Uri.parse(notebookUri));
 					FabricSparkLivySession.set(notebookUri, session);
 
 					if(["not_started", "starting"].includes(response.success.state)) {

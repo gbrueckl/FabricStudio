@@ -94,7 +94,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 	private async initializeNotebookLivySession(notebook: vscode.NotebookDocument): Promise<FabricSparkLivySession> {
 		const language = notebook.metadata?.metadata?.language_info?.name as SparkNotebookLanguage;
 
-		let session: FabricSparkLivySession = await FabricSparkLivySession.getNewSession(this.lakehouse.workspaceId, this.lakehouse.id, language);
+		let session: FabricSparkLivySession = await FabricSparkLivySession.getNewSession(this.lakehouse.workspaceId, this.lakehouse.id, language, notebook.uri);
 		// persist the session for this notebook
 		FabricSparkLivySession.set(notebook.uri.toString(), session);
 
@@ -184,7 +184,9 @@ export class FabricSparkKernel implements vscode.NotebookController {
 		if (!matches) {
 			return commandText;
 		}
-		const allNotebooks = await FabricApiService.listItems(livySession.workspaceId, "Notebook");
+		let runWorkspaceId = await livySession.getRunWorkspaceId();
+
+		const allNotebooks = await FabricApiService.listItems(runWorkspaceId, "Notebook");
 		if (allNotebooks.error) {
 			throw new Error(allNotebooks.error.message);
 		}
@@ -200,7 +202,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			}
 
 			// get definition of Notebook in Source format
-			let notebookDefinition = await FabricApiService.getItemDefinitionPart(livySession.workspaceId, runNotebook.id, "notebook-content.py", FabricApiItemFormat.Source);
+			let notebookDefinition = await FabricApiService.getItemDefinitionPart(runWorkspaceId, runNotebook.id, "notebook-content.py", FabricApiItemFormat.Source);
 
 			if (notebookDefinition.error) {
 				if (notebookDefinition.error.message == "Part with path 'notebook-content.py' not found in item definition!") {
@@ -211,7 +213,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			let notebookCode = notebookDefinition.success;
 			notebookCode = notebookCode.replace(/^.* (META|CELL \*\*\*|Fabric notebook source).*$/gm, "");
 			notebookCode = notebookCode.replace(/^\s*[\r\n]/gm, "");
-			notebookCode = `\r\n${"#".repeat(20)}\r\n# CODE FROM '${notebookName}':\r\n${"#".repeat(20)}\r\n` + notebookCode;
+			notebookCode = `\r\n${"#".repeat(100)}\r\n# CODE FROM '${notebookName}' (WorkspaceID: ${runWorkspaceId}):\r\n${"#".repeat(100)}\r\n` + notebookCode;
 
 			commandText = commandText.replace(match[0], notebookCode);
 
