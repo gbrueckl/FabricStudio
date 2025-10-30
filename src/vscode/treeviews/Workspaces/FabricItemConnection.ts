@@ -10,9 +10,9 @@ export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemConnection,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.displayName, parent, undefined, "ItemConnection");
+		super(definition.id, parent, undefined, "ItemConnection");
 
-		this.label = definition.connectionDetails.path;
+		this.label = definition.displayName || definition.connectionDetails.path;
 		this.itemId = definition.id;
 		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;

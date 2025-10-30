@@ -67,7 +67,7 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 	}
 
 	public async showDefinition(): Promise<void> {
-		let content: any;
+		let content: any = this.itemDefinition;
 
 		if (this.getDefinitionFromApi) {
 			let result = await FabricApiService.get(this.apiPath);
@@ -76,11 +76,8 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 				content = result.success;
 			}
 			else {
-				content = result.error;
+				ThisExtension.Logger.logWarning(`Could not load definition from API '${this.apiPath}', showing cached definition if available.`);
 			}
-		}
-		else {
-			content = this.itemDefinition;
 		}
 
 		content = JSON.stringify(content, null, "\t");

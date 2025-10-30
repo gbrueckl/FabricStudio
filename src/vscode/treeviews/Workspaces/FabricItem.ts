@@ -92,8 +92,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			let supportedItemTypes: FabricApiItemType[] = [];
 			try {
 				let connections = new FabricItemConnections(this);
-				const connectionsChildren = await FabricApiTreeItem.getValidChildren(connections);
+				const connectionsChildren = await FabricApiTreeItem.getValidChildren(connections) as FabricWorkspaceTreeItem[];
 				if (connectionsChildren.length > 0) {
+					connectionsChildren.forEach(child => connections.addChild(child));
 					children.push(connections);
 				}
 			}
@@ -106,8 +107,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let shortcuts = new FabricItemShortcuts(this);
-					const shortcutsChildren = await FabricApiTreeItem.getValidChildren(shortcuts);
+					const shortcutsChildren = await FabricApiTreeItem.getValidChildren(shortcuts) as FabricWorkspaceTreeItem[];
 					if (shortcutsChildren.length > 0) {
+						shortcutsChildren.forEach(child => shortcuts.addChild(child));
 						children.push(shortcuts);
 					}
 				}
@@ -121,8 +123,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let jobInstances = new FabricItemJobInstances(this);
-					const jobInstancesChildren = await FabricApiTreeItem.getValidChildren(jobInstances);
+					const jobInstancesChildren = await FabricApiTreeItem.getValidChildren(jobInstances) as FabricWorkspaceTreeItem[];
 					if (jobInstancesChildren.length > 0) {
+						jobInstancesChildren.forEach(child => jobInstances.addChild(child));
 						children.push(jobInstances);
 					}
 				}
@@ -135,8 +138,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (FabricMapper.ItemTypesWithJob.includes(this.itemType)) {
 				try {
 					let jobSchedules = new FabricItemJobSchedules(this);
-					const jobSchedulesChildren = await FabricApiTreeItem.getValidChildren(jobSchedules);
+					const jobSchedulesChildren = await FabricApiTreeItem.getValidChildren(jobSchedules) as FabricWorkspaceTreeItem[];
 					if (jobSchedulesChildren.length > 0) {
+						jobSchedulesChildren.forEach(child => jobSchedules.addChild(child));
 						children.push(jobSchedules);
 					}
 				}
@@ -150,8 +154,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let accessRoles = new FabricItemDataAccessRoles(this);
-					const accessRolesChildren = await FabricApiTreeItem.getValidChildren(accessRoles);
+					const accessRolesChildren = await FabricApiTreeItem.getValidChildren(accessRoles) as FabricWorkspaceTreeItem[];
 					if (accessRolesChildren.length > 0) {
+						accessRolesChildren.forEach(child => accessRoles.addChild(child));
 						children.push(accessRoles);
 					}
 				}
