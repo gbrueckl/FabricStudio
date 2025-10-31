@@ -114,7 +114,10 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 		let context: FabricNotebookContext = this.getNotebookContext(notebook);
 
 		for (let cell of cells) {
-			await this._doExecution(cell, context);
+			const success = await this._doExecution(cell, context);
+			if(!success) {
+				break;
+			}
 			await Helper.delay(10); // Force some delay before executing/queueing the next cell
 		}
 	}
@@ -217,7 +220,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 		return commandTextClean;
 	}
 
-	private async _doExecution(cell: vscode.NotebookCell, context: FabricNotebookContext): Promise<void> {
+	private async _doExecution(cell: vscode.NotebookCell, context: FabricNotebookContext): Promise<boolean> {
 		const execution = this.Controller.createNotebookCellExecution(cell);
 		execution.executionOrder = ++this._executionOrder;
 		execution.start(Date.now());
@@ -293,7 +296,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 							]));
 
 							execution.end(false, Date.now());
-							return;
+							return false;
 
 						default:
 							execution.appendOutput(new vscode.NotebookCellOutput([
@@ -301,7 +304,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 							]));
 
 							execution.end(false, Date.now());
-							return;
+							return false;
 					}
 
 					if (result.error) {
@@ -320,7 +323,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 							]));
 
 							execution.end(false, Date.now());
-							return;
+							return false;
 						}
 						const varName = match.groups.variable.trim().toUpperCase();
 						if (match.groups.variable && match.groups.value) {
@@ -341,14 +344,14 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 					}
 
 					execution.end(true, Date.now());
-					return;
+					return true;
 				default:
 					execution.appendOutput(new vscode.NotebookCellOutput([
 						vscode.NotebookCellOutputItem.text("Only %api and %cmd magics are currently supported."),
 					]));
 
 					execution.end(false, Date.now());
-					return;
+					return false;
 			}
 
 			execution.token.onCancellationRequested(() => {
@@ -357,7 +360,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 				]));
 
 				execution.end(false, Date.now());
-				return;
+				return false;
 			});
 
 			if (magic == "api") {
@@ -393,6 +396,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 					}
 					execution.appendOutput(output);
 					execution.end(true, Date.now());
+					return true
 				}
 				else {
 					execution.appendOutput(new vscode.NotebookCellOutput([
@@ -401,7 +405,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 					]));
 
 					execution.end(false, Date.now());
-					return;
+					return false;
 				}
 			}
 		} catch (error) {
@@ -410,7 +414,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 			]));
 
 			execution.end(false, Date.now());
-			return;
+			return false;
 		}
 	}
 }

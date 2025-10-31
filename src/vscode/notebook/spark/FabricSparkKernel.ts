@@ -135,7 +135,11 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			ThisExtension.Logger.logInfo("Kernel initialized!");
 		}
 		for (let cell of cells) {
-			await this._doExecution(cell, livySession);
+			const success = await this._doExecution(cell, livySession);
+			if (!success) {
+				break;
+				//ThisExtension.Logger.logError(`Error executing cell ${cell.id}: ${result.error.message}`);
+			}
 			await Helper.wait(10); // Force some delay before executing/queueing the next cell
 		}
 	}
@@ -175,7 +179,6 @@ export class FabricSparkKernel implements vscode.NotebookController {
 
 		return [language, commandText, magicText as SparkNotebookMagic];
 	}
-
 
 	private async resolveRunMagic(commandText: string, livySession: FabricSparkLivySession): Promise<string> {
 		const regex = /\%run (.+?)$/gm;
@@ -231,7 +234,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 		return commandTextClean;
 	}
 
-	private async _doExecution(cell: vscode.NotebookCell, livySession: FabricSparkLivySession): Promise<void> {
+	private async _doExecution(cell: vscode.NotebookCell, livySession: FabricSparkLivySession): Promise<boolean> {
 		const execution = this.Controller.createNotebookCellExecution(cell);
 		execution.executionOrder = ++this._executionOrder;
 		execution.start(Date.now());
@@ -258,17 +261,27 @@ export class FabricSparkKernel implements vscode.NotebookController {
 				]))
 			}
 
-			const createCommand = await livySession.executeCommand(commandTextClean, language);
-			if (createCommand.error) {
+			const command = await livySession.executeCommand(commandTextClean, language);
+			if (command.error) {
 				execution.appendOutput(new vscode.NotebookCellOutput([
-					vscode.NotebookCellOutputItem.text(createCommand.error.message, "text/plain")
+					vscode.NotebookCellOutputItem.text(command.error.message, "text/plain")
 				]))
 				execution.end(false, Date.now());
-				return;
+				return false;
 			}
 
-			// TODO handle cancellation?!
-			const result = await livySession.waitForCommandResult(createCommand.success.id, execution.token)
+			execution.token.onCancellationRequested(() => {
+				livySession.cancelCommand(command.success);
+
+				execution.appendOutput(new vscode.NotebookCellOutput([
+					vscode.NotebookCellOutputItem.text("Execution cancelled!", 'text/plain'),
+				]));
+
+				execution.end(false, Date.now());
+				return false;
+			});
+
+			const result = await livySession.waitForCommandResult(command.success.id)
 
 			if (result.success) {
 				if (result.success.output.status == "error") {
@@ -278,7 +291,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 						vscode.NotebookCellOutputItem.text(errorMsg, "text/plain")
 					]));
 					execution.end(false, Date.now());
-					return;
+					return false;
 				}
 
 				for (let [mimeType, data] of Object.entries(result.success.output.data)) {
@@ -307,14 +320,14 @@ export class FabricSparkKernel implements vscode.NotebookController {
 					]));
 				}
 				execution.end(true, Date.now());
-				return;
+				return true;
 			}
 			else {
 				execution.appendOutput(new vscode.NotebookCellOutput([
 					vscode.NotebookCellOutputItem.text(result.error.message, "text/plain") // to be used by proper JSON/table renderers,
 				]))
 				execution.end(false, Date.now());
-				return;
+				return false;
 			}
 		} catch (error) {
 			execution.appendOutput(new vscode.NotebookCellOutput([
@@ -322,7 +335,7 @@ export class FabricSparkKernel implements vscode.NotebookController {
 			]));
 
 			execution.end(false, Date.now());
-			return;
+			return false;
 		}
 	}
 }
