@@ -135,12 +135,12 @@ export abstract class FabricCommandBuilder {
 
 	static getQuickPickList(itemType: FabricApiItemType): FabricQuickPickItem[] {
 		if (this._quickPickLists == undefined) {
-			ThisExtension.Logger.logInfo(`Initializing QuickPickList ...`);
+			ThisExtension.Logger.logTrace(`Initializing QuickPickList ...`);
 			this._quickPickLists = new Map<FabricApiItemType, FabricQuickPickItem[]>();
 		}
 
 		if (!this._quickPickLists.has(itemType)) {
-			ThisExtension.Logger.logInfo(`Adding item '${itemType}' to QuickPickLists ...`);
+			ThisExtension.Logger.logTrace(`Adding item '${itemType}' to QuickPickLists ...`);
 			this._quickPickLists.set(itemType, []);
 		}
 
@@ -149,7 +149,7 @@ export abstract class FabricCommandBuilder {
 
 	static pushQuickPickItem(item: FabricQuickPickItem): void {
 		if(item.value == NO_ITEMS_ITEM_ID || item.value == ERROR_ITEM_ID) {
-			ThisExtension.Logger.logDebug(`Item '${item.label}(${item.value})' is not added to QuickPickList '${item.itemType}'.`);
+			ThisExtension.Logger.logTrace(`Item '${item.label}(${item.value})' is not added to QuickPickList '${item.itemType}'.`);
 			return;
 		}
 
@@ -161,12 +161,12 @@ export abstract class FabricCommandBuilder {
 			qpList.splice(existingItemIndex, 1);
 		}
 
-		ThisExtension.Logger.logDebug(`Adding item '${item.label}(${item.value})' to QuickPickList '${item.itemType}'.`);
+		ThisExtension.Logger.logTrace(`Adding item '${item.label}(${item.value})' to QuickPickList '${item.itemType}'.`);
 		qpList.push(item);
 
 		while (qpList.length > this._maxQuickPickListItems) {
 			let removed = qpList.shift();
-			ThisExtension.Logger.logDebug(`Removed item '${removed.label}(${removed.value})' from QuickPickList '${item.itemType}'.`);
+			ThisExtension.Logger.logTrace(`Removed item '${removed.label}(${removed.value})' from QuickPickList '${item.itemType}'.`);
 		}
 	}
 
@@ -180,7 +180,7 @@ export abstract class FabricCommandBuilder {
 		let qpList = this.getQuickPickList(itemType);
 
 		if (qpList.length == 0) {
-			ThisExtension.Logger.logInfo(`QuickPickList '${itemType}' is empty!`);
+			ThisExtension.Logger.logWarning(`QuickPickList '${itemType}' is empty!`);
 			
 			if (showInofMessage) {
 				vscode.window.showInformationMessage(`No items found for '${itemType}'!`);

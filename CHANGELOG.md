@@ -1,8 +1,10 @@
 # Change Log
 
-**v2.8.2**:
+**v2.9.0**:
 - improve performance when loading item information like `Connections`, `Jobs`, `Schedules`, etc.
 - fixed issue when cancelling Spark and API Notebook cells
+- added support for definition APIs for `GraphModels`
+- reworked some logging
 
 **v2.8.1**:
 - fixed issue with `%run` where it was always resolved in the workspace of the lakehouse instead of relative to the current notebook
