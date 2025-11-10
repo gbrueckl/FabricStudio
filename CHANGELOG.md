@@ -4,6 +4,8 @@
 - improve performance when loading item information like `Connections`, `Jobs`, `Schedules`, etc.
 - fixed issue when cancelling Spark and API Notebook cells
 - added support for definition APIs for `GraphModels`
+- added `Workspaces` to Capacities Tree-view
+  - added multi-select and Drag&Drop to easily move workspaces between capacities
 - reworked some logging
 
 **v2.8.1**:

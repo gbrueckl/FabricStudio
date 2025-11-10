@@ -40,6 +40,8 @@ export type FabricApiItemType =
 
 
 	| "Capacity"
+	| "CapacityWorkspaces"
+	| "CapacityWorkspace"
 	| "Dataflow"
 	| "Workspace"
 	| "Lakehouses"							//	Folder for Lakehouse item.

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 
 import { FabricCapacityTreeItem } from './FabricCapacityTreeItem';
-import { iFabricApiCapacity, iFabricApiWorkspace } from '../../../fabric/_types';
+import { iFabricApiCapacity, iFabricApiItem, iFabricApiWorkspace } from '../../../fabric/_types';
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { Helper } from '@utils/Helper';
+import { FabricCapacityWorkspaces } from './FabricCapacityWorkspaces';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricCapacity extends FabricCapacityTreeItem {
@@ -13,7 +14,7 @@ export class FabricCapacity extends FabricCapacityTreeItem {
 		definition: iFabricApiCapacity,
 		parent: FabricCapacityTreeItem
 	) {
-		super(definition.id, definition.displayName, "Capacity", parent, definition, definition.id, vscode.TreeItemCollapsibleState.None);
+		super(definition.id, definition.displayName, "Capacity", parent, definition, definition.id);
 
 		this.description = `${definition.sku} | ${definition.region} | ${definition.id}`;
 
@@ -30,6 +31,14 @@ export class FabricCapacity extends FabricCapacityTreeItem {
 	}
 
 	/* Overwritten properties from FabricCapacityTreeItem */
+	async getChildren(element?: FabricCapacityTreeItem): Promise<FabricCapacityTreeItem[]> {
+		let children: FabricCapacityTreeItem[] = [];
+
+		children.push(new FabricCapacityWorkspaces(this));
+
+		return children;
+	}
+
 	static async assignWorkspace(workspace: iFabricApiWorkspace, capacity: iFabricApiCapacity): Promise<void> {
 		// https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/assign-to-capacity?tabs=HTTP
 		/*

@@ -4,12 +4,12 @@ import { UniqueId } from '@utils/Helper';
 
 
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { TreeProviderId } from '../../../ThisExtension';
-import { FabricApiItemType } from '../../../fabric/_types';
+import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
+import { FabricApiItemType, iFabricApiWorkspace } from '../../../fabric/_types';
 import { iGenericApiError } from '@utils/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 export class FabricCapacityTreeItem extends FabricApiTreeItem {
-
 	constructor(
 		id: UniqueId,
 		name: string,
@@ -35,6 +35,7 @@ export class FabricCapacityTreeItem extends FabricApiTreeItem {
 		return undefined;
 	}
 
+	
 	get parent(): FabricCapacityTreeItem {
 		return super.parent as FabricCapacityTreeItem;
 	}
