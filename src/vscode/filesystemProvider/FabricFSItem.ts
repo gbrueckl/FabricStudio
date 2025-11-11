@@ -284,14 +284,14 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
 			if (["semanticmodels", "reports"].includes(this.FabricUri.itemType.toLowerCase())) {
-				ThisExtension.Logger.logInfo("Updating items of type '" + itemTypeSingular + "' is not supported yet supported by the APIs!");
+				ThisExtension.Logger.logInfo("Publishing items of type '" + itemTypeSingular + "' is not supported yet supported by the APIs!");
 			}
 			else {
 				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, displayNameClean, this.description);
 			}
 
 			if (!response || !response.error) {
-				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Updating ${itemTypeSingular} '${displayNameClean}'`);
+				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Publishing ${itemTypeSingular} '${displayNameClean}'`);
 			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {
