@@ -23,13 +23,13 @@ export abstract class FabricFSHelper {
 			throw new Error(`Could not find plural for item type '${itemType}'!`);
 		}
 
-		return new RegExp(`((.*\.${itemType})|(.*\/${itemTypePlural}))(\/|$)`, "gmi");
+		return new RegExp(`((.*\.${itemType})|(.*\/${itemTypePlural}\/[^\/]*))(\/|$)`, "gmi");
 	}
 
 	private static async getItemTypeFromUri(uri: vscode.Uri): Promise<FabricApiItemType> {
 		if (uri.scheme == FABRIC_SCHEME) {
 			const fabricUri = await FabricFSUri.getInstance(uri, false);
-			return fabricUri.itemType;
+			return FabricMapper.getItemTypeSingular(fabricUri.itemType);
 		}
 		else {
 			const rx = /\.([^\/\s]*)/gmi;
@@ -73,11 +73,11 @@ export abstract class FabricFSHelper {
 	}
 
 	private static async getTargetFromQuickPick(
-		itemType: FabricApiItemType, 
-		includeNewOption: boolean = true, 
+		itemType: FabricApiItemType,
+		includeNewOption: boolean = true,
 		promptPart: string = "to publish",
 		platformContent: iFabricPlatformFile = undefined
-		): Promise<FabricQuickPickItem> {
+	): Promise<FabricQuickPickItem> {
 		/*
 			1. check item-type quickpick + NEW option
 				1.1. if non exist - SKIP to 2.
@@ -86,8 +86,8 @@ export abstract class FabricFSHelper {
 			2. check workspace quickpick
 				2.1. if non exist - populate from API with filter
 				2.2. rever to 1.
-		*/ 
-		if(platformContent) {
+		*/
+		if (platformContent) {
 			itemType = platformContent.metadata.type;
 		}
 
@@ -140,7 +140,7 @@ export abstract class FabricFSHelper {
 			return undefined;
 		}
 		else if (includeNewOption && targetItem.value == NEW_ITEM_ID) {
-			if(!targetWorkspace) {
+			if (!targetWorkspace) {
 				targetWorkspace = await FabricCommandBuilder.showQuickPick(workspaces, `Select target workspace for the new ${itemType}`, "", "");
 			}
 			if (!targetWorkspace) {
@@ -266,7 +266,13 @@ export abstract class FabricFSHelper {
 			return;
 		}
 
-		return this.publishContent(sourceFsUri, target, itemsToExclue, target.itemId == undefined, prePublishActionCreate, prePublishActionUpdate);
+		if (sourceUri.toString() == target.uri.toString()) {
+			await FabricFSCache.publishToFabric(sourceUri, true);
+			return target;
+		}
+		else {
+			return this.publishContent(sourceFsUri, target, itemsToExclue, target.itemId == undefined, prePublishActionCreate, prePublishActionUpdate);
+		}
 	}
 
 	static async publishContent(

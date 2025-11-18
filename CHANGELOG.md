@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.9.1**:
+- fixed issue with publishing from Fabric defintion to a new item using `Publish via Fabric Studio`
+
 **v2.9.0**:
 - improve performance when loading item information like `Connections`, `Jobs`, `Schedules`, etc.
 - fixed issue when cancelling Spark and API Notebook cells

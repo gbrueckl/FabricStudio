@@ -284,7 +284,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
 			if (["semanticmodels", "reports"].includes(this.FabricUri.itemType.toLowerCase())) {
-				ThisExtension.Logger.logInfo("Publishing items of type '" + itemTypeSingular + "' is not supported yet supported by the APIs!");
+				ThisExtension.Logger.logInfo("Publishing items of type '" + itemTypeSingular + "' is not yet supported by the APIs!");
 			}
 			else {
 				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, displayNameClean, this.description);
