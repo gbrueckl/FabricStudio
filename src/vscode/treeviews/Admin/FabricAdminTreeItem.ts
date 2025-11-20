@@ -51,15 +51,6 @@ export class FabricAdminTreeItem extends FabricApiTreeItem {
 		this._parent = value;
 	}
 
-	public static get NO_ITEMS(): FabricAdminTreeItem {
-		let item = new FabricAdminTreeItem("NO_ITEMS", "No items found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
-		item.contextValue = "";
-		item.itemId = "NO_ITEMS";
-		item.tooltip = "No items found!";
-		item.description = "No items found!";
-		return item;
-	}
-
 	public static handleEmptyItems<FabricAdminTreeItem>(items: FabricAdminTreeItem[], filter: RegExp = undefined, itemType: string = "item"): FabricAdminTreeItem[] {
 		return super.handleEmptyItems<FabricAdminTreeItem>(items, filter, itemType);
 	}

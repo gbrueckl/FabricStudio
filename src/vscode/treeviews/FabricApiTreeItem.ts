@@ -373,8 +373,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	public static get NO_ITEMS(): FabricApiTreeItem {
-		let item = new FabricApiTreeItem(NO_ITEMS_ITEM_ID, "No items found!", "GenericItem", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
+		let item = new FabricApiTreeItem(Helper.newGuid(), "No items found!", "GenericItem", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 		item.contextValue = "";
+		item.itemId = NO_ITEMS_ITEM_ID;
+		item.tooltip = "No items found!";
+		item.description = undefined;
+		item.iconPath = new vscode.ThemeIcon("array");
 		return item;
 	}
 

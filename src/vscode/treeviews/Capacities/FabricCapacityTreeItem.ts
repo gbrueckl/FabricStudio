@@ -44,12 +44,6 @@ export class FabricCapacityTreeItem extends FabricApiTreeItem {
 		this._parent = value;
 	}
 
-	public static get NO_ITEMS(): FabricCapacityTreeItem {
-		let item = new FabricCapacityTreeItem("NO_ITEMS", "No capacities found!", "Capacity", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
-		item.contextValue = "";
-		return item;
-	}
-
 	public static handleEmptyItems<FabricCapacityTreeItem>(items: FabricCapacityTreeItem[], filter: RegExp = undefined): FabricCapacityTreeItem[] {
 		return super.handleEmptyItems<FabricCapacityTreeItem>(items, filter, "capacity");
 	}
