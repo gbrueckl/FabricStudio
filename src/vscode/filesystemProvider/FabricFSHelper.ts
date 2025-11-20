@@ -11,7 +11,6 @@ import { FabricMapper } from '../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { platform } from 'os';
 
 const NEW_ITEM_ID = "__NEW_ITEM";
 

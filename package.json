@@ -145,7 +145,9 @@
 										"VariableLibraries",
 										"Maps",
 										"UserDataFunctions",
-										"SQLDatabases"
+										"SQLDatabases",
+										"SnowflakeDatabases",
+										"OperationsAgents"
 									]
 								},
 								"format": {
