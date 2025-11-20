@@ -2,6 +2,9 @@
 
 **v2.9.1**:
 - fixed issue with publishing from Fabric defintion to a new item using `Publish via Fabric Studio`
+- fixed issue with `NO_ITEMS`
+- added new item types for `SnowflakeDatabase` and `OperationsAgent`
+- added new icons for Deployment Pipelines
 
 **v2.9.0**:
 - improve performance when loading item information like `Connections`, `Jobs`, `Schedules`, etc.
