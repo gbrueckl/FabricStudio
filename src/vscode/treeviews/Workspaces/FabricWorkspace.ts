@@ -204,7 +204,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
 					if (items.success.length == 0) {
 						if (this._workspaceFolders.length == 0) {
-							children = [FabricItem.NO_ITEMS];
+							children = [FabricItem.NO_ITEMS as FabricWorkspaceTreeItem];
 						}
 						else {
 							children.pop();

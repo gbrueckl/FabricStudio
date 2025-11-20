@@ -2,8 +2,6 @@ import * as vscode from 'vscode';
 
 import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { FabricPipelineStages } from './FabricPipelineStages';
-import { ThisExtension } from '../../../ThisExtension';
-import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { iFabricApiItem } from '../../../fabric/_types';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -14,7 +12,7 @@ export class FabricPipeline extends FabricPipelineTreeItem {
 	) {
 		super(definition.id, definition.displayName, "DeploymentPipeline", undefined, vscode.TreeItemCollapsibleState.Collapsed);
 		this.itemDefinition = definition;
-		
+		this.iconPath = new vscode.ThemeIcon("rocket");
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */

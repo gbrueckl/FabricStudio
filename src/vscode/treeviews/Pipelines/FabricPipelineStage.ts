@@ -22,6 +22,7 @@ export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabr
 
 		this.itemDefinition = definition;
 		this.contextValue = this._contextValue;
+		this.iconPath = new vscode.ThemeIcon("server-environment");
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
