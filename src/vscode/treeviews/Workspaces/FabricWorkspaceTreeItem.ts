@@ -166,15 +166,6 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		await Helper.addToWorkspace(fabricUri.uri, label, true);
 	}
 
-	public static get NO_ITEMS(): FabricWorkspaceTreeItem {
-		let item = new FabricWorkspaceTreeItem("NO_ITEMS", "No items found!", "Workspace", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
-		item.contextValue = "";
-		item.description = undefined;
-		item.tooltip = undefined;
-		item.itemId = "NO_ITEMS";
-		return item;
-	}
-
 	public static handleEmptyItems<FabricWorkspaceTreeItem>(items: FabricWorkspaceTreeItem[], filter: RegExp = undefined, itemType: string = "workspace"): FabricWorkspaceTreeItem[] {
 		return super.handleEmptyItems<FabricWorkspaceTreeItem>(items, filter, itemType);
 	}

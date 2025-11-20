@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { ThisExtension } from '../../../ThisExtension';
 
 import { Helper } from '@utils/Helper';
-import { iFabricApiCapacity } from '../../../fabric/_types';
+import { iFabricApiCapacity, iFabricApiWorkspace } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricCapacityTreeItem } from './FabricCapacityTreeItem';
 import { FabricDragAndDropController } from '../../FabricDragAndDropController';
@@ -14,6 +14,7 @@ import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<FabricCapacityTreeItem> {
+	private static WORKSPACES: Map<string, iFabricApiWorkspace[]> = new Map<string, iFabricApiWorkspace[]>();
 
 	private _filter: string;
 	private _treeView: vscode.TreeView<FabricCapacityTreeItem>;
@@ -92,6 +93,8 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 
 			children = FabricCapacityTreeItem.handleEmptyItems(children, regexFilter);
 
+			await this.loadWorkspaces();
+
 			return children;
 		}
 	}
@@ -125,4 +128,33 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 
 		this.refresh(null, true);
 	}
+
+	public async loadWorkspaces(): Promise<void> {
+		try {
+			FabricCapacitiesTreeProvider.WORKSPACES.clear();
+			const items = await FabricApiService.getList<iFabricApiWorkspace>("/workspaces");
+
+			if (items.error) {
+				ThisExtension.Logger.logError(items.error.message);
+				return;
+			}
+			for (let item of items.success) {
+				if (!FabricCapacitiesTreeProvider.WORKSPACES.has(item.capacityId)) {
+					FabricCapacitiesTreeProvider.WORKSPACES.set(item.capacityId, []);
+				}
+				FabricCapacitiesTreeProvider.WORKSPACES.get(item.capacityId).push(item);
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo("Could not load workspaces for capacities");
+		}
+	}
+
+	public static getCapacityworkspaces(capacityId: string): iFabricApiWorkspace[] {
+		if (FabricCapacitiesTreeProvider.WORKSPACES.has(capacityId)) {
+			return FabricCapacitiesTreeProvider.WORKSPACES.get(capacityId);
+		}
+		return [];
+	}
+
 }

@@ -29,8 +29,8 @@ export class FabricSparkLivySession {
 	}
 
 	async getRunWorkspaceId(): Promise<string> {
-		if(this.notebookUri){
-			if(this.notebookUri.scheme === FABRIC_SCHEME){
+		if (this.notebookUri) {
+			if (this.notebookUri.scheme === FABRIC_SCHEME) {
 				const fabricUri = await FabricFSUri.getInstance(this.notebookUri, true);
 				return fabricUri.workspaceId;
 			}
@@ -49,7 +49,7 @@ export class FabricSparkLivySession {
 		}
 
 		let session = new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id, notebookUri);
-		
+
 		return session;
 	}
 
@@ -105,6 +105,7 @@ export class FabricSparkLivySession {
 	}
 
 	async executeCommand(commandText: string, language: SparkNotebookLanguage = undefined): Promise<iFabricApiResponse<iFabricLivyStatementCreation>> {
+		// https://learn.microsoft.com/en-us/fabric/data-engineering/get-started-api-livy-session#submit-a-sparksql-statement-using-the-livy-api-spark-session
 		const body = {
 			"code": commandText,
 			"kind": language
@@ -115,34 +116,24 @@ export class FabricSparkLivySession {
 		return createCommand;
 	}
 
-	async waitForCommandResult(commandId: number, token: vscode.CancellationToken, pollInterval: number = 500, timeout: number = undefined): Promise<iFabricApiResponse<iFabricLivyStatementResult>> {
+	async waitForCommandResult(commandId: number, pollInterval: number = 500, timeout: number = undefined): Promise<iFabricApiResponse<iFabricLivyStatementResult>> {
 		let result: iFabricApiResponse<iFabricLivyStatementResult> = undefined;
 		let timeElapsed: number = 0;
 
-		let cancelled = false
-
-		token.onCancellationRequested(() => {
-			ThisExtension.Logger.logInfo(`Command ${commandId} cancelled by user`);
-			cancelled = true;
-		});
-
-		while (result === undefined || (result.success && result.success?.state !== "available")) {
+		while (result === undefined || (result.success && !["available", "cancelled", "error"].includes(result.success?.state))) {
 			await Helper.delay(pollInterval);
 			timeElapsed += pollInterval;
 			result = await FabricApiService.get<iFabricLivyStatementResult>(Helper.joinPath(this.apiSessionEndpoint, `statements/${commandId}`));
-
-			if (cancelled) {
-				result = {
-					error: {
-						"message": "Command cancelled by user",
-						"errorCode": "CommandCancelled"
-					}
-				};
-				break;
-			}
 		}
 
 		return result;
+	}
+
+	async cancelCommand(command: iFabricLivyStatementCreation): Promise<iFabricApiResponse<iFabricLivyStatementCreation>> {
+		// https://learn.microsoft.com/en-us/fabric/data-engineering/get-started-api-livy-session#close-the-livy-session-with-a-third-statement
+		const deleteCommand = await FabricApiService.post<iFabricLivyStatementResult>(Helper.joinPath(this.apiSessionEndpoint, `statements/${command.id}/cancel`), {});
+
+		return deleteCommand;
 	}
 
 	get state(): string {
@@ -156,56 +147,9 @@ export class FabricSparkLivySession {
 	//#region static methods to track the context of the notebook
 	private static _sessions: Map<string, FabricSparkLivySession> = new Map<string, FabricSparkLivySession>();
 
-
-	static loadFromMetadata(metadata?: { [key: string]: any }): { [key: string]: any } {
-
-		if (metadata == undefined) {
-			metadata = {};
-		}
-		let newContext: FabricSparkLivySession = FabricSparkLivySession.generateFromOriginalMetadata(metadata);
-		let guid = Helper.newGuid(); // we always generate a new guid for the current session
-
-		FabricSparkLivySession.set(guid, newContext);
-
-		metadata.guid = guid;
-		// remove context so it is not used unintentionally
-		metadata.context = undefined;
-
-		// we only return the guid as metadata
-		return metadata;
-	}
-
-	static saveToMetadata(metadata: { [key: string]: any }): { [key: string]: any } {
-		if (metadata?.guid) {
-			metadata.context = FabricSparkLivySession.get(metadata.guid);
-			metadata.guid = undefined;
-		}
-
-		// we only return the context as metadata
-		return metadata;
-	}
-
-	static generateFromOriginalMetadata(metadata?: { [key: string]: any }): FabricSparkLivySession {
-		let newContext = new FabricSparkLivySession('x', 'x', 'x');
-
-		if (metadata?.context) {
-			if (metadata.context.apiRootPath) {
-				newContext.workspaceId = metadata.context.apiRootPath;
-			}
-			if (metadata.context.uri) {
-				newContext.lakehouseId = metadata.context.uri;
-			}
-			if (metadata.context.variables) {
-				newContext.sessionId = metadata.context.variables;
-			}
-		}
-
-		return newContext;
-	}
-
 	static set(notebookUri: string, session: FabricSparkLivySession): void {
 		FabricSparkLivySession._sessions.set(notebookUri, session);
-		if(!session) {
+		if (!session) {
 			ThisExtension.setGlobalState("LivySession" + notebookUri, undefined)
 		}
 		else {
@@ -226,24 +170,29 @@ export class FabricSparkLivySession {
 
 				let info = JSON.parse(sessionInfo);
 				// check if session still exists
-				const response = await FabricApiService.get<iFabricApiLivySessionCreation>(`/v1/workspaces/${info.workspaceId}/lakehouses/${info.lakehouseId}/livyapi/versions/2023-12-01/sessions/${info.sessionId}`);
+				const existingSession = await FabricApiService.get<iFabricApiLivySessionCreation>(`/v1/workspaces/${info.workspaceId}/lakehouses/${info.lakehouseId}/livyapi/versions/2023-12-01/sessions/${info.sessionId}`);
 
-				if (response.success) {
+				if (existingSession.success) {
 					let session = new FabricSparkLivySession(info.workspaceId, info.lakehouseId, info.sessionId, vscode.Uri.parse(notebookUri));
 					FabricSparkLivySession.set(notebookUri, session);
 
-					if(["not_started", "starting"].includes(response.success.state)) {
-						ThisExtension.Logger.logInfo(`Re-attaching to existing Livy session ${info.sessionId}!`, 5000);
-						await session.waitTillStarted();
+					if (["error", "dead", "killed", "shutting_down", "success"].includes(existingSession.success.state)) {
+						ThisExtension.Logger.logError(`Previous Livy session '${info.sessionId}' is in state ${existingSession.success.state} and cannot be reused!`, false, false);
 					}
-					else if (["error", "dead", "killed", "shutting_down", "success"].includes(response.success.state)) {
-						ThisExtension.Logger.logError(`Previous Livy session '${info.sessionId}' is in state ${response.success.state} and cannot be reused!`, false, false);
-						return undefined;
+					else {
+						const reattach = await vscode.window.showInformationMessage(`A previous Spark Livy session (${info.sessionId}) was found. Do you want to re-attach to it or start a new session?`, "Re-attach", "New Session");
+						if (reattach == "Re-attach") {
+							if (["not_started", "starting"].includes(existingSession.success.state)) {
+								ThisExtension.Logger.logInfo(`Re-attaching to existing Livy session ${info.sessionId}!`, 5000);
+								await session.waitTillStarted();
+							}
+							return session;
+						}
 					}
-					return session;
+					return undefined;
 				}
 			}
 		}
+		//#endregion
 	}
-	//#endregion
 }

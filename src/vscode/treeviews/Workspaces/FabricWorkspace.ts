@@ -73,12 +73,17 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	protected getIconPath(): string | vscode.Uri {
+		if(this.workspaceType == FabricApiWorkspaceType.Personal) {
+			return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'myworkspace.svg');
+		}
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'workspace.svg');
 	}
 
 	get asQuickPickItem(): FabricQuickPickItem {
 		let qpItem = super.asQuickPickItem; 
-		qpItem.detail = `\tCapacityID: ${this.itemDefinition.capacityId}`;
+		if(this.itemDefinition?.capacityId) {
+			qpItem.detail = `\tCapacityID: ${this.itemDefinition.capacityId}`;
+		}
 
 		return qpItem;
 	}
@@ -199,7 +204,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
 					if (items.success.length == 0) {
 						if (this._workspaceFolders.length == 0) {
-							children = [FabricItem.NO_ITEMS];
+							children = [FabricItem.NO_ITEMS as FabricWorkspaceTreeItem];
 						}
 						else {
 							children.pop();

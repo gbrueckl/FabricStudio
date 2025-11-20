@@ -43,12 +43,6 @@ export class FabricConnectionTreeItem extends FabricApiTreeItem {
 		this._parent = value;
 	}
 
-	public static get NO_ITEMS(): FabricConnectionTreeItem {
-		let item = new FabricConnectionTreeItem("NO_ITEMS", "No connections found!", "Connection", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
-		item.contextValue = "";
-		return item;
-	}
-
 	public static handleEmptyItems<FabricConnectionTreeItem>(items: FabricConnectionTreeItem[], filter: RegExp = undefined): FabricConnectionTreeItem[] {
 		return super.handleEmptyItems<FabricConnectionTreeItem>(items, filter, "connection");
 	}

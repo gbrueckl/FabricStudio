@@ -1,5 +1,19 @@
 # Change Log
 
+**v2.9.1**:
+- fixed issue with publishing from Fabric defintion to a new item using `Publish via Fabric Studio`
+- fixed issue with `NO_ITEMS`
+- added new item types for `SnowflakeDatabase` and `OperationsAgent`
+- added new icons for Deployment Pipelines
+
+**v2.9.0**:
+- improve performance when loading item information like `Connections`, `Jobs`, `Schedules`, etc.
+- fixed issue when cancelling Spark and API Notebook cells
+- added support for definition APIs for `GraphModels`
+- added `Workspaces` to Capacities Tree-view
+  - added multi-select and Drag&Drop to easily move workspaces between capacities
+- reworked some logging
+
 **v2.8.1**:
 - fixed issue with `%run` where it was always resolved in the workspace of the lakehouse instead of relative to the current notebook
 

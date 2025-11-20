@@ -4,12 +4,12 @@ import { UniqueId } from '@utils/Helper';
 
 
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { TreeProviderId } from '../../../ThisExtension';
-import { FabricApiItemType } from '../../../fabric/_types';
+import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
+import { FabricApiItemType, iFabricApiWorkspace } from '../../../fabric/_types';
 import { iGenericApiError } from '@utils/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 export class FabricCapacityTreeItem extends FabricApiTreeItem {
-
 	constructor(
 		id: UniqueId,
 		name: string,
@@ -35,18 +35,13 @@ export class FabricCapacityTreeItem extends FabricApiTreeItem {
 		return undefined;
 	}
 
+	
 	get parent(): FabricCapacityTreeItem {
 		return super.parent as FabricCapacityTreeItem;
 	}
 
 	set parent(value: FabricCapacityTreeItem) {
 		this._parent = value;
-	}
-
-	public static get NO_ITEMS(): FabricCapacityTreeItem {
-		let item = new FabricCapacityTreeItem("NO_ITEMS", "No capacities found!", "Capacity", undefined, undefined, undefined, vscode.TreeItemCollapsibleState.None);
-		item.contextValue = "";
-		return item;
 	}
 
 	public static handleEmptyItems<FabricCapacityTreeItem>(items: FabricCapacityTreeItem[], filter: RegExp = undefined): FabricCapacityTreeItem[] {

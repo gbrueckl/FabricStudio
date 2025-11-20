@@ -160,14 +160,21 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 				actions.set("Add ConnectionRoleAssignment", addRoleAssignment);
 			}
 		}
-		else if (source_Item0.itemType == "Workspace") {
+		else if (source_Item0.itemType == "Workspace" || source_Item0.itemType == "CapacityWorkspace") {
 			const sourceItem = source_Item0 as FabricWorkspace;
-			if (["Capacity"].includes(targetItem.itemType)) {
+			if (["Capacity", "CapacityWorkspaces"].includes(targetItem.itemType)) {
 				const target = targetItem as FabricCapacity;
 
 				const assignToCapacity = async () => {
-					await FabricCapacity.assignWorkspace(sourceItem.itemDefinition, target.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+					for(const workspace of sourceItems) {
+						if(workspace.itemType != "Workspace" && workspace.itemType != "CapacityWorkspace") {
+							ThisExtension.Logger.logWarning(`Skipping item of type '${workspace.itemType}' - only items of type 'Workspace' or 'CapacityWorkspace' can be assigned to a Capacity!`, true);
+							continue;
+						}
+						const sourceItem = workspace as FabricWorkspace;
+						await FabricCapacity.assignWorkspace(sourceItem.itemDefinition, target.itemDefinition);
+					}
+					ThisExtension.TreeViewCapacities.refresh(target.parent, false);
 				}
 				treeViewtoRefresh = sourceItem.treeProvider
 				actions.set("Assign to Capacity", assignToCapacity);

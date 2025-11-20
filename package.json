@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.8.1",
+	"version": "2.9.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -126,6 +126,7 @@
 										"DataPipelines",
 										"Eventhouses",
 										"GraphQuerysets",
+										"GraphModels",
 										"HLSCohorts",
 										"KQLDatabases",
 										"KQLDashboards",
@@ -144,7 +145,9 @@
 										"VariableLibraries",
 										"Maps",
 										"UserDataFunctions",
-										"SQLDatabases"
+										"SQLDatabases",
+										"SnowflakeDatabases",
+										"OperationsAgents"
 									]
 								},
 								"format": {
@@ -1281,7 +1284,7 @@
 		"@types/lodash": "^4.17.7",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "^12.20.55",
-		"@types/vscode": "^1.81.0",
+		"@types/vscode": "^1.105.0",
 		"@vscode/test-web": "*",
 		"adm-zip": "^0.5.16",
 		"buffer": "^6.0.3",

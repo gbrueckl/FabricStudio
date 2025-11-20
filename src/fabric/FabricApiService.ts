@@ -12,8 +12,6 @@ import { FabricLogger } from '@utils/FabricLogger';
 import { clear } from 'console';
 
 export abstract class FabricApiService {
-	protected static _logger: FabricLogger;
-
 	protected static _initializationState: "not_loaded" | "loading" | "loaded" = "not_loaded";
 
 	protected static _apiBaseUrl: string;
@@ -28,7 +26,6 @@ export abstract class FabricApiService {
 	//#region Initialization
 	static async initialize(clearSession: boolean = false): Promise<boolean> {
 		try {
-			this._logger = ThisExtension.Logger;
 			this.Logger.log(`Initializing Fabric API Service ...`);
 
 			vscode.authentication.onDidChangeSessions((event) => this._onDidChangeSessions(event));
@@ -50,14 +47,14 @@ export abstract class FabricApiService {
 	}
 
 	protected static get Logger(): FabricLogger {
-		return this._logger;
+		return ThisExtension.Logger;
 	}
 
 	private static async refreshConnection(clearSession: boolean): Promise<boolean> {
 		this._vscodeSession = await this.getVSCodeSession(clearSession);
 
 		if (!this._vscodeSession || !this._vscodeSession.accessToken) {
-			ThisExtension.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
+			this.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
 			return;
 		}
 
@@ -173,7 +170,7 @@ export abstract class FabricApiService {
 		if (this._initializationState == "not_loaded") {
 			this._initializationState = "loading";
 
-			ThisExtension.Logger.logInfo(`Initializing Connection ...`);
+			this.Logger.logInfo(`Initializing Connection ...`);
 
 			const initialized = await FabricApiService.initialize(false);
 			if (initialized) {
@@ -184,14 +181,14 @@ export abstract class FabricApiService {
 			}
 		}
 		else if (this._initializationState == "loading") {
-			ThisExtension.Logger.logDebug(`Connection Initialization in progress - waiting ... `);
+			this.Logger.logDebug(`Connection Initialization in progress - waiting ... `);
 			const initialized = await Helper.awaitCondition(async () => this._initializationState != "loading", 30000, 100);
 
 			if (initialized) {
-				ThisExtension.Logger.logDebug(`Connection Initialization SUCCESSFUL!`);
+				this.Logger.logDebug(`Connection Initialization SUCCESSFUL!`);
 			}
 			else {
-				ThisExtension.Logger.logError(`Connection Initialization FAILED!`, true);
+				this.Logger.logError(`Connection Initialization FAILED!`, true);
 			}
 		}
 		return this._headers;
@@ -228,7 +225,7 @@ export abstract class FabricApiService {
 		const headers = await this.getHeaders(); // this also checks if the connection is initialized
 
 		endpoint = this.getFullUrl(endpoint, params);
-		ThisExtension.Logger.logDebug("GET " + endpoint);
+		this.Logger.logInfo("GET " + endpoint);
 
 		try {
 			const requestConfig: RequestInit = {
@@ -266,7 +263,7 @@ export abstract class FabricApiService {
 			}
 
 			if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
-				ThisExtension.Logger.logError("Token expired - refreshing connection!");
+				this.Logger.logError("Token expired - refreshing connection!");
 				await this.refreshConnection(true);
 				return this.get<TSuccess>(endpoint, params, config);
 			}
@@ -300,7 +297,7 @@ export abstract class FabricApiService {
 			}
 
 			if (listProperty && !response.success[listProperty]) {
-				ThisExtension.Logger.logWarning(`List property '${listProperty}' not found in response!`);
+				this.Logger.logWarning(`List property '${listProperty}' not found in response!`);
 				listProperty = Object.keys(response.success).find(x => !x.startsWith("continuation")); // fallback to first real property
 			}
 
@@ -374,7 +371,7 @@ export abstract class FabricApiService {
 		const headers = await this.getHeaders(); // this also checks if the connection is initialized
 
 		endpoint = this.getFullUrl(endpoint);
-		ThisExtension.Logger.logDebug(`${method} ${endpoint} -->  ${JSON.stringify(body) ?? "{}"}`);
+		this.Logger.logInfo(`${method} ${endpoint} -->  ${JSON.stringify(body) ?? "{}"}`);
 
 		try {
 			const requestConfig: RequestInit = {
@@ -429,7 +426,7 @@ export abstract class FabricApiService {
 			}
 
 			if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
-				ThisExtension.Logger.logError("Token expired - refreshing connection!");
+				this.Logger.logError("Token expired - refreshing connection!");
 				await this.refreshConnection(true);
 				return this.generic<TSuccess>(method, endpoint, body, config);
 			}
@@ -505,11 +502,23 @@ export abstract class FabricApiService {
 	}
 
 	protected static async logResponse(response): Promise<void> {
-		if (typeof response == "string") {
-			this.Logger.logDebug("Response: " + response);
-		}
-		else {
-			this.Logger.logDebug("Response: " + await response.text());
+		if(FabricConfiguration.logLevel > vscode.LogLevel.Off) {
+			let logMsg = "";
+			if (typeof response == "string") {
+				logMsg = response;
+			}
+			else {
+				logMsg = await response.text();
+			}
+			if(FabricConfiguration.logLevel == vscode.LogLevel.Info) {
+				// for Info level, we truncate long responses
+				// full response is only shown for Debug and Trace levels
+				logMsg = logMsg.length > 200 ? logMsg.substring(0, 200) + " ... (truncated)" : logMsg;
+				this.Logger.logInfo(`Response: ${logMsg}`);
+			}
+			else {
+				this.Logger.logDebug(`Response: ${logMsg}`);
+			}
 		}
 	}
 
@@ -613,7 +622,7 @@ export abstract class FabricApiService {
 
 	static async createItem(workspaceId: string, name: string, type: FabricApiItemType, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iFabricApiResponse> {
 		if (!FabricConfiguration.itemTypeHasDefinition(type)) {
-			ThisExtension.Logger.logError(`Type '${type}' is not supported for item creation!`, true, true);
+			this.Logger.logError(`Type '${type}' is not supported for item creation!`, true, true);
 		}
 
 		const endpoint = `${this._apiBaseUrl}/v1/workspaces/${workspaceId}/${type}`;
@@ -635,7 +644,7 @@ export abstract class FabricApiService {
 		const session = await FabricApiService.getVSCodeSession(false);
 
 		if (!session || !session.accessToken) {
-			ThisExtension.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
+			this.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
 			return;
 		}
 

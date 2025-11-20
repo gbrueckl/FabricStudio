@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="fabric.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="15.354167"
+     inkscape:cx="43.24559"
+     inkscape:cy="33.671642"
+     inkscape:window-width="3072"
+     inkscape:window-height="1774"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     id="g1"
+     transform="translate(-10.582986,24.200315)">
+    <path
+       fill-rule="evenodd"
+       clip-rule="evenodd"
+       d="M46.0803 0C45.9962 0 45.8515 0.0261277 45.8515 0.0261277L15.0038 4.585C11.6549 5.12487 8.94224 7.59626 8.06602 10.8115L0.192048 39.6764C0.144036 39.8203 0.228057 39.5324 0.192048 39.6764C0.084021 40.1682 0 40.6721 0 41.2C0 44.6791 2.62866 47.5344 6.0015 47.9063C6.94974 48.0383 8.03001 48.0383 9.23031 47.8583L14.7637 47.0905C16.156 46.8986 17.2963 45.8908 17.6684 44.5352L20.5251 33.9898L24.7742 33.3539L28.8672 32.7541C29.6714 32.6341 30.3316 32.0342 30.5356 31.2664L33.8365 19.1854L40.6061 18.1897V18.1657L42.5146 17.8777C43.2828 17.7698 43.907 17.2059 44.099 16.4741L47.928 2.42554C47.976 2.25758 48 2.08962 48 1.90966C48 0.853924 47.1485 0 46.0803 0ZM14.7877 43.7554C14.7277 43.9473 14.5716 44.1033 14.3676 44.1273L8.8222 44.8951H8.8102C7.84996 45.039 7.06977 45.027 6.44561 44.9431H6.3976L6.34959 44.9311C4.47712 44.7271 3.01275 43.1315 3.01275 41.2C3.01275 40.8161 3.07277 40.4562 3.16879 40.1202C3.79295 38.3327 4.69317 37.049 7.33383 36.1852C8.006 35.9693 8.7982 35.7773 9.72243 35.6094L17.2963 34.4816L14.7877 43.7554ZM28.1547 28.6329C27.946 29.4015 27.3011 29.973 26.5129 30.0878L22.4576 30.6786L7.29782 32.922C6.3976 33.09 5.62941 33.2699 4.95724 33.4859L6.48162 27.9073L6.49362 27.7993C6.52963 27.7033 6.57764 27.5234 6.64966 27.2954L6.48162 27.9073C7.15379 25.4839 7.81395 23.8403 11.0068 22.7965C11.6789 22.5806 12.4711 22.3886 13.3953 22.2207L30.5836 19.6893L28.1547 28.6329ZM41.3983 15.0344L38.1815 15.5143L10.9827 19.5333C10.0825 19.7013 9.30232 19.8812 8.64216 20.0972L10.5266 13.2589L10.9707 11.6153C11.5469 9.52779 13.2993 7.92018 15.4719 7.56027L44.6272 3.25333L41.4103 15.0344H41.3983Z"
+       fill="black"
+       id="path1"
+       inkscape:label="icon"
+       transform="translate(10.582986,-24.200315)" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:29.2836px;line-height:0;fill:#000000;fill-opacity:1;stroke-width:0.880504;stroke-dasharray:none"
+     x="32.172729"
+     y="47.582569"
+     id="text2"
+     transform="scale(1.0001186,0.99988139)"><tspan
+       sodipodi:role="line"
+       id="tspan2"
+       x="32.172729"
+       y="47.582569"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:29.2836px;font-family:'Courier New';-inkscape-font-specification:'Courier New';stroke-width:0.880504">S</tspan></text>
+</svg>
