@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.9.3**:
+- fixed issue with load of workspace children
+
 **v2.9.2**:
 - improved logging when encountering errors while loading the treeviews ([#33](/../../issues/33))
 
