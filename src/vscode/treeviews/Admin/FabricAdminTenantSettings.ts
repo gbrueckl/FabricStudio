@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiAdminTenantSetting } from '../../../fabric/_types';
@@ -68,7 +68,7 @@ export class FabricAdminTenantSettings extends FabricAdminGenericFolder {
 			children = FabricAdminTreeItem.handleEmptyItems(children, regexFilter);
 		}
 		catch (e) {
-			ThisExtension.Logger.logError("Could not load items for Admin Tennant Settings", true);
+			Helper.handleGetChildrenError(e, this.parent, "admin tenant settings");
 		}
 
 		return children;

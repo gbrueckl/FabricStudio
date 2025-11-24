@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiItem } from '../../../fabric/_types';
@@ -49,7 +49,7 @@ export class FabricReports extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load reports for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "reports");
 			}
 
 			return children;

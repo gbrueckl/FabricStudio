@@ -7,6 +7,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricWorkspace } from './FabricWorkspace';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricSqlEndpoints extends FabricWorkspaceGenericFolder {
@@ -48,7 +49,7 @@ export class FabricSqlEndpoints extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load sql endpoints for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "SQL endpoints");
 			}
 
 			return children;

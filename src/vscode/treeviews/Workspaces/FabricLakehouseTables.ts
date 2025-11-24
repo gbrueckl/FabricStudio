@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricApiItemType,  iFabricApiLakehouseTable } from '../../../fabric/_types';
@@ -49,7 +49,7 @@ export class FabricLakehouseTables extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load tables for lakehouse " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "lakehouse tables");
 			}
 
 			return children;

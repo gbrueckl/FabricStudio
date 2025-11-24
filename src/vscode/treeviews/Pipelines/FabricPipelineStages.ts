@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { FabricPipelineTreeItem } from './FabricPipelineTreeItem';
 import { FabricPipelineGenericFolder } from './FabricPipelineGenericFolder';
@@ -26,16 +26,21 @@ export class FabricPipelineStages extends FabricPipelineGenericFolder {
 		}
 		else {
 			let children: FabricPipelineStage[] = [];
-			let items = await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(this.apiPath, undefined, "value", "order");
-			
-			if (items.error) {
-				ThisExtension.Logger.logError(items.error.message);
-				return [FabricPipelineTreeItem.ERROR_ITEM<FabricPipelineTreeItem>(items.error)];
+			try {
+				let items = await FabricApiService.getList<iFabricApiDeploymentPipelineStage>(this.apiPath, undefined, "value", "order");
+
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricPipelineTreeItem.ERROR_ITEM<FabricPipelineTreeItem>(items.error)];
+				}
+
+				for (let item of items.success) {
+					let treeItem = new FabricPipelineStage(item, this);
+					children.push(treeItem);
+				}
 			}
-			
-			for (let item of items.success) {
-				let treeItem = new FabricPipelineStage(item, this);
-				children.push(treeItem);
+			catch (e) {
+				Helper.handleGetChildrenError(e, this.parent, "deployment pipeline stages");
 			}
 
 			return children;

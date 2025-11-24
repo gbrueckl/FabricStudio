@@ -15,6 +15,7 @@ import { FabricGraphQLApi } from './FabricGraphQLApi';
 import { FabricNotebook } from './FabricNotebook';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -32,6 +33,7 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		super(id, name, "WorkspaceFolder", parent, definition, undefined, vscode.TreeItemCollapsibleState.Collapsed);
 
 		this._customApiUrlPart = apiUrlPart;
+		this.itemName = definition.displayName;
 
 		this.iconPath = this.getIconPath();
 	}
@@ -117,7 +119,7 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 				children = children.concat(treeItems);
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load items for folder " + this.itemDefinition.displayName, true);
+				Helper.handleGetChildrenError(e, this);
 			}
 		}
 

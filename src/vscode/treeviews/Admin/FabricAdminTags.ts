@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiAdminTag } from '../../../fabric/_types';
@@ -50,9 +50,9 @@ export class FabricAdminTags extends FabricAdminGenericFolder {
 
 			return FabricAdminTreeItem.handleEmptyItems<FabricAdminTreeItem>(children, regexFilter, "tag");
 		}
-		catch (error) {
-			ThisExtension.Logger.logError(error.message);
-			return [FabricAdminTreeItem.ERROR_ITEM<FabricAdminTreeItem>(error)];
+		catch (e) {
+			Helper.handleGetChildrenError(e, this.parent, "admin tags");
+			return [FabricAdminTreeItem.ERROR_ITEM<FabricAdminTreeItem>(e)];
 		}
 	}
 }

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiWarehouse } from '../../../fabric/_types';
@@ -40,7 +40,7 @@ export class FabricWarehouses extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load Warehouses for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "warehouses");
 			}
 
 			return children;

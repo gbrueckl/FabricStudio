@@ -51,7 +51,7 @@ export class FabricItemJobSchedules extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load job schedules for item " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "job schedules");
 			}
 
 			return children;

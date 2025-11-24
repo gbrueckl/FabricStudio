@@ -38,7 +38,7 @@ export class FabricWarehouseRestorePoints extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError(`Could not load Restore Points for warehouse '${this.itemName}' in '${this.workspace.itemName}`, true);
+				Helper.handleGetChildrenError(e, this.parent, "restore points");
 			}
 
 			Helper.sortArrayByProperty(children, "eventDateTime", "DESC");

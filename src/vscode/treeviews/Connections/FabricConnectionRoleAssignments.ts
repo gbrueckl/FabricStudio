@@ -30,16 +30,22 @@ export class FabricConnectionRoleAssignments extends FabricConnectionGenericFold
 		}
 		else {
 			let children: FabricConnectionRoleAssignment[] = [];
-			let items = await FabricApiService.getList<iFabricApiConnectionRoleAssignment>(this.apiPath, undefined, "value", "id");
 
-			if (items.error) {
-				ThisExtension.Logger.logError(items.error.message);
-				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
+			try {
+				let items = await FabricApiService.getList<iFabricApiConnectionRoleAssignment>(this.apiPath, undefined, "value", "id");
+
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
+				}
+
+				for (let item of items.success) {
+					let treeItem = new FabricConnectionRoleAssignment(item, this);
+					children.push(treeItem);
+				}
 			}
-			
-			for (let item of items.success) {
-				let treeItem = new FabricConnectionRoleAssignment(item, this);
-				children.push(treeItem);
+			catch (e) {
+				Helper.handleGetChildrenError(e, this.parent, "connection role-assignments");
 			}
 
 			return children;

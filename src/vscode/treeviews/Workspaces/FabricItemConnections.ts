@@ -51,7 +51,7 @@ export class FabricItemConnections extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load connections for item " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "data connections");
 			}
 
 			return children;

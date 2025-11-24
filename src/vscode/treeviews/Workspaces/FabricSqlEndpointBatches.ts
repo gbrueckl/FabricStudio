@@ -6,6 +6,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricSqlEndpoint } from './FabricSqlEndpoint';
 import { FabricSqlEndpointBatch } from './FabricSqlEndpointBatch';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricSqlEndpointBatches extends FabricWorkspaceGenericFolder {
@@ -50,7 +51,7 @@ export class FabricSqlEndpointBatches extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load batches for SQL endpoint " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "batches");
 			}
 
 			return children;

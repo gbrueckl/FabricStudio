@@ -27,6 +27,7 @@ import { FabricReports } from './FabricReports';
 import { FabricSemanticModels } from './FabricSemanticModels';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricWarehouses } from './FabricWarehouses';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -228,9 +229,11 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				children.push(managedPrivateEndpoints);
 
 				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
+
+				throw new Error("Test error logging");
 			}
 			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load items for workspace " + this.workspace.itemName);
+				Helper.handleGetChildrenError(e, this);
 			}
 
 			return children;
