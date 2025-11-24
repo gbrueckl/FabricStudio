@@ -229,8 +229,6 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				children.push(managedPrivateEndpoints);
 
 				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
-
-				throw new Error("Test error logging");
 			}
 			catch (e) {
 				Helper.handleGetChildrenError(e, this);
