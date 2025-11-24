@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
@@ -98,7 +99,7 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load tables for lakehouse " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent);
 			}
 		}
 

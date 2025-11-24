@@ -6,6 +6,7 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricNotebook } from './FabricNotebook';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricNotebooks extends FabricWorkspaceGenericFolder {
@@ -38,7 +39,7 @@ export class FabricNotebooks extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load notebooks for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "notebooks");
 			}
 
 			return children;

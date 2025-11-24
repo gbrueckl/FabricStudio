@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiAdminDomain, iFabricApiAdminDomainWorkspace } from '../../../fabric/_types';
@@ -56,7 +56,7 @@ export class FabricAdminDomainWorkspaces extends FabricAdminGenericFolder {
 			children = FabricAdminTreeItem.handleEmptyItems(children, regexFilter);
 		}
 		catch (e) {
-			ThisExtension.Logger.logError(`Could not load workspaces for Domain '${this.parent.itemName}'`, true);
+			Helper.handleGetChildrenError(e, this.parent, "domain workspaces");
 		}
 
 		return children;

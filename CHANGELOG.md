@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.9.2**:
+- improved logging when encountering errors while loading the treeviews ([#33](/../../issues/33))
+
 **v2.9.1**:
 - fixed issue with publishing from Fabric defintion to a new item using `Publish via Fabric Studio`
 - fixed issue with `NO_ITEMS`

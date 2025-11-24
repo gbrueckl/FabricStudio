@@ -49,7 +49,7 @@ export class FabricItemJobInstances extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load job instances for item " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "job instances");
 			}
 
 			return children;

@@ -8,6 +8,7 @@ import { ThisExtension } from './../ThisExtension';
 import { FabricQuickPickItem } from '../vscode/input/FabricQuickPickItem';
 import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
 import { FabricApiItemType } from '../fabric/_types';
+import { FabricApiTreeItem } from '../vscode/treeviews/FabricApiTreeItem';
 
 export type UniqueId = string;
 
@@ -201,7 +202,7 @@ export abstract class Helper {
 		return false;
 	}
 
-	
+
 
 	static bytesToSize(bytes: number): string {
 		let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -362,5 +363,10 @@ export abstract class Helper {
 
 	static getIconPath(itemType: FabricApiItemType): vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', FabricConfiguration.iconStyle, itemType.toLowerCase() + '.svg');
+	}
+
+	public static handleGetChildrenError(error: Error, treeItem: FabricApiTreeItem, childTypes: string = "children"): void {
+		ThisExtension.Logger.logError(`Could not load ${childTypes} of ${treeItem.itemType} '${treeItem.itemName}'(${treeItem.itemId}): ${error.message}`, true);
+		ThisExtension.Logger.logError(`${error.stack}`);
 	}
 }

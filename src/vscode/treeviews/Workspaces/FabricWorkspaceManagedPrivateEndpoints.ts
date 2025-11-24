@@ -43,7 +43,7 @@ export class FabricWorkspaceManagedPrivateEndpoints extends FabricWorkspaceGener
 				Helper.sortArrayByProperty(children, "label");
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load Managed Private Endpoints for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "managed private endpoints");
 			}
 
 			return children;

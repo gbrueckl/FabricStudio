@@ -403,7 +403,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			items = [this.NO_ITEMS as T];
 		}
 		return items;
-	}
+	}		
 
 	public static async getValidChildren(item: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
 		let children: FabricApiTreeItem[] = await item.getChildren();

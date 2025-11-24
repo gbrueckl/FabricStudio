@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiItem } from '../../../fabric/_types';
@@ -50,7 +50,7 @@ export class FabricEnvironments extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load environments for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "environments");
 			}
 
 			return children;

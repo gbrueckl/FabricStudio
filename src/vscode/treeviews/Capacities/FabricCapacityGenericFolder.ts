@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricCapacityTreeItem } from './FabricCapacityTreeItem';
@@ -98,7 +98,7 @@ export class FabricCapacityGenericFolder extends FabricCapacityTreeItem {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load tables for lakehouse " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent);
 			}
 		}
 

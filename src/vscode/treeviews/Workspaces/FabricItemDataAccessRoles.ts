@@ -50,7 +50,7 @@ export class FabricItemDataAccessRoles extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load data access roles for item " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "data access roles");
 			}
 
 			return children;

@@ -55,7 +55,7 @@ export class FabricItemShortcuts extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load shortcuts for item " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "item shortcuts");
 			}
 
 			return children;

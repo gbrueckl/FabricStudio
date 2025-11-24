@@ -41,7 +41,7 @@ export class FabricItemLivySessions extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load livy sessions for item " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "livy sessions");
 			}
 
 			return children;

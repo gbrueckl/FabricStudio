@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiAdminDomain } from '../../../fabric/_types';
@@ -53,7 +53,7 @@ export class FabricAdminDomains extends FabricAdminGenericFolder {
 			children = FabricAdminTreeItem.handleEmptyItems(children, regexFilter, "AdminDomain");
 		}
 		catch (e) {
-			ThisExtension.Logger.logError("Could not load items for Admin Domains", true);
+			Helper.handleGetChildrenError(e, this.parent, "admin domains");
 		}
 
 		return children;

@@ -9,6 +9,7 @@ import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricMirroredDatabaseTable } from './FabricMirroredDatabaseTable';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricMirroredDatabaseTables extends FabricWorkspaceGenericFolder {
@@ -48,7 +49,7 @@ export class FabricMirroredDatabaseTables extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load tables for MirroredDatabase " + this.parent.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "mirrored database tables");
 			}
 
 			return children;

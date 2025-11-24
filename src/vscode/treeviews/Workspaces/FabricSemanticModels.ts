@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiItem } from '../../../fabric/_types';
@@ -49,7 +49,7 @@ export class FabricSemanticModels extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load semantic models for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "semantic models");
 			}
 
 			return children;

@@ -6,6 +6,7 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricMirroredDatabases extends FabricWorkspaceGenericFolder {
@@ -44,7 +45,7 @@ export class FabricMirroredDatabases extends FabricWorkspaceGenericFolder {
 				}
 			}
 			catch (e) {
-				ThisExtension.Logger.logError("Could not load pipelines for workspace " + this.workspace.itemName, true);
+				Helper.handleGetChildrenError(e, this.parent, "mirrored databases");
 			}
 
 			return children;
