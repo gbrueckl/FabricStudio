@@ -118,39 +118,12 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 
 	get fabricFsUri(): FabricFSUri {
-		if (this.itemType == "Workspace") {
-			FabricFSUri.addWorkspaceNameIdMap(this.itemName, this.itemId);
-			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.itemId}`));
+		if (this.itemDefinition) {
+			return FabricFSUri.getInstanceFromApiDefinition(this.itemDefinition);
 		}
-
-		if (this.itemType == "WorkspaceFolder") {
-			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${this.workspaceId}`));
+		else {
+			return undefined;
 		}
-
-		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
-		let itemFsPath = Helper.trimChar(Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemName), "/");
-
-		// TODO: there is a bug if the item resides in a workspace folder
-		FabricFSUri.addItemNameIdMap(this.itemName, this.itemId, this.workspaceId, this.itemType);
-		const fabricFsUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
-		return fabricFsUri;
-
-		//let itemFsPath = this.itemPath;
-		// as we return the URI by name, we also have to add the item to the mapping
-		if (Helper.isGuid(this.itemId)) {
-			itemFsPath = Helper.trimChar(Helper.joinPath(this.itemPath.split("/").slice(1, -1).join("/"), this.itemName), "/");
-			FabricFSUri.addItemNameIdMap(itemFsPath, this.itemId);
-			itemFsPath = "workspaces/" + itemFsPath;
-		}
-
-		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
-	}
-
-	get fabricFsItemUri(): FabricFSUri {
-		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
-		let itemFsPath = Helper.joinPath("workspaces", this.workspaceId, itemTypePlural, this.itemName);
-
-		return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
 	}
 
 	public async editDefinition(): Promise<void> {

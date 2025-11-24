@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { Helper } from '@utils/Helper';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
-import { FabricApiItemType } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem } from '../../fabric/_types';
 import { ThisExtension } from '../../ThisExtension';
 import { FabricFSCacheItem } from './FabricFSCacheItem';
 import { FabricFSWorkspace } from './FabricFSWorkspace';
@@ -47,6 +47,7 @@ export class FabricFSUri {
 		let uriString = uri.toString();
 
 		if (uriString.startsWith(FABRIC_SCHEME + ":/")) {
+			// works with fabric:/ and fabric:// and fabric:///
 			let paths = uriString.split("/").filter((path) => path.length > 0).slice(1);
 			if (paths[0] != 'workspaces') {
 				ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
@@ -80,6 +81,28 @@ export class FabricFSUri {
 		}
 
 		return fabricUri;
+	}
+
+	static getInstanceFromApiDefinition(definition: iFabricApiItem): FabricFSUri {
+		if (definition.type == "Workspace") {
+			FabricFSUri.addWorkspaceNameIdMap(definition.displayName, definition.id);
+			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${definition.id}`));
+		}
+
+		if (definition.type == "WorkspaceFolder") {
+			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${definition.workspaceId}`));
+		}
+
+		// we need to encode twice otherwise the encoded URL is not persisted correctly in the settings
+		const itemName = encodeURIComponent(encodeURIComponent(definition.displayName));
+		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(definition.type);
+		let itemFsPath = Helper.trimChar(Helper.joinPath("workspaces", definition.workspaceId, itemTypePlural, itemName), "/");
+
+		// TODO: there is a bug if the item resides in a workspace folder
+		FabricFSUri.addItemNameIdMap(definition.displayName, definition.id, definition.workspaceId, definition.type);
+		const fabricFsUri = new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///${itemFsPath}`));
+
+		return fabricFsUri;
 	}
 
 	static async openInBrowser(uri: vscode.Uri): Promise<void> {
@@ -132,11 +155,32 @@ export class FabricFSUri {
 	}
 
 	private get workspaceMapName(): string {
-		return decodeURIComponent(this.workspace);
+		return this.workspace;
 	}
 
 	public get itemMapName(): string {
-		return decodeURIComponent(`${this.workspaceId}/${this.itemType}/${this.item}`);
+		return FabricFSUri.getItemMapName(this.workspaceId, this.itemType, this.item);
+	}
+
+	public static getItemMapName(workspaceId: string, itemType: FabricApiItemType, itemName: string): string {
+		return decodeURIComponent(`${workspaceId}/${itemType}/${itemName}`);
+	}
+
+	// the final map contains encoded names to handle special characters
+	public static addWorkspaceNameIdMap(workspaceName: string, workspaceId: string): void {
+		// encode the workspace name to handle special characters
+		FabricFSUri._workspaceNameIdMap.set(encodeURIComponent(workspaceName), workspaceId);
+	}
+
+	// the final map contains encoded names to handle special characters
+	public static addItemNameIdMap(itemName: string, itemId: string, workspaceId: string = undefined, itemType: FabricApiItemType = undefined): void {
+		// itemName is the original name, we have to encode it
+		if (workspaceId && itemType) {
+			const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
+			itemName = FabricFSUri.getItemMapName(workspaceId, itemTypePlural, encodeURIComponent(itemName));
+		}
+
+		FabricFSUri._itemNameIdMap.set(itemName, itemId);
 	}
 
 	get itemId(): string {
@@ -151,17 +195,7 @@ export class FabricFSUri {
 	}
 
 
-	public static addWorkspaceNameIdMap(workspaceName: string, workspaceId: string): void {
-		FabricFSUri._workspaceNameIdMap.set(decodeURIComponent(workspaceName), workspaceId);
-	}
 
-	public static addItemNameIdMap(itemName: string, itemId: string, workspaceId: string = undefined, itemType: FabricApiItemType = undefined): void {
-		if(workspaceId && itemType) {
-			itemName = `${workspaceId}/${FabricMapper.getItemTypePlural(itemType)}/${itemName}`;
-		}
-		
-		FabricFSUri._itemNameIdMap.set(decodeURIComponent(itemName), itemId);
-	}
 
 	private constructor_regex(uri: vscode.Uri) {
 		let match: RegExpExecArray;
@@ -255,7 +289,7 @@ export class FabricFSUri {
 		let qpItem = new FabricQuickPickItem(itemUrl.item, itemUrl.itemId, singular);
 		qpItem.itemType = singular;
 		qpItem.workspaceId = this.workspaceId;
-		for(const [key, value] of FabricFSUri._workspaceNameIdMap) {
+		for (const [key, value] of FabricFSUri._workspaceNameIdMap) {
 			if (value == itemUrl.workspaceId) {
 				qpItem.workspaceName = key;
 				break;

@@ -608,7 +608,7 @@ export abstract class FabricApiService {
 		const body = {};
 
 		if (newName) {
-			body["displayName"] = decodeURI(newName);
+			body["displayName"] = newName;
 		}
 		if (newDescription) {
 			body["description"] = newDescription;

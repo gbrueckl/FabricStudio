@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.9.4**:
+- fixed issue with special characters in workspace and/or item names ([#33](/../../issues/33))
+
 **v2.9.3**:
 - fixed issue with load of workspace children
 
