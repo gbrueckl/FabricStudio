@@ -57,10 +57,10 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		}
 
 		vscode.commands.executeCommand(
-				"setContext",
-				"Fabric.Workspaces.allowDeleteItems",
-				allow_delete
-			);
+			"setContext",
+			"Fabric.Workspaces.allowDeleteItems",
+			allow_delete
+		);
 	}
 
 	public get Selection(): readonly FabricWorkspaceTreeItem[] {
@@ -99,33 +99,39 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		}
 		else {
 			let children: FabricWorkspaceTreeItem[] = [];
-			const regexFilter = this.filterRegEx;
 
-			let items = await FabricApiService.getList<iFabricApiWorkspace>("/v1/workspaces");
+			try {
+				const regexFilter = this.filterRegEx;
 
-			if (items.error) {
-				ThisExtension.Logger.logError(items.error.message);
-				return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
-			}
+				let items = await FabricApiService.getList<iFabricApiWorkspace>("/v1/workspaces");
 
-			for (let item of items.success) {
-				if (regexFilter) {
-					const match = item.displayName.match(regexFilter);
-					if (!match) {
-						ThisExtension.Logger.logInfo(`Skipping workspace ${item.displayName} because it does not match the workspace filter '${regexFilter}'.`);
-						continue;
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
+				}
+
+				for (let item of items.success) {
+					if (regexFilter) {
+						const match = item.displayName.match(regexFilter);
+						if (!match) {
+							ThisExtension.Logger.logInfo(`Skipping workspace ${item.displayName} because it does not match the workspace filter '${regexFilter}'.`);
+							continue;
+						}
+					}
+					if (item.capacityId || FabricConfiguration.showProWorkspaces) {
+						let treeItem = new FabricWorkspace(item);
+						children.push(treeItem);
+					}
+					else {
+						ThisExtension.Logger.logInfo("Skipping workspace '" + item.displayName + "' (" + item.id + ") because it has no capacityId");
 					}
 				}
-				if (item.capacityId || FabricConfiguration.showProWorkspaces) {
-					let treeItem = new FabricWorkspace(item);
-					children.push(treeItem);
-				}
-				else {
-					ThisExtension.Logger.logInfo("Skipping workspace '" + item.displayName + "' (" + item.id + ") because it has no capacityId");
-				}
-			}
 
-			children = FabricWorkspaceTreeItem.handleEmptyItems(children, regexFilter);
+				children = FabricWorkspaceTreeItem.handleEmptyItems(children, regexFilter);
+			}
+			catch (e) {
+				Helper.handleGetChildrenError(e, { "itemType": "WorkspaceRoot", "itemId": "root", "itemName": "Workspaces" } as any);
+			}
 
 			return children;
 		}
@@ -224,9 +230,8 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 		else if (item.type == "SQLDatabase") {
 			itemToAdd = new FabricSqlDatabase(item, parent);
 		}
-		else if (item.type == "MirroredAzureDatabricksCatalog" 
-			|| item.type == "MirroredWarehouse") 
-			{
+		else if (item.type == "MirroredAzureDatabricksCatalog"
+			|| item.type == "MirroredWarehouse") {
 			itemToAdd = new FabricSQLItem(item, parent);
 		}
 		else {
