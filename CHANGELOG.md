@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.9.5**:
+- improved logging when creating new treeview-items ([#33](/../../issues/33))
+
+
 **v2.9.4**:
 - fixed issue with special characters in workspace and/or item names ([#33](/../../issues/33))
 
