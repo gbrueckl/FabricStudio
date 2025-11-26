@@ -36,6 +36,8 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	) {
 		super(name, collapsibleState);
 
+		ThisExtension.Logger.logTrace(`Creating ${type} TreeItem '${name}'(${id})`);
+
 		this._itemId = id;
 		this._itemName = name;
 		this._itemType = type;

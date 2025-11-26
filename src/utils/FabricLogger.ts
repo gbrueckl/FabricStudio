@@ -11,11 +11,11 @@ export class FabricLogger {
 	constructor(context: vscode.ExtensionContext, loggerName: string, logLevel: vscode.LogLevel = vscode.LogLevel.Info) {
 		this._logLevel = logLevel;
 		this._name = loggerName;
-		this._logger = vscode.window.createOutputChannel(loggerName);
+		this._logger = vscode.window.createOutputChannel(this._name);
 
 		context.subscriptions.push(this._logger);
 
-		this.log(`Logger '${loggerName}' initialized!`);
+		this.log(`Logger '${this._name}' initialized!`);
 	}
 
 	public log(text: string, logLevel: vscode.LogLevel = vscode.LogLevel.Info): void {
