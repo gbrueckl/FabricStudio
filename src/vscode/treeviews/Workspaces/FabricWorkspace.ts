@@ -228,7 +228,7 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				let managedPrivateEndpoints: FabricWorkspaceManagedPrivateEndpoints = new FabricWorkspaceManagedPrivateEndpoints(this);
 				children.push(managedPrivateEndpoints);
 
-				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings"))
+				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings", "GenericViewer", true))
 			}
 			catch (e) {
 				Helper.handleGetChildrenError(e, this);

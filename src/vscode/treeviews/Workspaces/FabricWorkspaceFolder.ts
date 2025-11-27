@@ -62,7 +62,8 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 	}
 
 	get itemDefinition(): iFabricApiWorkspaceFolder {
-		return this._itemDefinition;
+		// artificially add the type property
+		return Object.assign({}, this._itemDefinition, { type: "WorkspaceFolder" });
 	}
 
 	get apiUrlPart(): string {
