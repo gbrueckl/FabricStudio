@@ -26,10 +26,10 @@ export class FabricEnvironment extends FabricItem {
 		else {
 			let children: FabricWorkspaceTreeItem[] = [];
 
-			children.push(new FabricWorkspaceGenericViewer("Staging Settings", this, "staging/sparkcompute"));
-			children.push(new FabricWorkspaceGenericViewer("Published Settings", this, "sparkcompute"));
-			children.push(new FabricWorkspaceGenericViewer("Staging Libraries", this, "staging/libraries"));
-			children.push(new FabricWorkspaceGenericViewer("Published Libraries", this, "libraries"));
+			children.push(new FabricWorkspaceGenericViewer("Staging Settings", this, "staging/sparkcompute?beta=false", "GenericViewer", true));
+			children.push(new FabricWorkspaceGenericViewer("Published Settings", this, "sparkcompute?beta=false", "GenericViewer", true));
+			children.push(new FabricWorkspaceGenericViewer("Staging Libraries", this, "staging/libraries?beta=false", "GenericViewer", true));
+			children.push(new FabricWorkspaceGenericViewer("Published Libraries", this, "libraries?beta=false", "GenericViewer", true));
 
 			return children;
 		}

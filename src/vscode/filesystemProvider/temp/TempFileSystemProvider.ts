@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { ThisExtension } from '../../../ThisExtension';
 import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 
 export const TEMP_SCHEME: string = "fabrictemp";
@@ -11,6 +12,7 @@ export const TEMP_FILE_ENCODING: BufferEncoding = "utf8";
 
 export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode.Disposable {
 	private static cache: Map<string, Buffer> = new Map<string, Buffer>();
+	private static onSaveActions: Map<string, (savedContent: string) => Promise<boolean>> = new Map<string, (savedContent: string) => Promise<boolean>>();
 
 	constructor() { }
 
@@ -21,9 +23,18 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 		ThisExtension.TempFileSystemProvider = fsp;
 	}
 
-	public static async createTempFile(path: string, content: string, extension: string = ".json"): Promise<vscode.Uri> {
-		let uri = vscode.Uri.parse(`${TEMP_SCHEME}:///${Helper.trimChar(encodeURI(path), "/")}${extension}`);
+	public static async createTempFile(
+		path: string,
+		content: string,
+		onSaveAction: (content: string) => Promise<boolean> = undefined,
+		extension: string = ".json"
+	): Promise<vscode.Uri> {
+		// we append the extension as a query param to easily convert back to the original path
+		let uri = vscode.Uri.parse(`${TEMP_SCHEME}:///${Helper.trimChar(encodeURI(path), "/")}${extension}?ext=${extension}`);
 		TempFileSystemProvider.cache.set(uri.toString(), Buffer.from(content, TEMP_FILE_ENCODING));
+		if (onSaveAction) {
+			TempFileSystemProvider.onSaveActions.set(uri.toString(), onSaveAction);
+		}
 
 		return uri;
 	}
@@ -56,7 +67,19 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 	}
 
 	async writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): Promise<void> {
-		throw vscode.FileSystemError.NoPermissions(`This file is read-only!`);
+		if (!TempFileSystemProvider.onSaveActions.has(uri.toString())) {
+			throw vscode.FileSystemError.NoPermissions(`This file is read-only!`);
+		}
+		TempFileSystemProvider.cache.set(uri.toString(), Buffer.from(content));
+
+		const onSaveAction = TempFileSystemProvider.onSaveActions.get(uri.toString());
+		const success = await onSaveAction(content.toString());
+		if (!success) {
+			ThisExtension.Logger.logInfo(`Changes were not saved to the Fabric Service.`);
+			return;
+		}
+
+		this._fireSoon({ type: vscode.FileChangeType.Changed, uri });
 	}
 
 	// --- manage files/folders

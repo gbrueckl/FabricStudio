@@ -10,7 +10,7 @@ export class FabricItemJobSchedule extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemJobSchedule,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, parent, definition.id);
+		super(definition.id, parent, definition.id, "ItemJobSchedule", true);
 
 		this.itemId = definition.id;
 		this.itemDefinition = definition;

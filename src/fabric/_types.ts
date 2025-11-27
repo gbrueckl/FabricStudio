@@ -176,6 +176,9 @@ export interface iFabricApiWorkspaceFolder {
 	displayName: string;
 	workspaceId: UniqueId;
 	parentFolderId?: UniqueId;
+
+	// not in API definition but necessary 
+	type: string;
 }
 
 

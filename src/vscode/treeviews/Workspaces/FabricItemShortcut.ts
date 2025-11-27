@@ -11,7 +11,7 @@ export class FabricItemShortcut extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemShortcut,
 		parent: FabricItemShortcuts
 	) {
-		super(definition.name, parent, undefined, "ItemShortcut");
+		super(definition.name, parent, undefined, "ItemShortcut", true);
 
 		this.id = parent.id + "/" + definition.name,
 
