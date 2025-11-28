@@ -175,6 +175,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 						await FabricCapacity.assignWorkspace(sourceItem.itemDefinition, target.itemDefinition);
 					}
 					ThisExtension.TreeViewCapacities.refresh(target.parent, false);
+					ThisExtension.TreeViewCapacities.refresh(sourceItem.parent, false);
 				}
 				treeViewtoRefresh = sourceItem.treeProvider
 				actions.set("Assign to Capacity", assignToCapacity);
@@ -193,7 +194,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 				const moveToFolder = async () => {
 					await FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition, target.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
 				}
 				treeViewtoRefresh = sourceItem.treeProvider;
 				actions.set("Move to Folder", moveToFolder);
@@ -209,7 +210,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 				const moveToWorkspaceRoot = async () => {
 					FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
 				}
 				treeViewtoRefresh = target.treeProvider;
 				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
@@ -233,7 +234,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					}
 
 					FabricApiService.post(`/v1/workspaces/${target.workspaceId}/items/bulkMove`, body);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
 				}
 
 				actions.set(`Move Item(s)`, bulkMoveItems);

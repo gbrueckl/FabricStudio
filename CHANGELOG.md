@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.10.1**:
+- fixed issue with refreshing of tree views after a drag&drop action
+
 **v2.10.0**:
 - added update functionality to Environments, Workspace Spark Settings, Shortcuts, Job Schedules, ...
 - fixed issue where Workspaces did not load correctly if Folders were used
