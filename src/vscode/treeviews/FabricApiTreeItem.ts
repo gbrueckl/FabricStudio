@@ -7,11 +7,10 @@ import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiItemType } from '../../fabric/_types';
 import { ThisExtension, TreeProviderId } from '../../ThisExtension';
 import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
-import { FabricConfiguration } from '../configuration/FabricConfiguration';
 import { FabricMapper } from '../../fabric/FabricMapper';
 import { iGenericApiError } from '@utils/_types';
-import { FabricWorkspaceTreeItem } from './Workspaces/FabricWorkspaceTreeItem';
 import { FabricWorkspaceFolder } from './Workspaces/FabricWorkspaceFolder';
+import { FabricGUIDHoverProvider } from '../hoverProvider/FabricGUIDHoverProvider';
 
 
 export const NO_ITEMS_ITEM_ID: string = "NO_ITEMS";
@@ -53,6 +52,13 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		this.iconPath = this.getIconPath();
 
 		FabricCommandBuilder.pushQuickPickApiItem(this);
+		FabricGUIDHoverProvider.cacheFabricObjectName(this.itemId, {
+			"id": this.itemId, 
+			"displayName": this.itemName, 
+			"type": this.itemType, 
+			"description": this._itemDescription,
+			"definition": this._itemDefinition
+		});
 	}
 
 	protected getIconPath(): string | vscode.Uri {
