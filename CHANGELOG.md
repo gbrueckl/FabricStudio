@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.11.0**:
+- added Hover-Provider to resolve Fabric GUIDs to the `DisplayName` and `Type` of the item associated with the GUID
+
 **v2.10.1**:
 - fixed issue with refreshing of tree views after a drag&drop action
 

@@ -47,6 +47,7 @@ import { FabricWarehouseRestorePoint } from './vscode/treeviews/Workspaces/Fabri
 import { FABRIC_API_NOTEBOOK_TYPE } from './vscode/notebook/FabricApiNotebookKernel';
 import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKernelManager';
 import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/FabricSqlDatabaseMirroring';
+import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverProvider';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -100,6 +101,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	FabricFSFileDecorationProvider.register(context);
 
 	TempFileSystemProvider.register(context);
+
+	//#endregion
+
+	FabricGUIDHoverProvider.register(context);
 
 
 	vscode.workspace.onDidOpenNotebookDocument(async (e) => {
