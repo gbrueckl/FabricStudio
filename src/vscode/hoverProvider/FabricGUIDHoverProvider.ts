@@ -12,8 +12,11 @@ export interface iFabricItemDetails extends iFabricApiItem {
 }
 
 export class FabricGUIDHoverProvider implements vscode.HoverProvider {
+	private static _sessionCache: Map<string, iFabricItemDetails> = new Map<string, iFabricItemDetails>();
 
-	constructor() { }
+	constructor() {
+		FabricGUIDHoverProvider._sessionCache = new Map<string, iFabricItemDetails>();
+	}
 
 	public static async register(context: vscode.ExtensionContext) {
 		const hoverProvider = new FabricGUIDHoverProvider()
@@ -29,27 +32,42 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 		if (range) {
 			const guid = document.getText(range);
 
-			const itemDetails = this.getFabricObjectNameByGUID(guid);
+			const itemDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(guid);
 			if (itemDetails) {
 				let contents: vscode.MarkdownString[] = [];
 				//contents.push(new vscode.MarkdownString("**Fabric Studio**:"));
-				if(itemDetails.displayName) {
+				if (itemDetails.displayName) {
 					contents.push(new vscode.MarkdownString(`**DisplayName**: ${itemDetails.displayName}`));
-					if(itemDetails.type) {
-						contents.push(new vscode.MarkdownString(`**Type**: \`${itemDetails.type}\``));
+				}
+				if (itemDetails.type) {
+					contents.push(new vscode.MarkdownString(`**Type**: \`${itemDetails.type}\``));
+				}
+				if (itemDetails.workspaceId) {
+					const workspaceDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(itemDetails.workspaceId);
+					if (workspaceDetails && workspaceDetails.displayName) {
+						contents.push(new vscode.MarkdownString(`**Workspace**: ${workspaceDetails.displayName}`));
 					}
-				} 
+					contents.push(new vscode.MarkdownString(`**WorkspaceId**: \`${itemDetails.workspaceId}\``));
+				}
 
 				return new vscode.Hover(contents, range);
 			}
 		}
 	}
 
-	private getFabricObjectNameByGUID(guid: string): iFabricItemDetails {
-		return ThisExtension.getGlobalState(`fabricObjectName_${guid.toLowerCase()}`);
+	private static getFabricObjectNameByGUID(guid: string): iFabricItemDetails {
+		if (this._sessionCache.has(guid)) {
+			return this._sessionCache.get(guid);
+		}
+		const itemDetails = ThisExtension.getGlobalState<iFabricItemDetails>(`fabricObjectName_${guid.toLowerCase()}`);
+		if (itemDetails) {
+			this._sessionCache.set(guid, itemDetails);
+		}
+		return itemDetails;
 	}
 
 	public static async cacheFabricObjectName(guid: string, definition: iFabricItemDetails): Promise<void> {
+		this._sessionCache.set(guid, definition);
 		await ThisExtension.setGlobalState(`fabricObjectName_${guid.toLowerCase()}`, definition);
 	}
 }
