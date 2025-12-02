@@ -93,8 +93,7 @@ export class FabricFSUri {
 			return new FabricFSUri(vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${definition.workspaceId}`));
 		}
 
-		// we need to encode twice otherwise the encoded URL is not persisted correctly in the settings
-		const itemName = encodeURIComponent(encodeURIComponent(definition.displayName));
+		const itemName = encodeURIComponent(definition.displayName);
 		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(definition.type);
 		let itemFsPath = Helper.trimChar(Helper.joinPath("workspaces", definition.workspaceId, itemTypePlural, itemName), "/");
 
@@ -192,30 +191,6 @@ export class FabricFSUri {
 
 	async getParent(): Promise<FabricFSUri> {
 		return await FabricFSUri.getInstance(Helper.parentUri(this.uri));
-	}
-
-
-
-
-	private constructor_regex(uri: vscode.Uri) {
-		let match: RegExpExecArray;
-
-		this.uri = uri;
-
-		match = REGEX_FABRIC_URI.exec(Helper.trimChar(uri.toString(), "/"));
-
-		if (match) {
-			this.workspace = match.groups["workspace"];
-			this.itemType = FabricConfiguration.itemTypeFromString(match.groups["itemType"]);
-			this.item = match.groups["item"];
-			this.part = match.groups["part"];
-
-			return
-		}
-
-		ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
-
-		throw vscode.FileSystemError.Unavailable("Invalid Fabric URI: " + uri.toString());
 	}
 
 	get uriTypeCalc(): FabricUriType {

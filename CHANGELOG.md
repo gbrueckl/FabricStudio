@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.11.1**:
+- added session caching to Hover-Provider
+- fixed issue with `Edit Definition` for items with special characters in the name ([#43](/../../issues/43))
+
 **v2.11.0**:
 - added Hover-Provider to resolve Fabric GUIDs to the `DisplayName` and `Type` of the item associated with the GUID
 
