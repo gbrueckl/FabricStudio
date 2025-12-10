@@ -102,15 +102,15 @@ export class FabricWorkspaceGenericViewer extends FabricWorkspaceTreeItem {
 
 			if (confirm === "yes") {
 				await FabricApiService.patch(this.apiPath, JSON.parse(savedContent));
-				ThisExtension.Logger.logInfo(`Successfully published changes to the Fabric Service!`);
+				ThisExtension.Logger.logInfo(`Successfully published changes to the Fabric Service!`, 5000);
 				return true;
 			}
 			else {
-				ThisExtension.Logger.logWarning(`Publish to Fabric Service was cancelled by the user.`);
+				ThisExtension.Logger.logWarning(`Publish to Fabric Service was cancelled by the user.`, true);
 				return false;
 			}
 		} catch (error) {
-			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${error.message}`);
+			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${error.message}`, true);
 			return false;
 		}
 	}

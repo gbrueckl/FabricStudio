@@ -7,7 +7,7 @@ import { FabricLogger } from '@utils/FabricLogger';
 import { FabricConfiguration } from './vscode/configuration/FabricConfiguration';
 import { FabricApiService } from './fabric/FabricApiService';
 import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
-import { FabricApiNotebookKernel } from './vscode/notebook/FabricApiNotebookKernel';
+import { FabricApiNotebookKernel } from './vscode/notebook/api/FabricApiNotebookKernel';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
 import { FabricFileSystemProvider } from './vscode/filesystemProvider/FabricFileSystemProvider';
 import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';

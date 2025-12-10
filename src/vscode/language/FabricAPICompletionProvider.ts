@@ -4,13 +4,10 @@ import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../ThisExtension';
-import { ApiEndpointDetails, FabricAPILanguage, KeyValuePair, SwaggerFile } from './_types';
-import { FabricNotebookContext } from '../notebook/FabricNotebookContext';
+import { ApiEndpointDetails, FabricAPILanguage, SwaggerFile } from './_types';
+import { FabricNotebookContext } from '../notebook/api/FabricNotebookContext';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { iFabricApiItem } from '../../fabric/_types';
-import * as SwaggerParser from "@apidevtools/swagger-parser";
-import { sortedLastIndex } from 'lodash';
-
 
 /** Supported trigger characters */
 const TRIGGER_CHARS = ['/', '%'];
