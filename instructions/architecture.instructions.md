@@ -41,7 +41,7 @@ FabricApiTreeItem                       // Base for all tree items
 ├── FabricConnectionTreeItem            // Connection management
 └── FabricCapacityTreeItem              // Capacity management
 ```
-Treeview items are always implemented as independent classes extending from these base classes. The hierarchy of items and folders only contains one level. If more levels are needed, create additional item classes or use the generic folder classes.
+Treeview items are always implemented as independent classes extending from these base classes. The hierarchy of items and folders only contains one level and is defined via `getChildren()`. If more levels are needed, create additional item classes or use the generic folder classes.
 
 ### Environment & Build Dual-Target
 **Critical**: Extension supports both VSCode Desktop and Web (vscode.dev):
