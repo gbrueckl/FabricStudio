@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import * as lodash from 'lodash';
 
-import { ThisExtension } from '../../ThisExtension';
+import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
 import { FabricNotebookContext } from './FabricNotebookContext';
 import { QueryLanguage } from './_types';
-import { iFabricApiResponse } from '../../fabric/_types';
-import { FabricApiService } from '../../fabric/FabricApiService';
+import { iFabricApiResponse } from '../../../fabric/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 export type NotebookMagic =
 	"api"
