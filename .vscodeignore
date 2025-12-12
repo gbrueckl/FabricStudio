@@ -15,3 +15,7 @@ tslint.json
 .markdownlint.json
 utils/**
 AGENT.md
+instructions/**
+images/**
+.*/**
+.agentignore
