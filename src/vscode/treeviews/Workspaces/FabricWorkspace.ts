@@ -9,17 +9,15 @@ import { FabricApiItemType, FabricApiWorkspaceType, iFabricApiCapacity, iFabricA
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricDataPipelines } from './FabricDataPipelines';
 import { FabricWorkspaceGenericFolder } from './FabricWorkspaceGenericFolder';
+import { FabricWorkspaceSettings } from './FabricWorkspaceSettings';
 import { FabricGitRepositories } from '../../sourceControl/FabricGitRepositories';
 import { FabricEnvironments } from './FabricEnvironments';
 import { FabricGraphQLApis } from './FabricGraphQLApis';
 import { FabricItem } from './FabricItem';
-import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments';
-import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricNotebooks } from './FabricNotebooks';
 import { FabricMirroredDatabases } from './FabricMirroredDatabases';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricSqlEndpoints } from './FabricSqlEndpoints';
-import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManagedPrivateEndpoints';
 import { FabricWorkspaceFolder } from './FabricWorkspaceFolder';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
@@ -27,7 +25,6 @@ import { FabricReports } from './FabricReports';
 import { FabricSemanticModels } from './FabricSemanticModels';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricWarehouses } from './FabricWarehouses';
-import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspace extends FabricWorkspaceTreeItem {
@@ -222,13 +219,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				}
 
 
-				let roleAssignments: FabricWorkspaceRoleAssignments = new FabricWorkspaceRoleAssignments(this);
-				children.push(roleAssignments);
+				// Group workspace-specific settings under a single folder
+				const workspaceSettingsFolder = new FabricWorkspaceSettings(this);
 
-				let managedPrivateEndpoints: FabricWorkspaceManagedPrivateEndpoints = new FabricWorkspaceManagedPrivateEndpoints(this);
-				children.push(managedPrivateEndpoints);
-
-				children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings", "GenericViewer", true))
+				children.push(workspaceSettingsFolder);
 			}
 			catch (e) {
 				Helper.handleGetChildrenError(e, this);

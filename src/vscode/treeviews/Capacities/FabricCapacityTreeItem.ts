@@ -2,12 +2,9 @@ import * as vscode from 'vscode';
 
 import { UniqueId } from '@utils/Helper';
 
-
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
-import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
-import { FabricApiItemType, iFabricApiWorkspace } from '../../../fabric/_types';
-import { iGenericApiError } from '@utils/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
+import { TreeProviderId } from '../../../ThisExtension';
+import { FabricApiItemType } from '../../../fabric/_types';
 
 export class FabricCapacityTreeItem extends FabricApiTreeItem {
 	constructor(

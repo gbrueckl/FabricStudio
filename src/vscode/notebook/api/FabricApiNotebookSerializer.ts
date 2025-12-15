@@ -3,11 +3,11 @@ import * as vscode from 'vscode';
 import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
 
-import { ThisExtension } from '../../ThisExtension';
+import { ThisExtension } from '../../../ThisExtension';
 import { FabricApiNotebook, FabricApiNotebookCell } from './FabricApiNotebook';
 import { FabricNotebookContext } from './FabricNotebookContext';
-import { FabricApiTreeItem } from '../treeviews/FabricApiTreeItem';
-import { FabricAPILanguage } from '../language/_types';
+import { FabricApiTreeItem } from '../../treeviews/FabricApiTreeItem';
+import { FabricAPILanguage } from '../../language/_types';
 import { FABRIC_API_NOTEBOOK_TYPE } from './FabricApiNotebookKernel';
 
 export class FabricApiNotebookSerializer implements vscode.NotebookSerializer {

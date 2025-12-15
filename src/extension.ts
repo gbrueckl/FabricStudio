@@ -2,7 +2,7 @@
 
 import * as vscode from 'vscode';
 import { ThisExtension } from './ThisExtension';
-import { FabricApiNotebookSerializer } from './vscode/notebook/FabricApiNotebookSerializer';
+import { FabricApiNotebookSerializer } from './vscode/notebook/api/FabricApiNotebookSerializer';
 import { FabricApiTreeItem } from './vscode/treeviews/FabricApiTreeItem';
 import { FabricCommandBuilder } from './vscode/input/FabricCommandBuilder';
 import { FabricWorkspacesTreeProvider } from './vscode/treeviews/Workspaces/FabricWorkspacesTreeProvider';
@@ -14,7 +14,7 @@ import { FabricFSUri } from './vscode/filesystemProvider/FabricFSUri';
 import { FabricFSCache } from './vscode/filesystemProvider/FabricFSCache';
 import { FabricGitRepositories } from './vscode/sourceControl/FabricGitRepositories';
 import { FabricWorkspace } from './vscode/treeviews/Workspaces/FabricWorkspace';
-import { FabricNotebookContext } from './vscode/notebook/FabricNotebookContext';
+import { FabricNotebookContext } from './vscode/notebook/api/FabricNotebookContext';
 import { FabricPipelinesTreeProvider } from './vscode/treeviews/Pipelines/FabricPipelinesTreeProvider';
 import { FabricPipelineTreeItem } from './vscode/treeviews/Pipelines/FabricPipelineTreeItem';
 import { TempFileSystemProvider } from './vscode/filesystemProvider/temp/TempFileSystemProvider';
@@ -44,7 +44,7 @@ import { FabricWarehouse } from './vscode/treeviews/Workspaces/FabricWarehouse';
 import { FabricSQLItem } from './vscode/treeviews/Workspaces/FabricSQLItem';
 import { FabricUriHandler } from './vscode/uriHandler/FabricUriHandler';
 import { FabricWarehouseRestorePoint } from './vscode/treeviews/Workspaces/FabricWarehouseRestorePoint';
-import { FABRIC_API_NOTEBOOK_TYPE } from './vscode/notebook/FabricApiNotebookKernel';
+import { FABRIC_API_NOTEBOOK_TYPE } from './vscode/notebook/api/FabricApiNotebookKernel';
 import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKernelManager';
 import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/FabricSqlDatabaseMirroring';
 import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverProvider';

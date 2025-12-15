@@ -1,5 +1,12 @@
 # Change Log
 
+**v2.12.1**:
+- fixed issues with right-click menu actions for `Capacities` tree-view
+
+**v2.12.0**:
+- added new folder for `Workspace Settings`
+- reworked coding instructions for agents
+
 **v2.11.1**:
 - added session caching to Hover-Provider
 - fixed issue with `Edit Definition` for items with special characters in the name ([#43](/../../issues/43))

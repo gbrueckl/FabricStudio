@@ -9,6 +9,7 @@
 		"typescript.tsc.autoDetect": "off",
 		"chat.instructionsFilesLocations": {
 			"instructions": true
-		}
+		},
+		"github.copilot.chat.codeGeneration.useInstructionFiles": true
 	}
 }

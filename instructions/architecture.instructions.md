@@ -8,14 +8,26 @@ Fabric Studio is a VSCode extension that surfaces Microsoft Fabric REST APIs thr
 ### Core Components Structure
 - **`src/extension.ts`**: Main extension entry point with activation logic
 - **`src/ThisExtension.ts`**: Central extension controller managing all providers and state
-- **`src/fabric/FabricApiService.ts`**: Encapsulates ALL Fabric REST API access - never bypass this
+- **`src/env/`**: Environment-specific abstractions for Node.js vs Web. Never touch this directly
+- **`src/fabric/`**: Core Fabric API integration and data models
+- **`src/fabric/FabricApiService.ts`**: Encapsulates ALL Fabric REST API access - never bypass this when calling APIs
+- **`src/fabric/_types.ts`**: TypeScript interfaces/types for Fabric API responses
+- **`src/utils`**: Utility functions shared across the project
 - **`src/vscode/`**: VSCode-specific integrations organized by feature:
-  - `treeviews/`: Hierarchical explorers for workspaces, connections, capacities, admin
+  - `configuration/`: Abstraction layer over VSCode settings
+  - `treeviews/`: Hierarchical explorers for workspaces, connections, capacities, admin, etc. Server as an entry point for the user
   - `filesystemProvider/`: Virtual file system (`fabric://` scheme) with caching
-  - `notebook/`: Custom `.fabnb` notebook support with magic commands
+  - `notebook/`: Custom ingegrations to work with notebooks within VSCode
+    - `spark/`: Spark kernel integration for executing code against Fabric Spark clusters
+    - `api/`: Custom `.fabnb` notebook support with magic commands. Used to run arbitrary Fabric REST API calls from the notebook
+  - `uriHandler/`: Custom URI scheme handling for `fabric://` links
   - `sourceControl/`: Fabric GIT integration
+- **`utils/`**: Various utility functions not part of the core code
+- **`resources/`**: Static assets like icons and images, not part of the core code
+- **`images/`**: Static images used in the VSCode Gallery, not part of the core code
 
 ### Key Patterns & Inheritance Hierarchy
+The code heavily uses inheritance to share logic across similar components. Key tree item hierarchy:
 ```typescript
 FabricApiTreeItem                       // Base for all tree items
 ├── FabricWorkspaceTreeItem             // Base for workspace-scoped items
@@ -29,6 +41,7 @@ FabricApiTreeItem                       // Base for all tree items
 ├── FabricConnectionTreeItem            // Connection management
 └── FabricCapacityTreeItem              // Capacity management
 ```
+Treeview items are always implemented as independent classes extending from these base classes. The hierarchy of items and folders only contains one level and is defined via `getChildren()`. If more levels are needed, create additional item classes or use the generic folder classes.
 
 ### Environment & Build Dual-Target
 **Critical**: Extension supports both VSCode Desktop and Web (vscode.dev):
@@ -41,7 +54,7 @@ FabricApiTreeItem                       // Base for all tree items
 
 ### Build & Debug
 ```bash
-npm install                    # Install dependencies
+npm install                   # Install dependencies
 npm run watch                 # Start TypeScript compiler in watch mode
 F5                            # Launch extension host for debugging
 vsce package                  # Generate .vsix for distribution
@@ -96,11 +109,6 @@ vscode.window.createTreeView('fabricstudioworkspaces', {
 });
 ```
 
-### Custom Notebooks (`.fabnb`)
-- `%api`: Execute Fabric REST API calls with syntax highlighting
-- `%cmd`: Set variables (e.g., `API_PATH`) for subsequent cells
-- `_cells[index]` references for chaining cell outputs
-- JSON/table rendering via external extensions
 
 ## Project-Specific Gotchas
 
@@ -111,6 +119,7 @@ Users can filter displayed items via regex patterns:
 - Settings affect tree provider data, not just UI display
 
 ### Drag & Drop Capabilities
+Implemented via `FabricDragAndDropController`
 Specific source→target mappings implemented:
 - Role Assignment → Role Assignments (add to parent)
 - Workspace → Capacity (assign workspace)
@@ -123,27 +132,33 @@ import { Helper } from '@utils/Helper';    // Shared utilities
 ```
 
 ### Context Values & Commands
-Tree items use `contextValue` for command visibility:
-```typescript
-// Commands registered with specific context requirements
-this.contextValue = `fabricItem.${this.itemType}.${this.subItemType}`;
+Tree items use `contextValue` for command visibility within the tree view.
+This is defined by `package.json` contributes section.
+The value of `contextValue` must match whats defined in `package.json`.
+`ContextValue` is dynamically constructed and can contain multiple values separated by `,`.
+`package.json` uses a regex-like syntax to match specific context values:
+```json
+{
+  "command": "FabricStudio.Item.editDefinition",
+  "when": "view == FabricStudioWorkspaces && viewItem =~ /.*,EDIT_DEFINITION,.*/",
+  "group": "2_edit"
+},
 ```
+In the above example, the command will be visible for any tree item in the `FabricStudioWorkspaces` view that has `EDIT_DEFINITION` as part of its `contextValue`.
 
 ## Common Development Tasks
 
 ### Adding New Tree Item Types
-1. Extend `FabricApiTreeItem` or appropriate subclass
-2. Implement required abstract methods (`getChildren`, `getIconPath`)
-3. Register context commands in `package.json`
-4. Add to appropriate tree provider
+1. Extend `FabricApiTreeItem` or appropriate subclass (e.g. `FabricWorkspaceTreeItem`)
+2. Implement required abstract methods (`getChildren`)
+3. Implement item specific commands, logic and properties
+4. Add the new tree item to the appropriate parent by adding it in `getChildren` method
 
 ### Adding API Endpoints
 1. Add types to `src/fabric/_types.ts`
 2. Implement methods in `FabricApiService.ts`
 3. Use existing polling/error handling patterns
-
-### Cross-Environment Compatibility
-Always test both desktop and web builds - web environment has limited APIs and different bundling requirements.
+4. You can reference `/ressources/API/swagger.json` for the full API spec or refere to underlying [GitHub repository](https://github.com/microsoft/fabric-rest-api-specs)
 
 ## Documentation Requirements
 - Update `AIDEV-*` anchor comments when modifying complex code
