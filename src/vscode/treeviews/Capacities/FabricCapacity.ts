@@ -6,6 +6,7 @@ import { ThisExtension } from '../../../ThisExtension';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { Helper } from '@utils/Helper';
 import { FabricCapacityWorkspaces } from './FabricCapacityWorkspaces';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricCapacity extends FabricCapacityTreeItem {
@@ -28,6 +29,15 @@ export class FabricCapacity extends FabricCapacityTreeItem {
 
 	public get canDelete(): boolean {
 		return false;
+	}
+
+	public get apiUrlPart(): string {
+		return `capacities/${this.itemId}`;
+	}
+
+	public getBrowserLink(): vscode.Uri {
+		// https://app.fabric.microsoft.com/admin-portal/capacities/622e515a-1234-1234-8269-fa78836c3169?experience=fabric-developer
+		return vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), "admin-portal","capacities", this.itemId);
 	}
 
 	/* Overwritten properties from FabricCapacityTreeItem */

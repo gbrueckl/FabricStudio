@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.12.0",
+	"version": "2.12.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -770,7 +770,7 @@
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)/",
+					"when": "view =~ /FabricStudio.*/",
 					"group": "navigation"
 				},
 				{
@@ -822,32 +822,32 @@
 				},
 				{
 					"command": "FabricStudio.Item.openNewNotebook",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,OPEN_API_NOTEBOOK,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,OPEN_API_NOTEBOOK,.*/",
 					"group": "navigation"
 				},
 				{
 					"command": "FabricStudio.Item.openInFabric",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,OPEN_IN_BROWSER,.*/",
 					"group": "7_open"
 				},
 				{
 					"command": "FabricStudio.Item.copyIdToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,COPY_ID,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_ID,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyNameToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,COPY_NAME,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_NAME,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyPathToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,COPY_PATH,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_PATH,.*/",
 					"group": "6_copypath"
 				},
 				{
 					"command": "FabricStudio.Item.copyPropertiesToClipboard",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_PROPERTIES,.*/",
 					"group": "6_copypath"
 				},
 				{
@@ -867,7 +867,7 @@
 				},
 				{
 					"command": "FabricStudio.Item.insertPath",
-					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioDeploymentPipelines)/ && viewItem =~ /.*,INSERT_PATH,.*/",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,INSERT_PATH,.*/",
 					"group": "inline"
 				},
 				{

@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.12.1**:
+- fixed issues with right-click menu actions for `Capacities` tree-view
+
 **v2.12.0**:
 - added new folder for `Workspace Settings`
 - reworked coding instructions for agents
