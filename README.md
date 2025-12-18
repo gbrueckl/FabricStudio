@@ -46,7 +46,7 @@ As of now, not most items are read-only but actions will be added in the future 
 
 In case you have access to a lot of workspaces you can also filter them using the Workspace Filter. In addition, you can also opt in to show Pro workspaces (`fabricStudio.showProWorkspaces`) which are not assigned to a capacity to use TMDL and PBIR editor for existing Power BI items.
 
-# Notebooks
+# API Notebooks
 You can open a new Fabric notebook via the UI from the header of each treeview or by running the command **Open new Fabric Notebook** (command `FabricStudio.Item.openNewNotebook`). Fabric notebooks have the file extension `.fabnb` and will automatically open in the notebook editor.
 
 The following features are supported by notebooks and can be used using magic tags in the first line of the cell:
@@ -133,6 +133,9 @@ The first cell would return the list of all workspaces. The second cell gets the
 
 This approach can also be used to simply copy settings from one Power BI object to another by first running a `GET` on the source object and then a `POST`/`PUT`/`PATCH` on the target referencing the output of the preceding `GET`. Common scenarios would be to copy users/permissions or dataset refresh schedules but there are definitely much more use-cases!
 
+# Spark Notebooks
+Fabric Studio also allows you to run Spark notebooks (`.ipynb`) against an existing Fabric Lakehouse (which acts as a Spark cluster). Whenever a Lakehouse is viewed/opened in the [Workspace Browser](#workspace-browser), a Kernel is added for that lakehouse which can then be used to run any `.ipynb` file against it. If you open a notebook directly from Fabric Studio, the notebook is automatically attached to the default-lakehouse associated with the notebook.
+
 # Custom FileSystemProvider
 The extension also provides an easy way to interact with all items hosted in Microsoft Fabric and modify their definition. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) for this to work properly.
 The easiest way to configure and use the custom FileSystemProvider is to right-click the item (or parent or workspace) in the Workspace Browser and select `Edit Defintion`:
@@ -177,14 +180,17 @@ The following list provides the currently supported souces and targets for Drag 
 
 | Source | Target | Action | Description |
 |--------|--------|--------|-------------|
-| Role Assignment | Role Assignments | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. |
+| Role Assignment | Role Assignments | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. Works for Connection-, Workspace- and Gateway-roles|
 | Workspace | Capacity | Assign to Capacity | Assigns the dragged workspace to the dropped capacity. |
+| Workspace Folder | Workspace | Move folder | Moves the dragged folder to the root of the workspace |
+| Workspace Folder | Workspace Folder | Move folder | Moves the dragged folder under the target folder |
+| Item | Workspace Folder | Move item | Moves the selected items (multiselect!) to the target folder |
 
 # FAQ
 
 **Q: I have so many workspaces and its hard to find the one I need, what can I do?**
 
-**A:** Please check the config setting `fabricStudio.workspaceFilter` to pre-filter workspaces. Also, every treeview (like the Fabric Workspace Browser) in VSCode is searchable by default. Simply click into the treeview and press `CTRL + ALT + F` as you would do in any other application to start a search
+**A:** Please check the config setting `fabricStudio.workspaceFilter` to pre-filter workspaces. The filter can also be set via the Filter-icon at the top of the treeviews. Also, every treeview (like the Fabric Workspace Browser) in VSCode is searchable by default. Simply click into the treeview and press `CTRL + ALT + F` as you would do in any other application to start a search
 
 **Q: I have a guest account in a remote client, can I still use this extension?**
 
@@ -192,8 +198,8 @@ The following list provides the currently supported souces and targets for Drag 
 
 **Q: I tried to run a command from the context menue but the dropdown that appears does not contain the values I want to use. What can I do?**
 
-**A:** Unfortunately VSCode is quite limited in the way how users can enter data (e.g. a dropdown box) and we simply display the last 10 items that the user selected or expanded. So if you e.g. want to do a rebind of a report and the target dataset does not show up, please make sure to select/click it the Workspace Browser just before you run the rebind.
+**A:** Unfortunately VSCode is quite limited in the way how users can enter data (e.g. a dropdown box) and we simply display the last 10 items that the user selected or expanded. So if you e.g. want to assign a workspace to a Capacity but the list is empty (or your Capacity does not show up), please navigate the the target item in the tree view and select it once. It then should show up in the drop-down. Most of those action can also be done by using drag-and-drop - see [Drag & Drop](#drag--drop-capabilites)
 
 **Q: Something went wrong or the extension is stuck, what can I do?**
 
-**A:** Unfortunately this can happen, sorry! Please try to restart VSCode or run the command `FabricStudio.initialize` from the command menu. If the problem persists, please open an [issue](https://github.com/gbrueckl/FabricStudio/issues) at our Git Repository.
+**A:** Unfortunately this can happen, sorry! You might try to restart VSCode. If the problem persists, please open an [issue](https://github.com/gbrueckl/FabricStudio/issues) at our Git Repository. You might want to also check the dedicated VSCode Output for Fabric Studio which can reveal more information about the problem. You can also change the `fabricStudio.logLevel` to `Debug` or `Trace`.

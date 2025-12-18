@@ -119,7 +119,13 @@ export class PowerBI {
 
 	}
 
-	private static async downloadDefinition(itemId: string, workspaceId: string, itemType: "Report" | "SemanticModel", targetUri: vscode.Uri): Promise<vscode.Uri> {
+	private static async downloadDefinition(
+		itemId: string, 
+		workspaceId: string, 
+		itemType: "Report" | "SemanticModel", 
+		targetUri: vscode.Uri, 
+		overwrite: boolean = true
+		): Promise<vscode.Uri> {
 		ThisExtension.Logger.logDebug(`Downloading ${itemType} definition (Workspace: ${workspaceId}, Item: ${itemId}) ...`);
 		// initialize Fabric FS for the dataset definition
 		const resourceUri = vscode.Uri.parse(`${FABRIC_SCHEME}:///workspaces/${workspaceId}/${itemType}s/${itemId}`);
@@ -127,7 +133,7 @@ export class PowerBI {
 
 		ThisExtension.Logger.logInfo(`Downloading PBIP semantic folder file to ${targetUri} ...`);
 
-		await vscode.workspace.fs.copy(resourceUri, targetUri, { overwrite: false });
+		await vscode.workspace.fs.copy(resourceUri, targetUri, { overwrite: overwrite });
 
 		return targetUri;
 	}
