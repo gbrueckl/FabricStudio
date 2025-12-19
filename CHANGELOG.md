@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.12.2**:
+- added support for `Edit Definition` for new item types (Lakehouses, CosmosDB, Snowflake, ...)
+- fixed issue with multiple `.` in definition file names
+- updated [README](./README.md)
+
 **v2.12.1**:
 - fixed issues with right-click menu actions for `Capacities` tree-view
 

@@ -104,7 +104,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			for (let item of this.getApiResponse()) {
 				const partParts = item.path.split("/");
 				if (partParts.length == 1) {
-					let [fileName, ext] = item.path.split('.', 2);
+					let ext = item.path.split('.').pop();
+					let fileName = item.path.slice(0, -(ext.length + 1));
 					if (FabricConfiguration.getFabricItemTypeUseItemNameAsFileName(this.FabricUri.itemType)
 						&& FabricConfiguration.getFabricItemTypeDefinitionFileName(this.FabricUri.itemType) == fileName) {
 						
