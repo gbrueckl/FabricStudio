@@ -82,7 +82,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 						const conn = JSON.stringify(item)
 						const match = conn.match(regexFilter);
 						if (!match) {
-							ThisExtension.Logger.logInfo(`Skipping connection '${item.id}' because it does not match the connection filter '${regexFilter}'.`);
+							ThisExtension.Logger.logInfo(`Skipping connection '${item.displayName}' (${item.id}) because it does not match the connection filter '${regexFilter}'.`);
 							continue;
 						}
 					}

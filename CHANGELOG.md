@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.12.3**:
+- fixed issue with `Copy ConnectionString`
+- fixed issue with user of guest tenants
+- improved log messages when skipping items due to Treeview filters
+
 **v2.12.2**:
 - added support for `Edit Definition` for new item types (Lakehouses, CosmosDB, Snowflake, ...)
 - fixed issue with multiple `.` in definition file names
