@@ -136,7 +136,7 @@ export abstract class ThisExtension {
 	}
 
 	static updateStatusBarLeft(): void {
-		const tenantInfo = FabricApiService.TenantId ? `Tenant: ${FabricApiService.TenantId}` : "";
+		const tenantInfo = FabricApiService.TenantId != FabricApiService.SessionUserTenantId ? `Tenant: ${FabricApiService.TenantId}` : "";
 		this.StatusBarLeft.text = `Fabric Studio: ${FabricApiService.SessionUserEmail}${tenantInfo ? " (GUEST)" : ""}`;
 		this.StatusBarLeft.tooltip = tenantInfo ? `${tenantInfo}` : undefined;
 	}

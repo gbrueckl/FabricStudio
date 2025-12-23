@@ -79,7 +79,7 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 						const conn = JSON.stringify(item)
 						const match = conn.match(regexFilter);
 						if (!match) {
-							ThisExtension.Logger.logInfo(`Skipping Capacity '${item.id}' because it does not match the Capacity filter '${regexFilter}'.`);
+							ThisExtension.Logger.logInfo(`Skipping Capacity '${item.displayName}' (${item.id}) because it does not match the Capacity filter '${regexFilter}'.`);
 							continue;
 						}
 					}

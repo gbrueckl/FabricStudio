@@ -150,6 +150,13 @@ export abstract class FabricApiService {
 		return "UNAUTHENTICATED";
 	}
 
+		public static get SessionUserTenantId(): string {
+		if (this._vscodeSession) {
+			return this._vscodeSession.account.id.split(".")[1];
+		}
+		return "UNAUTHENTICATED";
+	}
+
 	public static get TenantId(): string {
 		return this._tenantId;
 	}

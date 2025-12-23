@@ -114,7 +114,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 					if (regexFilter) {
 						const match = item.displayName.match(regexFilter);
 						if (!match) {
-							ThisExtension.Logger.logInfo(`Skipping workspace ${item.displayName} because it does not match the workspace filter '${regexFilter}'.`);
+							ThisExtension.Logger.logInfo(`Skipping workspace '${item.displayName}' (${item.id}) because it does not match the workspace filter '${regexFilter}'.`);
 							continue;
 						}
 					}
@@ -123,7 +123,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 						children.push(treeItem);
 					}
 					else {
-						ThisExtension.Logger.logInfo("Skipping workspace '" + item.displayName + "' (" + item.id + ") because it has no capacityId");
+						ThisExtension.Logger.logInfo(`Skipping workspace '${item.displayName}' (${item.id}) because it has no capacityId`);
 					}
 				}
 

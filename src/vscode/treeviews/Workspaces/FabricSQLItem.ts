@@ -4,11 +4,9 @@ import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
 
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItem, iFabricApiWarehouse, iFabricApiWarehouseProperties } from '../../../fabric/_types';
-import { FabricWorkspace } from './FabricWorkspace';
+import { iFabricApiItem } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItem } from './FabricItem';
-import { update } from 'lodash';
 import { FabricItemOneLake } from './FabricItemOneLake';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -134,6 +132,9 @@ export class FabricSQLItem extends FabricItem {
 			if ("sqlEndpointProperties" in properties) {
 				return properties.sqlEndpointProperties.connectionString;
 			}
+			if ("serverFqdn" in properties) {
+				return properties.serverFqdn.split(",")[0];
+			}
 			return properties.connectionString;
 		}
 		catch (error) {
@@ -145,19 +146,20 @@ export class FabricSQLItem extends FabricItem {
 		let apiPath = Helper.joinPath(this.apiPath, "connectionString");
 
 		let urlParams: { [key: string]: string } = {};
-		if (FabricApiService.TenantId != null) {
-			urlParams["guestTenantId"] = FabricApiService.TenantId;
-		}
+		// there is curretly a bug where the API call does not work if there is a guest tenant provided (but works without)
+		// if (FabricApiService.TenantId != null) { 
+		// 	urlParams["guestTenantId"] = FabricApiService.TenantId;
+		// }
 		// if(this.workspace.privateLink) {
 		// 	urlParams["privateLinkType"] = "Workspace";
 		// }
 
 		if (Object.keys(urlParams).length > 0) {
-			apiPath += "?";
-
+			let urlParamsString: string[] = []
 			for (const [key, value] of Object.entries(urlParams)) {
-				apiPath += `${key}=${value}&`;
+				urlParamsString.push(`${key}=${value}`);
 			}
+			apiPath += "?" + urlParamsString.join("&");
 		}
 		const response = (await FabricApiService.get(apiPath)).success;
 		return response.connectionString;
