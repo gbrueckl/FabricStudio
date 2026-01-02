@@ -48,6 +48,7 @@ import { FABRIC_API_NOTEBOOK_TYPE } from './vscode/notebook/api/FabricApiNoteboo
 import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKernelManager';
 import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/FabricSqlDatabaseMirroring';
 import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverProvider';
+import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSparkNotebookSerializer';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -96,6 +97,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
+	context.subscriptions.push(
+		vscode.workspace.registerNotebookSerializer(
+			"fabric-spark-notebook", new FabricSparkNotebookSerializer(), { transientOutputs: true }
+		)
+	);
+
 	//#region Fabric FileSystemProvider
 	FabricFileSystemProvider.register(context);
 	FabricFSFileDecorationProvider.register(context);
@@ -123,7 +130,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			FabricNotebookContext.set(e.metadata.guid, metadata);
 		}
-		else if (e.notebookType == "jupyter-notebook") {
+		else if (e.notebookType == "jupyter-notebook" || e.notebookType == "fabric-spark-notebook") {
 			// for Jupyter notebooks we do not have a GUID in the metadata - so we use the URI as key
 			try {
 				ThisExtension.Logger.logInfo("Detected Spark Jupyter Notebook - trying to create Kernels ...");

@@ -136,6 +136,36 @@ This approach can also be used to simply copy settings from one Power BI object 
 # Spark Notebooks
 Fabric Studio also allows you to run Spark notebooks (`.ipynb`) against an existing Fabric Lakehouse (which acts as a Spark cluster). Whenever a Lakehouse is viewed/opened in the [Workspace Browser](#workspace-browser), a Kernel is added for that lakehouse which can then be used to run any `.ipynb` file against it. If you open a notebook directly from Fabric Studio, the notebook is automatically attached to the default-lakehouse associated with the notebook.
 
+For this to work properly with Spark notebooks read directly from Fabric, you need to make sure that notebooks are downloaded as `.ipynb`. To enforce this, you need to configure the following VSCode setting:
+
+```json
+"fabricStudio.itemTypeFormats": [
+	{
+		"itemType": "Notebooks",
+		"format": "ipynb"
+	},
+],
+```
+
+Alternatively, you can also make VSCode open all `.py` (or other) files as notebooks using these VSCode settings:
+
+```json
+"workbench.editorAssociations":{
+	"*.py": "fabric-spark-notebook",
+	"*.scala": "fabric-spark-notebook",
+	"*.sql": "fabric-spark-notebook",
+	"*.r": "fabric-spark-notebook"
+}
+```
+
+To only open notebooks from Fabric directly as VSCode notebooks, you can also use this deviation which will only match the `.py` files loaded via the Fabric Studios [Custom FileSystemProvider](#custom-filesystemprovider):
+
+```json
+"workbench.editorAssociations":{
+	"**/workspaces/*/Notebooks/**/*.py": "fabric-spark-notebook"
+}
+```
+
 # Custom FileSystemProvider
 The extension also provides an easy way to interact with all items hosted in Microsoft Fabric and modify their definition. You need to use a [VSCode Workspace](https://code.visualstudio.com/docs/editor/workspaces) for this to work properly.
 The easiest way to configure and use the custom FileSystemProvider is to right-click the item (or parent or workspace) in the Workspace Browser and select `Edit Defintion`:

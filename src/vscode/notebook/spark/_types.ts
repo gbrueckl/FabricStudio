@@ -46,14 +46,32 @@ export class SparkLanguageConfigs {
 		new SparkLanguageConfig("sparkr", "sparkr", "r", "#"),
 	]
 
-	static getLanguageByMagic(magic: SparkNotebookMagic): SparkNotebookLanguage {
+	static getLanguageByMagic(magic: string): SparkNotebookLanguage {
+		let config = this.getConfigByMagic(magic);
+		return config ? config.language : undefined;
+	}
+
+	static getConfigByMagic(magic: string): SparkLanguageConfig {
+		if(magic.startsWith("%%")) {
+			magic = magic.substring(2);
+		}
 		let lang = this._config.find(l => l.magic.toLowerCase() === magic.toLowerCase());
-		return lang ? lang.language : undefined;
+		return lang;
 	}
 
 	static getCommentCharByLanguage(language: SparkNotebookLanguage): string {
 		let lang = this._config.find(l => l.language.toLowerCase() === language.toLowerCase());
 		return lang ? lang.commentChar : undefined;
+	}
+
+	static getLanguagesByCommentchars(commentChars: string): SparkNotebookLanguage[] {
+		let langs = this._config.filter(l => l.commentChar === commentChars);
+		return langs.map(l => l.language);
+	}
+
+	static getConfigsByCommentchars(commentChars: string): SparkLanguageConfig[] {
+		let langs = this._config.filter(l => l.commentChar === commentChars);
+		return langs;
 	}
 }
 
