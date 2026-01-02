@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.12.3",
+	"version": "2.13.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -1244,7 +1244,7 @@
 				"displayName": "Fabric Spark Notebook",
 				"selector": [
 					{
-						"filenamePattern": "*.ipynb"
+						"filenamePattern": "..some.invalid.pattern..use..workbench.editorAssociations"
 					}
 				]
 			}
