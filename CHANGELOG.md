@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.13.1**:
+- update Swagger API definition for auto complete
+
 **v2.13.0**:
 -- added Fabic Spark Notebook serializer to also load `.py` files as notebooks using setting `workbench.editorAssociations` to associate `.py` files with `"fabric-spark-notebook"`
 -- updated [README](./README.md)
