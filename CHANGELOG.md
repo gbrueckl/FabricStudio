@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.14.0**:
+- added `Show Definition` to all Tree items showing the repsonse of the underlying API
+- reworked `Show Definition` for Generic Viewers
+- update Swagger API definition for auto complete
+
 **v2.13.0**:
 -- added Fabic Spark Notebook serializer to also load `.py` files as notebooks using setting `workbench.editorAssociations` to associate `.py` files with `"fabric-spark-notebook"`
 -- updated [README](./README.md)

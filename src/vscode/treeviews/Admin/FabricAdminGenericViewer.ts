@@ -37,31 +37,11 @@ export class FabricAdminGenericViewer extends FabricAdminTreeItem {
 
 	get _command(): vscode.Command {
 		return {
-			command: 'FabricStudio.Admin.showDefintion', title: "Show Definition", arguments: [this]
+			command: 'FabricStudio.Item.showDefintion', title: "Show Definition", arguments: [this]
 		}
 	}
 
 	get apiUrlPart(): string {
 		return this.itemDefinition.settingName
-	}
-
-	get tempFilePath(): string {
-		let tempPath = this.apiPath.replace(/[^A-Za-z0-9\/:\.-]/g, "_");
-		if (this.apiPath.startsWith("https://")) {
-			tempPath = tempPath.replace("https://", "");
-		}
-		return tempPath;
-	}
-
-	public async showDefinition(): Promise<void> {
-		let content = this.itemDefinition;
-
-		content = JSON.stringify(content, null, "\t");
-
-		let tempUri = await TempFileSystemProvider.createTempFile(this.tempFilePath, content);
-
-		vscode.workspace.openTextDocument(tempUri).then(
-			document => vscode.window.showTextDocument(document)
-		);
 	}
 }
