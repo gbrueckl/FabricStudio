@@ -11,6 +11,7 @@ import { FabricMapper } from '../../fabric/FabricMapper';
 import { iGenericApiError } from '@utils/_types';
 import { FabricWorkspaceFolder } from './Workspaces/FabricWorkspaceFolder';
 import { FabricGUIDHoverProvider } from '../hoverProvider/FabricGUIDHoverProvider';
+import { TempFileSystemProvider } from '../filesystemProvider/temp/TempFileSystemProvider';
 
 
 export const NO_ITEMS_ITEM_ID: string = "NO_ITEMS";
@@ -53,9 +54,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 		FabricCommandBuilder.pushQuickPickApiItem(this);
 		FabricGUIDHoverProvider.cacheFabricObjectName(this.itemId, {
-			"id": this.itemId, 
-			"displayName": this.itemName, 
-			"type": this.itemType, 
+			"id": this.itemId,
+			"displayName": this.itemName,
+			"type": this.itemType,
 			"description": this._itemDescription,
 			"definition": this._itemDefinition
 		});
@@ -96,6 +97,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			"COPY_NAME",
 			"COPY_PATH",
 			"COPY_PROPERTIES",
+			"SHOW_DEFINITION",
 			"INSERT_CODE",
 			"OPEN_API_NOTEBOOK"
 		];
@@ -282,17 +284,73 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	public async copyPropertiesToClipboard(): Promise<void> {
 		let definition = this.itemDefinition;
 
-		try
-		{
+		try {
 			const response = await FabricApiService.get(this.apiPath);
 
-			if(response.success) {
+			if (response.success) {
 				definition = response.success;
 			}
 		} catch (error) {
 			ThisExtension.Logger.logWarning(`Could not retrieve latest properties for item '${this.itemName}', using cached definition. Error: ${error}`, false);
 		}
 		vscode.env.clipboard.writeText(JSON.stringify(definition, null, 4));
+	}
+
+	get getDefinitionFromApi(): boolean {
+		return true;
+	}
+
+	get tempFilePath(): string {
+		let tempPath = this.apiPath.replace(/[^A-Za-z0-9\/:\.-]/g, "_");
+		if (this.apiPath.startsWith("https://")) {
+			tempPath = tempPath.replace("https://", "");
+		}
+		return tempPath;
+	}
+
+	public async showDefinition(): Promise<void> {
+		let content: any = this.itemDefinition;
+
+		if (this.getDefinitionFromApi) {
+			let result = await FabricApiService.get(this.apiPath);
+
+			if (result.success) {
+				content = result.success;
+			}
+			else {
+				ThisExtension.Logger.logWarning(`Could not load definition from API '${this.apiPath}', showing cached definition if available.`);
+			}
+		}
+
+		content = JSON.stringify(content, null, "\t");
+
+		let tempUri = await TempFileSystemProvider.createTempFile(this.tempFilePath, content, this.onSaveAction, ".json",);
+
+		vscode.workspace.openTextDocument(tempUri).then(
+			document => vscode.window.showTextDocument(document)
+		);
+	}
+
+	protected onSaveAction = async (savedContent: string): Promise<boolean> => {
+		try {
+			const confirmQp = await FabricCommandBuilder.showQuickPick(
+				[new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")],
+				`Do you want to push your changes to the Fabric Service?`, undefined, undefined);
+			let confirm = confirmQp?.value || "no";
+
+			if (confirm === "yes") {
+				await FabricApiService.patch(this.apiPath, JSON.parse(savedContent));
+				ThisExtension.Logger.logInfo(`Successfully published changes to the Fabric Service!`, 5000);
+				return true;
+			}
+			else {
+				ThisExtension.Logger.logWarning(`Publish to Fabric Service was cancelled by the user.`, true);
+				return false;
+			}
+		} catch (error) {
+			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${error.message}`, true);
+			return false;
+		}
 	}
 
 	public getBrowserLink(): vscode.Uri {
@@ -411,7 +469,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			items = [this.NO_ITEMS as T];
 		}
 		return items;
-	}		
+	}
 
 	public static async getValidChildren(item: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
 		let children: FabricApiTreeItem[] = await item.getChildren();
@@ -432,6 +490,6 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			canOpenInBrowser: this.canOpenInBrowser,
 			treeProvider: this.treeProvider,
 			contextValue: this.contextValue
-		};	
+		};
 	}
 }

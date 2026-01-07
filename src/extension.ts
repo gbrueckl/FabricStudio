@@ -190,6 +190,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyNameToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPathToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPropertiesToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.showDefinition', (treeItem: FabricApiTreeItem) => treeItem.showDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricApiTreeItem) => treeItem.insertCode());
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.editTMDL', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());

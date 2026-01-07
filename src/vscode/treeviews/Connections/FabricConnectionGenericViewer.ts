@@ -34,7 +34,7 @@ export class FabricConnectionGenericViewer extends FabricConnectionTreeItem {
 	}
 
 	get apiUrlPart(): string {
-		if(this._customApiUrlPart != undefined) {
+		if (this._customApiUrlPart != undefined) {
 			return this._customApiUrlPart;
 		}
 		return this.itemType;
@@ -46,34 +46,7 @@ export class FabricConnectionGenericViewer extends FabricConnectionTreeItem {
 		}
 	}
 
-	public async showDefinitionOld(): Promise<void> {
-		const content = JSON.stringify(this.itemDefinition, null, "\t");
-		let tempUri = await TempFileSystemProvider.createTempFile(Helper.trimChar(this.apiPath, "/", false, true) + ".json", content);
-
-		vscode.workspace.openTextDocument(tempUri).then(
-			document => vscode.window.showTextDocument(document)
-		);
-	}
-
-	public async showDefinition(): Promise<void> {
-		let result = await FabricApiService.get(this.apiPath);
-
-		let content: string;
-		
-		if(result.success) {
-			content = JSON.stringify(result.success, null, "\t");
-		}
-		else {
-			content = JSON.stringify(result.error, null, "\t")
-			// content = JSON.stringify(this.itemDefinition, null, "\t");
-		}
-
-		// const content = JSON.stringify(this.itemDefinition, null, "\t");
-		
-		let tempUri = await TempFileSystemProvider.createTempFile(this.apiPath, content);
-
-		vscode.workspace.openTextDocument(tempUri).then(
-			document => vscode.window.showTextDocument(document)
-		);
+	protected onSaveAction = async (savedContent: string): Promise<boolean> => {
+		return undefined;
 	}
 }

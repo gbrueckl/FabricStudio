@@ -54,38 +54,7 @@ export class FabricCapacityGenericViewer extends FabricCapacityTreeItem {
 		}
 	}
 
-	get tempFilePath(): string {
-		let tempPath = this.apiPath.replace(/[^A-Za-z0-9\/:\.-]/g, "_");
-		if (this.apiPath.startsWith("https://")) {
-			tempPath = tempPath.replace("https://", "");
-		}
-		return tempPath;
-	}
-
-	get getDefinitionFromApi(): boolean {
-		return true;
-	}
-
-	public async showDefinition(): Promise<void> {
-		let content: any = this.itemDefinition;
-
-		if (this.getDefinitionFromApi) {
-			let result = await FabricApiService.get(this.apiPath);
-
-			if (result.success) {
-				content = result.success;
-			}
-			else {
-				ThisExtension.Logger.logWarning(`Could not load definition from API '${this.apiPath}', showing cached definition if available.`);
-			}
-		}
-
-		content = JSON.stringify(content, null, "\t");
-
-		let tempUri = await TempFileSystemProvider.createTempFile(this.tempFilePath, content);
-
-		vscode.workspace.openTextDocument(tempUri).then(
-			document => vscode.window.showTextDocument(document)
-		);
+	protected onSaveAction = async (savedContent: string): Promise<boolean> => {
+		return undefined;
 	}
 }
