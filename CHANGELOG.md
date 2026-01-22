@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.14.1**:
+- added support for `EventSchemaSets` to view/update definition
+
 **v2.14.0**:
 - added `Show Definition` to all Tree items showing the repsonse of the underlying API
 - reworked `Show Definition` for Generic Viewers

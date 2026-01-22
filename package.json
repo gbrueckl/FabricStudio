@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.14.0",
+	"version": "2.14.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -152,7 +152,8 @@
 										"Ontologies",
 										"OperationsAgents",
 										"SnowflakeDatabases",
-										"CosmosDbDatabases"
+										"CosmosDbDatabases",
+										"Eventschemasets"
 									]
 								},
 								"format": {
