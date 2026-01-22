@@ -51,7 +51,8 @@
 		"onNotebook:fabric-api-notebook",
 		"onNotebook:jupyter-notebook",
 		"onNotebook:fabric-spark-notebook",
-		"onFileSystem:fabric"
+		"onFileSystem:fabric",
+		"onView:vscode-fabric.view.workspace"
 	],
 	"main": "./dist/node/extension.js",
 	"browser": "./dist/web/extension.js",
@@ -152,7 +153,8 @@
 										"Ontologies",
 										"OperationsAgents",
 										"SnowflakeDatabases",
-										"CosmosDbDatabases"
+										"CosmosDbDatabases",
+										"Eventschemasets"
 									]
 								},
 								"format": {
@@ -297,6 +299,11 @@
 			}
 		],
 		"commands": [
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.addToFabricCoreExtensions",
+				"title": "Add to Fabric Core Extension"
+			},
 			{
 				"category": "FabricStudio",
 				"command": "FabricStudio.initialize",
@@ -1271,6 +1278,9 @@
 		"update-api-specs": "ts-node utils/Swagger/update-api-specs.ts"
 	},
 	"devDependencies": {
+		"@microsoft/vscode-fabric-api": "^0.35.0-preview",
+		"@microsoft/vscode-fabric-util": "^0.35.0-preview",
+
 		"@apidevtools/swagger-parser": "^12.0.0",
 		"@types/adm-zip": "^0.5.7",
 		"@types/glob": "^8.1.0",

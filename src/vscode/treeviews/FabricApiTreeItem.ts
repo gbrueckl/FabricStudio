@@ -12,6 +12,7 @@ import { iGenericApiError } from '@utils/_types';
 import { FabricWorkspaceFolder } from './Workspaces/FabricWorkspaceFolder';
 import { FabricGUIDHoverProvider } from '../hoverProvider/FabricGUIDHoverProvider';
 import { TempFileSystemProvider } from '../filesystemProvider/temp/TempFileSystemProvider';
+import { IArtifact } from '@microsoft/vscode-fabric-api';
 
 
 export const NO_ITEMS_ITEM_ID: string = "NO_ITEMS";
@@ -237,6 +238,14 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	set itemType(value: FabricApiItemType) {
 		this._itemType = value;
+	}
+
+	get type(): string {
+		return this.itemType;
+	}
+
+	get artifact(): IArtifact {
+		return this.itemDefinition;
 	}
 
 	get itemId(): UniqueId {

@@ -21,6 +21,9 @@ import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapa
 import { FabricAdminTreeProvider } from './vscode/treeviews/Admin/FabricAdminTreeProvider';
 import { FabricAdminTreeItem } from './vscode/treeviews/Admin/FabricAdminTreeItem';
 
+import { IArtifactManager, IFabricApiClient, IFabricExtensionServiceCollection, IWorkspaceManager } from '@microsoft/vscode-fabric-api';
+
+
 
 export type TreeProviderId =
 	"application/vnd.code.tree.fabricstudioworkspaces"
@@ -76,6 +79,24 @@ export abstract class ThisExtension {
 			this._logger = new FabricLogger(context, LOGGER_NAME, FabricConfiguration.logLevel);
 		}
 	}
+
+	private static _services: IFabricExtensionServiceCollection;
+
+    public static set services(services: IFabricExtensionServiceCollection) {
+        ThisExtension._services = services;
+    }
+
+    public static get artifactManager(): IArtifactManager {
+        return ThisExtension._services.artifactManager;
+    }
+
+    public static get workspaceManager(): IWorkspaceManager {
+        return ThisExtension._services.workspaceManager;
+    }
+
+    public static get apiClient(): IFabricApiClient {
+        return ThisExtension._services.apiClient;
+    }
 
 	private static async setContext(): Promise<void> {
 		vscode.commands.executeCommand(

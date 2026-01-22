@@ -13,6 +13,7 @@ import { FabricSQLItem } from './FabricSQLItem';
 import { FabricSparkKernelManager } from '../../notebook/spark/FabricSparkKernelManager';
 import { FabricItemLivyMixin } from './mixins/FabricItemLivyMixin';
 import { applyMixins } from './mixins/FabricMixin';
+import { FabricItemArtifactTreeNodeMixin } from './mixins/FabricItemArtifactTreeNodeMixin';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricLakehouse extends FabricSQLItem {
@@ -21,6 +22,12 @@ export class FabricLakehouse extends FabricSQLItem {
 		parent: FabricWorkspaceTreeItem
 	) {
 		super(definition, parent);
+
+		// FabricItemArtifactTreeNodeMixin.call(
+		// 	this,
+		// 	ThisExtension.extensionContext,
+		// 	Object.assign(definition, { fabricEnvironment: "PROD" })
+		// );
 
 		this.itemDefinition = definition;
 		this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
@@ -38,6 +45,9 @@ export class FabricLakehouse extends FabricSQLItem {
 		this._itemDefinition = value;
 	}
 
+	async getChildNodes(): Promise<any[]> {
+		return this.getChildren(undefined)
+	}
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceTreeItem[] = [];
@@ -74,8 +84,11 @@ export class FabricLakehouse extends FabricSQLItem {
 		return children;
 	}
 }
-
-
-export interface FabricLakehouse extends FabricItemLivyMixin {}
+export interface FabricLakehouse extends FabricItemLivyMixin { }
 applyMixins(FabricLakehouse, [FabricItemLivyMixin]);
 //Object.assign(FabricLakehouse.prototype, FabricItemLivyMixin);
+
+export interface FabricLakehouse extends FabricItemArtifactTreeNodeMixin { }
+applyMixins(FabricLakehouse, [FabricItemArtifactTreeNodeMixin], false);
+//Object.assign(FabricLakehouse.prototype, FabricItemArtifactTreeNodeMixin);
+

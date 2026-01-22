@@ -49,6 +49,9 @@ import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKer
 import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/FabricSqlDatabaseMirroring';
 import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverProvider';
 import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSparkNotebookSerializer';
+import { apiVersion, IFabricExtension, IFabricExtensionManager } from '@microsoft/vscode-fabric-api';
+import { LakehouseArtifactHandler } from './fabric_official/artifactHandlers/LakehouseArtifactHandler';
+import { LakehouseTreeNodeProvider } from './fabric_official/treeNodeProviders/LakehouseTreeNodeProvider';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -68,6 +71,33 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// some of the following code needs the context before the initialization already
 	ThisExtension.extensionContext = context;
+
+	vscode.commands.registerCommand('FabricStudio.addToFabricCoreExtensions', async () => {
+		const core = vscode.extensions.getExtension('fabric.vscode-fabric');
+		if (!core) {
+			throw new Error('Core Fabric extension not available!');
+		}
+		const extensionManager = core?.exports as IFabricExtensionManager;
+		(extensionManager as any).allowedExtensions.push(context.extension.id);
+
+		const ext: IFabricExtension = {
+			identity: context.extension.id,
+			apiVersion: apiVersion, // must match major.minor
+			artifactTypes: ['Notebook', 'Lakehouse'],
+			treeNodeProviders: [new LakehouseTreeNodeProvider(context)],
+			localProjectTreeNodeProviders: [],
+			artifactHandlers: [new LakehouseArtifactHandler()],
+		};
+		const services = extensionManager.addExtension(ext); // IFabricExtensionServiceCollection
+
+		ThisExtension.services = services;
+
+		vscode.window.showInformationMessage(`${context.extension.packageJSON.displayName} added to Fabric Core Extensions.`);
+	});
+
+
+
+
 
 	ThisExtension.StatusBarRight = vscode.window.createStatusBarItem("fabricstudio.right", vscode.StatusBarAlignment.Right);
 	// Core.StatusBarRight.show();
