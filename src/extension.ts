@@ -169,6 +169,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//#region Fabric Workspaces TreeView
 	vscode.commands.registerCommand('FabricStudio.updateQuickPickList', (treeItem: FabricApiTreeItem) => FabricCommandBuilder.pushQuickPickApiItem(treeItem));
+	vscode.commands.registerCommand('FabricStudio.Global.findById', (treeItem: FabricApiTreeItem) => FabricGUIDHoverProvider.findById());
 	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricApiNotebookSerializer.openNewNotebook(treeItem));
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
@@ -188,8 +189,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.openInFabric', (treeItem: FabricApiTreeItem) => treeItem.openInBrowser());
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyIdToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.copyNameToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyNameToClipboard());
-	vscode.commands.registerCommand('FabricStudio.Item.copyPathToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPathToClipboard());
-	vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPropertiesToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.copyApiPathToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyApiPathToClipboard());
+	vscode.commands.registerCommand('FabricStudio.Item.copyApiUrlToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyApiUrlToClipboard());vscode.commands.registerCommand('FabricStudio.Item.copyPropertiesToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyPropertiesToClipboard());
 	vscode.commands.registerCommand('FabricStudio.Item.showDefinition', (treeItem: FabricApiTreeItem) => treeItem.showDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.insertPath', (treeItem: FabricApiTreeItem) => treeItem.insertCode());
 	vscode.commands.registerCommand('FabricStudio.Item.editDefinition', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
@@ -286,6 +287,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	//#endregion
 
 	vscode.commands.registerCommand('FabricStudio.Api.CopyAccessToken', FabricApiService.copyAccessTokenToClipboard);
+	vscode.commands.registerCommand('FabricStudio.Api.CopyAPIHeaders', FabricApiService.copyApiHeadersToClipboard);
+	
 
 
 	// eventhandles when Fabric documents are saved

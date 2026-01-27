@@ -1,14 +1,12 @@
 import * as vscode from 'vscode';
 
+import { ThisExtension } from '../../../ThisExtension';
+
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricItem } from './FabricItem';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
-import { ThisExtension } from '../../../ThisExtension';
 import { FabricItemDefinitionFolder } from './FabricItemDefinitionFolder';
-import { Helper } from '@utils/Helper';
 import { FabricItemDefinitionFile } from './FabricItemDefinitionFile';
-import { FabricCommandBuilder } from '../../input/FabricCommandBuilder';
-import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricApiItemType } from '../../../fabric/_types';

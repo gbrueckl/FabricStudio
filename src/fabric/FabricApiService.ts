@@ -201,7 +201,7 @@ export abstract class FabricApiService {
 		return this._headers;
 	}
 
-	protected static getFullUrl(endpoint: string, params: any = undefined): string {
+	public static getFullUrl(endpoint: string, params: any = undefined): string {
 		let baseItems = this._apiBaseUrl.split("/");
 		baseItems = baseItems.concat(["v1"]);
 		let pathItems = endpoint.split("/").filter(x => x);
@@ -656,5 +656,9 @@ export abstract class FabricApiService {
 		}
 
 		await vscode.env.clipboard.writeText(session.accessToken);
+	}
+
+	static async copyApiHeadersToClipboard(): Promise<void> {
+		await vscode.env.clipboard.writeText(JSON.stringify(await FabricApiService.getHeaders(), undefined, 4));
 	}
 }

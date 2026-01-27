@@ -36,7 +36,7 @@ export class FabricPipeline extends FabricPipelineTreeItem {
 	}
 
 	get apiUrlPart(): string {
-		return "deploymentPipelines/" + (this.itemId);
+		return "deploymentPipelines/" + this.itemId;
 	}
 
 	// Pipeline-specific funtions

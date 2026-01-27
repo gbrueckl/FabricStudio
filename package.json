@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.14.1",
+	"version": "2.15.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -363,6 +363,12 @@
 				"icon": "$(refresh)"
 			},
 			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Global.findById",
+				"title": "Find by ID",
+				"icon": "$(search)"
+			},
+			{
 				"command": "FabricStudio.Item.openNewNotebook",
 				"title": "Open in Fabric API Notebook",
 				"icon": "$(notebook)",
@@ -416,8 +422,14 @@
 				"category": "FabricStudio"
 			},
 			{
-				"command": "FabricStudio.Item.copyPathToClipboard",
+				"command": "FabricStudio.Item.copyApiPathToClipboard",
 				"title": "Copy API Path to Clipboard",
+				"icon": "$(clippy)",
+				"category": "FabricStudio"
+			},
+			{
+				"command": "FabricStudio.Item.copyApiUrlToClipboard",
+				"title": "Copy API URL to Clipboard",
 				"icon": "$(clippy)",
 				"category": "FabricStudio"
 			},
@@ -685,6 +697,11 @@
 				"category": "FabricStudio.Core"
 			},
 			{
+				"command": "FabricStudio.Api.CopyAPIHeaders",
+				"title": "Copy Fabric API Headers",
+				"category": "FabricStudio.Core"
+			},
+			{
 				"command": "FabricStudio.Warehouse.createSnapshot",
 				"title": "Create Snapshot",
 				"category": "FabricStudio.Warehouse"
@@ -768,6 +785,11 @@
 					"group": "navigation"
 				},
 				{
+					"command": "FabricStudio.Global.findById",
+					"when": "view =~ /FabricStudio.*/",
+					"group": "navigation"
+				},
+				{
 					"command": "FabricStudio.Connections.refresh",
 					"when": "view == FabricStudioConnections",
 					"group": "navigation"
@@ -830,8 +852,13 @@
 					"group": "6_copypath"
 				},
 				{
-					"command": "FabricStudio.Item.copyPathToClipboard",
-					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_PATH,.*/",
+					"command": "FabricStudio.Item.copyApiPathToClipboard",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_API_PATH,.*/",
+					"group": "6_copypath"
+				},
+				{
+					"command": "FabricStudio.Item.copyApiUrlToClipboard",
+					"when": "view =~ /FabricStudio.*/ && viewItem =~ /.*,COPY_API_URL,.*/",
 					"group": "6_copypath"
 				},
 				{
