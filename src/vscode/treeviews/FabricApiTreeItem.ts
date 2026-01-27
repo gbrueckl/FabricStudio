@@ -58,7 +58,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			"displayName": this.itemName,
 			"type": this.itemType,
 			"description": this._itemDescription,
-			"definition": this._itemDefinition
+			"definition": this._itemDefinition,
+			"apiPath": this.apiPath,
+			"treeProvider": this.treeProvider,
 		});
 	}
 
@@ -95,7 +97,8 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			this.itemType.toUpperCase(),
 			"COPY_ID",
 			"COPY_NAME",
-			"COPY_PATH",
+			"COPY_API_PATH",
+			"COPY_API_URL",
 			"COPY_PROPERTIES",
 			"SHOW_DEFINITION",
 			"INSERT_CODE",
@@ -277,8 +280,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		vscode.env.clipboard.writeText(this.itemName);
 	}
 
-	public copyPathToClipboard(): void {
+	public copyApiPathToClipboard(): void {
 		vscode.env.clipboard.writeText(this.apiPath);
+	}
+
+	public copyApiUrlToClipboard(): void {
+		vscode.env.clipboard.writeText(FabricApiService.getFullUrl(this.apiPath));
 	}
 
 	public async copyPropertiesToClipboard(): Promise<void> {
@@ -367,12 +374,15 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	get apiUrlPart(): string {
-		if (this.itemType.endsWith("s")) {
-			return this.itemType.toLowerCase();
+		try {
+			if (this.itemType.endsWith("s")) {
+				return this.itemType.toLowerCase();
+			}
+			if (this.itemId) {
+				return this.itemId;
+			}
 		}
-		if (this.itemId) {
-			return this.itemId;
-		}
+		catch { }
 		return this.id;
 	}
 

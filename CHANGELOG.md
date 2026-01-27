@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.15.0**:
+- added `Find by ID` to all treeviews to search for specific IDs
+- added `Copy API URL to Clipboard` to copy the full API path
+- added `Copy Fabric API Headers` command to get all used API Headers as JSON
+
 **v2.14.1**:
 - added support for `EventSchemaSets` to view/update definition
 

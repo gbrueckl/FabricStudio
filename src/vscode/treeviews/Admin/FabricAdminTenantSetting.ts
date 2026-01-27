@@ -34,7 +34,10 @@ export class FabricAdminTenantSetting extends FabricAdminGenericViewer {
 	}
 
 	public get apiUrlPart(): string {
-		return this.itemDefinition.settingName
+		if (this.itemDefinition?.settingName) {
+			return this.itemDefinition.settingName
+		}
+		return super.apiUrlPart;
 	}
 
 	/* Overwritten properties from FabricAdminTreeItem */

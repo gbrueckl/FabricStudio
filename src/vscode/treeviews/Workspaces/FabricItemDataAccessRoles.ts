@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { Helper, UniqueId } from '@utils/Helper';
+import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { iFabricApiItemDataAccessRole } from '../../../fabric/_types';

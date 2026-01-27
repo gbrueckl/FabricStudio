@@ -9,6 +9,7 @@ import { FabricNotebookContext } from './FabricNotebookContext';
 import { FabricApiTreeItem } from '../../treeviews/FabricApiTreeItem';
 import { FabricAPILanguage } from '../../language/_types';
 import { FABRIC_API_NOTEBOOK_TYPE } from './FabricApiNotebookKernel';
+import { iFabricItemDetails } from '../../hoverProvider/FabricGUIDHoverProvider';
 
 export class FabricApiNotebookSerializer implements vscode.NotebookSerializer {
 	public readonly label: string = 'Fabric Notebook Serializer';
@@ -42,11 +43,13 @@ export class FabricApiNotebookSerializer implements vscode.NotebookSerializer {
 		return await Buffer.from(JSON.stringify(notebook));
 	}
 
-	static async openNewNotebook(apiItem: FabricApiTreeItem): Promise<vscode.NotebookEditor> {
-		let apiPath = "/workspaces";
-
-		if (apiItem) {
-			apiPath = '/' + Helper.trimChar(apiItem.apiPath.split("/").slice(1).join("/"), "/", false, true);
+	static async openNewNotebook(apiItem: FabricApiTreeItem | iFabricItemDetails): Promise<vscode.NotebookEditor> {
+		let apiPath = "";
+		if (apiItem instanceof FabricApiTreeItem) {
+			apiPath = Helper.trimChar(apiItem.apiPath.split("/").slice(1).join("/"), "/", false, true);
+		}
+		else {
+			apiPath = apiItem.apiPath
 		}
 
 		let defaultCells = [

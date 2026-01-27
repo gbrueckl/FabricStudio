@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ThisExtension } from '../../../ThisExtension';
-import { Helper } from '@utils/Helper';
-
-import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
-import { iFabricApiItemConnection, iFabricApiItemDataAccessRole } from '../../../fabric/_types';
+import { iFabricApiItemDataAccessRole } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricItemDataAccessRoles } from './FabricItemDataAccessRoles';
 

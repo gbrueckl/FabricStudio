@@ -61,7 +61,10 @@ export class FabricPipelineStage extends FabricPipelineTreeItem implements iFabr
 	}
 
 	get apiUrlPart(): string {
-		return this.itemDefinition.id.toString();
+		if(this.itemDefinition?.id) {
+			return this.itemDefinition.id;
+		}
+		return super.apiUrlPart;
 	}
 
 	async getChildren(element?: FabricPipelineTreeItem): Promise<FabricPipelineTreeItem[]> {
