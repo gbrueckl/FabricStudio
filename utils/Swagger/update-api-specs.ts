@@ -18,7 +18,7 @@ function downloadFile(url: string, outputPath: string) {
 	return fetch(url)
 		.then(x => x.arrayBuffer())
 		//.then(x => writeFile(outputPath, Buffer.from(x)));
-		.then(x => {fs.writeFileSync(outputPath, Buffer.from(x)); console.log(`File written to ${outputPath}`);})
+		.then(x => {fs.writeFileSync(outputPath, Buffer.from(x), { flag: 'w' }); console.log(`File written to ${outputPath}`);})
 }
 
 downloadFile(url, ZIP_FILE_NAME)

@@ -66,12 +66,12 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		let matchesDifferentMethod: ApiEndpointDetails[] = [];
 		for (let item of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths)) {
 			// within the same path as the typed path 
-			if (item.startsWith(searchPath)) {
+			if (item.toLowerCase().startsWith(searchPath.toLowerCase())) {
 				const parts = item.split("/");
 				// all APIs directly below the current path and all dynamic paths
 				if (parts.length == searchParts.length + 1
-					|| (parts.length == searchParts.length + 2 && parts[searchParts.length] == "jobs") // exception for jobs
-					|| (parts.length == searchParts.length + 2 && parts[searchParts.length] == "admin") // exception for jobs
+					|| (parts.length == searchParts.length + 2 && parts[searchParts.length].toLowerCase() == "jobs") // exception for jobs
+					|| (parts.length == searchParts.length + 2 && parts[searchParts.length].toLowerCase() == "admin") // exception for admin APIs
 					|| (parts.length > searchParts.length && parts[searchParts.length].startsWith("{"))) {
 					for (let m of Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths[item])) {
 						let itemToAdd = { ...FabricAPICompletionProvider.swagger.paths[item][m] };

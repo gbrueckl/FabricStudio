@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.16.1**:
+- fixed issue with API auto completion and case sensitivity
+- updated Swagger API definition
+
 **v2.16.0**:
 - fixed issues with Connections Treeview
 - added drag&drop support to rebind Semantic Models to a connection by dragging them on the connection
