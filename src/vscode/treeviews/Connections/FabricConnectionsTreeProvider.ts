@@ -10,7 +10,7 @@ import { FabricDragAndDropController } from '../../FabricDragAndDropController';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricGateway } from './FabricGateway';
 import { FabricConnection } from './FabricConnection';
-import { FabricApiTreeItem } from '../FabricApiTreeItem';
+import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<FabricConnectionTreeItem> {
@@ -64,11 +64,24 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 		else {
 			let children: FabricConnectionTreeItem[] = [];
 			const regexFilter = this.filterRegEx;
-			let treeItem: FabricGateway;
-			let gateways: Map<string, FabricGateway> = new Map<string, FabricGateway>();
+			let treeItem: FabricConnectionGenericFolder;
+			let gateways: Map<string, FabricConnectionGenericFolder> = new Map<string, FabricConnectionGenericFolder>();
 
 			// seems like /myorg/ also works for guest accounts
 			let gatewayList = await FabricApiService.getList<iFabricApiGateway>("/v1/gateways");
+			if(gatewayList.error) {
+				ThisExtension.Logger.logError(gatewayList.error.message);
+				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(gatewayList.error)];
+			}
+			else {
+				for (let gateway of gatewayList.success) {
+					treeItem = new FabricGateway(
+						gateway
+					);
+					gateways.set(gateway.id, treeItem);
+				}
+			}
+
 			let items = await FabricApiService.getList<iFabricApiConnection>("/v1/connections");
 
 			if (items.error) {
@@ -89,10 +102,15 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 
 					const gateway = item.gatewayId ?? item.connectivityType;
 
+					// for ShareableCloud connectsions, the gatewayId is not set, so we need to use the connectivityType to group them
 					if (!gateways.has(gateway)) {
-						treeItem = new FabricGateway(
-							item,
-							gatewayList.success.find(g => g.id === item.gatewayId)
+						treeItem = new FabricConnectionGenericFolder(
+							gateway,
+							gateway,
+							"Gateway",
+							undefined,
+							undefined,
+							vscode.TreeItemCollapsibleState.Collapsed
 						);
 
 						gateways.set(gateway, treeItem);

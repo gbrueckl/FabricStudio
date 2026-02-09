@@ -26,17 +26,17 @@ export class FabricGatewayRoleAssignments extends FabricConnectionGenericFolder 
 			let children: FabricGatewayRoleAssignment[] = [];
 
 			try {
-			let items = await FabricApiService.getList<iFabricApiGatewayRoleAssignment>(this.apiPath, undefined, "value", "id");
+				let items = await FabricApiService.getList<iFabricApiGatewayRoleAssignment>(this.apiPath, undefined, "value", "id");
 
-			if (items.error) {
-				ThisExtension.Logger.logError(items.error.message);
-				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
-			}
+				if (items.error) {
+					ThisExtension.Logger.logError(items.error.message);
+					return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(items.error)];
+				}
 
-			for (let item of items.success) {
-				let treeItem = new FabricGatewayRoleAssignment(item, this);
-				children.push(treeItem);
-			}
+				for (let item of items.success) {
+					let treeItem = new FabricGatewayRoleAssignment(item, this);
+					children.push(treeItem);
+				}
 			}
 			catch (e) {
 				Helper.handleGetChildrenError(e, this.parent, "gateway role assignments");

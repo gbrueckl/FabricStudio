@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.16.0**:
+- fixed issues with Connections Treeview
+- added drag&drop support to rebind Semantic Models to a connection by dragging them on the connection
+- added new icons for differnt Connection types (ShareableCloud, OnPremisesGateway, ...)
+
 **v2.15.0**:
 - added `Find by ID` to all treeviews to search for specific IDs
 - added `Copy API URL to Clipboard` to copy the full API path

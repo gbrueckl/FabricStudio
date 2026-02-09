@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiItemConnection } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
+import { FabricConnection } from '../Connections/FabricConnection';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemConnection extends FabricWorkspaceGenericViewer {
@@ -10,7 +11,8 @@ export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 		definition: iFabricApiItemConnection,
 		parent: FabricWorkspaceTreeItem
 	) {
-		super(definition.id, parent, undefined, "ItemConnection");
+		// there might be connections without ID
+		super(definition.id ?? definition.connectionDetails.path, parent, undefined, "ItemConnection");
 
 		this.label = definition.displayName || definition.connectionDetails.path;
 		this.itemId = definition.id;
@@ -38,8 +40,10 @@ export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 		}
 	}
 
-	getIcon(): vscode.ThemeIcon {
-		return new vscode.ThemeIcon("extensions-remote");
+	getIcon() {
+		if (this.itemDefinition) {
+			return FabricConnection.getIconByConnectivityType(this.itemDefinition.connectivityType);
+		}
 	}
 
 	get itemDefinition(): iFabricApiItemConnection {
@@ -52,6 +56,9 @@ export class FabricItemConnection extends FabricWorkspaceGenericViewer {
 
 	// Item-specific functions
 	get apiPath(): string {
-		return "/connections/" + this.itemDefinition.id;
+		if (this.itemDefinition?.id) {
+			return "/connections/" + this.itemDefinition.id;
+		}
+		return undefined;
 	}
 }

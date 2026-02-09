@@ -21,33 +21,55 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 		this.tooltip = this.getToolTip(definition);
 		this.iconPath = new vscode.ThemeIcon("extensions-remote");
 		this.description = definition.id;
+		this.iconPath = this.getIcon();
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
 	get apiPath(): string {
-		return `v1/connections/${this.itemDefinition.id}/`;
+		return `v1/connections/${this.itemDefinition?.id ?? this.itemId}/`;
+	}
+
+	getIcon() {
+		if (this.itemDefinition) {
+			return FabricConnection.getIconByConnectivityType(this.itemDefinition.connectivityType);
+		}
+	}
+
+	static getIconByConnectivityType(connectivityType: string): vscode.ThemeIcon {
+		if (connectivityType) {
+			if (connectivityType === "OnPremisesGatewayPersonal" || connectivityType === "OnPremisesGateway") {
+				return new vscode.ThemeIcon("cloud-upload");
+			}
+			else if (connectivityType === "ShareableCloud") {
+				return new vscode.ThemeIcon("issue-reopened");
+			}
+			else if (connectivityType === "PersonalCloud") {
+				return new vscode.ThemeIcon("issue-draft");
+			}
+		}
+		return new vscode.ThemeIcon("extensions-remote");
 	}
 
 	async getChildren(element?: FabricConnectionTreeItem): Promise<FabricConnectionTreeItem[]> {
-			let children: FabricConnectionTreeItem[] = [];
-			if (this._children) {
-				children = this._children
-			}
-	
-			// Role Assignments
-			try {
-				let roleAssignments = new FabricConnectionRoleAssignments(this);
-				const roleAssignmentsChildren = await FabricApiTreeItem.getValidChildren(roleAssignments);	
-				if (roleAssignmentsChildren.length > 0) {
-					children.push(roleAssignments);
-				}
-			}
-			catch (e) {
-				ThisExtension.Logger.logError("Could not load roleAssignments for connection " + this.itemName);
-			}
-	
-			children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
-	
-			return children;
+		let children: FabricConnectionTreeItem[] = [];
+		if (this._children) {
+			children = this._children
 		}
+
+		// Role Assignments
+		try {
+			let roleAssignments = new FabricConnectionRoleAssignments(this);
+			const roleAssignmentsChildren = await FabricApiTreeItem.getValidChildren(roleAssignments);
+			if (roleAssignmentsChildren.length > 0) {
+				children.push(roleAssignments);
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logError("Could not load roleAssignments for connection " + this.itemName);
+		}
+
+		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+
+		return children;
+	}
 }
