@@ -499,7 +499,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			canRename: this.canRename,
 			canOpenInBrowser: this.canOpenInBrowser,
 			treeProvider: this.treeProvider,
-			contextValue: this.contextValue
+			contextValue: this.contextValue,
+			workspaceId: (this as any).workspaceId ?? this.itemDefinition?.workspaceId,
+			parent: this.parent?.toJSON ? this.parent.toJSON() : undefined
 		};
 	}
 }

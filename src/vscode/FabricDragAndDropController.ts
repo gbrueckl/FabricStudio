@@ -15,6 +15,8 @@ import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricC
 import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
 import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFolder';
 import { FabricApiService } from '../fabric/FabricApiService';
+import { FabricConnection } from './treeviews/Connections/FabricConnection';
+import { FabricSemanticModel } from './treeviews/Workspaces/FabricSemanticModel';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -215,6 +217,46 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 				treeViewtoRefresh = target.treeProvider;
 				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
 
+			}
+		}
+		// AIDEV-NOTE: bindConnection API: POST /v1/workspaces/{workspaceId}/semanticModels/{semanticModelId}/bindConnection
+		else if (["SemanticModel", "ItemConnection"].includes(source_Item0.itemType)) {
+			const sourceItem = source_Item0 as FabricSemanticModel;
+			if (targetItem.itemType == "Connection") {
+				const target = targetItem as FabricConnection;
+				const connectionDef = targetItem.itemDefinition;
+
+				const bindConnection = async () => {
+					const body = {
+						"connectionBinding": {
+							"id": connectionDef.id,
+							"connectivityType": connectionDef.connectivityType,
+							"connectionDetails": {
+								"type": connectionDef.connectionDetails.type,
+								"path": connectionDef.connectionDetails.path
+							}
+						}
+					};
+					let apiPath = `/v1/workspaces/${sourceItem.workspaceId}/semanticModels/${sourceItem.itemId}/bindConnection`
+					
+					if(sourceItem.itemType == "ItemConnection") {
+						apiPath = `/v1/workspaces/${sourceItem.workspaceId}/semanticModels/${sourceItem.parent.parent.itemId}/bindConnection`
+					}
+
+					const response = await FabricApiService.post(apiPath, body);
+					
+					if (response.error) {
+						ThisExtension.Logger.logError(`Error binding connection to semantic model: ${response.error.message}`, true);
+						return;
+					}
+					else {
+						ThisExtension.Logger.logInfo(`Successfully bound connection '${connectionDef.displayName}' to semantic model '${sourceItem.itemName}'`);
+					}
+					
+					ThisExtension.TreeViewWorkspaces.refresh(sourceItem.parent, false);
+				};
+
+				actions.set("Bind Connection", bindConnection);
 			}
 		}
 		// there are multiple item types for Fabric Items, so we cannot rely on the itemType but use the contextvalue instead
