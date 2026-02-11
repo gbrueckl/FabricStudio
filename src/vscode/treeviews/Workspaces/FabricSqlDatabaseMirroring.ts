@@ -72,7 +72,7 @@ export class FabricSqlDatabaseMirroring extends FabricWorkspaceTreeItem {
 			Helper.showTemporaryInformationMessage(`Starting mirroring for database ${this.itemName}.`, 10000);
 		}
 
-		ThisExtension.TreeViewWorkspaces.refresh(this.parent);
+		ThisExtension.TreeViewWorkspaces.refresh(this.parent, false, true);
 	}
 
 	async stopMirroring(): Promise<void> {
@@ -87,6 +87,6 @@ export class FabricSqlDatabaseMirroring extends FabricWorkspaceTreeItem {
 			Helper.showTemporaryInformationMessage(`Stopping mirroring for database ${this.itemName}.`, 10000);
 		}
 
-		ThisExtension.TreeViewWorkspaces.refresh(this.parent);
+		ThisExtension.TreeViewWorkspaces.refresh(this.parent, false, true);
 	}
 }

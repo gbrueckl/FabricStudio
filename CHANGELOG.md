@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.17.1**:
+- fixe dissue with unnecessary treeview refreshes causing API timeouts/throtteling
+
 **v2.17.0**:
 - improved GUID Hover provider to also show the workspace name and ID
 

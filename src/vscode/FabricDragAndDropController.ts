@@ -17,6 +17,7 @@ import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFol
 import { FabricApiService } from '../fabric/FabricApiService';
 import { FabricConnection } from './treeviews/Connections/FabricConnection';
 import { FabricSemanticModel } from './treeviews/Workspaces/FabricSemanticModel';
+import { FabricGateway } from './treeviews/Connections/FabricGateway';
 
 export const FabricDragMIMEType = "fabricstudiodragdrop";
 
@@ -125,12 +126,16 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 		if (source_Item0.itemType == "WorkspaceRoleAssignment") {
 			const sourceItem = source_Item0 as FabricWorkspaceRoleAssignment;
-			if (["WorkspaceRoleAssignments"].includes(targetItem.itemType)) {
-				const target = targetItem as FabricWorkspaceRoleAssignments;
+			if (["WorkspaceRoleAssignments", "Workspace"].includes(targetItem.itemType)) {
+				let target = targetItem as FabricWorkspace;
+				if (targetItem.itemType == "WorkspaceRoleAssignments") {
+					// if the target is the WorkspaceRoleAssignments folder, we can add the role assignment to the parent Workspace
+					target = targetItem.parent as FabricWorkspace;
+				}
 
 				const addRoleAssignment = async () => {
 					await target.addRoleAssignment(sourceItem.itemDefinition);
-					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target, false, true);
 				}
 
 				actions.set("Add WorkspaceRoleAssignment", addRoleAssignment);
@@ -138,12 +143,16 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		}
 		else if (source_Item0.itemType == "GatewayRoleAssignment") {
 			const sourceItem = source_Item0 as FabricGatewayRoleAssignment;
-			if (["GatewayRoleAssignments"].includes(targetItem.itemType)) {
-				const target = targetItem as FabricGatewayRoleAssignments;
+			if (["GatewayRoleAssignments", "Gateway"].includes(targetItem.itemType)) {
+				let target = targetItem as FabricGateway;
+				if (targetItem.itemType == "GatewayRoleAssignments") {
+					// if the target is the GatewayRoleAssignments folder, we can add the role assignment to the parent Gateway
+					target = targetItem.parent as FabricGateway;
+				}
 
 				const addRoleAssignment = async () => {
 					await target.addRoleAssignment(sourceItem.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+					ThisExtension.TreeViewConnections.refresh(target, false);
 				}
 
 				actions.set("Add GatewayRoleAssignment", addRoleAssignment);
@@ -151,12 +160,17 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		}
 		else if (source_Item0.itemType == "ConnectionRoleAssignment") {
 			const sourceItem = source_Item0 as FabricConnectionRoleAssignment;
-			if (["ConnectionRoleAssignments"].includes(targetItem.itemType)) {
-				const target = targetItem as FabricConnectionRoleAssignments;
+			if (["ConnectionRoleAssignments", "Connection"].includes(targetItem.itemType)) {
+				
+				let target = targetItem as FabricConnection;
+				if (targetItem.itemType == "ConnectionRoleAssignments") {
+					// if the target is the ConnectionRoleAssignments folder, we can add the role assignment to the parent Connection
+					target = targetItem.parent as FabricConnection;
+				}
 
 				const addRoleAssignment = async () => {
 					await target.addRoleAssignment(sourceItem.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target.parent, false);
+					ThisExtension.TreeViewConnections.refresh(target, false);
 				}
 
 				actions.set("Add ConnectionRoleAssignment", addRoleAssignment);
@@ -196,7 +210,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 				const moveToFolder = async () => {
 					await FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition, target.itemDefinition);
-					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false, true);
 				}
 				treeViewtoRefresh = sourceItem.treeProvider;
 				actions.set("Move to Folder", moveToFolder);
@@ -212,7 +226,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 				const moveToWorkspaceRoot = async () => {
 					FabricWorkspaceFolder.moveToFolder(sourceItem.itemDefinition);
-					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false, true);
 				}
 				treeViewtoRefresh = target.treeProvider;
 				actions.set("Move to Workspace Root", moveToWorkspaceRoot);
@@ -253,7 +267,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 						ThisExtension.Logger.logInfo(`Successfully bound connection '${connectionDef.displayName}' to semantic model '${sourceItem.itemName}'`);
 					}
 					
-					ThisExtension.TreeViewWorkspaces.refresh(sourceItem.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(sourceItem.parent, false, true);
 				};
 
 				actions.set("Bind Connection", bindConnection);
@@ -276,7 +290,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 					}
 
 					FabricApiService.post(`/v1/workspaces/${target.workspaceId}/items/bulkMove`, body);
-					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false);
+					ThisExtension.TreeViewWorkspaces.refresh(target.parent, false, true);
 				}
 
 				actions.set(`Move Item(s)`, bulkMoveItems);
@@ -341,8 +355,6 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		if (actions.size == 1) {
 			const action = actions.values().next().value
 			await action();
-
-			ThisExtension.refreshTreeView(treeViewtoRefresh);
 		}
 		else if (actions.size >= 2) {
 			let items: FabricQuickPickItem[] = [];
@@ -356,8 +368,6 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 			}
 
 			await actions.get(action.value)();
-
-			ThisExtension.refreshTreeView(treeViewtoRefresh);
 		}
 		else {
 			const msg: string = "No action defined when dropping a '" + source_Item0.itemType + "' on a '" + targetItem.itemType + "'!"

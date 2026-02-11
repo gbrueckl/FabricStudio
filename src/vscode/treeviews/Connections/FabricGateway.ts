@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiConnection, iFabricApiGateway } from '../../../fabric/_types';
+import { iFabricApiConnection, iFabricApiGateway, iFabricApiGatewayRoleAssignment } from '../../../fabric/_types';
 import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
 import { FabricGatewayMembers } from './FabricGatewayMembers';
 import { FabricGatewayRoleAssignments } from './FabricGatewayRoleAssignments';
 import { ERROR_ITEM_ID, FabricApiTreeItem, NO_ITEMS_ITEM_ID } from '../FabricApiTreeItem';
+import { FabricApiService } from '../../../fabric/FabricApiService';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricGateway extends FabricConnectionGenericFolder {
@@ -51,31 +53,43 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 		}
 
 		// Members
-		try {
-			let members = new FabricGatewayMembers(this);
-			const connectionsChildren = await FabricApiTreeItem.getValidChildren(members);
-			if (connectionsChildren.length > 0) {
-				children.push(members);
-			}
-		}
-		catch (e) {
-			ThisExtension.Logger.logError("Could not load members for gateway " + this.itemName);
-		}
+		let members = new FabricGatewayMembers(this);
+		children.push(members);
 
 		// Role Assignments
-		try {
-			let roleAssignments = new FabricGatewayRoleAssignments(this);
-			const roleAssignmentsChildren = await FabricApiTreeItem.getValidChildren(roleAssignments);
-			if (roleAssignmentsChildren.length > 0) {
-				children.push(roleAssignments);
-			}
-		}
-		catch (e) {
-			ThisExtension.Logger.logError("Could not load roleAssignments for item " + this.itemName, true);
-		}
+		let roleAssignments = new FabricGatewayRoleAssignments(this);
+		children.push(roleAssignments);
+
 
 		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
 
 		return children;
+	}
+
+	async addRoleAssignment(identity: iFabricApiGatewayRoleAssignment, showInfoMessage: boolean = true): Promise<void> {
+		// https://learn.microsoft.com/en-us/rest/api/fabric/core/gateways/add-gateway-role-assignment?tabs=HTTP
+		/*
+		POST https://api.fabric.microsoft.com/v1/gateways/d12d139f-4141-467c-9f53-80787b198843/roleAssignments
+		{
+			"principal": {
+				"id": "6a002b3d-e4ec-43df-8c08-e8eb7547d9dd",
+				"type": "User"
+			},
+			"role": "ConnectionCreator"
+		}
+		*/
+
+		const apiPath = Helper.joinPath(this.apiPath, "roleAssignments");
+
+		const response = await FabricApiService.post(apiPath, identity, { "raw": false, "awaitLongRunningOperation": false });
+
+		if (response.error) {
+			vscode.window.showErrorMessage(response.error.message);
+		}
+		else {
+			if (showInfoMessage) {
+				Helper.showTemporaryInformationMessage(`Adding Gateway Role-Assignment for identity '${identity.principal.displayName || identity.principal.id}'`, 3000);
+			}
+		}
 	}
 }
