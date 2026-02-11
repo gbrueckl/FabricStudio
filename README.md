@@ -17,11 +17,14 @@ The extensions can be installed directly from within VSCode by searching for thi
   - create/update/delete
   - publish from VSCode to the Fabric Service
 - Supports VSCode and [vscode.dev](https://vscode.dev) alike with all features also available in the web!
-- Run arbitrary REST API calls in a notebook using `%api` magic - see [Notebooks](#notebooks)
+- Run arbitrary REST API calls in a notebook using [API Notebooks](#api-notebooks)
+- Run Spark notebooks against a Fabric Lakehouse directly from VSCode  [Spark Notebooks](#spark-notebooks)
 - Integrate Fabric GIT APIs with VSCode GIT - see [Fabric GIT Integration](#fabric-git-integration)
 - Connect to remote tenants where you are invited as a guest user - see [Configuration](#configuration)
+- GUI to manage Deployment Pipelines
+- Hover provider for [Fabric GUIDs](#hover-provider-for-guids)
 - Soon to come:
-  - GUI to manage Pipelines
+
   - Integration of [Fabric GraphQL](https://learn.microsoft.com/en-us/fabric/data-engineering/api-graphql-overview) in notebooks
 
 # Configuration
@@ -147,18 +150,18 @@ For this to work properly with Spark notebooks read directly from Fabric, you ne
 ],
 ```
 
-Alternatively, you can also make VSCode open all `.py` (or other) files as notebooks using these VSCode settings:
+Alternatively, you can also make VSCode open all `notebook-content.py` (or other) files as notebooks using these VSCode settings:
 
 ```json
 "workbench.editorAssociations":{
-	"*.py": "fabric-spark-notebook",
-	"*.scala": "fabric-spark-notebook",
-	"*.sql": "fabric-spark-notebook",
-	"*.r": "fabric-spark-notebook"
+	"notebook-content.py": "fabric-spark-notebook",
+	"notebook-content.scala": "fabric-spark-notebook",
+	"notebook-content.sql": "fabric-spark-notebook",
+	"notebook-content.r": "fabric-spark-notebook"
 }
 ```
 
-To only open notebooks from Fabric directly as VSCode notebooks, you can also use this deviation which will only match the `.py` files loaded via the Fabric Studios [Custom FileSystemProvider](#custom-filesystemprovider):
+To only open notebooks from Fabric directly as VSCode notebooks, you can also use this deviation which will only match the `.py` files loaded via the Fabric Studio [Custom FileSystemProvider](#custom-filesystemprovider):
 
 ```json
 "workbench.editorAssociations":{
@@ -209,12 +212,16 @@ For usability, some items are configured for Drag & Drop.
 The following list provides the currently supported souces and targets for Drag & Drop
 
 | Source | Target | Action | Description |
-|--------|--------|--------|-------------|
-| Role Assignment | Role Assignments | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. Works for Connection-, Workspace- and Gateway-roles|
+| ------ | ------ | ------ | ----------- |
+| Role Assignment | Role Assignments | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. Works for Connection-, Workspace- and Gateway-roles |
 | Workspace | Capacity | Assign to Capacity | Assigns the dragged workspace to the dropped capacity. |
 | Workspace Folder | Workspace | Move folder | Moves the dragged folder to the root of the workspace |
 | Workspace Folder | Workspace Folder | Move folder | Moves the dragged folder under the target folder |
 | Item | Workspace Folder | Move item | Moves the selected items (multiselect!) to the target folder |
+| SemanticModel Connection (Workspace) | Connection (Connections) | Bind Connection | Binds the Semantic Model connection to the target connection |
+
+# Hover Provider for GUIDs
+Fabric Studio adds a new Hover Provider to VSCode so whenever you hover over a GUID in any editor (e.g. a JSON file), we will check if the GUID belongs to a Fabric Item that we have previously loaded. If yes, we show the name, type and workspace of the item so you do not have to look it up yourself!
 
 # FAQ
 
@@ -232,4 +239,4 @@ The following list provides the currently supported souces and targets for Drag 
 
 **Q: Something went wrong or the extension is stuck, what can I do?**
 
-**A:** Unfortunately this can happen, sorry! You might try to restart VSCode. If the problem persists, please open an [issue](https://github.com/gbrueckl/FabricStudio/issues) at our Git Repository. You might want to also check the dedicated VSCode Output for Fabric Studio which can reveal more information about the problem. You can also change the `fabricStudio.logLevel` to `Debug` or `Trace`.
+**A:** Unfortunately this can happen, sorry! You might try to restart VSCode. If the problem persists, please open an [issue](https://github.com/gbrueckl/FabricStudio/issues) at our Git Repository. You might want to also check the dedicated VSCode Output for Fabric Studio which can reveal more information about the problem. You can also change the `fabricStudio.logLevel` to `Debug` or `Trace` for more granular information. If you open a ticket, pleaes proved this information as well.

@@ -1,17 +1,23 @@
 import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../ThisExtension';
-import { Buffer } from '@env/buffer';
-import { Helper } from '@utils/Helper';
-import { iFabricApiItem } from '../../fabric/_types';
 import { FabricApiNotebookSerializer } from '../notebook/api/FabricApiNotebookSerializer';
 
 const GUID_REGEX = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 
-export interface iFabricItemDetails extends iFabricApiItem {
-	definition?: any;
+export interface iFabricItemDetails {
+	itemId: string;
+	itemName: string;
 	apiPath: string;
+	itemType: string;
+	itemDefinition: any;
+	canDelete: boolean;
+	canRename: boolean;
+	canOpenInBrowser: boolean;
 	treeProvider: string;
+	contextValue: string;
+	workspaceId: string;
+	parent: iFabricItemDetails | undefined;
 }
 
 export class FabricGUIDHoverProvider implements vscode.HoverProvider {
@@ -37,20 +43,23 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 
 			const itemDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(guid);
 			if (itemDetails) {
-				let contents: vscode.MarkdownString[] = [];
+				let contents: vscode.MarkdownString[] = [
+					new vscode.MarkdownString(`### Fabric Item Details`)
+				];
 				//contents.push(new vscode.MarkdownString("**Fabric Studio**:"));
-				if (itemDetails.displayName) {
-					contents.push(new vscode.MarkdownString(`**DisplayName**: ${itemDetails.displayName}`));
+				if (itemDetails.itemName) {
+					contents.push(new vscode.MarkdownString(`**DisplayName**: ${itemDetails.itemName}`));
 				}
-				if (itemDetails.type) {
-					contents.push(new vscode.MarkdownString(`**Type**: \`${itemDetails.type}\``));
+				if (itemDetails.itemType) {
+					contents.push(new vscode.MarkdownString(`**Type**: ${itemDetails.itemType}`));
 				}
-				if (itemDetails.workspaceId) {
-					const workspaceDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(itemDetails.workspaceId);
-					if (workspaceDetails && workspaceDetails.displayName) {
-						contents.push(new vscode.MarkdownString(`**Workspace**: ${workspaceDetails.displayName}`));
+				const workspaceId = itemDetails.workspaceId || itemDetails.itemDefinition?.workspaceId;
+				if (workspaceId) {
+					const workspaceDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(workspaceId);
+					if (workspaceDetails && workspaceDetails.itemName) {
+						contents.push(new vscode.MarkdownString(`**Workspace**: ${workspaceDetails.itemName}`));
 					}
-					contents.push(new vscode.MarkdownString(`**WorkspaceId**: \`${itemDetails.workspaceId}\``));
+					contents.push(new vscode.MarkdownString(`**WorkspaceId**: \`${workspaceId}\``));
 				}
 
 				return new vscode.Hover(contents, range);
@@ -86,11 +95,12 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 		const itemDetails = this.getFabricObjectNameByGUID(guid);
 
 		if (itemDetails) {
-			let msg = `Found Fabric item with ID '${guid}': ${itemDetails.type} '${itemDetails.displayName}'`;
-			if (itemDetails.definition?.workspaceId) {
-				const workspaceDetails = this.getFabricObjectNameByGUID(itemDetails.definition.workspaceId);
-				if (workspaceDetails && workspaceDetails.displayName) {
-					msg += ` in Workspace '${workspaceDetails.displayName}' (ID: ${itemDetails.definition.workspaceId})`;
+			let msg = `Found Fabric item with ID '${guid}': ${itemDetails.itemType} '${itemDetails.itemName}'`;
+			const workspaceId = itemDetails.workspaceId || itemDetails.itemDefinition?.workspaceId;
+			if (workspaceId) {
+				const workspaceDetails = this.getFabricObjectNameByGUID(workspaceId);
+				if (workspaceDetails && workspaceDetails.itemName) {
+					msg += ` in Workspace '${workspaceDetails.itemName}' (ID: ${workspaceId})`;
 				}
 			}
 
@@ -105,6 +115,5 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 		else {
 			vscode.window.showWarningMessage('No Fabric item found with the provided GUID.');
 		}
-
 	}
 }
