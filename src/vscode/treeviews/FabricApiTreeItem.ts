@@ -53,15 +53,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		this.iconPath = this.getIconPath();
 
 		FabricCommandBuilder.pushQuickPickApiItem(this);
-		FabricGUIDHoverProvider.cacheFabricObjectName(this.itemId, {
-			"id": this.itemId,
-			"displayName": this.itemName,
-			"type": this.itemType,
-			"description": this._itemDescription,
-			"definition": this._itemDefinition,
-			"apiPath": this.apiPath,
-			"treeProvider": this.treeProvider,
-		});
+		FabricGUIDHoverProvider.cacheFabricObjectName(this.itemId, this.toJSON());
 	}
 
 	protected getIconPath(): string | vscode.Uri {

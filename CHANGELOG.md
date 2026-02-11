@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.17.0**:
+- improved GUID Hover provider to also show the workspace name and ID
+
 **v2.16.1**:
 - fixed issue with API auto completion and case sensitivity
 - updated Swagger API definition
