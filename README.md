@@ -213,7 +213,7 @@ The following list provides the currently supported souces and targets for Drag 
 
 | Source | Target | Action | Description |
 | ------ | ------ | ------ | ----------- |
-| Role Assignment | Role Assignments | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. Works for Connection-, Workspace- and Gateway-roles |
+| Role Assignment | Role Assignments (or actual item) | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. Works for Connection-, Workspace- and Gateway-roles |
 | Workspace | Capacity | Assign to Capacity | Assigns the dragged workspace to the dropped capacity. |
 | Workspace Folder | Workspace | Move folder | Moves the dragged folder to the root of the workspace |
 | Workspace Folder | Workspace Folder | Move folder | Moves the dragged folder under the target folder |

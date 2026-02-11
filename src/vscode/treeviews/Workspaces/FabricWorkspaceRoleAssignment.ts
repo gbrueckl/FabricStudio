@@ -105,7 +105,7 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceGenericViewer 
 
 			if (result.success) {
 				ThisExtension.Logger.logInfo(`Role Assignment for '${this.itemDefinition.principal.displayName}' in workspace '${this.workspace.itemName}' updated to '${role}'.`);
-				ThisExtension.TreeViewWorkspaces.refresh(this.parent, false);
+				ThisExtension.TreeViewWorkspaces.refresh(this.parent, false, true);
 			}
 			else {
 				ThisExtension.Logger.logError(`Could not update Role Assignment '${this.itemDefinition.principal.displayName}' in workspace '${this.workspace.itemName}'`);

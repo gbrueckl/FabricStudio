@@ -11,6 +11,7 @@ import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricGateway } from './FabricGateway';
 import { FabricConnection } from './FabricConnection';
 import { FabricConnectionGenericFolder } from './FabricConnectionGenericFolder';
+import { Helper } from '@utils/Helper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<FabricConnectionTreeItem> {
@@ -45,8 +46,13 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 	}
 
 	async refresh(tree_item: FabricConnectionTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
-		// we always refresh the whole tree as its all built upon one API call
-		this._onDidChangeTreeData.fire(undefined);
+		if (showInfoMessage) {
+			Helper.showTemporaryInformationMessage('Refreshing Fabric Connections ...');
+		}
+		if(tree_item && tree_item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
+			tree_item = tree_item.parent;
+		}
+		this._onDidChangeTreeData.fire(tree_item);
 	}
 
 	getTreeItem(element: FabricConnectionTreeItem): FabricConnectionTreeItem {
@@ -69,7 +75,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 
 			// seems like /myorg/ also works for guest accounts
 			let gatewayList = await FabricApiService.getList<iFabricApiGateway>("/v1/gateways");
-			if(gatewayList.error) {
+			if (gatewayList.error) {
 				ThisExtension.Logger.logError(gatewayList.error.message);
 				return [FabricConnectionTreeItem.ERROR_ITEM<FabricConnectionTreeItem>(gatewayList.error)];
 			}

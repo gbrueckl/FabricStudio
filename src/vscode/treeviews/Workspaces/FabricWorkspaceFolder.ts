@@ -191,6 +191,6 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 			Helper.showTemporaryInformationMessage(`Successfully created Folder '${newName}' under '${parent.label}'!`, 3000);
 		}
 
-		ThisExtension.TreeViewWorkspaces.refresh(parent, false);
+		ThisExtension.TreeViewWorkspaces.refresh(parent, false, true);
 	}
 }

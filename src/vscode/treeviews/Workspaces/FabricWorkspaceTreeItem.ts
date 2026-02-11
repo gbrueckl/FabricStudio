@@ -176,6 +176,6 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 			Helper.showTemporaryInformationMessage(`Successfully renamed ${this.itemType} '${this.itemName}' to '${newName}'!`, 3000);
 		}
 
-		ThisExtension.TreeViewWorkspaces.refresh(this.parent, false);
+		ThisExtension.TreeViewWorkspaces.refresh(this.parent, false, true);
 	}
 }
