@@ -41,6 +41,7 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		if (document.uri.fsPath.endsWith('.fabnb')) {
 			ThisExtension.Logger.logDebug("Loading Swagger file for Fabric API Completion Provider ...");
 			await FabricAPICompletionProvider.loadSwaggerFile();
+			ThisExtension.Logger.logDebug("Finished loading Swagger file for Fabric API Completion Provider!");
 		}
 	}
 

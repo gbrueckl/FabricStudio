@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.17.1",
+	"version": "2.18.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -367,6 +367,12 @@
 				"command": "FabricStudio.Global.findById",
 				"title": "Find by ID",
 				"icon": "$(search)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.Global.parsePlatformFiles",
+				"title": "Parse .platform Files",
+				"icon": "$(file-code)"
 			},
 			{
 				"command": "FabricStudio.Item.openNewNotebook",

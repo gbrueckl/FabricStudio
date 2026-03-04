@@ -49,6 +49,7 @@ import { FabricSparkKernelManager } from './vscode/notebook/spark/FabricSparkKer
 import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/FabricSqlDatabaseMirroring';
 import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverProvider';
 import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSparkNotebookSerializer';
+import { FabricPlatformParser } from './fabric/FabricPlatformParser';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -170,6 +171,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	//#region Fabric Workspaces TreeView
 	vscode.commands.registerCommand('FabricStudio.updateQuickPickList', (treeItem: FabricApiTreeItem) => FabricCommandBuilder.pushQuickPickApiItem(treeItem));
 	vscode.commands.registerCommand('FabricStudio.Global.findById', (treeItem: FabricApiTreeItem) => FabricGUIDHoverProvider.findById());
+	vscode.commands.registerCommand('FabricStudio.Global.parsePlatformFiles', () => FabricPlatformParser.parsePlatformFiles());
 	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricApiNotebookSerializer.openNewNotebook(treeItem));
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
