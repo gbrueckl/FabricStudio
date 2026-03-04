@@ -493,7 +493,8 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			treeProvider: this.treeProvider,
 			contextValue: this.contextValue,
 			workspaceId: (this as any).workspaceId ?? this.itemDefinition?.workspaceId,
-			parent: this.parent?.toJSON ? this.parent.toJSON() : undefined
+			parent: this.parent?.toJSON ? this.parent.toJSON() : undefined,
+			filePath: this.resourceUri // currently always undefined as resourceUri is only set later for WorkspaceTreeitems, but if set it can be used to open the file from the hover tooltip
 		};
 	}
 }
