@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.18.1**:
+- improved performance when reading/parsing `.platform` files
+- added `Open` action to tooltip for local files
+
 **v2.18.0**:
 - added new command `Parse .platform Files` to scan local workspace for `.platform` files and resolve logicalIds via hover provider
 

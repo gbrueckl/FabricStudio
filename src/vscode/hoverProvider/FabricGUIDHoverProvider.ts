@@ -8,7 +8,7 @@ const GUID_REGEX = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-
 export interface iFabricItemDetails {
 	itemId: string;
 	itemName: string;
-	apiPath: string;
+	apiPath?: string;
 	itemType: string;
 	itemDefinition: any;
 	canDelete: boolean;
@@ -18,6 +18,7 @@ export interface iFabricItemDetails {
 	contextValue: string;
 	workspaceId: string;
 	parent: iFabricItemDetails | undefined;
+	filePath?: vscode.Uri | string;
 }
 
 export class FabricGUIDHoverProvider implements vscode.HoverProvider {
@@ -46,9 +47,17 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 				let contents: vscode.MarkdownString[] = [
 					new vscode.MarkdownString(`### Fabric Item Details`)
 				];
+
+				let openText = "";
+				if (itemDetails.filePath) {
+					const args = encodeURIComponent(JSON.stringify([itemDetails.filePath]));
+					openText = ` ([Open](command:vscode.open?${args}))`;
+				}
 				//contents.push(new vscode.MarkdownString("**Fabric Studio**:"));
 				if (itemDetails.itemName) {
-					contents.push(new vscode.MarkdownString(`**DisplayName**: ${itemDetails.itemName}`));
+					let md = new vscode.MarkdownString(`**DisplayName**: ${itemDetails.itemName}${openText}`);
+					md.isTrusted = true;
+					contents.push(md);
 				}
 				if (itemDetails.itemType) {
 					contents.push(new vscode.MarkdownString(`**Type**: ${itemDetails.itemType}`));
@@ -61,6 +70,7 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 					}
 					contents.push(new vscode.MarkdownString(`**WorkspaceId**: \`${workspaceId}\``));
 				}
+
 
 				return new vscode.Hover(contents, range);
 			}
@@ -106,9 +116,8 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 
 			ThisExtension.Logger.logInfo(msg);
 			const action = await vscode.window.showInformationMessage(msg, "Open in API Notebook");
-			
-			if(action && action == "Open in API Notebook")
-			{
+
+			if (action && action == "Open in API Notebook") {
 				FabricApiNotebookSerializer.openNewNotebook(itemDetails);
 			}
 		}
