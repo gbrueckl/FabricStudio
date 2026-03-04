@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.18.0**:
+- added new command `Parse .platform Files` to scan local workspace for `.platform` files and resolve logicalIds via hover provider
+
 **v2.17.1**:
 - fixe dissue with unnecessary treeview refreshes causing API timeouts/throtteling
 

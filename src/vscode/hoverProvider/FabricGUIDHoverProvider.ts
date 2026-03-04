@@ -54,7 +54,7 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 					contents.push(new vscode.MarkdownString(`**Type**: ${itemDetails.itemType}`));
 				}
 				const workspaceId = itemDetails.workspaceId || itemDetails.itemDefinition?.workspaceId;
-				if (workspaceId) {
+				if (workspaceId && itemDetails.itemType.toUpperCase() !== "WORKSPACE") {
 					const workspaceDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(workspaceId);
 					if (workspaceDetails && workspaceDetails.itemName) {
 						contents.push(new vscode.MarkdownString(`**Workspace**: ${workspaceDetails.itemName}`));
