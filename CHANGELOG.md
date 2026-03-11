@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.18.2**:
+- update color icons
+
 **v2.18.1**:
 - improved performance when reading/parsing `.platform` files
 - added `Open` action to tooltip for local files
