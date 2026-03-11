@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.18.3**:
+- update mono icons
+
 **v2.18.2**:
 - update color icons
 
