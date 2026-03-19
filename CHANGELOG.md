@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.19.0**:
+- added `Open in Browser` when hovering over GUIDs
+- update style of hover box
+
 **v2.18.3**:
 - update mono icons
 
