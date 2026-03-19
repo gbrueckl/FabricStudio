@@ -19,6 +19,7 @@ export interface iFabricItemDetails {
 	workspaceId: string;
 	parent: iFabricItemDetails | undefined;
 	filePath?: vscode.Uri | string;
+	browserLink?: vscode.Uri | string;
 }
 
 export class FabricGUIDHoverProvider implements vscode.HoverProvider {
@@ -44,35 +45,38 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 
 			const itemDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(guid);
 			if (itemDetails) {
-				let contents: vscode.MarkdownString[] = [
-					new vscode.MarkdownString(`### Fabric Item Details`)
-				];
+				const workspaceId = itemDetails.workspaceId || itemDetails.itemDefinition?.workspaceId;
 
 				let openText = "";
 				if (itemDetails.filePath) {
 					const args = encodeURIComponent(JSON.stringify([itemDetails.filePath]));
-					openText = ` ([Open](command:vscode.open?${args}))`;
+					openText = `[Open local File](command:vscode.open?${args})`;
 				}
+				else if (itemDetails.canOpenInBrowser && itemDetails.browserLink) {
+					const args = encodeURIComponent(JSON.stringify([itemDetails.browserLink]));
+					openText = `[Open in Browser](command:vscode.open?${args})`;
+				}
+				let mdText = [`|Fabric Item Details|${openText}|`, `|---|---|`];
 				//contents.push(new vscode.MarkdownString("**Fabric Studio**:"));
 				if (itemDetails.itemName) {
-					let md = new vscode.MarkdownString(`**DisplayName**: ${itemDetails.itemName}${openText}`);
-					md.isTrusted = true;
-					contents.push(md);
+					mdText.push(`|DisplayName|${itemDetails.itemName}|`);
 				}
 				if (itemDetails.itemType) {
-					contents.push(new vscode.MarkdownString(`**Type**: ${itemDetails.itemType}`));
+					mdText.push(`|Type|${itemDetails.itemType}|`);
 				}
-				const workspaceId = itemDetails.workspaceId || itemDetails.itemDefinition?.workspaceId;
+				
 				if (workspaceId && itemDetails.itemType.toUpperCase() !== "WORKSPACE") {
 					const workspaceDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(workspaceId);
 					if (workspaceDetails && workspaceDetails.itemName) {
-						contents.push(new vscode.MarkdownString(`**Workspace**: ${workspaceDetails.itemName}`));
+						mdText.push(`|Workspace|${workspaceDetails.itemName}|`);
 					}
-					contents.push(new vscode.MarkdownString(`**WorkspaceId**: \`${workspaceId}\``));
+					mdText.push(`|WorkspaceId|\`${workspaceId}\`|`);
 				}
 
-
-				return new vscode.Hover(contents, range);
+				let md: vscode.MarkdownString = new vscode.MarkdownString(mdText.join('\n'));
+				md.isTrusted = true;
+				
+				return new vscode.Hover(md, range);
 			}
 		}
 	}
