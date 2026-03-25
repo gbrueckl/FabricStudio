@@ -8,7 +8,7 @@ Whenever a new backlog item is implemented, always increase the minor version by
 - [Parse .platform Files](#parse-platform-files) -> DONE!
 - BUG: [Cancellation Support for .platform Parsing](#cancellation-support-for-platform-parsing) - DONE!
 - [Add support for Tags in Workspace Browser](#add-support-for-tags-in-workspace-browser) - DONE!
-- [Add Drag & Drop support for Tags](#add-drag--drop-support-for-tags)
+- [Add Drag & Drop support for Tags](#add-drag--drop-support-for-tags) - DONE!
 
 # Add support for Tags in Workspace Browser
 We want to support tags within Fabric Studio. Tags can be applied to [invidual items](https://learn.microsoft.com/en-us/rest/api/fabric/core/tags/apply-tags?tabs=HTTP) but also to whole [workspaces](https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/apply-workspace-tags?tabs=HTTP). They should show up in a child-folder of the item or respectively in the workspace settings.
