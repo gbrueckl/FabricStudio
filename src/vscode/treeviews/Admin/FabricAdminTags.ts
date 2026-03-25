@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
-import { iFabricApiAdminTag } from '../../../fabric/_types';
+import { iFabricApiTag } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricAdminTreeItem } from './FabricAdminTreeItem';
 import { FabricAdminGenericFolder } from './FabricAdminGenericFolder';
@@ -24,7 +24,7 @@ export class FabricAdminTags extends FabricAdminGenericFolder {
 		let children: FabricAdminTreeItem[] = [];
 
 		try {
-			const items = await FabricApiService.getList<iFabricApiAdminTag>(this.apiPath, undefined, "value", "displayName");
+			const items = await FabricApiService.getList<iFabricApiTag>(this.apiPath, undefined, "value", "displayName");
 			let itemToAdd: FabricAdminTag;
 
 			const regexFilter = ThisExtension.TreeViewAdmin.filterRegEx;

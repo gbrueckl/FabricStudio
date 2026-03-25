@@ -72,7 +72,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 					continue;
 				}
 			}
-			tooltip += `${key}: ${JSON.stringify(value, null, 4)}\n`;
+			if (key == "tags" && Array.isArray(value)) {
+				tooltip+= `${key}: ${value.map((tag: any) => tag.displayName).join(", ")}\n`;
+			}
+			else {
+				tooltip += `${key}: ${JSON.stringify(value, null, 4)}\n`;
+			}
 		}
 
 		return tooltip.trim();

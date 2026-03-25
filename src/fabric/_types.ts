@@ -165,7 +165,7 @@ export interface iFabricApiItem {
 	workspaceId?: UniqueId;
 	id?: string;
 	folderId?: UniqueId;
-	tags?: iFabricApiAppliedTag[];
+	tags?: iFabricApiTag[];
 }
 
 export interface iFabricApiWorkspace {
@@ -175,10 +175,10 @@ export interface iFabricApiWorkspace {
 	type: string;
 	capacityId: string;
 	capacityAssignmentProgress: string;
-	tags?: iFabricApiAppliedTag[];
+	tags?: iFabricApiTag[];
 }
 
-export interface iFabricApiAppliedTag {
+export interface iFabricApiTag {
 	id: string;
 	displayName: string;
 }
@@ -579,11 +579,6 @@ export interface iFabricApiAdminDomain {
 export interface iFabricApiAdminDomainWorkspace {
 	id: string; // The workspace ID.
 	displayName: string; // The workspace display name.
-}
-
-export interface iFabricApiAdminTag {
-	id: string; // The tag ID.
-	displayName: string; // The tag display name.
 }
 
 export interface iFabricPlatformFile {

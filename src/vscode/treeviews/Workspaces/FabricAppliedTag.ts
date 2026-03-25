@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiAppliedTag } from '../../../fabric/_types';
+import { iFabricApiTag } from '../../../fabric/_types';
 import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricAppliedTag extends FabricWorkspaceTreeItem {
 	constructor(
-		tag: iFabricApiAppliedTag,
+		tag: iFabricApiTag,
 		itemType: "ItemTag" | "WorkspaceTag",
 		parent: FabricWorkspaceTreeItem
 	) {
@@ -20,11 +20,11 @@ export class FabricAppliedTag extends FabricWorkspaceTreeItem {
 		return false;
 	}
 
-	get itemDefinition(): iFabricApiAppliedTag {
-		return this._itemDefinition as iFabricApiAppliedTag;
+	get itemDefinition(): iFabricApiTag {
+		return this._itemDefinition as iFabricApiTag;
 	}
 
-	set itemDefinition(value: iFabricApiAppliedTag) {
+	set itemDefinition(value: iFabricApiTag) {
 		this._itemDefinition = value;
 	}
 

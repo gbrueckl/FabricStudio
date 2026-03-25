@@ -17,6 +17,7 @@ import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItemTags } from './FabricItemTags';
+import { FabricAppliedTag } from './FabricAppliedTag';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItem extends FabricWorkspaceTreeItem {
@@ -92,9 +93,9 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 
 			try {
 				let tags = new FabricItemTags(this);
-				const tagChildren = await FabricApiTreeItem.getValidChildren(tags) as FabricWorkspaceTreeItem[];
-				if (tagChildren.length > 0) {
-					tagChildren.forEach(child => tags.addChild(child));
+				
+				if (this.tags.length > 0) {
+					this.tags.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
 					children.push(tags);
 				}
 			}
