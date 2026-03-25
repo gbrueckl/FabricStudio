@@ -1,7 +1,7 @@
 # BACK LOG
 
 This is the backlog of features to develop in the future. Each features needs to be described in detail so the description can be taken as basis for implementation.
-When using AI to implement a feature, make sure the description contains the full prompt to implement the whole feature at once.
+The description is a starting point for the agent. Further refinement can be done when the feature is implemented by the agent.
 Whenever a new backlog item is implemented, always increase the minor version by one and add the changes also to the changelog. If it is a bug, please only increase the patch version.
 
 ## Backlog Items

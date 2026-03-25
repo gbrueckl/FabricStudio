@@ -93,9 +93,11 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 
 			try {
 				let tags = new FabricItemTags(this);
-				
-				if (this.tags.length > 0) {
-					this.tags.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
+
+				let itemDefinition = await FabricApiService.get<iFabricApiItem>(this.itemApiPath)
+				this.itemDefinition = itemDefinition.success;
+				if (this.itemDefinition.tags?.length > 0) {
+					this.itemDefinition.tags.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
 					children.push(tags);
 				}
 			}

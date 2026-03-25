@@ -150,7 +150,7 @@ export abstract class FabricApiService {
 		return "UNAUTHENTICATED";
 	}
 
-		public static get SessionUserTenantId(): string {
+	public static get SessionUserTenantId(): string {
 		if (this._vscodeSession) {
 			return this._vscodeSession.account.id.split(".")[1];
 		}
@@ -246,7 +246,7 @@ export abstract class FabricApiService {
 				return { "success": response as TSuccess };
 			}
 			let resultText = await response.text();
-			this.logResponse(resultText);
+			this.logResponse(response, resultText);
 
 			let success: TSuccess;
 			let error: iGenericApiError;
@@ -394,7 +394,7 @@ export abstract class FabricApiService {
 			}
 
 			let resultText = await response.text();
-			this.logResponse(resultText);
+			this.logResponse(response, resultText);
 
 			let success: TSuccess;
 			let error: iFabricErrorResponse;
@@ -508,24 +508,16 @@ export abstract class FabricApiService {
 		return ret;
 	}
 
-	protected static async logResponse(response): Promise<void> {
-		if(FabricConfiguration.logLevel > vscode.LogLevel.Off) {
-			let logMsg = "";
-			if (typeof response == "string") {
-				logMsg = response;
-			}
-			else {
-				logMsg = await response.text();
-			}
-			if(FabricConfiguration.logLevel == vscode.LogLevel.Info) {
+	protected static async logResponse(response: Response, resultText: string): Promise<void> {
+		if (FabricConfiguration.logLevel > vscode.LogLevel.Off) {
+			let logMsg = resultText;
+
+			if (FabricConfiguration.logLevel == vscode.LogLevel.Info) {
 				// for Info level, we truncate long responses
 				// full response is only shown for Debug and Trace levels
 				logMsg = logMsg.length > 200 ? logMsg.substring(0, 200) + " ... (truncated)" : logMsg;
-				this.Logger.logInfo(`Response: ${logMsg}`);
 			}
-			else {
-				this.Logger.logDebug(`Response: ${logMsg}`);
-			}
+			this.Logger.logDebug(`Response: (${response.status}/${response.statusText}): ${logMsg}`);
 		}
 	}
 
@@ -602,7 +594,7 @@ export abstract class FabricApiService {
 	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, updateMetaData: boolean = true, progressText: string = "Creating Item"): Promise<iFabricApiResponse> {
 		let endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/updateDefinition`;
 
-		if(updateMetaData) {
+		if (updateMetaData) {
 			endpoint = `${endpoint}?updateMetadata=True`;
 		}
 

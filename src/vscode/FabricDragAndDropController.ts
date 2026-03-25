@@ -7,11 +7,8 @@ import { FabricWorkspace } from './treeviews/Workspaces/FabricWorkspace';
 import { FabricWorkspaceTreeItem } from './treeviews/Workspaces/FabricWorkspaceTreeItem';
 import { FabricQuickPickItem } from './input/FabricQuickPickItem';
 import { FabricWorkspaceRoleAssignment } from './treeviews/Workspaces/FabricWorkspaceRoleAssignment';
-import { FabricWorkspaceRoleAssignments } from './treeviews/Workspaces/FabricWorkspaceRoleAssignments';
 import { FabricGatewayRoleAssignment } from './treeviews/Connections/FabricGatewayRoleAssignment';
-import { FabricGatewayRoleAssignments } from './treeviews/Connections/FabricGatewayRoleAssignments';
 import { FabricConnectionRoleAssignment } from './treeviews/Connections/FabricConnectionRoleAssignment';
-import { FabricConnectionRoleAssignments } from './treeviews/Connections/FabricConnectionRoleAssignments';
 import { FabricCapacity } from './treeviews/Capacities/FabricCapacity';
 import { FabricWorkspaceFolder } from './treeviews/Workspaces/FabricWorkspaceFolder';
 import { FabricApiService } from '../fabric/FabricApiService';
@@ -59,7 +56,8 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 	public async handleDrag?(source: readonly FabricApiTreeItem[], dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
 		// dataTransfer.set(source[0].TreeProvider, new FabricObjectTransferItem(source));
-		dataTransfer.set(FabricDragMIMEType, new FabricObjectTransferItem(source));
+		const transferItem = new FabricObjectTransferItem(source);
+		dataTransfer.set(FabricDragMIMEType, transferItem);
 	}
 
 	public async handleDrop?(target: FabricApiTreeItem, dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
@@ -98,7 +96,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		}
 
 		let sourceItems: FabricApiTreeItem[];
-		ThisExtension.Logger.logDebug("TransferItem: \n" + transferItem.value);
+		ThisExtension.Logger.logDebug("TransferItem: \n" + JSON.stringify(transferItem.value, null, 4));
 		if (typeof transferItem.value === 'string' || transferItem.value instanceof String) {
 			try {
 				let x = transferItem.value as string
@@ -118,13 +116,72 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 	public async handleFabricDrop(sourceItems: FabricApiTreeItem[], targetItem: FabricApiTreeItem): Promise<void> {
 		const source_Item0: FabricApiTreeItem = sourceItems[0];
+		const isTagItem = (item: FabricApiTreeItem): boolean => ["AdminTag", "ItemTag", "WorkspaceTag"].includes(item.itemType);
+		const resolveAssignableTarget = (item: FabricApiTreeItem): FabricWorkspaceTreeItem => {
+			if (item instanceof FabricWorkspace) {
+				return item as FabricWorkspaceTreeItem;
+			}
+
+			if (item.itemType == "ItemTags" || item.itemType == "WorkspaceTags") {
+				if (item.itemType == "WorkspaceTags") {
+					return item.getParentByType<FabricWorkspace>("Workspace");
+				}
+
+				return item.parent as FabricWorkspaceTreeItem;
+			}
+
+			if (item.contextValue?.includes("FABRIC_ITEM")) {
+				return item as FabricWorkspaceTreeItem;
+			}
+
+			return undefined;
+		};
+		const applyTagToTarget = async (tagIds: string[], targetItem: FabricWorkspaceTreeItem): Promise<boolean> => {
+			if (tagIds.length == 0) {
+				return false;
+			}
+
+			const body = { "tags": tagIds };
+			const target = targetItem;
+			if (target instanceof FabricWorkspace) {
+				const response = await FabricApiService.post(`/v1/workspaces/${target.itemId}/applyTags`, body);
+				if (response.error) {
+					ThisExtension.Logger.logError(`Error applying tag(s) to Workspace '${target.itemName}': ${response.error.message}`, true);
+					return false;
+				}
+			}
+			else {
+				const response = await FabricApiService.post(`/v1/workspaces/${target.workspaceId}/items/${target.itemId}/applyTags`, body);
+				if (response.error) {
+					ThisExtension.Logger.logError(`Error applying tag(s) to Item '${target.itemName}': ${response.error.message}`, true);
+					return false;
+				}
+			}
+
+			ThisExtension.TreeViewWorkspaces.refresh(target.refreshedBy as FabricWorkspaceTreeItem, false, true);
+			return true;
+		};
 
 		let actions: Map<string, () => Promise<void>> = new Map<string, () => Promise<void>>();
 
 		// by default we refresh the treeview of the target item
 		let treeViewtoRefresh: TreeProviderId = targetItem.treeProvider;
 
-		if (source_Item0.itemType == "WorkspaceRoleAssignment") {
+		// AIDEV-NOTE: Tag drag/drop: one or more tags dropped onto a workspace or item applies all dragged tags.
+		if (isTagItem(source_Item0)) {
+			const sourceTags = sourceItems.filter(item => isTagItem(item));
+			const sourceTagIds = Array.from(new Set(sourceTags.map(tag => tag.itemDefinition?.id).filter(x => !!x)));
+			const target = resolveAssignableTarget(targetItem);
+
+			if (target && sourceTagIds.length > 0) {
+				const applyTag = async () => {
+					await applyTagToTarget(sourceTagIds, target);
+				};
+
+				actions.set("Apply Tag", applyTag);
+			}
+		}
+		else if (source_Item0.itemType == "WorkspaceRoleAssignment") {
 			const sourceItem = source_Item0 as FabricWorkspaceRoleAssignment;
 			if (["WorkspaceRoleAssignments", "Workspace"].includes(targetItem.itemType)) {
 				let target = targetItem as FabricWorkspace;
@@ -152,7 +209,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 
 				const addRoleAssignment = async () => {
 					await target.addRoleAssignment(sourceItem.itemDefinition);
-					ThisExtension.TreeViewConnections.refresh(target, false);
+					ThisExtension.TreeViewConnections.refresh(target.refreshedBy, false);
 				}
 
 				actions.set("Add GatewayRoleAssignment", addRoleAssignment);
@@ -274,7 +331,7 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 			}
 		}
 		// there are multiple item types for Fabric Items, so we cannot rely on the itemType but use the contextvalue instead
-		else if (source_Item0.contextValue.includes("FABRIC_ITEM")) {
+		else if (source_Item0.contextValue?.includes("FABRIC_ITEM")) {
 			const sourceItem = source_Item0 as FabricWorkspaceTreeItem;
 			const items = sourceItems.map(x => x as FabricWorkspaceTreeItem);
 			const target = targetItem as FabricWorkspaceTreeItem;
