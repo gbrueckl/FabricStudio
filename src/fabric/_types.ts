@@ -81,6 +81,8 @@ export type FabricApiItemType =
 	| "ItemJobSchedule"						//	An Item job schedule.
 	| "ItemDataAccessRoles"					//	Folder for item data access roles.	
 	| "ItemDataAccessRole"					//	An Item data access role.
+	| "ItemTags"							//	Folder for item tags.
+	| "ItemTag"							//	An item tag.
 	| "ItemDefinition"						//	An Item definition.	
 	| "ItemDefinitionFile"					//	An Item definition file.
 	| "ItemDefinitionFolder"				//	Folder for item definition files.
@@ -88,6 +90,8 @@ export type FabricApiItemType =
 	| "OneLakeFolder"					//	A folder in the Item OneLake.
 	| "OneLakeFile"						//	A file in the Item OneLake.
 	| "WorkspaceSettings"					//	Folder for workspace settings.
+	| "WorkspaceTags"						//	Folder for workspace tags.
+	| "WorkspaceTag"						//	A workspace tag.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
 	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
 	| "MirroredDatabases"					//	Folder for mirrored databases.
@@ -161,6 +165,7 @@ export interface iFabricApiItem {
 	workspaceId?: UniqueId;
 	id?: string;
 	folderId?: UniqueId;
+	tags?: iFabricApiAppliedTag[];
 }
 
 export interface iFabricApiWorkspace {
@@ -170,6 +175,12 @@ export interface iFabricApiWorkspace {
 	type: string;
 	capacityId: string;
 	capacityAssignmentProgress: string;
+	tags?: iFabricApiAppliedTag[];
+}
+
+export interface iFabricApiAppliedTag {
+	id: string;
+	displayName: string;
 }
 
 export interface iFabricApiWorkspaceFolder {

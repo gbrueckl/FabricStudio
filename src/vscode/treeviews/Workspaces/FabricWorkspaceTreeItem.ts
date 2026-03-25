@@ -116,9 +116,12 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return false;
 	}
 
+	get supportsUri(): boolean {
+		return true;
+	}
 
 	get fabricFsUri(): FabricFSUri {
-		if (this.itemDefinition) {
+		if (this.itemDefinition && this.supportsUri) {
 			return FabricFSUri.getInstanceFromApiDefinition(this.itemDefinition);
 		}
 		else {
