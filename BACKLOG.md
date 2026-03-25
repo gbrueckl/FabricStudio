@@ -1,12 +1,20 @@
 # BACK LOG
 
-This is the backlog of features to develop in the future. Each features needs to be described in detail so the description can be taken as basis for implementation. 
-When using AI to implement a feature, make sure the description contains the full prompt to implement the whole feature at once.
+This is the backlog of features to develop in the future. Each features needs to be described in detail so the description can be taken as basis for implementation.
+The description is a starting point for the agent. Further refinement can be done when the feature is implemented by the agent.
 Whenever a new backlog item is implemented, always increase the minor version by one and add the changes also to the changelog. If it is a bug, please only increase the patch version.
 
 ## Backlog Items
 - [Parse .platform Files](#parse-platform-files) -> DONE!
-- BUG: [Cancellation Support for .platform Parsing](#cancellation-support-for-platform-parsing)
+- BUG: [Cancellation Support for .platform Parsing](#cancellation-support-for-platform-parsing) - DONE!
+- [Add support for Tags in Workspace Browser](#add-support-for-tags-in-workspace-browser) - DONE!
+- [Add Drag & Drop support for Tags](#add-drag--drop-support-for-tags) - DONE!
+
+# Add support for Tags in Workspace Browser
+We want to support tags within Fabric Studio. Tags can be applied to [invidual items](https://learn.microsoft.com/en-us/rest/api/fabric/core/tags/apply-tags?tabs=HTTP) but also to whole [workspaces](https://learn.microsoft.com/en-us/rest/api/fabric/core/workspaces/apply-workspace-tags?tabs=HTTP). They should show up in a child-folder of the item or respectively in the workspace settings.
+
+# Add Drag & Drop Support for Tags
+There should also be a new drag&drop action that assigns tag to an item or workspace, if a tag is dropped on an item or workspace - and vice versa when dropping an item or workspace on a tag.
 
 # Parse .platform Files
 When working with Fabric Git repositories, each Fabric items is stored in its own folder. Within every of those folders, a specific `.platform` file resides which holds metadata about the actual item and is formatted as JSON. The structure of the file is defined below:

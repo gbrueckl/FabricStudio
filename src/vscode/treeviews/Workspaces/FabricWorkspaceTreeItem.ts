@@ -5,7 +5,7 @@ import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspace } from './FabricWorkspace';
-import { FabricApiItemType } from '../../../fabric/_types';
+import { FabricApiItemType, iFabricApiTag } from '../../../fabric/_types';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
@@ -116,9 +116,16 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return false;
 	}
 
+	get supportsUri(): boolean {
+		return true;
+	}
+
+	get tags(): iFabricApiTag[] {
+		return this.itemDefinition?.tags || [];
+	}
 
 	get fabricFsUri(): FabricFSUri {
-		if (this.itemDefinition) {
+		if (this.itemDefinition && this.supportsUri) {
 			return FabricFSUri.getInstanceFromApiDefinition(this.itemDefinition);
 		}
 		else {

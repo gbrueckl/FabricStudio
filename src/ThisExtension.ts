@@ -172,7 +172,9 @@ export abstract class ThisExtension {
 		return [
 			"application/vnd.code.tree.fabricstudioworkspaces",
 			"application/vnd.code.tree.fabricstudiodeploymentpipelines",
-			"application/vnd.code.tree.fabricstudiocapacities"
+			"application/vnd.code.tree.fabricstudioconnections",
+			"application/vnd.code.tree.fabricstudiocapacities",
+			"application/vnd.code.tree.fabricstudioadmin"
 		];
 	}
 
@@ -183,11 +185,11 @@ export abstract class ThisExtension {
 			case "application/vnd.code.tree.fabricstudiodeploymentpipelines":
 				return this.TreeViewPipelines;
 			case "application/vnd.code.tree.fabricstudioconnections":
-				return this.TreeViewPipelines;
+				return this.TreeViewConnections;
 			case "application/vnd.code.tree.fabricstudiocapacities":
 				return this.TreeViewCapacities;
 			case "application/vnd.code.tree.fabricstudioadmin":
-				return this.TreeViewCapacities;
+				return this.TreeViewAdmin;
 		}
 	}
 
@@ -272,22 +274,22 @@ export abstract class ThisExtension {
 		return ENVIRONMENT == "web";
 	}
 
-	static async refreshTreeView(id: TreeProviderId, item: FabricApiTreeItem = null): Promise<void> {
+	static async refreshTreeView(id: TreeProviderId, item: FabricApiTreeItem = null, showInfoMessage: boolean = false, singleItem: boolean = false): Promise<void> {
 		switch (id) {
 			case "application/vnd.code.tree.fabricstudioworkspaces":
-				await this.TreeViewWorkspaces.refresh(item as FabricWorkspaceTreeItem);
+				await this.TreeViewWorkspaces.refresh(item as FabricWorkspaceTreeItem, showInfoMessage, singleItem);
 				break;
 			case "application/vnd.code.tree.fabricstudiodeploymentpipelines":
-				await this.TreeViewPipelines.refresh(item as FabricPipelineTreeItem);
+				await this.TreeViewPipelines.refresh(item as FabricPipelineTreeItem, showInfoMessage);
 				break;
 			case "application/vnd.code.tree.fabricstudioconnections":
-				await this.TreeViewConnections.refresh(item as FabricConnectionTreeItem);
+				await this.TreeViewConnections.refresh(item as FabricConnectionTreeItem, showInfoMessage);
 				break;
 			case "application/vnd.code.tree.fabricstudiocapacities":
-				await this.TreeViewCapacities.refresh(item as FabricCapacityTreeItem);
+				await this.TreeViewCapacities.refresh(item as FabricCapacityTreeItem, showInfoMessage);
 				break;
 			case "application/vnd.code.tree.fabricstudioadmin":
-				await this.TreeViewAdmin.refresh(item as FabricAdminTreeItem);
+				await this.TreeViewAdmin.refresh(item as FabricAdminTreeItem, showInfoMessage);
 				break;
 			default:
 				this.Logger.logError(`TreeProviderId '${id}' not found!`, true, true);

@@ -4,7 +4,7 @@ import { Helper, UniqueId } from '@utils/Helper';
 
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
-import { FabricApiItemType } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiResponse } from '../../fabric/_types';
 import { ThisExtension, TreeProviderId } from '../../ThisExtension';
 import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
 import { FabricMapper } from '../../fabric/FabricMapper';
@@ -72,7 +72,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 					continue;
 				}
 			}
-			tooltip += `${key}: ${JSON.stringify(value, null, 4)}\n`;
+			if (key == "tags" && Array.isArray(value)) {
+				tooltip+= `${key}: ${value.map((tag: any) => tag.displayName).join(", ")}\n`;
+			}
+			else {
+				tooltip += `${key}: ${JSON.stringify(value, null, 4)}\n`;
+			}
 		}
 
 		return tooltip.trim();
@@ -122,6 +127,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return false;
 	}
 
+	public async delete(): Promise<iFabricApiResponse<any>> {
+		const response = await FabricApiService.delete<any>(this.apiPath, undefined);
+		return response;
+	}
+
 	public static async delete(confirmation: "yesNo" | "name" | "none" | undefined = undefined, item: FabricApiTreeItem): Promise<void> {
 		if (confirmation) {
 			let confirm: string
@@ -147,7 +157,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			}
 		}
 
-		const response = await FabricCommandBuilder.execute<any>(item.apiPath, "DELETE", []);
+		const response = await item.delete();
 		if (response.error) {
 			const errorMsg = response.error.message;
 			vscode.window.showErrorMessage(errorMsg);
@@ -157,7 +167,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			Helper.showTemporaryInformationMessage(successMsg, 3000);
 
 			if (item.parent && confirmation != "none") {
-				ThisExtension.refreshTreeView(item.treeProvider, item.parent);
+				ThisExtension.refreshTreeView(item.treeProvider, item.refreshedBy, false, true);
 			}
 		}
 	}
@@ -248,6 +258,10 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	set parent(value: FabricApiTreeItem) {
 		this._parent = value;
+	}
+
+	get refreshedBy(): FabricApiTreeItem {
+		return this.parent;
 	}
 
 	get treeProvider(): TreeProviderId {

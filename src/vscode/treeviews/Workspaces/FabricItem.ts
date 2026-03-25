@@ -16,6 +16,8 @@ import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { FabricItemTags } from './FabricItemTags';
+import { FabricAppliedTag } from './FabricAppliedTag';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItem extends FabricWorkspaceTreeItem {
@@ -88,6 +90,21 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (this.contextValue.includes("EDIT_")) {
 				children.push(new FabricItemDefinition(this));
 			}
+
+			try {
+				let tags = new FabricItemTags(this);
+
+				let itemDefinition = await FabricApiService.get<iFabricApiItem>(this.itemApiPath)
+				this.itemDefinition = itemDefinition.success;
+				if (this.itemDefinition.tags?.length > 0) {
+					this.itemDefinition.tags.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
+					children.push(tags);
+				}
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo("Could not load tags for item " + this.itemName);
+			}
+
 			// Connections
 			let supportedItemTypes: FabricApiItemType[] = [];
 			try {

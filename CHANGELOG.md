@@ -1,5 +1,11 @@
 # Change Log
 
+**v2.20.0**:
+- added support for viewing applied tags on items in the Workspace Browser
+- added support for viewing applied tags in Workspace Settings
+- added drag&drop for tags
+- improved display of tags in tooltip
+
 **v2.19.0**:
 - added `Open in Browser` when hovering over GUIDs
 - update style of hover box
