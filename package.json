@@ -372,7 +372,7 @@
 				"category": "FabricStudio",
 				"command": "FabricStudio.Global.parsePlatformFiles",
 				"title": "Parse .platform Files",
-				"icon": "$(file-code)"
+				"icon": "./resources/icons/custom/parse_platform_files.svg"
 			},
 			{
 				"command": "FabricStudio.Item.openNewNotebook",
@@ -766,6 +766,13 @@
 			]
 		},
 		"menus": {
+			"editor/title": [
+				{
+					"command": "FabricStudio.Global.parsePlatformFiles",
+					"group": "navigation",
+					"when": "resourceScheme == file && resourceFilename == '.platform'"
+				}
+			],
 			"view/title": [
 				{
 					"command": "FabricStudio.Workspaces.refresh",
