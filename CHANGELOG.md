@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.21.0**:
+- added support for [Item recovery](https://learn.microsoft.com/en-us/fabric/admin/item-recovery)
+- removed `SQL Endpoint` items as dedicated items. They are now accessible via the parent item (e.g. the associated Lakehouse)
+- fixed issue with error message in `Data Access Roles`
+
 **v2.20.0**:
 - added support for viewing applied tags on items in the Workspace Browser
 - added support for viewing applied tags in Workspace Settings

@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.20.0",
+	"version": "2.21.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -458,6 +458,18 @@
 				"category": "FabricStudio.Item"
 			},
 			{
+				"command": "FabricStudio.Item.recover",
+				"title": "Recover",
+				"icon": "$(history)",
+				"category": "FabricStudio.Item"
+			},
+			{
+				"command": "FabricStudio.Item.deletePermanently",
+				"title": "Delete Permanently",
+				"icon": "$(trash)",
+				"category": "FabricStudio.Item"
+			},
+			{
 				"command": "FabricStudio.Item.publishToFabric",
 				"title": "Publish to Fabric",
 				"icon": "$(cloud-upload)",
@@ -900,6 +912,16 @@
 				{
 					"command": "FabricStudio.Item.delete",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,DELETE,.*/",
+					"group": "3_delete"
+				},
+				{
+					"command": "FabricStudio.Item.recover",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,RECOVER,.*/",
+					"group": "2_edit"
+				},
+				{
+					"command": "FabricStudio.Item.deletePermanently",
+					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,DELETE_PERMANENTLY,.*/",
 					"group": "3_delete"
 				},
 				{

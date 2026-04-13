@@ -71,15 +71,15 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 	}
 
 	protected getIconPath(): string | vscode.Uri {
-		if(this.workspaceType == FabricApiWorkspaceType.Personal) {
+		if (this.workspaceType == FabricApiWorkspaceType.Personal) {
 			return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'myworkspace.svg');
 		}
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'workspace.svg');
 	}
 
 	get asQuickPickItem(): FabricQuickPickItem {
-		let qpItem = super.asQuickPickItem; 
-		if(this.itemDefinition?.capacityId) {
+		let qpItem = super.asQuickPickItem;
+		if (this.itemDefinition?.capacityId) {
 			qpItem.detail = `\tCapacityID: ${this.itemDefinition.capacityId}`;
 		}
 
@@ -123,6 +123,10 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 				}
 
 				for (let item of items.success) {
+					if (item.type == "SQLEndpoint") {
+						continue; // hide SQL Endpoints as they are accessible via their parent
+					}
+
 					if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
 						if (item.folderId) {
 							const folder = this._workspaceFolders.find(f => f.id == item.folderId);
@@ -148,9 +152,6 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 						}
 						else if (grouping == "Warehouse") {
 							treeItem = new FabricWarehouses(this);
-						}
-						else if (grouping == "SQLEndpoint") {
-							treeItem = new FabricSqlEndpoints(this);
 						}
 						else if (grouping == "DataPipeline") {
 							treeItem = new FabricDataPipelines(this);

@@ -40,7 +40,10 @@ export class FabricItemDataAccessRoles extends FabricWorkspaceGenericFolder {
 				const items = await FabricApiService.getList<iFabricApiItemDataAccessRole>(this.apiPath);
 
 				if (items.error) {
-					ThisExtension.Logger.logError(items.error.message);
+					if(JSON.stringify(items.error).includes("UniversalSecurityFeatureDisabledForWorkspace")) {
+						ThisExtension.Logger.logError(JSON.stringify(items.error.moreDetails));
+						return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error.moreDetails?.[0] || items.error)];
+					}
 					return [FabricWorkspaceTreeItem.ERROR_ITEM<FabricWorkspaceTreeItem>(items.error)];
 				}
 

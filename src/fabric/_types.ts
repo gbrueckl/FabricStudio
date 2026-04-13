@@ -90,6 +90,8 @@ export type FabricApiItemType =
 	| "OneLakeFolder"					//	A folder in the Item OneLake.
 	| "OneLakeFile"						//	A file in the Item OneLake.
 	| "WorkspaceSettings"					//	Folder for workspace settings.
+	| "RecoverableItems"					//	Folder for workspace recoverable items.
+	| "RecoverableItem"					//	A workspace recoverable item.
 	| "WorkspaceTags"						//	Folder for workspace tags.
 	| "WorkspaceTag"						//	A workspace tag.
 	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
@@ -181,6 +183,15 @@ export interface iFabricApiWorkspace {
 export interface iFabricApiTag {
 	id: string;
 	displayName: string;
+}
+
+export interface iFabricApiRecoverableItem {
+	id: string;
+	displayName: string;
+	type: FabricApiItemType;
+	workspaceId?: UniqueId;
+	deletedDateTime?: string;
+	deletedByPrincipalId?: string;
 }
 
 export interface iFabricApiWorkspaceFolder {
