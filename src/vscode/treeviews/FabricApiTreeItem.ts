@@ -73,7 +73,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 				}
 			}
 			if (key == "tags" && Array.isArray(value)) {
-				tooltip+= `${key}: ${value.map((tag: any) => tag.displayName).join(", ")}\n`;
+				tooltip += `${key}: ${value.map((tag: any) => tag.displayName).join(", ")}\n`;
 			}
 			else {
 				tooltip += `${key}: ${JSON.stringify(value, null, 4)}\n`;
@@ -495,6 +495,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	public toJSON(): any {
+		let treePvovider = "generic";
+		try {
+			treePvovider = this.treeProvider;
+		} catch { }
+
 		return {
 			itemId: this.itemId,
 			itemName: this.itemName,
@@ -504,7 +509,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			canDelete: this.canDelete,
 			canRename: this.canRename,
 			canOpenInBrowser: this.canOpenInBrowser,
-			treeProvider: this.treeProvider,
+			treeProvider: treePvovider,
 			contextValue: this.contextValue,
 			workspaceId: (this as any).workspaceId ?? this.itemDefinition?.workspaceId,
 			parent: this.parent?.toJSON ? this.parent.toJSON() : undefined,

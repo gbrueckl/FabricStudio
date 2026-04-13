@@ -4,6 +4,7 @@ export interface iGenericApiError {
 	errorCode: string; 		// A specific identifier that provides information about an error condition, allowing for standardized communication between our service and its users.
 	message: string; 		// human readable representation of the error.
 	details?: string; 		// A more detailed human readable representation of the error.`
+	moreDetails?: iGenericApiError[]; 	// An array that can contain additional information about the error, which can be of any type and structure, providing flexibility for conveying extra context or data related to the error.
 }
 
 

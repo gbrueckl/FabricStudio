@@ -176,7 +176,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.openNewNotebook', (treeItem: FabricApiTreeItem) => FabricApiNotebookSerializer.openNewNotebook(treeItem));
 
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
-	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item: FabricWorkspaceTreeItem = undefined, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item?: FabricWorkspaceTreeItem, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.deleteItems', () => fabricWorkspacesTreeProvider.deleteSelectedItems());

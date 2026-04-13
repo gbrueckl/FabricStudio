@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { ThisExtension, TreeProviderId } from '../../../ThisExtension';
 
-import { FabricApiTreeItem } from '../FabricApiTreeItem';
+import { ERROR_ITEM_ID, FabricApiTreeItem } from '../FabricApiTreeItem';
 import { Helper, UniqueId } from '@utils/Helper';
 import { FabricWorkspace } from './FabricWorkspace';
 import { FabricApiItemType, iFabricApiTag } from '../../../fabric/_types';
@@ -12,6 +12,7 @@ import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../../input/FabricQuickPickItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { iGenericApiError } from '@utils/_types';
 export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	protected _folderId: UniqueId;
 
