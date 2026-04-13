@@ -7,6 +7,7 @@ import { FabricWorkspaceRoleAssignments } from './FabricWorkspaceRoleAssignments
 import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManagedPrivateEndpoints';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricWorkspaceTags } from './FabricWorkspaceTags';
+import { FabricWorkspaceRecoverableItems } from './FabricWorkspaceRecoverableItems';
 
 // A dedicated container node under a workspace for workspace-scoped settings
 export class FabricWorkspaceSettings extends FabricWorkspaceGenericFolder {
@@ -29,6 +30,7 @@ export class FabricWorkspaceSettings extends FabricWorkspaceGenericFolder {
             try {
                 const children: FabricWorkspaceTreeItem[] = [];
 
+                children.push(new FabricWorkspaceRecoverableItems(this));
                 children.push(new FabricWorkspaceTags(this));
                 children.push(new FabricWorkspaceRoleAssignments(this));
                 children.push(new FabricWorkspaceManagedPrivateEndpoints(this));

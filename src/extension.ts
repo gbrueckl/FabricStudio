@@ -50,6 +50,7 @@ import { FabricSqlDatabaseMirroring } from './vscode/treeviews/Workspaces/Fabric
 import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverProvider';
 import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSparkNotebookSerializer';
 import { FabricPlatformParser } from './fabric/FabricPlatformParser';
+import { FabricRecoverableItem } from './vscode/treeviews/Workspaces/FabricRecoverableItem';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -200,6 +201,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.editPBIR', (treeItem: FabricWorkspaceTreeItem) => treeItem.editDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.showDefintion', async (treeItem: FabricWorkspaceGenericViewer) => treeItem.showDefinition());
 	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => FabricApiTreeItem.delete("yesNo", treeItem));
+	vscode.commands.registerCommand('FabricStudio.Item.recover', async (treeItem: FabricRecoverableItem) => treeItem.recover());
+	vscode.commands.registerCommand('FabricStudio.Item.deletePermanently', async (treeItem: FabricRecoverableItem) => FabricApiTreeItem.delete("yesNo", treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.publishToFabric(treeItem.resourceUri, false));
 	vscode.commands.registerCommand('FabricStudio.Item.reloadFromFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.reloadFromFabric(treeItem.resourceUri, false));
 
