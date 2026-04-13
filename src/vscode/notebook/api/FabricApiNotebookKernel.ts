@@ -7,6 +7,7 @@ import { FabricNotebookContext } from './FabricNotebookContext';
 import { QueryLanguage } from './_types';
 import { iFabricApiResponse } from '../../../fabric/_types';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { iGenericApiResponse } from '@utils/_types';
 
 export type NotebookMagic =
 	"api"
@@ -77,7 +78,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 	}
 
 	// appears below the label
-	get detail(): string {
+	get detail(): string | undefined {
 		return undefined;
 	}
 
@@ -102,9 +103,9 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 		return FabricNotebookContext.get(notebook.metadata.guid);
 	}
 
-	createNotebookCellExecution(cell: vscode.NotebookCell): vscode.NotebookCellExecution {
+	createNotebookCellExecution(cell: vscode.NotebookCell): vscode.NotebookCellExecution{
 		//throw new Error('Method not implemented.');
-		return null;
+		return undefined;
 	}
 	interruptHandler?: (notebook: vscode.NotebookDocument) => void | Thenable<void>;
 	readonly onDidChangeSelectedNotebooks: vscode.Event<{ readonly notebook: vscode.NotebookDocument; readonly selected: boolean; }>;
@@ -229,9 +230,9 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 		// wrap a try/catch around the whole execution to make sure we never get stuck
 		try {
 			let commandText: string = cell.document.getText();
-			let magic: NotebookMagic = null;
-			let language: QueryLanguage = null;
-			let customApi: string = null;
+			let magic: NotebookMagic;
+			let language: QueryLanguage;
+			let customApi: string;
 			let flags: string[] = [];
 
 			[language, commandText, magic, customApi] = this.parseCell(cell);
@@ -241,7 +242,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 			const commandTextClean = this.parseCommandText(commandText, context, cell);
 			customApi = this.resolveRelativePath(customApi, context.apiRootPath);
 
-			let result: iFabricApiResponse = undefined;
+			let result: iGenericApiResponse<any>;
 			switch (magic) {
 				case "api":
 					const parseRegEx = /(?<method>\w+?)\s+(?<endpoint>[^\s]+)(\s+|$)?(?<flags>[\w\s-]+?)?(\s+|$)?(?<body>{.*})?\s*$/s;
@@ -251,7 +252,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 					let endpoint: string = "";
 					let body: any = undefined;
 
-					if (match) {
+					if (match && match.groups) {
 						method = match.groups["method"].trim().toUpperCase();
 						endpoint = match.groups["endpoint"].trim();
 						let flagsString = match.groups["flags"];
@@ -410,7 +411,7 @@ export class FabricApiNotebookKernel implements vscode.NotebookController {
 			}
 		} catch (error) {
 			execution.appendOutput(new vscode.NotebookCellOutput([
-				vscode.NotebookCellOutputItem.text(error, 'text/plain')
+				vscode.NotebookCellOutputItem.text(String(error), 'text/plain')
 			]));
 
 			execution.end(false, Date.now());

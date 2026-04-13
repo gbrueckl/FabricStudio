@@ -5,11 +5,10 @@ import { Helper } from '@utils/Helper';
 import { iGenericApiCallConfig, iGenericApiError, iGenericApiResponse } from '@utils/_types';
 
 import { ThisExtension } from '../ThisExtension';
-import { FabricApiItemFormat, FabricApiItemType, iFabricApiItem, iFabricApiItemDefinition, iFabricApiItemPart, iFabricApiResponse, iFabricApiWorkspace, iFabricErrorResponse, iFabricListResponse, iFabricPollingResponse } from './_types';
+import { FabricApiItemFormat, FabricApiItemType, iFabricApiItem, iFabricApiItemDefinition, iFabricApiItemPart, iFabricApiWorkspace, iFabricErrorResponse, iFabricListResponse, iFabricPollingResponse } from './_types';
 
 import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
 import { FabricLogger } from '@utils/FabricLogger';
-import { clear } from 'console';
 
 export abstract class FabricApiService {
 	protected static _initializationState: "not_loaded" | "loading" | "loaded" = "not_loaded";
@@ -20,7 +19,7 @@ export abstract class FabricApiService {
 	protected static _authenticationProvider: string;
 	protected static _resourceId: string;
 
-	protected static _headers;
+	protected static _headers: HeadersInit;
 	protected static _vscodeSession: vscode.AuthenticationSession;
 
 	//#region Initialization
@@ -55,7 +54,7 @@ export abstract class FabricApiService {
 
 		if (!this._vscodeSession || !this._vscodeSession.accessToken) {
 			this.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
-			return;
+			return false;
 		}
 
 		this.Logger.logInfo("Refreshing authentication headers ...");
@@ -105,7 +104,7 @@ export abstract class FabricApiService {
 		}
 
 
-		let session: vscode.AuthenticationSession
+		let session: vscode.AuthenticationSession | undefined = undefined;
 
 		this.Logger.logInfo("Getting new session from provider '" + this._authenticationProvider + "' ...");
 		while (!session) {
@@ -113,7 +112,7 @@ export abstract class FabricApiService {
 				session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
 			}
 			catch (error) {
-				if (error.message.includes("Canceled")) {
+				if (error.getmessage.includes("Canceled")) {
 					this.Logger.logWarning("Issue with authentication - retrying in 100 ms ...");
 					await Helper.wait(100);
 				}
@@ -226,7 +225,7 @@ export abstract class FabricApiService {
 
 	static async get<TSuccess = any>(
 		endpoint: string,
-		params: object = null,
+		params?: object,
 		config: iGenericApiCallConfig = { "raw": false, "raiseErrorOnFailure": false }
 	): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> {
 		const headers = await this.getHeaders(); // this also checks if the connection is initialized
@@ -248,8 +247,8 @@ export abstract class FabricApiService {
 			let resultText = await response.text();
 			this.logResponse(response, resultText);
 
-			let success: TSuccess;
-			let error: iGenericApiError;
+			let success: TSuccess | undefined = undefined;
+			let error: iGenericApiError | undefined = undefined;
 			let responseHeaders = Object.fromEntries(response.headers.entries());
 
 			if (response.ok) {
@@ -290,7 +289,7 @@ export abstract class FabricApiService {
 
 	static async getList<TSuccess = any>(
 		endpoint: string,
-		params: object = null,
+		params?: object,
 		listProperty: string = "value",
 		listSortProperty: string = "displayName"
 	): Promise<iGenericApiResponse<TSuccess[], iGenericApiError>> {
@@ -372,9 +371,9 @@ export abstract class FabricApiService {
 	private static async generic<TSuccess = any>(
 		method: "POST" | "PATCH" | "PUT" | "DELETE",
 		endpoint: string,
-		body: object,
+		body?: object,
 		config: iGenericApiCallConfig = { "raw": false, "awaitLongRunningOperation": true }
-	): Promise<iFabricApiResponse<TSuccess>> {
+	): Promise<iGenericApiResponse<TSuccess>> {
 		const headers = await this.getHeaders(); // this also checks if the connection is initialized
 
 		endpoint = this.getFullUrl(endpoint);
@@ -455,20 +454,20 @@ export abstract class FabricApiService {
 		endpoint: string,
 		body: object,
 		config: iGenericApiCallConfig = { "raw": false, "awaitLongRunningOperation": true }
-	): Promise<iFabricApiResponse<TSuccess>> {
+	): Promise<iGenericApiResponse<TSuccess>> {
 
 		return this.generic<TSuccess>("POST", endpoint, body, config);
 	}
 
-	static async delete<T = any>(endpoint: string, body: object): Promise<iFabricApiResponse<T>> {
+	static async delete<T = any>(endpoint: string, body?: object): Promise<iGenericApiResponse<T>> {
 		return this.generic<T>("DELETE", endpoint, body);
 	}
 
-	static async patch<T = any>(endpoint: string, body: object): Promise<iFabricApiResponse<T>> {
+	static async patch<T = any>(endpoint: string, body: object): Promise<iGenericApiResponse<T>> {
 		return this.generic<T>("PATCH", endpoint, body);
 	}
 
-	static async put<T = any>(endpoint: string, body: object): Promise<iFabricApiResponse<T>> {
+	static async put<T = any>(endpoint: string, body: object): Promise<iGenericApiResponse<T>> {
 		return this.generic<T>("PUT", endpoint, body);
 	}
 
@@ -521,51 +520,52 @@ export abstract class FabricApiService {
 		}
 	}
 
-	protected static handleApiException(error: Error, showErrorMessage: boolean = false, raise: boolean = false): void {
-		this.Logger.logError(error.name);
-		this.Logger.logError(error.message);
-		if (error.stack) {
-			this.Logger.logError(error.stack);
+	protected static handleApiException(error: any, showErrorMessage: boolean = false, raise: boolean = false): void {
+		const errorTyped = error instanceof Error ? error as Error : new Error(String(error));
+		this.Logger.logError(errorTyped.name);
+		this.Logger.logError(errorTyped.message);
+		if (errorTyped.stack) {
+			this.Logger.logError(errorTyped.stack);
 		}
 
 		if (showErrorMessage) {
-			vscode.window.showErrorMessage(error.message);
+			vscode.window.showErrorMessage(errorTyped.message);
 		}
 
 		if (raise) {
-			throw error;
+			throw errorTyped;
 		}
 	}
 
-	static async listWorkspaces(): Promise<iFabricApiResponse<iFabricApiWorkspace[]>> {
+	static async listWorkspaces(): Promise<iGenericApiResponse<iFabricApiWorkspace[]>> {
 		const endpoint = `/v1/workspaces`;
 		return (await FabricApiService.getList<iFabricApiWorkspace>(endpoint));
 	}
 
-	static async getWorkspace(id: string): Promise<iFabricApiResponse<iFabricApiWorkspace>> {
+	static async getWorkspace(id: string): Promise<iGenericApiResponse<iFabricApiWorkspace>> {
 		const endpoint = `/v1/workspaces/${id}`;
 		return await FabricApiService.get<iFabricApiWorkspace>(endpoint);
 	}
 
-	static async listItems(workspaceId: string, itemType?: FabricApiItemType): Promise<iFabricApiResponse<iFabricApiItem[]>> {
+	static async listItems(workspaceId: string, itemType?: FabricApiItemType): Promise<iGenericApiResponse<iFabricApiItem[]>> {
 		const endpoint = `/v1/workspaces/${workspaceId}/items`;
 		const itemTypeFilter = itemType ? { type: itemType } : undefined;
 		return (await FabricApiService.getList<iFabricApiItem>(endpoint, itemTypeFilter));
 	}
 
-	static async getItem(workspaceId: string, itemId: string): Promise<iFabricApiResponse<iFabricApiItem>> {
+	static async getItem(workspaceId: string, itemId: string): Promise<iGenericApiResponse<iFabricApiItem>> {
 		const endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}`;
 		return await FabricApiService.get<iFabricApiItem>(endpoint);
 	}
 
-	static async getItemDefinition(workspaceId: string, itemId: string, format?: FabricApiItemFormat): Promise<iFabricApiResponse<iFabricApiItemDefinition>> {
+	static async getItemDefinition(workspaceId: string, itemId: string, format?: FabricApiItemFormat): Promise<iGenericApiResponse<iFabricApiItemDefinition>> {
 		const endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/getDefinition`;
 		const itemFormat = format && format != FabricApiItemFormat.DEFAULT ? `?format=${format}` : '';
 
 		return await FabricApiService.post<iFabricApiItemDefinition>(endpoint + itemFormat, undefined);
 	}
 
-	static async getItemDefinitionParts(workspaceId: string, itemId: string, format?: FabricApiItemFormat): Promise<iFabricApiResponse<iFabricApiItemPart[]>> {
+	static async getItemDefinitionParts(workspaceId: string, itemId: string, format?: FabricApiItemFormat): Promise<iGenericApiResponse<iFabricApiItemPart[]>> {
 		const ret = await FabricApiService.getItemDefinition(workspaceId, itemId, format)
 
 		if (ret.error) {
@@ -576,7 +576,7 @@ export abstract class FabricApiService {
 		}
 	}
 
-	static async getItemDefinitionPart(workspaceId: string, itemId: string, path: string, format?: FabricApiItemFormat): Promise<iFabricApiResponse<string>> {
+	static async getItemDefinitionPart(workspaceId: string, itemId: string, path: string, format?: FabricApiItemFormat): Promise<iGenericApiResponse<string>> {
 		const parts = await FabricApiService.getItemDefinitionParts(workspaceId, itemId, format)
 
 		if (parts.error) {
@@ -591,7 +591,7 @@ export abstract class FabricApiService {
 		}
 	}
 
-	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, updateMetaData: boolean = true, progressText: string = "Creating Item"): Promise<iFabricApiResponse> {
+	static async updateItemDefinition(workspaceId: string, itemId: string, itemDefinition: iFabricApiItemDefinition, updateMetaData: boolean = true, progressText: string = "Creating Item"): Promise<iGenericApiResponse> {
 		let endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}/updateDefinition`;
 
 		if (updateMetaData) {
@@ -601,7 +601,7 @@ export abstract class FabricApiService {
 		return await FabricApiService.awaitWithProgress(progressText, FabricApiService.post(endpoint, itemDefinition), 3000);
 	}
 
-	static async updateItem(workspaceId: string, itemId: string, newName?: string, newDescription?: string): Promise<iFabricApiResponse> {
+	static async updateItem(workspaceId: string, itemId: string, newName?: string, newDescription?: string): Promise<iGenericApiResponse> {
 		const endpoint = `/v1/workspaces/${workspaceId}/items/${itemId}`;
 
 		const body = {};
@@ -619,7 +619,7 @@ export abstract class FabricApiService {
 		return { success: "No Changes!" };
 	}
 
-	static async createItem(workspaceId: string, name: string, type: FabricApiItemType, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iFabricApiResponse> {
+	static async createItem(workspaceId: string, name: string, type: FabricApiItemType, definition?: iFabricApiItemDefinition, progressText: string = "Publishing Item"): Promise<iGenericApiResponse> {
 		if (!FabricConfiguration.itemTypeHasDefinition(type)) {
 			this.Logger.logError(`Type '${type}' is not supported for item creation!`, true, true);
 		}
@@ -633,7 +633,7 @@ export abstract class FabricApiService {
 		return await FabricApiService.awaitWithProgress(progressText, FabricApiService.post<iFabricApiItem>(endpoint, body), 3000);
 	}
 
-	static async deleteItem(workspaceId: string, itemId: string, progressText: string = "Deleting Item"): Promise<iFabricApiResponse> {
+	static async deleteItem(workspaceId: string, itemId: string, progressText: string = "Deleting Item"): Promise<iGenericApiResponse> {
 		const endpoint = `${this._apiBaseUrl}/v1/workspaces/${workspaceId}/items/${itemId}`;
 
 		return await FabricApiService.awaitWithProgress(progressText, FabricApiService.delete<any>(endpoint, undefined), 3000);

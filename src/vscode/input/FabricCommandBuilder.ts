@@ -8,6 +8,7 @@ import { FabricApiService } from '../../fabric/FabricApiService';
 import { ThisExtension } from '../../ThisExtension';
 import { Helper } from '@utils/Helper';
 import { FabricMapper } from '../../fabric/FabricMapper';
+import { Dictionary } from 'lodash';
 
 export const NO_QP_ITEMS_ITEM_ID: string = "NO_ITEMS_LOADED";
 
@@ -30,7 +31,7 @@ export abstract class FabricCommandBuilder {
 	): Promise<T> {
 		let body: object = {};
 
-		let inputValue: string = null;
+		let inputValue: string | undefined = undefined;
 		for (let input of inputs) {
 			inputValue = await input.getValue();
 
@@ -51,12 +52,11 @@ export abstract class FabricCommandBuilder {
 				return FabricApiService.delete(apiUrl, body) as Promise<T>;
 
 			default:
-				break;
+				throw new Error(`Method ${method} is not supported!`);
 		}
-
 	}
 
-	static addProperty(body: object, key: string, inputValue: string): object {
+	static addProperty(body: Dictionary<any>, key: string, inputValue: string): object {
 		if (inputValue == null || inputValue == undefined) {
 			return body;
 		}
@@ -80,9 +80,9 @@ export abstract class FabricCommandBuilder {
 	static async showQuickPick(
 		items: FabricQuickPickItem[],
 		title: string,
-		description: string,
-		currentValue: string
-	): Promise<FabricQuickPickItem> {
+		description?: string,
+		currentValue?: string
+	): Promise<FabricQuickPickItem | undefined>{
 
 		const selectedItem = items.find(x => x.value == currentValue);
 		if (selectedItem != undefined) {
@@ -102,20 +102,16 @@ export abstract class FabricCommandBuilder {
 			onDidSelectItem: item => window.showInformationMessage(`Focus ${++i}: ${item}`)
 			*/
 		});
-		if (result == undefined || result == null) {
-			return null;
-		}
-		else {
-			return result;
-		}
+
+		return result;
 	}
 
 	static async showInputBox(
 		defaultValue: string,
 		title: string,
-		description: string,
-		valueSelection: [number, number] = undefined,
-	): Promise<string> {
+		description?: string,
+		valueSelection?: [number, number],
+	): Promise<string | undefined> {
 		const result = await vscode.window.showInputBox({
 			title: title + (description ? (" - " + description) : ""),
 			ignoreFocusOut: true,
@@ -133,7 +129,7 @@ export abstract class FabricCommandBuilder {
 		return result;
 	}
 
-	static getQuickPickList(itemType: FabricApiItemType): FabricQuickPickItem[] {
+	static getQuickPickList(itemType: FabricApiItemType): FabricQuickPickItem[] | undefined {
 		if (this._quickPickLists == undefined) {
 			ThisExtension.Logger.logTrace(`Initializing QuickPickList ...`);
 			this._quickPickLists = new Map<FabricApiItemType, FabricQuickPickItem[]>();
@@ -153,7 +149,7 @@ export abstract class FabricCommandBuilder {
 			return;
 		}
 
-		let qpList = this.getQuickPickList(item.itemType);
+		let qpList = this.getQuickPickList(item.itemType) as FabricQuickPickItem[];
 
 		// if the item already exists, pop it and add it to the top again
 		let existingItemIndex = qpList.findIndex(x => x.value == item.value);
@@ -166,7 +162,7 @@ export abstract class FabricCommandBuilder {
 
 		while (qpList.length > this._maxQuickPickListItems) {
 			let removed = qpList.shift();
-			ThisExtension.Logger.logTrace(`Removed item '${removed.label}(${removed.value})' from QuickPickList '${item.itemType}'.`);
+			ThisExtension.Logger.logTrace(`Removed item '${removed?.label}(${removed?.value})' from QuickPickList '${item.itemType}'.`);
 		}
 	}
 
@@ -177,7 +173,7 @@ export abstract class FabricCommandBuilder {
 	}
 
 	static getQuickPickItems(itemType: FabricApiItemType, showInofMessage: boolean = false): FabricQuickPickItem[] {
-		let qpList = this.getQuickPickList(itemType);
+		let qpList = this.getQuickPickList(itemType) as FabricQuickPickItem[];
 
 		if (qpList.length == 0) {
 			ThisExtension.Logger.logWarning(`QuickPickList '${itemType}' is empty!`);

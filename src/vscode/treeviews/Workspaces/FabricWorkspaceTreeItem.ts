@@ -20,9 +20,9 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		id: UniqueId,
 		name: string,
 		type: FabricApiItemType,
-		parent: FabricWorkspaceTreeItem = undefined,
-		definition: any = undefined,
-		description: string = undefined,
+		parent?: FabricWorkspaceTreeItem,
+		definition?: any,
+		description?: string,
 		collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
 	) {
 		super(id, name, type, parent, definition, description, collapsibleState);
