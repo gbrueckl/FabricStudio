@@ -5,6 +5,7 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { Helper } from '@utils/Helper';
 import { FabricItem } from './FabricItem';
+import { iGenericApiResponse } from '@utils/_types';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricAppliedTag extends FabricWorkspaceTreeItem {
@@ -38,9 +39,9 @@ export class FabricAppliedTag extends FabricWorkspaceTreeItem {
 		return true;
 	}
 
-	public async delete(): Promise<iFabricApiResponse<any>> {
+	public async delete(): Promise<iGenericApiResponse<any>> {
 		let apiPath = Helper.joinPath(this.workspace.apiPath, "unapplyTags");
-		if(this.parent.parent.contextValue.includes("FABRIC_ITEM")) {
+		if(this.parent?.parent?.contextValue?.includes("FABRIC_ITEM")) {
 			apiPath = Helper.joinPath((this.parent.parent as FabricItem).itemApiPath, "unapplyTags");
 		}
 		

@@ -8,7 +8,7 @@ import { FabricApiItemType, iFabricApiResponse } from '../../fabric/_types';
 import { ThisExtension, TreeProviderId } from '../../ThisExtension';
 import { FabricCommandBuilder } from '../input/FabricCommandBuilder';
 import { FabricMapper } from '../../fabric/FabricMapper';
-import { iGenericApiError } from '@utils/_types';
+import { iGenericApiError, iGenericApiResponse } from '@utils/_types';
 import { FabricWorkspaceFolder } from './Workspaces/FabricWorkspaceFolder';
 import { FabricGUIDHoverProvider } from '../hoverProvider/FabricGUIDHoverProvider';
 import { TempFileSystemProvider } from '../filesystemProvider/temp/TempFileSystemProvider';
@@ -127,14 +127,14 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return false;
 	}
 
-	public async delete(): Promise<iFabricApiResponse<any>> {
+	public async delete(): Promise<iGenericApiResponse<any>> {
 		const response = await FabricApiService.delete<any>(this.apiPath, undefined);
 		return response;
 	}
 
 	public static async delete(confirmation: "yesNo" | "name" | "none" | undefined = undefined, item: FabricApiTreeItem): Promise<void> {
 		if (confirmation) {
-			let confirm: string
+			let confirm: string | undefined;
 			switch (confirmation) {
 				case "yesNo":
 					const confirmQp = await FabricCommandBuilder.showQuickPick([new FabricQuickPickItem("yes"), new FabricQuickPickItem("no")], `Do you really want to delete ${item.itemType.toLowerCase()} '${item.itemName}'?`, undefined, undefined);
@@ -268,14 +268,14 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		throw new Error("Method not implemented.");
 	}
 
-	getParentByType<T = FabricApiTreeItem>(type: FabricApiItemType): T {
-		let parent: FabricApiTreeItem = this;
+	getParentByType<T = FabricApiTreeItem>(type: FabricApiItemType): T | undefined {
+		let parent: FabricApiTreeItem | undefined = this;
 
 		while (parent !== undefined && parent.itemType !== type) {
 			parent = parent.parent;
 		}
 
-		return parent as T;
+		return parent as T | undefined;
 	}
 
 	public copyIdToClipboard(): void {
@@ -398,7 +398,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		// if the root item is a WorkspaceFolder, we need to add the folderId and "folders" to the path
 		// if and item resides in a workspaceFolder
 		let urlParts: string[] = [];
-		let apiItem: FabricApiTreeItem = this;
+		let apiItem: FabricApiTreeItem | undefined = this;
 		let rootItemIsFolder: boolean = apiItem.itemType === "WorkspaceFolder";
 
 		if (rootItemIsFolder) {

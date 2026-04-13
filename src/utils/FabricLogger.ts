@@ -38,7 +38,7 @@ export class FabricLogger {
 		this.log(text, vscode.LogLevel.Debug);
 	}
 
-	public logInfo(text: string, infoWindowTimeout: number = undefined): void {
+	public logInfo(text: string, infoWindowTimeout?: number): void {
 		this.log(text, vscode.LogLevel.Info);
 
 		if (infoWindowTimeout && infoWindowTimeout > 0) {
@@ -54,7 +54,8 @@ export class FabricLogger {
 		}
 	}
 
-	public logError(text: string, showErrorWindow: boolean = false, raiseException: boolean = false): void {
+	public logError(error: any, showErrorWindow: boolean = false, raiseException: boolean = false): void {
+		const text = error instanceof Error ? error.message : String(error);
 		this.log(text, vscode.LogLevel.Error);
 
 		if(showErrorWindow) {

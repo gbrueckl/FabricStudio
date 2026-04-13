@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../ThisExtension';
 import { FabricApiNotebookSerializer } from '../notebook/api/FabricApiNotebookSerializer';
+import { FabricPlatformParser } from '../../fabric/FabricPlatformParser';
 
 const GUID_REGEX = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 
@@ -23,6 +24,7 @@ export interface iFabricItemDetails {
 }
 
 export class FabricGUIDHoverProvider implements vscode.HoverProvider {
+	private static _localCacheLoaded: boolean = false;
 	private static _sessionCache: Map<string, iFabricItemDetails> = new Map<string, iFabricItemDetails>();
 
 	constructor() {
@@ -32,6 +34,20 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 	public static async register(context: vscode.ExtensionContext) {
 		const hoverProvider = new FabricGUIDHoverProvider()
 		context.subscriptions.push(vscode.languages.registerHoverProvider({ scheme: '*', language: '*' }, hoverProvider));
+	}
+
+	static async onDidOpenTextDocument(document: vscode.TextDocument): Promise<void> {
+		if (document.uri.fsPath.endsWith('.platform')) {
+			ThisExtension.Logger.logInfo("Loading GUIDs from local '.platform' files ...");
+			if(!FabricGUIDHoverProvider._localCacheLoaded) {
+				await FabricPlatformParser.parsePlatformFiles()
+				FabricGUIDHoverProvider._localCacheLoaded = true;
+				ThisExtension.Logger.logInfo("Finished loading GUIDs from local '.platform' files!");
+			}
+			else {
+				ThisExtension.Logger.logInfo("GUIDs from local '.platform' files already loaded. you can use 'FabricStudio.Global.parsePlatformFiles' to force a reload.");
+			}
+		}
 	}
 
 	public async provideHover(
@@ -64,7 +80,7 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 				if (itemDetails.itemType) {
 					mdText.push(`|Type|${itemDetails.itemType}|`);
 				}
-				
+
 				if (workspaceId && itemDetails.itemType.toUpperCase() !== "WORKSPACE") {
 					const workspaceDetails = FabricGUIDHoverProvider.getFabricObjectNameByGUID(workspaceId);
 					if (workspaceDetails && workspaceDetails.itemName) {
@@ -75,7 +91,7 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 
 				let md: vscode.MarkdownString = new vscode.MarkdownString(mdText.join('\n'));
 				md.isTrusted = true;
-				
+
 				return new vscode.Hover(md, range);
 			}
 		}

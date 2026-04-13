@@ -10,16 +10,16 @@ import { FabricApiTreeItem } from '../FabricApiTreeItem';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
-	protected _customApiUrlPart: string;
+	protected _customApiUrlPart: string | undefined = undefined;
 	protected _defaultChildCollapsibleState: vscode.TreeItemCollapsibleState;
-	protected _children: FabricWorkspaceTreeItem[] = undefined;
+	protected _children: FabricWorkspaceTreeItem[] | undefined = undefined;
 
 	constructor(
 		id: string,
 		name: string,
 		type: FabricApiItemType,
 		parent: FabricWorkspaceTreeItem,
-		apiUrlPart: string = undefined,
+		apiUrlPart?: string,
 		defaultChildCollapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
 	) {
 		super(id, name, type, parent, undefined, undefined);
@@ -41,13 +41,13 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 	}
 
 	// tooltip shown when hovering over the item
-	get _tooltip(): string {
+	get _tooltip(): string | undefined {
 		return undefined;
 	}
 
 	// description is show next to the label
 	get _description(): string {
-		return undefined;
+		return "";
 	}
 
 	get apiUrlPart(): string {

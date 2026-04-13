@@ -6,14 +6,15 @@ import { ThisExtension } from '../../../ThisExtension';
 import { SparkNotebookLanguage } from './_types';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricFSUri } from '../../filesystemProvider/FabricFSUri';
+import { iGenericApiResponse } from '@utils/_types';
 
 export class FabricSparkLivySession {
 	public workspaceId: string;
 	public lakehouseId: string;
 	public sessionId: string;
-	public notebookUri: vscode.Uri;
+	public notebookUri?: vscode.Uri;
 
-	constructor(workspaceId: string, lakehouseId: string, sessionId: string, notebookUri: vscode.Uri = null) {
+	constructor(workspaceId: string, lakehouseId: string, sessionId: string, notebookUri?: vscode.Uri) {
 		this.workspaceId = workspaceId;
 		this.lakehouseId = lakehouseId;
 		this.sessionId = sessionId;
@@ -38,7 +39,7 @@ export class FabricSparkLivySession {
 		return this.workspaceId;
 	}
 
-	static async getNewSession(workspaceId: string, lakehouseId: string, language: SparkNotebookLanguage = "pyspark", notebookUri: vscode.Uri = null): Promise<FabricSparkLivySession> {
+	static async getNewSession(workspaceId: string, lakehouseId: string, language: SparkNotebookLanguage = "pyspark", notebookUri?: vscode.Uri): Promise<FabricSparkLivySession> {
 		const body = {
 			"kind": language
 		};
@@ -47,10 +48,11 @@ export class FabricSparkLivySession {
 		if (response.error) {
 			throw new Error(response.error.message);
 		}
+		if (response.success) {
+			let session = new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id, notebookUri);
 
-		let session = new FabricSparkLivySession(workspaceId, lakehouseId, response.success.id, notebookUri);
-
-		return session;
+			return session;
+		}
 	}
 
 	async waitTillStarted(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
@@ -70,14 +72,14 @@ export class FabricSparkLivySession {
 				ThisExtension.Logger.logError(response.error.message, true, true);
 			}
 
-			else if (response.success.state == "idle") {
+			else if (response.success?.state == "idle") {
 				isStarted = true;
 			}
-			else if (response.success.state == "error" || response.success.state == "dead" || response.success.state == "killed") {
-				ThisExtension.Logger.logError(`Session ${this.sessionId} is in state ${response.success.state}`, true, true);
+			else if (response.success?.state == "error" || response.success?.state == "dead" || response.success?.state == "killed") {
+				ThisExtension.Logger.logError(`Session ${this.sessionId} is in state ${response.success?.state}`, true, true);
 			}
 			else {
-				ThisExtension.Logger.logInfo(`Session ${this.sessionId} is in state ${response.success.state}, waiting...`);
+				ThisExtension.Logger.logInfo(`Session ${this.sessionId} is in state ${response.success?.state}, waiting...`);
 			}
 		}
 
@@ -104,7 +106,7 @@ export class FabricSparkLivySession {
 		}
 	}
 
-	async executeCommand(commandText: string, language: SparkNotebookLanguage = undefined): Promise<iFabricApiResponse<iFabricLivyStatementCreation>> {
+	async executeCommand(commandText: string, language?: SparkNotebookLanguage): Promise<iGenericApiResponse<iFabricLivyStatementCreation>> {
 		// https://learn.microsoft.com/en-us/fabric/data-engineering/get-started-api-livy-session#submit-a-sparksql-statement-using-the-livy-api-spark-session
 		const body = {
 			"code": commandText,
@@ -116,8 +118,8 @@ export class FabricSparkLivySession {
 		return createCommand;
 	}
 
-	async waitForCommandResult(commandId: number, pollInterval: number = 500, timeout: number = undefined): Promise<iFabricApiResponse<iFabricLivyStatementResult>> {
-		let result: iFabricApiResponse<iFabricLivyStatementResult> = undefined;
+	async waitForCommandResult(commandId: number, pollInterval: number = 500, timeout?: number): Promise<iGenericApiResponse<iFabricLivyStatementResult>> {
+		let result: iGenericApiResponse<iFabricLivyStatementResult> | undefined = undefined;
 		let timeElapsed: number = 0;
 
 		while (result === undefined || (result.success && !["available", "cancelled", "error"].includes(result.success?.state))) {
@@ -129,7 +131,7 @@ export class FabricSparkLivySession {
 		return result;
 	}
 
-	async cancelCommand(command: iFabricLivyStatementCreation): Promise<iFabricApiResponse<iFabricLivyStatementCreation>> {
+	async cancelCommand(command: iFabricLivyStatementCreation): Promise<iGenericApiResponse<iFabricLivyStatementCreation>> {
 		// https://learn.microsoft.com/en-us/fabric/data-engineering/get-started-api-livy-session#close-the-livy-session-with-a-third-statement
 		const deleteCommand = await FabricApiService.post<iFabricLivyStatementResult>(Helper.joinPath(this.apiSessionEndpoint, `statements/${command.id}/cancel`), {});
 

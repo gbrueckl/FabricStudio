@@ -55,7 +55,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 		this._itemDefinition = value;
 	}
 
-	get itemApiPath(): string {
+	get itemApiPath(): string | undefined{
 		return Helper.trimChar(Helper.joinPath(this.workspace.apiPath, "items", this.itemId), "/");
 	}
 
@@ -87,7 +87,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			return element.getChildren();
 		}
 		else {
-			if (this.contextValue.includes("EDIT_")) {
+			if (this.contextValue?.includes("EDIT_")) {
 				children.push(new FabricItemDefinition(this));
 			}
 
@@ -96,8 +96,8 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 
 				let itemDefinition = await FabricApiService.get<iFabricApiItem>(this.itemApiPath)
 				this.itemDefinition = itemDefinition.success;
-				if (this.itemDefinition.tags?.length > 0) {
-					this.itemDefinition.tags.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
+				if (this.itemDefinition?.tags?.length > 0) {
+					this.itemDefinition?.tags?.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
 					children.push(tags);
 				}
 			}

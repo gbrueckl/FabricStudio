@@ -295,12 +295,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Api.CopyAPIHeaders', FabricApiService.copyApiHeadersToClipboard);
 	
 
-
 	// eventhandles when Fabric documents are saved
 	vscode.workspace.onDidSaveTextDocument(FabricFSCache.onDidSave);
 	vscode.workspace.onDidSaveNotebookDocument(FabricFSCache.onDidSave);
-
 	vscode.workspace.onDidOpenNotebookDocument(FabricAPICompletionProvider.onDidOpenNotebookDocument);
+
+	vscode.workspace.onDidOpenTextDocument(FabricGUIDHoverProvider.onDidOpenTextDocument);
 }
 
 

@@ -18,7 +18,7 @@ export abstract class FabricPlatformParser {
 	// AIDEV-NOTE: Synthetic workspace entry cached once so individual file processors can reference it as parent.
 	private static readonly WORKSPACE_DETAILS: iFabricItemDetails = {
 		itemId: EMPTY_GUID,
-		itemName: "Current Workspace",
+		itemName: "Current Workspace (local GIT)",
 		apiPath: "",
 		itemType: "Workspace",
 		itemDefinition: undefined,
@@ -162,7 +162,7 @@ export abstract class FabricPlatformParser {
 					vscode.window.showWarningMessage(`Fabric Studio: Parsing cancelled. ${parsedCount} .platform file(s) cached before cancellation.`);
 				} else {
 					ThisExtension.Logger.logInfo(`Successfully parsed and cached ${parsedCount} item(s) from ${totalFiles} .platform file(s).`);
-					vscode.window.showInformationMessage(`Fabric Studio: Parsed ${parsedCount} .platform file(s) from workspace.`);
+					vscode.window.showInformationMessage(`Fabric Studio: Parsed ${parsedCount} local .platform file(s) from workspace.`);
 				}
 			}
 		);
