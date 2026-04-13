@@ -21,7 +21,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	protected _itemType: FabricApiItemType;
 	protected _itemId: UniqueId;
 	protected _itemName: string;
-	protected _itemDescription: string;
+	protected _itemDescription?: string;
 	protected _itemDefinition: any;
 	protected _parent?: FabricApiTreeItem;
 
@@ -29,9 +29,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		id: UniqueId,
 		name: string,
 		type: FabricApiItemType,
-		parent: FabricApiTreeItem = undefined,
-		definition: any = undefined,
-		description: string = undefined,
+		parent?: FabricApiTreeItem,
+		definition?: any,
+		description?: string,
 		collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
 	) {
 		super(name, collapsibleState);
@@ -216,7 +216,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	public async getChildren(element?: FabricApiTreeItem): Promise<FabricApiTreeItem[]> {
 		await vscode.window.showErrorMessage("getChildren is not implemented! Please overwrite in derived class!");
-		return undefined;
+		return [];
 	}
 
 	/* FabricWorkspaceItem implementatin */
@@ -252,15 +252,15 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		this._itemId = value;
 	}
 
-	get parent(): FabricApiTreeItem {
+	get parent(): FabricApiTreeItem | undefined {
 		return this._parent;
 	}
 
-	set parent(value: FabricApiTreeItem) {
+	set parent(value: FabricApiTreeItem | undefined) {
 		this._parent = value;
 	}
 
-	get refreshedBy(): FabricApiTreeItem {
+	get refreshedBy(): FabricApiTreeItem | undefined {
 		return this.parent;
 	}
 
@@ -361,7 +361,8 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 				return false;
 			}
 		} catch (error) {
-			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${error.message}`, true);
+			const handledError = error instanceof Error ? error : new Error(String(error));
+			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${handledError.message}`, true);
 			return false;
 		}
 	}
@@ -389,7 +390,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			}
 		}
 		catch { }
-		return this.id;
+		return this.id ?? "";
 	}
 
 	get itemPath(): string {
@@ -398,7 +399,6 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		// if and item resides in a workspaceFolder
 		let urlParts: string[] = [];
 		let apiItem: FabricApiTreeItem = this;
-		let folder: FabricWorkspaceFolder = undefined;
 		let rootItemIsFolder: boolean = apiItem.itemType === "WorkspaceFolder";
 
 		if (rootItemIsFolder) {
@@ -446,12 +446,12 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 	}
 
 	get code(): string {
-		return Helper.trimChar("/" + this.apiPath.split("/").slice(2).join("/"), "/", false);
+		return Helper.trimChar("/" + this.apiPath.split("/").slice(2).join("/"), "/", false) ?? "";
 	}
 
 	// API Drop
 	get apiDrop(): string {
-		return Helper.trimChar("/" + this.apiPath.split("/").slice(2).join("/"), "/", false);
+		return Helper.trimChar("/" + this.apiPath.split("/").slice(2).join("/"), "/", false) ?? "";
 	}
 
 	public static get NO_ITEMS(): FabricApiTreeItem {
@@ -474,7 +474,7 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return item as T;
 	}
 
-	public static handleEmptyItems<T>(items: T[], filter: RegExp = undefined, itemType: string = "item"): T[] {
+	public static handleEmptyItems<T>(items: T[], filter?: RegExp, itemType: string = "item"): T[] {
 		if (!items || items.length == 0) {
 			if (filter) {
 				ThisExtension.Logger.logWarning(`No ${itemType}s found matching the filter '${filter.source}'!`, true);

@@ -56,7 +56,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	await ThisExtension.initializeLogger(context);
 
-	const prevInstalledVersion = context.globalState.get<vscode.Extension<any>>(`${context.extension.id}.installedVersion`, undefined);
+	const prevInstalledVersion = context.globalState.get<vscode.Extension<any> | undefined>(`${context.extension.id}.installedVersion`);
 	if (!prevInstalledVersion || prevInstalledVersion.packageJSON.version !== context.extension.packageJSON.version) {
 		context.globalState.update(`${context.extension.id}.installedVersion`, context.extension);
 		const action = vscode.window.showInformationMessage(`${context.extension.packageJSON.displayName} updated to version ${context.extension.packageJSON.version}`, "Change Log");
@@ -178,16 +178,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	let fabricWorkspacesTreeProvider = new FabricWorkspacesTreeProvider(context);
 	vscode.commands.registerCommand('FabricStudio.Workspaces.refresh', (item?: FabricWorkspaceTreeItem, showInfoMessage: boolean = true) => fabricWorkspacesTreeProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Workspaces.filter', () => fabricWorkspacesTreeProvider.filter());
-	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item: FabricWorkspaceTreeItem = undefined) => item.editItems());
+	vscode.commands.registerCommand('FabricStudio.Workspaces.editItems', (item?: FabricWorkspaceTreeItem) => item?.editItems());
 	vscode.commands.registerCommand('FabricStudio.Workspaces.deleteItems', () => fabricWorkspacesTreeProvider.deleteSelectedItems());
 
 
-	vscode.commands.registerCommand('FabricStudio.Workspace.rename', (item: FabricWorkspaceTreeItem = undefined) => item.rename());
-	vscode.commands.registerCommand('FabricStudio.Workspace.createFolder', (item: FabricWorkspaceTreeItem = undefined) => FabricWorkspaceFolder.createFolder(item));
+	vscode.commands.registerCommand('FabricStudio.Workspace.rename', (item?: FabricWorkspaceTreeItem) => item?.rename());
+	vscode.commands.registerCommand('FabricStudio.Workspace.createFolder', (item?: FabricWorkspaceTreeItem) => item ? FabricWorkspaceFolder.createFolder(item) : undefined);
 	vscode.commands.registerCommand('FabricStudio.Workspace.manageSourceControl', (item: FabricWorkspace) => item.manageSourceControl());
 	vscode.commands.registerCommand('FabricStudio.OneLake.resetCache', (item: FabricWorkspace) => item.refreshCache());
 
-	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.update', (roleAssignment: FabricWorkspaceRoleAssignment = undefined) => roleAssignment.update());
+	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.update', (roleAssignment?: FabricWorkspaceRoleAssignment) => roleAssignment?.update());
 
 	vscode.commands.registerCommand('FabricStudio.Item.openInFabric', (treeItem: FabricApiTreeItem) => treeItem.openInBrowser());
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyIdToClipboard());
@@ -203,8 +203,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.Item.delete', async (treeItem: FabricApiTreeItem) => FabricApiTreeItem.delete("yesNo", treeItem));
 	vscode.commands.registerCommand('FabricStudio.Item.recover', async (treeItem: FabricRecoverableItem) => treeItem.recover());
 	vscode.commands.registerCommand('FabricStudio.Item.deletePermanently', async (treeItem: FabricRecoverableItem) => FabricApiTreeItem.delete("yesNo", treeItem));
-	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.publishToFabric(treeItem.resourceUri, false));
-	vscode.commands.registerCommand('FabricStudio.Item.reloadFromFabric', async (treeItem: FabricApiTreeItem) => FabricFSCache.reloadFromFabric(treeItem.resourceUri, false));
+	vscode.commands.registerCommand('FabricStudio.Item.publishToFabric', async (treeItem: FabricApiTreeItem) => treeItem.resourceUri ? FabricFSCache.publishToFabric(treeItem.resourceUri, false) : undefined);
+	vscode.commands.registerCommand('FabricStudio.Item.reloadFromFabric', async (treeItem: FabricApiTreeItem) => treeItem.resourceUri ? FabricFSCache.reloadFromFabric(treeItem.resourceUri, false) : undefined);
 
 	vscode.commands.registerCommand('FabricStudio.PowerBI.downloadPBIP', async (treeItem: FabricReport | FabricSemanticModel) => treeItem.downloadPBIP());
 
@@ -250,32 +250,32 @@ export async function activate(context: vscode.ExtensionContext) {
 	//#region Fabric Deployment Pipelines TreeView
 	let fabricDeploymentPipelinesTreeProvider = new FabricPipelinesTreeProvider(context);
 
-	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.refresh', (item: FabricPipelineTreeItem = undefined, showInfoMessage: boolean = true) => fabricDeploymentPipelinesTreeProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deploySelection', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(undefined));
-	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deployItem', (item: FabricPipelineTreeItem = undefined) => fabricDeploymentPipelinesTreeProvider.deploySelection(item));
+	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.refresh', (item?: FabricPipelineTreeItem, showInfoMessage: boolean = true) => fabricDeploymentPipelinesTreeProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deploySelection', (item?: FabricPipelineTreeItem) => fabricDeploymentPipelinesTreeProvider.deploySelection(item));
+	vscode.commands.registerCommand('FabricStudio.DeploymentPipelines.deployItem', (item?: FabricPipelineTreeItem) => fabricDeploymentPipelinesTreeProvider.deploySelection(item));
 
 	//#endregion
 
 	//#region Fabric Connections TreeView
 	let fabricConnectionsTreeViewProvider = new FabricConnectionsTreeProvider(context);
 
-	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item: FabricConnectionTreeItem = undefined, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item: FabricConnectionTreeItem = undefined) => fabricConnectionsTreeViewProvider.filter());
+	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item?: FabricConnectionTreeItem, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item?: FabricConnectionTreeItem) => fabricConnectionsTreeViewProvider.filter());
 	//#endregion
 
 	//#region Fabric Capacities TreeView
 	let fabricCapacitiesTreeViewProvider = new FabricCapacitiesTreeProvider(context);
 
-	vscode.commands.registerCommand('FabricStudio.Capacities.refresh', (item: FabricCapacityTreeItem = undefined, showInfoMessage: boolean = true) => fabricCapacitiesTreeViewProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Capacities.filter', (item: FabricCapacityTreeItem = undefined) => fabricCapacitiesTreeViewProvider.filter());
+	vscode.commands.registerCommand('FabricStudio.Capacities.refresh', (item?: FabricCapacityTreeItem, showInfoMessage: boolean = true) => fabricCapacitiesTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Capacities.filter', (item?: FabricCapacityTreeItem) => fabricCapacitiesTreeViewProvider.filter());
 	//#endregion
 
 	//#region Fabric Admin TreeView
 	let fabricAdminTreeViewProvider = new FabricAdminTreeProvider(context);
 
-	vscode.commands.registerCommand('FabricStudio.Admin.refresh', (item: FabricAdminTreeItem = undefined, showInfoMessage: boolean = true) => fabricAdminTreeViewProvider.refresh(item, showInfoMessage));
-	vscode.commands.registerCommand('FabricStudio.Admin.filter', (item: FabricAdminTreeItem = undefined) => fabricAdminTreeViewProvider.filter());
-	vscode.commands.registerCommand('FabricStudio.Admin.rename', (item: FabricAdminTreeItem = undefined) => item.rename());
+	vscode.commands.registerCommand('FabricStudio.Admin.refresh', (item?: FabricAdminTreeItem, showInfoMessage: boolean = true) => fabricAdminTreeViewProvider.refresh(item, showInfoMessage));
+	vscode.commands.registerCommand('FabricStudio.Admin.filter', (item?: FabricAdminTreeItem) => fabricAdminTreeViewProvider.filter());
+	vscode.commands.registerCommand('FabricStudio.Admin.rename', (item?: FabricAdminTreeItem) => item?.rename());
 
 	vscode.commands.registerCommand('FabricStudio.Admin.showDefintion', async (item: FabricAdminGenericViewer) => item.showDefinition());
 	//#endregion

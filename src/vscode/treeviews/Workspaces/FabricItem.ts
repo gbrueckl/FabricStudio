@@ -171,7 +171,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let accessRoles = new FabricItemDataAccessRoles(this);
-					const accessRolesChildren = await FabricApiTreeItem.getValidChildren(accessRoles) as FabricWorkspaceTreeItem[];
+					const accessRolesChildren = await accessRoles.getChildren() as FabricWorkspaceTreeItem[];
 					if (accessRolesChildren.length > 0) {
 						accessRolesChildren.forEach(child => accessRoles.addChild(child));
 						children.push(accessRoles);
