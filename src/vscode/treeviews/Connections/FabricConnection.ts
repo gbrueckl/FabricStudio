@@ -18,24 +18,27 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 		parent: FabricConnectionTreeItem
 	) {
 		super(definition.id, definition.displayName, "Connection", parent, "connections");
-		this.itemDefinition = definition;
+		{
+			this.itemDefinition = definition;
 
-		this.tooltip = this.getToolTip(definition);
-		this.iconPath = new vscode.ThemeIcon("extensions-remote");
-		this.description = definition.id;
-		this.iconPath = this.getIcon();
+			this.tooltip = this.getToolTip(definition);
+			this.iconPath = new vscode.ThemeIcon("extensions-remote");
+			this.description = `${definition.connectionDetails.type} - ${definition.id}`;
+			this.iconPath = this.getIcon();
+			this.label = this.label ?? definition.connectionDetails.path ?? definition.id;
+		}
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
 	get apiPath(): string {
-		return `v1/connections/${this.itemDefinition?.id ?? this.itemId}/`;
-	}
-
-	getIcon() {
-		if (this.itemDefinition) {
-			return FabricConnection.getIconByConnectivityType(this.itemDefinition.connectivityType);
+			return `v1/connections/${this.itemDefinition?.id ?? this.itemId}/`;
 		}
-	}
+
+		getIcon() {
+			if (this.itemDefinition) {
+				return FabricConnection.getIconByConnectivityType(this.itemDefinition.connectivityType);
+			}
+		}
 
 	static getIconByConnectivityType(connectivityType: string): vscode.ThemeIcon {
 		if (connectivityType) {
@@ -62,7 +65,7 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 		let roleAssignments = new FabricConnectionRoleAssignments(this);
 		children.push(roleAssignments);
 
-		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+		Helper.sortArrayByProperty(children);
 
 		return children;
 	}
@@ -91,5 +94,59 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 				Helper.showTemporaryInformationMessage(`Adding Connection Role-Assignment for identity '${identity.principal.displayName || identity.principal.id}'`, 3000);
 			}
 		}
+	}
+
+	/**
+	 * Tests the connection by calling the test-connection API endpoint.
+	 * Shows a progress bar during the test and displays the result.
+	 * https://learn.microsoft.com/en-us/rest/api/fabric/core/connections/test-connection?tabs=HTTP
+	 */
+	async testConnection(): Promise<void> {
+		// AIDEV-NOTE: Test connection uses POST with empty body to the test-connection endpoint
+		const testConnectionPath = Helper.joinPath(this.apiPath, "testConnection");
+
+		await vscode.window.withProgress(
+			{
+				location: vscode.ProgressLocation.Notification,
+				title: `Testing connection '${this.label}'...`,
+				cancellable: false
+			},
+			async () => {
+				try {
+					const response = await FabricApiService.post<{
+						status?: string,
+						errors?: { message?: string, errorCode?: string }[]
+					}>(testConnectionPath, {}, { "raw": false, "awaitLongRunningOperation": true });
+
+					if (response.error) {
+						ThisExtension.Logger.logError(`Connection test failed: ${response.error.message}`, true);
+					}
+					else {
+						const status = response.success?.status;
+						if (status === "Online") {
+							ThisExtension.Logger.logInfo(`Connection test succeeded for '${this.label}'`, 5000);
+						}
+						else {
+							const errorDetails = (response.success?.errors ?? [])
+								.map(error => `${error.errorCode ? `[${error.errorCode}] ` : ""}${error.message ?? "Unknown error"}`)
+								.join(" | ");
+
+							const errorMessage = `Connection test failed for '${this.label}' (status: ${status ?? "Unknown"})${errorDetails ? `. Details: ${errorDetails}` : ""}`;
+							ThisExtension.Logger.logError(errorMessage, true);
+						}
+					}
+				}
+				catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					ThisExtension.Logger.logError(`Connection test error: ${errorMessage}`, true);
+				}
+			}
+		);
+	}
+
+	get _contextValue(): string {
+		let actions = super._contextValue;
+		actions += "TEST_CONNECTION,";
+		return actions;
 	}
 }

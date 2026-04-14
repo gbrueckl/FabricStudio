@@ -182,8 +182,6 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				}
 			}
 
-			//children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
-
 			return children;
 		}
 	}

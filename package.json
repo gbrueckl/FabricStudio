@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.21.0",
+	"version": "2.22.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -674,6 +674,12 @@
 				"icon": "$(filter)"
 			},
 			{
+				"category": "FabricStudio.Connections",
+				"command": "FabricStudio.Connection.testConnection",
+				"title": "Test Connection",
+				"icon": "$(debug-disconnect)"
+			},
+			{
 				"category": "FabricStudio.Capacities",
 				"command": "FabricStudio.Capacities.refresh",
 				"title": "Refresh Capacities",
@@ -920,6 +926,16 @@
 					"command": "FabricStudio.Item.delete",
 					"when": "view =~ /(FabricStudioWorkspaces)|(FabricStudioConnections)|(FabricStudioAdmin)/ && viewItem =~ /.*,DELETE,.*/",
 					"group": "3_delete"
+				},
+				{
+					"command": "FabricStudio.Connection.testConnection",
+					"when": "view == FabricStudioConnections && viewItem =~ /.*,TEST_CONNECTION,.*/",
+					"group": "2_edit"
+				},
+				{
+					"command": "FabricStudio.Connection.testConnection",
+					"when": "view == FabricStudioConnections && viewItem =~ /.*,TEST_CONNECTION,.*/",
+					"group": "inline"
 				},
 				{
 					"command": "FabricStudio.Item.recover",

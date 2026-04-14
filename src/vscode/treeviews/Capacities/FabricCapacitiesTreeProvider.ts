@@ -88,7 +88,7 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 					children.push(treeItem);
 				}
 
-				children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+				Helper.sortArrayByProperty(children, "itemName");
 			}
 
 			children = FabricCapacityTreeItem.handleEmptyItems(children, regexFilter);

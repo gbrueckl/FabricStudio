@@ -61,7 +61,7 @@ export class FabricGateway extends FabricConnectionGenericFolder {
 		children.push(roleAssignments);
 
 
-		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+		Helper.sortArrayByProperty(children);
 
 		return children;
 	}

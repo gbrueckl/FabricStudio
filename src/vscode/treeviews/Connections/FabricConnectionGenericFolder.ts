@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper, UniqueId } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricConnectionTreeItem } from './FabricConnectionTreeItem';
@@ -79,7 +79,7 @@ export class FabricConnectionGenericFolder extends FabricConnectionTreeItem {
 			throw new Error("Not implemented");
 		}
 
-		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+		Helper.sortArrayByProperty(children);
 
 		return children;
 	}
