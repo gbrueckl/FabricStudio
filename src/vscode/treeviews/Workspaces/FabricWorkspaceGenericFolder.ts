@@ -103,7 +103,7 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 			}
 		}
 
-		children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+		Helper.sortArrayByProperty(children, "itemName");
 
 		return children;
 	}

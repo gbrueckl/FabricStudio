@@ -65,7 +65,7 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 		let roleAssignments = new FabricConnectionRoleAssignments(this);
 		children.push(roleAssignments);
 
-		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+		Helper.sortArrayByProperty(children);
 
 		return children;
 	}

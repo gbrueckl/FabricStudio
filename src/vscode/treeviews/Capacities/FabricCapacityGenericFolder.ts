@@ -102,7 +102,7 @@ export class FabricCapacityGenericFolder extends FabricCapacityTreeItem {
 			}
 		}
 
-		children = Array.from(children.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+		Helper.sortArrayByProperty(children, "itemName");
 
 		return children;
 	}

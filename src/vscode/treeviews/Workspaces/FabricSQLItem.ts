@@ -68,8 +68,6 @@ export class FabricSQLItem extends FabricItem {
 			children.push(new FabricItemOneLake(this));
 			children.push(...(await super.getChildren()));
 			
-			//children = Array.from(itemTypes.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
-
 			return children;
 		}
 	}

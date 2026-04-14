@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
 
-import { UniqueId } from '@utils/Helper';
+import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricAdminTreeItem } from './FabricAdminTreeItem';
 import { FabricApiItemType, iFabricApiItem } from '../../../fabric/_types';
-import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricAdminGenericFolder extends FabricAdminTreeItem {
@@ -79,7 +78,7 @@ export class FabricAdminGenericFolder extends FabricAdminTreeItem {
 			throw new Error("Not implemented");
 		}
 
-		children = Array.from(children.values()).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+		Helper.sortArrayByProperty(children);
 
 		return children;
 	}
