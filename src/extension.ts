@@ -27,6 +27,7 @@ import { FabricSparkJob } from './vscode/treeviews/Workspaces/FabricSparkJob';
 import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/FabricWorkspaceRoleAssignment';
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
+import { FabricConnection } from './vscode/treeviews/Connections/FabricConnection';
 import { FabricMirroredDatabaseSynchronization } from './vscode/treeviews/Workspaces/FabricMirroredDatabaseSynchronization';
 import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
 import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
@@ -261,6 +262,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('FabricStudio.Connections.refresh', (item?: FabricConnectionTreeItem, showInfoMessage: boolean = true) => fabricConnectionsTreeViewProvider.refresh(item, showInfoMessage));
 	vscode.commands.registerCommand('FabricStudio.Connections.filter', (item?: FabricConnectionTreeItem) => fabricConnectionsTreeViewProvider.filter());
+	vscode.commands.registerCommand('FabricStudio.Connection.testConnection', (item?: FabricConnection) => item?.testConnection());
 	//#endregion
 
 	//#region Fabric Capacities TreeView

@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.22.0**:
+- added support for [Connection Tests](https://learn.microsoft.com/en-us/rest/api/fabric/core/connections/test-connection?tabs=HTTP) - right-click on a connection to test it
+- fixed minor issues with Connection tree view
+
 **v2.21.0**:
 - added support for [Item recovery](https://learn.microsoft.com/en-us/fabric/admin/item-recovery)
 - removed `SQL Endpoint` items as dedicated items. They are now accessible via the parent item (e.g. the associated Lakehouse)

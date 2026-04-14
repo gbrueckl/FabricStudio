@@ -10,6 +10,11 @@ Whenever a new backlog item is implemented, always increase the minor version by
 - [Add support for Tags in Workspace Browser](#add-support-for-tags-in-workspace-browser) - DONE!
 - [Add Drag & Drop support for Tags](#add-drag--drop-support-for-tags) - DONE!
 - [Add support for item recovery](#add-support-for-item-recovery) - DONE!
+- [Add support for connection tests](#add-support-for-connection-tests) - DONE!
+
+# Add support for Connection Tests
+There is a new API to test connections: https://learn.microsoft.com/en-us/rest/api/fabric/core/connections/test-connection?tabs=HTTP
+Please add a new action when right-clicking on a connection in the Connections treeview to test the connection. A Progress bar should show while the connection test is running and then show wheter it succeeded or failed.
 
 # Add support for Item Recovery
 There is a new API to recover items: https://learn.microsoft.com/en-us/fabric/admin/item-recovery
