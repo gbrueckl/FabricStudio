@@ -16,6 +16,7 @@ import { FabricNotebook } from './FabricNotebook';
 import { FabricMirroredDatabase } from './FabricMirroredDatabase';
 import { FabricWorkspacesTreeProvider } from './FabricWorkspacesTreeProvider';
 import { FabricApiTreeItem } from '../FabricApiTreeItem';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
@@ -77,6 +78,21 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		value.parent = this;
 		this._children.push(value);
 	}
+
+	public getBrowserLink(): vscode.Uri {
+		//https://app.powerbi.com/groups/ccce57d1-10af-1234-1234-665f8bbd8458?subfolderId=60469
+
+		return vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), this.workspace.itemPath.toLowerCase());
+	}
+
+	public openInBrowser(): void {
+		const urlParam = `?subfolderId=${this.itemId}`; // not sure where to get this "subfolderId" from !?!?
+		const tenantParam = FabricApiService.TenantId ? `&ctid=${FabricApiService.TenantId}` : "";
+		const fullLink = FabricMapper.mapForBrowserUrl(`${this.getBrowserLink()}${urlParam}${tenantParam}`);
+
+		Helper.openLink(fullLink);
+	}
+	
 
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceTreeItem[] = [];
