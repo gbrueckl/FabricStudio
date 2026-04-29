@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.22.1**:
+- fixed minor issues with `Open in Fabric Service`
+
 **v2.22.0**:
 - added support for [Connection Tests](https://learn.microsoft.com/en-us/rest/api/fabric/core/connections/test-connection?tabs=HTTP) - right-click on a connection to test it
 - fixed minor issues with Connection tree view

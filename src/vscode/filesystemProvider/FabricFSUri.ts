@@ -106,19 +106,14 @@ export class FabricFSUri {
 
 	static async openInBrowser(uri: vscode.Uri): Promise<void> {
 		const fabricUri = new FabricFSUri(uri);
+		const plural = FabricMapper.getItemTypePlural(fabricUri.itemType).toLowerCase();
 
-		const baseUrl = vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), "groups", fabricUri.workspaceId, fabricUri.itemTypeBrowserLink, fabricUri.itemId).toString();
+		const baseUrl = vscode.Uri.joinPath(vscode.Uri.parse(FabricApiService.BrowserBaseUrl), "groups", fabricUri.workspaceId, plural, fabricUri.itemId).toString();
 
 		const tenantParam = FabricApiService.TenantId ? `?ctid=${FabricApiService.TenantId}` : "";
-		const fullLink = `${baseUrl}${tenantParam}`;
+		const fullLink = FabricMapper.mapForBrowserUrl(`${baseUrl}${tenantParam}`);
 
 		Helper.openLink(fullLink);
-	}
-
-	private get itemTypeBrowserLink(): string {
-		const plural = FabricMapper.getItemTypePlural(this.itemType).toLowerCase();
-		const browserItemType = FabricMapper.mapForBrowserUrl(plural);
-		return browserItemType
 	}
 
 	get isValid(): boolean {

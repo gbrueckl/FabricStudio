@@ -3,11 +3,12 @@ import { FabricApiItemType } from './_types';
 
 export abstract class FabricMapper {
 	private static _browserMappings: Map<RegExp, string> = new Map([
-		[/workspace/gmi, "group"], 
-		[/\/semanticmodel/gmi, "dataset"],
-		[/\/datapipelines/gmi, "pipelines"],
-		[/\/notebook/gmi, "synapsenotebook"],
-		[/deploymentPipelines/gmi, "pipelines"],
+		[/\/workspaces/gmi, "/groups"], 
+		[/\/deploymentPipelines/gmi, "/pipelines"],
+		[/\/semanticmodels/gmi, "/datasets"],
+		[/\/datapipelines/gmi, "/pipelines"],
+		[/\/notebooks/gmi, "/synapsenotebooks"],
+		
 	]);
 
 	static mapForBrowserUrl(url: string): string {
