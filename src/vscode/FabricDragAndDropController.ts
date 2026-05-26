@@ -184,14 +184,10 @@ export class FabricDragAndDropController implements vscode.TreeDragAndDropContro
 		else if (source_Item0.itemType == "WorkspaceRoleAssignment") {
 			const sourceItem = source_Item0 as FabricWorkspaceRoleAssignment;
 			if (["WorkspaceRoleAssignments", "Workspace"].includes(targetItem.itemType)) {
-				let target = targetItem as FabricWorkspace;
-				if (targetItem.itemType == "WorkspaceRoleAssignments") {
-					// if the target is the WorkspaceRoleAssignments folder, we can add the role assignment to the parent Workspace
-					target = targetItem.parent as FabricWorkspace;
-				}
+				let target = targetItem as FabricWorkspaceTreeItem;
 
 				const addRoleAssignment = async () => {
-					await target.addRoleAssignment(sourceItem.itemDefinition);
+					await target.workspace.addRoleAssignment(sourceItem.itemDefinition);
 					ThisExtension.TreeViewWorkspaces.refresh(target, false, true);
 				}
 
