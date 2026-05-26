@@ -2,6 +2,10 @@
 
 **v2.23.0**:
 - update sidebar icon to make it more distinctive
+- update [README](./README.md)
+  - update Drag&Drop matrix
+  - update Hover Provider docs
+  - add Spark Notebook video
 
 **v2.22.1**:
 - fixed minor issues with `Open in Fabric Service`
