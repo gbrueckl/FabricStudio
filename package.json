@@ -1,7 +1,7 @@
 {
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
-	"description": "Fabric Studio extension for VSCode",
+	"description": "Manage and develop Microsoft Fabric from VSCode. For admins and developers!",
 	"version": "2.23.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
@@ -45,7 +45,8 @@
 		"API",
 		"PowerBI",
 		"Data",
-		"Analytics"
+		"Analytics",
+		"Spark"
 	],
 	"activationEvents": [
 		"onNotebook:fabric-api-notebook",
