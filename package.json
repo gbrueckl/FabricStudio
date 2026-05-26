@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Fabric Studio extension for VSCode",
-	"version": "2.22.1",
+	"version": "2.23.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -242,7 +242,7 @@
 				{
 					"id": "fabricstudio",
 					"title": "Fabric Studio",
-					"icon": "resources/fabric_studio_sidebar.png"
+					"icon": "resources/fabric_studio_sidebar.svg"
 				}
 			]
 		},
