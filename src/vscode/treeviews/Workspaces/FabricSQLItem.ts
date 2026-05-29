@@ -67,7 +67,7 @@ export class FabricSQLItem extends FabricItem {
 		else {
 			children.push(new FabricItemOneLake(this));
 			children.push(...(await super.getChildren()));
-			
+
 			return children;
 		}
 	}
@@ -109,7 +109,14 @@ export class FabricSQLItem extends FabricItem {
 
 	public async getProperties(): Promise<any> {
 		if (this._properties == null) {
-			this._properties = (await FabricApiService.get(this.apiPath)).success;
+			let response = await FabricApiService.get(this.apiPath);
+			if (response.success) {
+				this._properties = response.success;
+			}
+			if(response.error) {
+				ThisExtension.Logger.logError(`Error getting properties for '${this.itemName}': ${response.error.message}`, false);
+				return {};
+			}
 		}
 
 		return this._properties["properties"];

@@ -1,9 +1,8 @@
 # Fabric Studio
-[![Version](https://img.shields.io/visual-studio-marketplace/v/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
-[![Ratings](https://img.shields.io/visual-studio-marketplace/r/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?color=green)](http://opensource.org/licenses/MIT)
+[![Version](https://vsmarketplacebadges.dev/version/GerhardBrueckl.fabricstudio.svg?&colorB=orange)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![Installs](https://vsmarketplacebadges.dev/installs/GerhardBrueckl.fabricstudio.svg)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![Downloads](https://vsmarketplacebadges.dev/downloads/GerhardBrueckl.fabricstudio.svg)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![Rating Short](https://vsmarketplacebadges.dev/rating-short/GerhardBrueckl.fabricstudio.svg)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) 
 
+[![TrendingDaily](https://vsmarketplacebadges.dev/trending-daily/GerhardBrueckl.fabricstudio.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![TrendingWeekly](https://vsmarketplacebadges.dev/trending-weekly/GerhardBrueckl.fabricstudio.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![TrendingMonthly](https://vsmarketplacebadges.dev/trending-monthly/GerhardBrueckl.fabricstudio.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
 ![Fabric Studio](./images/FabricStudio.png?raw=true "Fabric Studio")
 
 A [VSCode](https://code.visualstudio.com/) extension for managing your Fabric tenant using the [Fabric REST API](https://learn.microsoft.com/en-us/rest/api/fabric/articles/) and modify Fabric items directly from within VSCode.
@@ -139,6 +138,8 @@ This approach can also be used to simply copy settings from one Power BI object 
 # Spark Notebooks
 Fabric Studio also allows you to run Spark notebooks (`.ipynb`) against an existing Fabric Lakehouse (which acts as a Spark cluster). Whenever a Lakehouse is viewed/opened in the [Workspace Browser](#workspace-browser), a Kernel is added for that lakehouse which can then be used to run any `.ipynb` file against it. If you open a notebook directly from Fabric Studio, the notebook is automatically attached to the default-lakehouse associated with the notebook.
 
+**Video:** [Fabric Studio Spark Notebooks](./images/Spark_Notebooks.mp4)
+
 For this to work properly with Spark notebooks read directly from Fabric, you need to make sure that notebooks are downloaded as `.ipynb`. To enforce this, you need to configure the following VSCode setting:
 
 ```json
@@ -209,19 +210,22 @@ Once the GIT repository is managed via VSCode, you can stage, commit, undo your 
 
 # Drag & Drop Capabilites
 For usability, some items are configured for Drag & Drop.
-The following list provides the currently supported souces and targets for Drag & Drop
+The following matrix reflects the currently implemented source and target combinations in the extension code.
 
-| Source | Target | Action | Description |
+| Source item type(s) | Target item type(s) | Action | Notes |
 | ------ | ------ | ------ | ----------- |
-| Role Assignment | Role Assignments (or actual item) | Add RoleAssignment | Adds the dragged role assignment to the parent of `Role Assignments` folder where it is dropped. Works for Connection-, Workspace- and Gateway-roles |
-| Workspace | Capacity | Assign to Capacity | Assigns the dragged workspace to the dropped capacity. |
-| Workspace Folder | Workspace | Move folder | Moves the dragged folder to the root of the workspace |
-| Workspace Folder | Workspace Folder | Move folder | Moves the dragged folder under the target folder |
-| Item | Workspace Folder | Move item | Moves the selected items (multiselect!) to the target folder |
-| SemanticModel Connection (Workspace) | Connection (Connections) | Bind Connection | Binds the Semantic Model connection to the target connection |
+| `AdminTag`, `ItemTag`, `WorkspaceTag` | `Workspace`, `WorkspaceTags`, `(any) Item`, `ItemTags` | Apply Tag | Applies all dragged tag IDs to the target workspace via `applyTags` API. |
+| `WorkspaceRoleAssignment` | `WorkspaceRoleAssignments`, `Workspace` | Add WorkspaceRoleAssignment | Adds the dragged workspace role assignment to the target workspace. |
+| `GatewayRoleAssignment` | `GatewayRoleAssignments`, `Gateway` | Add GatewayRoleAssignment | Adds the dragged gateway role assignment to the target gateway. |
+| `ConnectionRoleAssignment` | `ConnectionRoleAssignments`, `Connection` | Add ConnectionRoleAssignment | Adds the dragged connection role assignment to the target connection. |
+| `Workspace`, `CapacityWorkspace` | `Capacity`, `CapacityWorkspaces` | Assign to Capacity | Assigns one or more dragged workspaces to the target capacity. |
+| `WorkspaceFolder` (single item only), `(any) Item(s)` | `Workspace`, `WorkspaceFolder` | Move to Folder/root | Moves item(s)/folder under the dropped target folder/workspace. Source and target must be in the same workspace. If dropped on a workspace, item(s)/folder will be moved to the root of the workspace. |
+| `SemanticModel`, `ItemConnection` | `Connection` | Bind Connection | Calls semantic model `bindConnection` API with target connection details. |
 
 # Hover Provider for GUIDs
 Fabric Studio adds a new Hover Provider to VSCode so whenever you hover over a GUID in any editor (e.g. a JSON file), we will check if the GUID belongs to a Fabric Item that we have previously loaded. If yes, we show the name, type and workspace of the item so you do not have to look it up yourself!
+
+![Fabric Studio Hover Provider](./images/HoverProvider.png?raw=true "Fabric Studio Hover Provider")
 
 # FAQ
 

@@ -11,6 +11,7 @@ import { FabricMapper } from '../../../fabric/FabricMapper';
 import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricApiItemType } from '../../../fabric/_types';
 import { FabricFSCache } from '../../filesystemProvider/FabricFSCache';
+import { FabricFSFileDecorationProvider } from '../../fileDecoration/FabricFileDecorationProvider';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemDefinition extends FabricWorkspaceTreeItem {
@@ -27,6 +28,8 @@ export class FabricItemDefinition extends FabricWorkspaceTreeItem {
 
 		this.iconPath = new vscode.ThemeIcon("folder-library");
 		//this.command = this.getCommand();
+
+		FabricFSFileDecorationProvider.addUriToWorkspaceItemMapping(this.resourceUri, this);
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */

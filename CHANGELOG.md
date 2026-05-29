@@ -1,5 +1,14 @@
 # Change Log
 
+**v2.23.0**:
+- fixed issue with Drag&Drop of workspace roles
+- update sidebar icon to make it more distinctive
+- improve performance when changing item definitions from the workspace browser
+- update [README](./README.md)
+  - update Drag&Drop matrix
+  - update Hover Provider docs
+  - add Spark Notebook video
+
 **v2.22.1**:
 - fixed minor issues with `Open in Fabric Service`
 
