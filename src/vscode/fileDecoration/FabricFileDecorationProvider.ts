@@ -4,10 +4,13 @@ import { FabricFSUri, FabricUriType } from '../filesystemProvider/FabricFSUri';
 import { FabricFSCache } from '../filesystemProvider/FabricFSCache';
 import { FabricFSPublishAction } from '../filesystemProvider/_types';
 import { ThisExtension } from '../../ThisExtension';
+import { FabricWorkspaceTreeItem } from '../treeviews/Workspaces/FabricWorkspaceTreeItem';
 
 
 export class FabricFSFileDecorationProvider implements vscode.FileDecorationProvider {
 	private static provider: FabricFSFileDecorationProvider;
+	// maintain a mapping of URIs to workspace tree items to be able to trigger a refresh on the tree item when the file decoration changes for better performance (instead of refreshing the whole tree)
+	private static uriToWorkspaceItemMap: Map<string, FabricWorkspaceTreeItem> = new Map<string, FabricWorkspaceTreeItem>();
 
 	protected _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri[]>();
 	readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
@@ -19,9 +22,15 @@ export class FabricFSFileDecorationProvider implements vscode.FileDecorationProv
 		FabricFSFileDecorationProvider.provider = fdp;
 	}
 
+	public static addUriToWorkspaceItemMapping(uri: vscode.Uri, item: FabricWorkspaceTreeItem) {
+		// when an URI is changed, refresh the associated parent (=item)
+		FabricFSFileDecorationProvider.uriToWorkspaceItemMap.set(uri.toString(), item.parent);
+	}
+
 	public static updateFileDecoration(urisToUpdate: vscode.Uri[]) {
 		this.provider._onDidChangeFileDecorations.fire(urisToUpdate);
-		ThisExtension.TreeViewWorkspaces.refresh(undefined, false);
+		let treeItem = this.uriToWorkspaceItemMap.get(urisToUpdate[0].toString());
+		ThisExtension.TreeViewWorkspaces.refresh(treeItem, false, true);
 	}
 
 	public provideFileDecoration(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<vscode.FileDecoration> {

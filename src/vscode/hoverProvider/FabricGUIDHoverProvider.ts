@@ -37,7 +37,7 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 	}
 
 	static async onDidOpenTextDocument(document: vscode.TextDocument): Promise<void> {
-		if (document.uri.fsPath.endsWith('.platform')) {
+		if (document.uri.fsPath.endsWith('.platform') && document.uri.scheme === 'file') {
 			ThisExtension.Logger.logInfo("Loading GUIDs from local '.platform' files ...");
 			if(!FabricGUIDHoverProvider._localCacheLoaded) {
 				await FabricPlatformParser.parsePlatformFiles()
