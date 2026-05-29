@@ -1,9 +1,8 @@
 # Fabric Studio
-[![Version](https://img.shields.io/visual-studio-marketplace/v/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
-[![Ratings](https://img.shields.io/visual-studio-marketplace/r/GerhardBrueckl.fabricstudio)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?color=green)](http://opensource.org/licenses/MIT)
+[![Version](https://vsmarketplacebadges.dev/version/GerhardBrueckl.fabricstudio.svg?&colorB=orange)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![Installs](https://vsmarketplacebadges.dev/installs/GerhardBrueckl.fabricstudio.svg)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![Downloads](https://vsmarketplacebadges.dev/downloads/GerhardBrueckl.fabricstudio.svg)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![Rating Short](https://vsmarketplacebadges.dev/rating-short/GerhardBrueckl.fabricstudio.svg)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) 
 
+[![TrendingDaily](https://vsmarketplacebadges.dev/trending-daily/GerhardBrueckl.fabricstudio.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![TrendingWeekly](https://vsmarketplacebadges.dev/trending-weekly/GerhardBrueckl.fabricstudio.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio) [![TrendingMonthly](https://vsmarketplacebadges.dev/trending-monthly/GerhardBrueckl.fabricstudio.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=GerhardBrueckl.fabricstudio)
 ![Fabric Studio](./images/FabricStudio.png?raw=true "Fabric Studio")
 
 A [VSCode](https://code.visualstudio.com/) extension for managing your Fabric tenant using the [Fabric REST API](https://learn.microsoft.com/en-us/rest/api/fabric/articles/) and modify Fabric items directly from within VSCode.
