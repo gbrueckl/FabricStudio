@@ -146,9 +146,9 @@ export abstract class FabricConfiguration {
 	}
 
 	static itemTypeHasDefinition(itemType: FabricApiItemType): boolean {
-		const enumFromConfig = this.itemTypesWithDefinition;
-
-		return enumFromConfig.includes(itemType);
+		return true; // by now almost all itemtypes have a definition, so we will just return true for now. We can re-enable the check later if needed.
+		// const enumFromConfig = this.itemTypesWithDefinition;
+		// return enumFromConfig.includes(itemType);
 	}
 
 	static itemTypeFromString(itemType: string): FabricApiItemType {

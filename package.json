@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Manage and develop Microsoft Fabric from VSCode. For admins and developers!",
-	"version": "2.23.0",
+	"version": "2.23.1",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -154,7 +154,8 @@
 										"OperationsAgents",
 										"SnowflakeDatabases",
 										"CosmosDbDatabases",
-										"Eventschemasets"
+										"Eventschemasets",
+										"AzureDatabricksStorages"
 									]
 								},
 								"format": {
