@@ -120,7 +120,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 			}
 
 			// ShortCuts
-			supportedItemTypes = ["Lakehouse", "Warehouse"];
+			supportedItemTypes = ["Lakehouse", "Warehouse", "AzureDatabrickStorage"];
 			if (supportedItemTypes.includes(this.itemType)) {
 				try {
 					let shortcuts = new FabricItemShortcuts(this);

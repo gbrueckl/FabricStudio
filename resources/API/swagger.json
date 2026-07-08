@@ -4197,6 +4197,96 @@
             ],
             "type": "object"
         },
+        "CatalogEntry": {
+            "description": "A catalog entry object.",
+            "discriminator": "catalogEntryType",
+            "properties": {
+                "catalogEntryType": {
+                    "description": "The catalog entry type.",
+                    "enum": [
+                        "FabricItem"
+                    ],
+                    "type": "string",
+                    "x-ms-enum": {
+                        "modelAsString": true,
+                        "name": "CatalogEntryType",
+                        "values": [
+                            {
+                                "value": "FabricItem",
+                                "description": "A Fabric item catalog entry type."
+                            }
+                        ]
+                    }
+                },
+                "description": {
+                    "description": "The description of the catalog entry.",
+                    "type": "string"
+                },
+                "displayName": {
+                    "description": "The catalog entry display name.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The objectId of the catalog entry.",
+                    "format": "uuid",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "catalogEntryType",
+                "displayName"
+            ],
+            "type": "object"
+        },
+        "CatalogEntryType": {
+            "description": "The catalog entry type. Additional `CatalogEntryType` types may be added over time.",
+            "enum": [
+                "FabricItem"
+            ],
+            "type": "string",
+            "x-ms-enum": {}
+        },
+        "CatalogQueryRequest": {
+            "description": "The query for the search.",
+            "properties": {
+                "continuationToken": {
+                    "description": "The continuationToken for the next page.",
+                    "type": "string"
+                },
+                "filter": {
+                    "description": "The filter for the search. Currently the filter supports filter by type of entries. Additional filter options may be added over time.\n\n The filter parameter supports the following operators to refine results:\n\n* eq : Equals; matches the exact value.\n\n* ne : Not Equals; excludes the specified value.\n\n* or : Logical OR; matches if any of the conditions are true.\n\n* ( ) : Parentheses; groups expressions to define logical hierarchy.",
+                    "type": "string"
+                },
+                "pageSize": {
+                    "description": "The page size that needs to be returned. Page size must be between 1 and 1000.",
+                    "type": "integer"
+                },
+                "search": {
+                    "description": "The text query for the search. This field supports searching across the display name and description of the CatalogEntry.",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "CatalogQueryResponse": {
+            "description": "The results of the search.",
+            "properties": {
+                "continuationToken": {
+                    "description": "The continuationToken for the next page.",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "A list of catalog entries",
+                    "items": {},
+                    "type": "array"
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "type": "object"
+        },
         "CatalogType": {
             "description": "The type of the catalog. Additional CatalogType types may be added over time.",
             "enum": [
@@ -22057,6 +22147,247 @@
                     "type": "array"
                 }
             }
+        },
+        "ItemCatalogEntry": {
+            "allOf": [
+                {}
+            ],
+            "description": "A Fabric item type of catalog entry.",
+            "properties": {
+                "type": {
+                    "description": "The Fabric item type.",
+                    "enum": [
+                        "Dashboard",
+                        "Report",
+                        "SemanticModel",
+                        "PaginatedReport",
+                        "Datamart",
+                        "Lakehouse",
+                        "Eventhouse",
+                        "Environment",
+                        "KQLDatabase",
+                        "KQLQueryset",
+                        "KQLDashboard",
+                        "DataPipeline",
+                        "Notebook",
+                        "SparkJobDefinition",
+                        "MLExperiment",
+                        "MLModel",
+                        "Warehouse",
+                        "Eventstream",
+                        "SQLEndpoint",
+                        "MirroredWarehouse",
+                        "MirroredDatabase",
+                        "Reflex",
+                        "GraphQLApi",
+                        "MountedDataFactory",
+                        "SQLDatabase",
+                        "CopyJob",
+                        "VariableLibrary",
+                        "Dataflow",
+                        "ApacheAirflowJob",
+                        "WarehouseSnapshot",
+                        "DigitalTwinBuilder",
+                        "DigitalTwinBuilderFlow",
+                        "MirroredAzureDatabricksCatalog",
+                        "Map",
+                        "AnomalyDetector",
+                        "UserDataFunction",
+                        "GraphModel",
+                        "GraphQuerySet",
+                        "SnowflakeDatabase",
+                        "OperationsAgent",
+                        "CosmosDBDatabase",
+                        "Ontology",
+                        "EventSchemaSet"
+                    ],
+                    "readOnly": false,
+                    "type": "string",
+                    "x-ms-enum": {
+                        "modelAsString": true,
+                        "name": "ItemType",
+                        "values": [
+                            {
+                                "value": "Dashboard",
+                                "description": "PowerBI dashboard."
+                            },
+                            {
+                                "value": "Report",
+                                "description": "PowerBI report."
+                            },
+                            {
+                                "value": "SemanticModel",
+                                "description": "PowerBI semantic model."
+                            },
+                            {
+                                "value": "PaginatedReport",
+                                "description": "PowerBI paginated report."
+                            },
+                            {
+                                "value": "Datamart",
+                                "description": "PowerBI datamart."
+                            },
+                            {
+                                "value": "Lakehouse",
+                                "description": "A lakehouse."
+                            },
+                            {
+                                "value": "Eventhouse",
+                                "description": "An eventhouse."
+                            },
+                            {
+                                "value": "Environment",
+                                "description": "An environment."
+                            },
+                            {
+                                "value": "KQLDatabase",
+                                "description": "A KQL database."
+                            },
+                            {
+                                "value": "KQLQueryset",
+                                "description": "A KQL queryset."
+                            },
+                            {
+                                "value": "KQLDashboard",
+                                "description": "A KQL dashboard."
+                            },
+                            {
+                                "value": "DataPipeline",
+                                "description": "A data pipeline."
+                            },
+                            {
+                                "value": "Notebook",
+                                "description": "A notebook."
+                            },
+                            {
+                                "value": "SparkJobDefinition",
+                                "description": "A spark job definition."
+                            },
+                            {
+                                "value": "MLExperiment",
+                                "description": "A machine learning experiment."
+                            },
+                            {
+                                "value": "MLModel",
+                                "description": "A machine learning model."
+                            },
+                            {
+                                "value": "Warehouse",
+                                "description": "A warehouse."
+                            },
+                            {
+                                "value": "Eventstream",
+                                "description": "An eventstream."
+                            },
+                            {
+                                "value": "SQLEndpoint",
+                                "description": "An SQL endpoint."
+                            },
+                            {
+                                "value": "MirroredWarehouse",
+                                "description": "A mirrored warehouse."
+                            },
+                            {
+                                "value": "MirroredDatabase",
+                                "description": "A mirrored database."
+                            },
+                            {
+                                "value": "Reflex",
+                                "description": "A Reflex."
+                            },
+                            {
+                                "value": "GraphQLApi",
+                                "description": "An API for GraphQL item."
+                            },
+                            {
+                                "value": "MountedDataFactory",
+                                "description": "A MountedDataFactory."
+                            },
+                            {
+                                "value": "ApacheAirflowJob",
+                                "description": "An ApacheAirflowJob."
+                            },
+                            {
+                                "value": "SQLDatabase",
+                                "description": "A SQLDatabase."
+                            },
+                            {
+                                "value": "CopyJob",
+                                "description": "A Copy job."
+                            },
+                            {
+                                "value": "VariableLibrary",
+                                "description": "A VariableLibrary."
+                            },
+                            {
+                                "value": "MirroredAzureDatabricksCatalog",
+                                "description": "A mirrored azure databricks catalog."
+                            },
+                            {
+                                "value": "Dataflow",
+                                "description": "A Dataflow."
+                            },
+                            {
+                                "value": "WarehouseSnapshot",
+                                "description": "A Warehouse snapshot."
+                            },
+                            {
+                                "value": "DigitalTwinBuilder",
+                                "description": "A DigitalTwinBuilder."
+                            },
+                            {
+                                "value": "DigitalTwinBuilderFlow",
+                                "description": "A Digital Twin Builder Flow."
+                            },
+                            {
+                                "value": "AnomalyDetector",
+                                "description": "An Anomaly Detector."
+                            },
+                            {
+                                "value": "Map",
+                                "description": "A Map."
+                            },
+                            {
+                                "value": "Ontology",
+                                "description": "An Ontology."
+                            },
+                            {
+                                "value": "UserDataFunction",
+                                "description": "A User Data Function."
+                            },
+                            {
+                                "value": "GraphModel",
+                                "description": "A GraphModel."
+                            },
+                            {
+                                "value": "GraphQuerySet",
+                                "description": "A Graph QuerySet."
+                            },
+                            {
+                                "value": "SnowflakeDatabase",
+                                "description": "A Snowflake Database to store Iceberg tables created from Snowflake account."
+                            },
+                            {
+                                "value": "OperationsAgent",
+                                "description": "A OperationsAgent."
+                            },
+                            {
+                                "value": "CosmosDBDatabase",
+                                "description": "A Cosmos DB Database."
+                            },
+                            {
+                                "value": "EventSchemaSet",
+                                "description": "An EventSchemaSet."
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "type": "object",
+            "x-ms-discriminator-value": "FabricItem"
         },
         "ItemChange": {
             "description": "Contains the item's change information.",

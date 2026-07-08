@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.23.1**:
+- added `Definition` to all item types
+- updated API Specs for auto-complete
+
 **v2.23.0**:
 - fixed issue with Drag&Drop of workspace roles
 - update sidebar icon to make it more distinctive
