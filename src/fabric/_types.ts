@@ -124,7 +124,7 @@ export type FabricApiItemType =
 	| "LivySessions"						//	Folder for Livy sessions.	
 	| "LivySession"							//	A Livy session.
 	| "SqlDatabaseMirroring"
-	| "AzureDatabrickStorage"
+	| "AzureDatabricksStorage"
 	;
 
 export enum FabricApiWorkspaceType {
