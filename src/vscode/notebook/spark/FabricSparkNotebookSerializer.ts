@@ -153,7 +153,7 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 				cellContent = cell.value;
 			}
 
-			output += `${commentChars} ${cellType} ${this.CELL_SEPARATOR_ASTERIXES}\n\n${cellContent}\n`;	
+			output += `${commentChars} ${cellType} ${this.CELL_SEPARATOR_ASTERIXES}\n\n${cellContent}\n\n`;	
 		}
 
 		return Buffer.from(output);
