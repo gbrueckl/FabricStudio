@@ -15,23 +15,42 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 	private readonly MARKDOWN_CELL_SUFFIX: string = "MARKDOWN";
 	private readonly CELL_SEPARATOR_ASTERIXES: string = "********************";
 
+	private escapeRegex(value: string): string {
+		return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	}
+
+	private protectCellSeparators(value: string, commentChars: string): string {
+		const escapedCommentChars = this.escapeRegex(commentChars);
+		const escapedSeparator = this.escapeRegex(this.CELL_SEPARATOR_ASTERIXES);
+		const separator = new RegExp(`(^|\\n)(${escapedCommentChars} (?:${this.CODE_CELL_SUFFIX}|${this.MARKDOWN_CELL_SUFFIX}|${this.METADATA_CELL_SUFFIX}) ${escapedSeparator})(?=\\n|$)`, "gm");
+		return value.replace(separator, "$1$2 ");
+	}
+
+	private restoreCellSeparators(value: string, commentChars: string): string {
+		const escapedCommentChars = this.escapeRegex(commentChars);
+		const escapedSeparator = this.escapeRegex(this.CELL_SEPARATOR_ASTERIXES);
+		const separator = new RegExp(`(^|\\n)(${escapedCommentChars} (?:${this.CODE_CELL_SUFFIX}|${this.MARKDOWN_CELL_SUFFIX}|${this.METADATA_CELL_SUFFIX}) ${escapedSeparator}) (?=\\n|$)`, "gm");
+		return value.replace(separator, "$1$2");
+	}
+
 	public async deserializeNotebook(data: Uint8Array, token: vscode.CancellationToken): Promise<FabricSparkNotebook> {
 		var contents = Buffer.from(data).toString();
 		contents = contents.replace(/\r/gm, ""); // remove any carriage returns
 
-		var firstLineWithCode: number = 1;
-		const lines: string[] = contents.trimStart().split("\n");
-		if (lines.length == 0) {
+		if (!contents.trim()) {
 			ThisExtension.Logger.logWarning("Not a Fabric Spark Notebook source file. Creating new Notebook.", true);
 			return { cells: [] };
 		}
+
+		const lines: string[] = contents.trimStart().split("\n");
+		let firstLineWithCode: number = 1;
 		if (!lines[0].trimEnd().endsWith(this.HEADER_SUFFIX)) {
 			ThisExtension.Logger.logWarning("File is not a valid Fabric Spark Notebook source file.", true);
-			//throw new Error("File is not a valid Fabric Spark Notebook source file.");
 			firstLineWithCode = 0;
 		}
 
 		const commentChars = lines[0].split(" ")[0];
+		const escapedCommentChars = this.escapeRegex(commentChars);
 
 		let notebookLanguage: SparkLanguageConfig = SparkLanguageConfigs.getConfigByMagic("pyspark");
 		let cellLanguage: SparkNotebookLanguage = undefined;
@@ -56,16 +75,25 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 		}
 		let notebook: FabricSparkNotebook = new FabricSparkNotebook([]);
 
-		const splitRegex = new RegExp(`\n\n${commentChars} (${this.CODE_CELL_SUFFIX}|${this.MARKDOWN_CELL_SUFFIX}) \\*{20}\n\n`, "gm");
+		const source = lines.slice(firstLineWithCode).join("\n").trimStart();
+		const cellStartRegex = new RegExp(`^${escapedCommentChars} (${this.CODE_CELL_SUFFIX}|${this.MARKDOWN_CELL_SUFFIX}) \\*{20}\\n\\n`, "gm");
+		const firstCellStart = cellStartRegex.exec(source);
+		const cellSource = firstCellStart ? source.substring(firstCellStart.index) : "";
+		const notebookMetaSource = firstCellStart ? source.substring(0, firstCellStart.index).trim() : source.trim();
 
-		let rawCells: string[] = lines.slice(firstLineWithCode).join("\n").split(splitRegex);
+		if (notebookMetaSource.startsWith(`${commentChars} ${this.METADATA_CELL_SUFFIX} ${this.CELL_SEPARATOR_ASTERIXES}`)) {
+			let notebookMeta = notebookMetaSource.substring(`${commentChars} ${this.METADATA_CELL_SUFFIX} ${this.CELL_SEPARATOR_ASTERIXES}`.length).trim();
+			notebookMeta = notebookMeta.replace(new RegExp(`^${escapedCommentChars} ${this.META_PREFIX}\\s?`, "gm"), "").trim();
+			if (notebookMeta) {
+				notebook.metadata = JSON.parse(notebookMeta);
+			}
+		}
 
-		let notebookMeta = rawCells[0].split("\n").slice(2).join("\n");
-		notebookMeta = notebookMeta.replace(new RegExp(`^${commentChars} ${this.META_PREFIX}\s*`, "gm"), "").trim();
-		let notebookMetadata = JSON.parse(notebookMeta);
-		notebook.metadata = notebookMetadata;
+		// AIDEV-NOTE: Keep the detected language in metadata so repeated saves retain SQL/Scala comment syntax.
+		notebook.metadata = { ...notebook.metadata, notebookLanguage };
 
-		rawCells = rawCells.slice(1); // first entry is always empty because of the leading separator
+		const splitRegex = new RegExp(`^${escapedCommentChars} (${this.CODE_CELL_SUFFIX}|${this.MARKDOWN_CELL_SUFFIX}) \\*{20}\\n\\n`, "gm");
+		const rawCells: string[] = cellSource.split(splitRegex).slice(1);
 		let cellNum = 0;
 		let cell: FabricSparkNotebookCell;
 		while (cellNum < rawCells.length / 2) {
@@ -73,7 +101,7 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 			const rawCell = rawCells[cellNum * 2 + 1];
 
 			if (cellType == this.CODE_CELL_SUFFIX) {
-				let splitMeta = rawCell.split(new RegExp(`^${commentChars} ${this.METADATA_CELL_SUFFIX} \\*{20}`, "gm"));
+				let splitMeta = rawCell.split(new RegExp(`^${escapedCommentChars} ${this.METADATA_CELL_SUFFIX} \\*{20}`, "gm"));
 
 				let code = splitMeta[0].trim();
 				let meta = splitMeta.length > 1 ? splitMeta[1].trim() : undefined;
@@ -87,19 +115,18 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 					cellLanguage = SparkLanguageConfigs.getLanguageByMagic(magic);
 					cell.languageId = SparkLanguageConfigs.getConfigByMagic(magic as SparkNotebookMagic).vscodeLanguage;
 					cell.metadata = { ...cell.metadata, magic: magic };
-					cell.value = code.split("\n").map(line => line.replace(new RegExp(`^${commentChars} ${this.MAGIC_PREFIX} `, "gm"), "")).join("\n");
+					cell.value = code.split("\n").map(line => line.replace(new RegExp(`^${escapedCommentChars} ${this.MAGIC_PREFIX} `, "gm"), "")).join("\n");
 				}
 
 				// Parse metadata from value
-				const lines = meta.split('\n');
-				const metaStr = meta.replace(new RegExp(`^${commentChars} ${this.META_PREFIX} `, "gm"), "")
-				
-				if (metaStr) {
+				if (meta) {
+					const metaStr = meta.replace(new RegExp(`^${escapedCommentChars} ${this.META_PREFIX}\\s?`, "gm"), "").trim();
 					cell.metadata = { ...cell.metadata, ...JSON.parse(metaStr) };
 				}
+				cell.value = this.restoreCellSeparators(cell.value, commentChars);
 			}
 			else if (cellType == this.MARKDOWN_CELL_SUFFIX) {
-				cell = new FabricSparkNotebookCell(vscode.NotebookCellKind.Markup, rawCell, "markdown");
+				cell = new FabricSparkNotebookCell(vscode.NotebookCellKind.Markup, this.restoreCellSeparators(rawCell, commentChars), "markdown");
 			}
 
 			notebook.cells.push(cell);
@@ -133,13 +160,14 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 
 			if (cell.kind === vscode.NotebookCellKind.Code) {
 				cellType = this.CODE_CELL_SUFFIX;
-				cellContent = cell.value;
+				cellContent = this.protectCellSeparators(cell.value, commentChars);
 
 				// Handle magic if present
 				const magic = cell.metadata?.magic;
 				if (magic) {
 					cellContent = cell.value.split("\n").map(line => `${commentChars} ${this.MAGIC_PREFIX} ${line}`).join("\n");
 				}
+				cellContent = this.protectCellSeparators(cellContent, commentChars);
 
 				// Serialize cell metadata
 				if (cell.metadata) {
@@ -150,7 +178,7 @@ export class FabricSparkNotebookSerializer implements vscode.NotebookSerializer 
 			}
 			else if (cell.kind === vscode.NotebookCellKind.Markup) {
 				cellType = this.MARKDOWN_CELL_SUFFIX;
-				cellContent = cell.value;
+				cellContent = this.protectCellSeparators(cell.value, commentChars);
 			}
 
 			output += `${commentChars} ${cellType} ${this.CELL_SEPARATOR_ASTERIXES}\n\n${cellContent}\n\n`;	

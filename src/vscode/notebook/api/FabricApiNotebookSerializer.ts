@@ -20,24 +20,39 @@ export class FabricApiNotebookSerializer implements vscode.NotebookSerializer {
 		// Read file contents
 		let notebook: FabricApiNotebook;
 		try {
-			notebook = <FabricApiNotebook>JSON.parse(contents);
+			const parsed = JSON.parse(contents);
+			if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+				throw new Error("Notebook root must be an object.");
+			}
+			notebook = <FabricApiNotebook>parsed;
 		} catch {
 			ThisExtension.Logger.logInfo("Error parsing Notebook file. Creating new Notebook.");
 			notebook = { cells: [] };
 		}
+		if (!Array.isArray(notebook.cells)) {
+			notebook.cells = [];
+		}
 
 		// read metadata into interactive object and return guid as reference
-		notebook.metadata = FabricNotebookContext.loadFromMetadata(notebook.metadata);
+		// AIDEV-NOTE: Normalize parsed JSON before context loading so repeated cycles cannot fail on malformed shapes.
+		notebook.metadata = FabricNotebookContext.loadFromMetadata(
+			notebook.metadata && typeof notebook.metadata === "object" && !Array.isArray(notebook.metadata)
+				? notebook.metadata
+				: undefined
+		);
 
 		// Pass read and formatted Notebook Data to VS Code to display Notebook with saved cells
 		return notebook;
 	}
 
 	public async serializeNotebook(data: FabricApiNotebook, token: vscode.CancellationToken): Promise<Uint8Array> {
-		// Map the Notebook data into the format we want to save the Notebook data as
-		let notebook: FabricApiNotebook = data;
-
-		notebook.metadata = FabricNotebookContext.saveToMetadata(notebook.metadata);
+		// Map a copy of the notebook into the format we want to save.
+		// AIDEV-NOTE: Do not mutate live metadata; the kernel still needs its in-memory GUID after saving.
+		const metadata = data.metadata ? { ...data.metadata } : undefined;
+		const notebook: FabricApiNotebook = {
+			...data,
+			metadata: FabricNotebookContext.saveToMetadata(metadata)
+		};
 
 		// Give a string of all the data to save and VS Code will handle the rest
 		return await Buffer.from(JSON.stringify(notebook));
