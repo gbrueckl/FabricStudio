@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.23.3**:
+- updated sidebar icon
+
 **v2.23.2**:
 - fixed issue with notebook serialization  ([#77](/../../issues/77))
 - further improvements and hardening for serialization
