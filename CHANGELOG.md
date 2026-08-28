@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.23.2**:
+- fixed issue with notebook serialization  ([#77](/../../issues/77))
+- further improvements and hardening for serialization
+
 **v2.23.1**:
 - added `Definition` to all item types
 - updated API Specs for auto-complete
