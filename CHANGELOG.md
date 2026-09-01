@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.23.4**:
+- fix issue with tenant info display next to the username in the toolbar
+
 **v2.23.3**:
 - updated sidebar icon
 
