@@ -58,6 +58,10 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		return true;
 	}
 
+	get canEdit(): boolean {
+		return false;
+	}
+
 	get canRename(): boolean {
 		return true;
 	}

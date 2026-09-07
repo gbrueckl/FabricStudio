@@ -28,6 +28,8 @@ import { FabricWorkspaceRoleAssignment } from './vscode/treeviews/Workspaces/Fab
 import { FabricConnectionsTreeProvider } from './vscode/treeviews/Connections/FabricConnectionsTreeProvider';
 import { FabricConnectionTreeItem } from './vscode/treeviews/Connections/FabricConnectionTreeItem';
 import { FabricConnection } from './vscode/treeviews/Connections/FabricConnection';
+import { FabricConnectionRoleAssignment } from './vscode/treeviews/Connections/FabricConnectionRoleAssignment';
+import { FabricGatewayRoleAssignment } from './vscode/treeviews/Connections/FabricGatewayRoleAssignment';
 import { FabricMirroredDatabaseSynchronization } from './vscode/treeviews/Workspaces/FabricMirroredDatabaseSynchronization';
 import { FabricCapacitiesTreeProvider } from './vscode/treeviews/Capacities/FabricCapacitiesTreeProvider';
 import { FabricCapacityTreeItem } from './vscode/treeviews/Capacities/FabricCapacityTreeItem';
@@ -189,6 +191,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('FabricStudio.OneLake.resetCache', (item: FabricWorkspace) => item.refreshCache());
 
 	vscode.commands.registerCommand('FabricStudio.WorkspaceRoleAssignment.update', (roleAssignment?: FabricWorkspaceRoleAssignment) => roleAssignment?.update());
+	vscode.commands.registerCommand('FabricStudio.ConnectionRoleAssignment.update', (roleAssignment?: FabricConnectionRoleAssignment) => roleAssignment?.update());
+	vscode.commands.registerCommand('FabricStudio.GatewayRoleAssignment.update', (roleAssignment?: FabricGatewayRoleAssignment) => roleAssignment?.update());
 
 	vscode.commands.registerCommand('FabricStudio.Item.openInFabric', (treeItem: FabricApiTreeItem) => treeItem.openInBrowser());
 	vscode.commands.registerCommand('FabricStudio.Item.copyIdToClipboard', (treeItem: FabricApiTreeItem) => treeItem.copyIdToClipboard());

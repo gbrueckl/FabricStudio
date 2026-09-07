@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiGatewayRoleAssignment } from '../../../fabric/_types';
+import { iFabricApiGatewayRoleAssignment, iFabricApiGatewayRoleAssignmentRole } from '../../../fabric/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
+import { Helper } from '@utils/Helper';
 import { FabricConnectionGenericViewer } from './FabricConnectionGenericViewer';
 import { FabricGatewayRoleAssignments } from './FabricGatewayRoleAssignments';
 import { ThisExtension } from '../../../ThisExtension';
@@ -14,6 +16,7 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 	) {
 		super(definition.id, parent, definition.id);
 		this.itemDefinition = definition;
+		this.itemId = definition.id;
 
 		this.description = this._description;
 		this.contextValue = this._contextValue;
@@ -27,8 +30,7 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 		let orig: string = super._contextValue;
 
 		let actions: string[] = [
-			// "DELETE",
-			// "UPDATE"
+			"UPDATE_GATEWAY_ROLE_ASSIGNMENT"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -76,4 +78,41 @@ export class FabricGatewayRoleAssignment extends FabricConnectionGenericViewer {
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
+	get apiPath(): string {
+		return Helper.joinPath(this.parent.apiPath, this.itemId);
+	}
+
+	async update(): Promise<void> {
+		const availableRoles = Helper.getQuickPicksFromEnum(iFabricApiGatewayRoleAssignmentRole, this.itemDefinition.role);
+		const role = await vscode.window.showQuickPick(availableRoles, {
+			"title": "Select new Role",
+			"placeHolder": this.itemDefinition.role.toString(),
+			"canPickMany": false
+		});
+
+		if (!role) {
+			ThisExtension.Logger.logWarning("No role selected. Aborting update of Role Assignment.");
+			return;
+		}
+
+		const body = {
+			"role": role.label
+		};
+
+		try {
+			const result = await FabricApiService.awaitWithProgress("Updating Role Assignment", FabricApiService.patch(this.apiPath, body), 2000);
+			const principal = this.itemDefinition.principal.displayName || this.itemDefinition.principal.id;
+
+			if (result.success) {
+				ThisExtension.Logger.logInfo(`Role Assignment for '${principal}' in gateway '${this.parent.parent.itemName}' updated to '${role.label}'.`);
+				ThisExtension.TreeViewConnections.refresh(this.parent, false);
+			}
+			else {
+				ThisExtension.Logger.logError(`Could not update Role Assignment '${principal}' in gateway '${this.parent.parent.itemName}'`);
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logError(e.message, true);
+		}
+	}
 }

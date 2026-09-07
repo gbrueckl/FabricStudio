@@ -113,7 +113,10 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 						}
 					}
 
-					const gateway = item.gatewayId ?? item.connectivityType;
+					let gateway = item.gatewayId;
+					if(["PersonalCloud", "ShareableCloud", "OnPremisesGatewayPersonal"].includes(item.connectivityType)) {
+						gateway = item.connectivityType;
+					}
 
 					// for ShareableCloud connectsions, the gatewayId is not set, so we need to use the connectivityType to group them
 					if (!gateways.has(gateway)) {

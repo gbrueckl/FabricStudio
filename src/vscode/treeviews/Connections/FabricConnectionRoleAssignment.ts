@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
-import { iFabricApiConnectionRoleAssignment } from '../../../fabric/_types';
+import { iFabricApiConnectionRoleAssignment, iFabricApiConnectionRoleAssignmentRole } from '../../../fabric/_types';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricConnectionGenericViewer } from './FabricConnectionGenericViewer';
 import { ThisExtension } from '../../../ThisExtension';
 import { FabricConnectionRoleAssignments } from './FabricConnectionRoleAssignments';
@@ -30,7 +31,7 @@ export class FabricConnectionRoleAssignment extends FabricConnectionGenericViewe
 
 		let actions: string[] = [
 			// "DELETE",
-			// "UPDATE"
+			"UPDATE_ROLE_ASSIGNMENT"
 		];
 
 		return orig + actions.join(",") + ",";
@@ -82,4 +83,37 @@ export class FabricConnectionRoleAssignment extends FabricConnectionGenericViewe
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
+	async update(): Promise<void> {
+		const availableRoles = Helper.getQuickPicksFromEnum(iFabricApiConnectionRoleAssignmentRole, this.itemDefinition.role);
+		const role = await vscode.window.showQuickPick(availableRoles, {
+			"title": "Select new Role",
+			"placeHolder": this.itemDefinition.role.toString(),
+			"canPickMany": false
+		});
+
+		if (!role) {
+			ThisExtension.Logger.logWarning("No role selected. Aborting update of Role Assignment.");
+			return;
+		}
+
+		const body = {
+			"role": role.label
+		};
+
+		try {
+			const result = await FabricApiService.awaitWithProgress("Updating Role Assignment", FabricApiService.patch(this.apiPath, body), 2000);
+			const principal = this.itemDefinition.principal.displayName || this.itemDefinition.principal.id;
+
+			if (result.success) {
+				ThisExtension.Logger.logInfo(`Role Assignment for '${principal}' in connection '${this.parent.parent.itemName}' updated to '${role.label}'.`);
+				ThisExtension.TreeViewConnections.refresh(this.parent, false);
+			}
+			else {
+				ThisExtension.Logger.logError(`Could not update Role Assignment '${principal}' in connection '${this.parent.parent.itemName}'`);
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logError(e.message, true);
+		}
+	}
 }
