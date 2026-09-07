@@ -36,6 +36,10 @@ export class FabricWorkspaceGenericFolder extends FabricWorkspaceTreeItem {
 		return false;
 	}
 
+	get canEdit(): boolean {
+		return false;
+	}
+
 	protected getIconPath(): string | vscode.Uri {
 		return vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'icons', 'custom', 'genericfolder.svg');
 	}

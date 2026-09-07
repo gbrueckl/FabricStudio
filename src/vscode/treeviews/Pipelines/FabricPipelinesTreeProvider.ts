@@ -45,6 +45,7 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 	async refresh(item: FabricPipelineTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
 		// as tree_item is not always accurate, we refresh based on the actual selection
 		if (!item || this._treeView.selection.length == 0) {
+			FabricApiService.clearCache("/v1/deploymentPipelines");
 			this._onDidChangeTreeData.fire(undefined);
 			return;
 		}
@@ -55,6 +56,12 @@ export class FabricPipelinesTreeProvider implements vscode.TreeDataProvider<Fabr
 			// on leaves, we refresh the parent instead
 			if (item && item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
 				item = item.parent;
+			}
+			if (item) {
+				item.refreshApiPaths.forEach(path => FabricApiService.clearCache(path));
+			}
+			else {
+				FabricApiService.clearCache("/v1/deploymentPipelines");
 			}
 			this._onDidChangeTreeData.fire(item);
 		}

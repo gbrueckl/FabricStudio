@@ -59,6 +59,10 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 		return Helper.trimChar(Helper.joinPath(this.workspace.apiPath, "items", this.itemId), "/");
 	}
 
+	get refreshApiPaths(): string[] {
+		return Array.from(new Set([this.apiPath, this.itemApiPath].filter(path => path)));
+	}
+
 	get apiUrlPart(): string {
 		if (FabricConfiguration.workspaceViewGrouping == "by Folder") {
 			// if "by Folder" is used, we do not have the artificial folder for our item types so we have to add it manually

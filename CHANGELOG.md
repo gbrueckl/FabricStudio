@@ -1,5 +1,11 @@
 # Change Log
 
+**v2.24.0**:
+- added caching to `GET` requests to avoid unnecessary calls
+- added `Update` action to connection and gateway roles
+- show folder for `ShareableCloud`, `PersonalCloud` and `OnPremisesPersonalGateway` under connections
+- minor fixes
+
 **v2.23.4**:
 - fix issue with tenant info display next to the username in the toolbar
 

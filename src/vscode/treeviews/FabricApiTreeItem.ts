@@ -330,6 +330,9 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			if (result.success) {
 				content = result.success;
 			}
+			else if (result.error) {
+				ThisExtension.Logger.logError(`${result.error.errorCode}: ${result.error.message}`, false, true);
+			}
 			else {
 				ThisExtension.Logger.logWarning(`Could not load definition from API '${this.apiPath}', showing cached definition if available.`);
 			}
@@ -421,6 +424,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 
 	get apiPath(): string {
 		return `v1/${this.itemPath}/`;
+	}
+
+	/** API paths whose cached GET responses are used to build this item's children. */
+	get refreshApiPaths(): string[] {
+		return [this.apiPath];
 	}
 
 	get asQuickPickItem(): FabricQuickPickItem {

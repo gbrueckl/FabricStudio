@@ -58,6 +58,10 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		return true;
 	}
 
+	get canEdit(): boolean {
+		return false;
+	}
+
 	get canRename(): boolean {
 		return true;
 	}
@@ -69,6 +73,10 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 
 	get apiUrlPart(): string {
 		return ""
+	}
+
+	get refreshApiPaths(): string[] {
+		return [this.apiPath, this.workspace.apiPath + "items"];
 	}
 
 	addChild(value: FabricWorkspaceTreeItem) {

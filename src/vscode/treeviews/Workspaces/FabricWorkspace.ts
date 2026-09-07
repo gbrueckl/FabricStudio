@@ -66,6 +66,8 @@ export class FabricWorkspace extends FabricWorkspaceTreeItem {
 		return false;
 	}
 
+	
+
 	public get canRename(): boolean {
 		return true;
 	}

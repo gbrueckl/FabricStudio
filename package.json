@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Manage and develop Microsoft Fabric from VSCode. For admins and developers!",
-	"version": "2.23.4",
+	"version": "2.24.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -355,6 +355,18 @@
 			{
 				"category": "FabricStudio",
 				"command": "FabricStudio.WorkspaceRoleAssignment.update",
+				"title": "Update",
+				"icon": "$(pencil)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.ConnectionRoleAssignment.update",
+				"title": "Update",
+				"icon": "$(pencil)"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.GatewayRoleAssignment.update",
 				"title": "Update",
 				"icon": "$(pencil)"
 			},
@@ -1037,6 +1049,16 @@
 				{
 					"command": "FabricStudio.WorkspaceRoleAssignment.update",
 					"when": "view == FabricStudioWorkspaces && viewItem =~ /.*,UPDATE_ROLE_ASSIGNMENT,.*/",
+					"group": "2_update"
+				},
+				{
+					"command": "FabricStudio.ConnectionRoleAssignment.update",
+					"when": "view == FabricStudioConnections && viewItem =~ /.*,UPDATE_ROLE_ASSIGNMENT,.*/",
+					"group": "2_update"
+				},
+				{
+					"command": "FabricStudio.GatewayRoleAssignment.update",
+					"when": "view == FabricStudioConnections && viewItem =~ /.*,UPDATE_GATEWAY_ROLE_ASSIGNMENT,.*/",
 					"group": "2_update"
 				},
 				{

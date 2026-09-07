@@ -65,10 +65,6 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceGenericViewer 
 		}
 	}
 
-	// get canDelete(): boolean {
-	// 	return false; 
-	// }
-
 	get itemDefinition(): iFabricApiWorkspaceRoleAssignment {
 		return this._itemDefinition;
 	}
@@ -79,6 +75,10 @@ export class FabricWorkspaceRoleAssignment extends FabricWorkspaceGenericViewer 
 
 	get canDelete(): boolean {
 		return true;
+	}
+
+	get canEdit(): boolean {
+		return false;
 	}
 
 

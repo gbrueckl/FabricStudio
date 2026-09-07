@@ -59,20 +59,29 @@ export class FabricApiNotebookSerializer implements vscode.NotebookSerializer {
 	}
 
 	static async openNewNotebook(apiItem: FabricApiTreeItem | iFabricItemDetails): Promise<vscode.NotebookEditor> {
+		let defaultCells = [];
 		let apiPath = "";
-		if (apiItem instanceof FabricApiTreeItem) {
-			apiPath = Helper.trimChar(apiItem.apiPath.split("/").slice(1).join("/"), "/", false, true);
+		if (apiItem) {
+			if (apiItem instanceof FabricApiTreeItem) {
+				apiPath = Helper.trimChar(apiItem.apiPath.split("/").slice(1).join("/"), "/", false, true);
+			}
+			else {
+				apiPath = apiItem.apiPath
+			}
+
+			defaultCells = [
+				new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Set API path for relative paths (already executed in the background for you)", "markdown"),
+				new FabricApiNotebookCell(vscode.NotebookCellKind.Code, '%cmd\nSET API_PATH = ' + apiPath, FabricAPILanguage),
+				new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Type `./` to start autocomplete from relative API path. \n\n Type `/` for absolute API paths", "markdown"),
+				new FabricApiNotebookCell(vscode.NotebookCellKind.Code, 'GET ./', FabricAPILanguage)
+			];
 		}
 		else {
-			apiPath = apiItem.apiPath
+			defaultCells = [
+				new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Type `/` to start autocomplete from relative API path. \n\n Type `/` for absolute API paths", "markdown"),
+				new FabricApiNotebookCell(vscode.NotebookCellKind.Code, 'GET /', FabricAPILanguage)
+			];
 		}
-
-		let defaultCells = [
-			new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Set API path for relative paths (already executed in the background for you)", "markdown"),
-			new FabricApiNotebookCell(vscode.NotebookCellKind.Code, '%cmd\nSET API_PATH = ' + apiPath, FabricAPILanguage),
-			new FabricApiNotebookCell(vscode.NotebookCellKind.Markup, "Type `./` to start autocomplete from relative API path. \n\n Type `/` for absolute API paths", "markdown"),
-			new FabricApiNotebookCell(vscode.NotebookCellKind.Code, 'GET ./', FabricAPILanguage)
-		];
 		let notebook = new FabricApiNotebook(defaultCells);
 		notebook.metadata = FabricNotebookContext.loadFromMetadata(notebook.metadata);
 

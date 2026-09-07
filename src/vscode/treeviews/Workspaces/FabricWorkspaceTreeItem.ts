@@ -38,16 +38,18 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 
 		let actions: string[] = [];
 
-		const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
-		if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
-			if (itemTypePlural == "SemanticModels") {
-				actions.push("EDIT_TMDL")
-			}
-			else if (itemTypePlural == "Reports") {
-				actions.push("EDIT_PBIR")
-			}
-			else {
-				actions.push("EDIT_DEFINITION");
+		if (this.canEdit) {
+			const itemTypePlural: FabricApiItemType = FabricMapper.getItemTypePlural(this.itemType);
+			if (FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
+				if (itemTypePlural == "SemanticModels") {
+					actions.push("EDIT_TMDL")
+				}
+				else if (itemTypePlural == "Reports") {
+					actions.push("EDIT_PBIR")
+				}
+				else {
+					actions.push("EDIT_DEFINITION");
+				}
 			}
 		}
 
@@ -117,6 +119,10 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 		return false;
 	}
 
+	get canEdit(): boolean {
+		return true;
+	}
+
 	get supportsUri(): boolean {
 		return true;
 	}
@@ -126,10 +132,16 @@ export class FabricWorkspaceTreeItem extends FabricApiTreeItem {
 	}
 
 	get fabricFsUri(): FabricFSUri {
-		if (this.itemDefinition && this.supportsUri) {
-			return FabricFSUri.getInstanceFromApiDefinition(this.itemDefinition);
+		try {
+			if (this.itemDefinition && this.supportsUri) {
+				return FabricFSUri.getInstanceFromApiDefinition(this.itemDefinition);
+			}
+			else {
+				return undefined;
+			}
 		}
-		else {
+		catch (e) {
+			ThisExtension.Logger.logError(e.message, true);
 			return undefined;
 		}
 	}

@@ -10,6 +10,7 @@ import { FabricConfiguration } from '../../configuration/FabricConfiguration';
 import { FabricAdminTenantSettings } from './FabricAdminTenantSettings';
 import { FabricAdminDomains } from './FabricAdminDomains';
 import { FabricAdminTags } from './FabricAdminTags';
+import { FabricApiService } from '../../../fabric/FabricApiService';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeDataProvider.html
 export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAdminTreeItem> {
@@ -52,6 +53,7 @@ export class FabricAdminTreeProvider implements vscode.TreeDataProvider<FabricAd
 
 	async refresh(tree_item: FabricAdminTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
 		// we always refresh the whole tree as its all built upon one API call
+		FabricApiService.clearCache("/v1/admin");
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
