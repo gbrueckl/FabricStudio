@@ -71,6 +71,10 @@ export class FabricWorkspaceFolder extends FabricWorkspaceTreeItem {
 		return ""
 	}
 
+	get refreshApiPaths(): string[] {
+		return [this.apiPath, this.workspace.apiPath + "items"];
+	}
+
 	addChild(value: FabricWorkspaceTreeItem) {
 		if (!this._children) {
 			this._children = [];

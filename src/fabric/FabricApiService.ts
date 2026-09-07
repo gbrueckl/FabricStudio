@@ -12,6 +12,7 @@ import { FabricLogger } from '@utils/FabricLogger';
 
 export abstract class FabricApiService {
 	protected static _initializationState: "not_loaded" | "loading" | "loaded" = "not_loaded";
+	private static _getCache: Map<string, Promise<iGenericApiResponse<any, iGenericApiError>>> = new Map();
 
 	protected static _apiBaseUrl: string;
 	protected static _tenantId: string;
@@ -217,10 +218,41 @@ export abstract class FabricApiService {
 			for (let kvp of Object.entries(params)) {
 				urlParams.set(kvp[0], `${kvp[1] as number | string | boolean}`);
 			}
+			urlParams.sort();
 			uri = uri.with({ query: urlParams.toString() });
 		}
 
 		return uri.toString(true);
+	}
+
+	/**
+	 * Clears cached GET requests for an endpoint and every endpoint below it.
+	 * Query parameters are deliberately ignored so all variants of a URL are cleared.
+	 * If no endpoint is supplied, the complete cache is cleared.
+	 */
+	public static clearCache(endpoint?: string): void {
+		if (!endpoint) {
+			this._getCache.clear();
+			return;
+		}
+
+		const url = vscode.Uri.parse(this.getFullUrl(endpoint));
+		const path = url.path.replace(/\/+$/, "") || "/";
+		let clearedEntries = 0;
+
+		for (const cacheKey of this._getCache.keys()) {
+			const cachedUrl = vscode.Uri.parse(cacheKey);
+			const cachedPath = cachedUrl.path.replace(/\/+$/, "") || "/";
+			const sameApi = cachedUrl.scheme === url.scheme && cachedUrl.authority === url.authority;
+			const isSameOrSubpath = cachedPath === path || cachedPath.startsWith(path + "/");
+
+			if (sameApi && isSameOrSubpath) {
+				this._getCache.delete(cacheKey);
+				clearedEntries++;
+			}
+		}
+
+		this.Logger.logDebug(`Cleared ${clearedEntries} cached GET response(s) for ${path} and its subpaths`);
 	}
 
 	static async get<TSuccess = any>(
@@ -233,58 +265,85 @@ export abstract class FabricApiService {
 		endpoint = this.getFullUrl(endpoint, params);
 		this.Logger.logInfo("GET " + endpoint);
 
-		try {
-			const requestConfig: RequestInit = {
-				method: "GET",
-				headers: headers,
-				agent: getProxyAgent()
-			};
-			let response: Response = await fetch(endpoint, requestConfig);
+		const executeRequest = async (): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> => {
+			try {
+				const requestConfig: RequestInit = {
+					method: "GET",
+					headers: headers,
+					agent: getProxyAgent()
+				};
+				let response: Response = await fetch(endpoint, requestConfig);
 
-			if (config.raw) {
-				return { "success": response as TSuccess };
-			}
-			let resultText = await response.text();
-			this.logResponse(response, resultText);
+				if (config.raw) {
+					return { "success": response as TSuccess };
+				}
+				let resultText = await response.text();
+				this.logResponse(response, resultText);
 
-			let success: TSuccess | undefined = undefined;
-			let error: iGenericApiError | undefined = undefined;
-			let responseHeaders = Object.fromEntries(response.headers.entries());
+				let success: TSuccess | undefined = undefined;
+				let error: iGenericApiError | undefined = undefined;
+				let responseHeaders = Object.fromEntries(response.headers.entries());
 
-			if (response.ok) {
-				if (!resultText || resultText == "") {
-					success = { "status": response.status, "statusText": response.statusText } as TSuccess;
+				if (response.ok) {
+					if (!resultText || resultText == "") {
+						success = { "status": response.status, "statusText": response.statusText } as TSuccess;
+					}
+					else {
+						success = JSON.parse(resultText) as TSuccess;
+					}
 				}
 				else {
-					success = JSON.parse(resultText) as TSuccess;
+					if (!resultText || resultText == "") {
+						error = { "errorCode": `${response.status}`, "message": response.statusText };
+					}
+					else {
+						error = JSON.parse(resultText) as iGenericApiError;;
+					}
 				}
-			}
-			else {
-				if (!resultText || resultText == "") {
-					error = { "errorCode": `${response.status}`, "message": response.statusText };
+
+				if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
+					this.Logger.logError("Token expired - refreshing connection!");
+					await this.refreshConnection(true);
+					return executeRequest();
 				}
-				else {
-					error = JSON.parse(resultText) as iGenericApiError;;
+
+				if (error && config.raiseErrorOnFailure) {
+					throw new Error(error.message);
 				}
+
+				return { success: success, error: error, responseHeaders: responseHeaders } as iGenericApiResponse<TSuccess, iGenericApiError>;
+
+			} catch (error) {
+				this.handleApiException(error, false, config.raiseErrorOnFailure);
+
+				return undefined;
 			}
+		};
 
-			if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
-				this.Logger.logError("Token expired - refreshing connection!");
-				await this.refreshConnection(true);
-				return this.get<TSuccess>(endpoint, params, config);
-			}
-
-			if (error && config.raiseErrorOnFailure) {
-				throw new Error(error.message);
-			}
-
-			return { success: success, error: error, responseHeaders: responseHeaders } as iGenericApiResponse<TSuccess, iGenericApiError>;
-
-		} catch (error) {
-			this.handleApiException(error, false, config.raiseErrorOnFailure);
-
-			return undefined;
+		// Raw responses contain a consumable body and calls that raise errors have
+		// different behavior, so only regular parsed GET responses are shared.
+		if (config.raw || config.raiseErrorOnFailure) {
+			return executeRequest();
 		}
+
+		const cached = this._getCache.get(endpoint);
+		if (cached) {
+			this.Logger.logDebug("GET cache hit " + endpoint);
+			return cached as Promise<iGenericApiResponse<TSuccess, iGenericApiError>>;
+		}
+
+		const request = executeRequest();
+		this._getCache.set(endpoint, request);
+		const result = await request;
+
+		// Transient failures should be retried on the next call instead of becoming
+		// a permanent cached error. Guard against deleting a newer request that was
+		// started after this URL was invalidated while the request was in flight.
+		if ((!result || result.error) && this._getCache.get(endpoint) === request) {
+			this._getCache.delete(endpoint);
+		}
+
+		return result;
 	}
 
 	static async getList<TSuccess = any>(

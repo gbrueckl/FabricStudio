@@ -47,6 +47,8 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 
 	async refresh(tree_item: FabricCapacityTreeItem = null, showInfoMessage: boolean = false): Promise<void> {
 		// we always refresh the whole tree as its all built upon one API call
+		FabricApiService.clearCache("/v1/capacities");
+		FabricApiService.clearCache("/v1/workspaces");
 		this._onDidChangeTreeData.fire(undefined);
 	}
 

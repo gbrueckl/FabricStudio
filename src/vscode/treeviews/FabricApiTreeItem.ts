@@ -423,6 +423,11 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 		return `v1/${this.itemPath}/`;
 	}
 
+	/** API paths whose cached GET responses are used to build this item's children. */
+	get refreshApiPaths(): string[] {
+		return [this.apiPath];
+	}
+
 	get asQuickPickItem(): FabricQuickPickItem {
 		let qpItem = new FabricQuickPickItem(this.itemName, this.itemId, this.itemId);
 		qpItem.apiItem = this;
