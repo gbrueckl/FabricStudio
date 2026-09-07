@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.24.1**:
+- fixed issue with connections with an `OnePremisesGateway` where the user has no permissions on the gateway itself
+
 **v2.24.0**:
 - added caching to `GET` requests to avoid unnecessary calls
 - added `Update` action to connection and gateway roles
