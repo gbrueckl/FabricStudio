@@ -1,5 +1,9 @@
 # Change Log
 
+**v2.24.2**:
+- fixed issue with empty filters (workspace, connections, ...)
+- fixed issue if `NO_ITEM` is selected in QuickPick during publishing
+
 **v2.24.1**:
 - fixed issue with connections with an `OnePremisesGateway` where the user has no permissions on the gateway itself
 

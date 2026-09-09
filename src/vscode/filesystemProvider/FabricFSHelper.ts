@@ -102,7 +102,7 @@ export abstract class FabricFSHelper {
 
 			targetWorkspace = await FabricCommandBuilder.showQuickPick(workspaces, `Select a workspace ${promptPart} to`, "", "");
 
-			if (!targetWorkspace) {
+			if (!targetWorkspace || targetWorkspace.value == NO_QP_ITEMS_ITEM_ID) {
 				ThisExtension.Logger.logError("No workspace selected, aborting publish operation.", true);
 				return undefined;
 			}
@@ -134,7 +134,7 @@ export abstract class FabricFSHelper {
 		if (includeNewOption) { msg = msg + ` or 'New ${itemType}'`; }
 		const targetItem = await FabricCommandBuilder.showQuickPick(qpItems, msg, "", "");
 
-		if (!targetItem) {
+		if (!targetItem || targetItem.value == NO_QP_ITEMS_ITEM_ID) {
 			ThisExtension.Logger.logError("No item selected, aborting publish operation.", true);
 			return undefined;
 		}

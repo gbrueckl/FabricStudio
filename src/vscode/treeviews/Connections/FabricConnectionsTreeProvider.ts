@@ -146,7 +146,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 	}
 
 	public get filterRegEx(): RegExp {
-		if (this._filter) {
+		if (!(this._filter === undefined)) {
 			return new RegExp(this._filter, "i");
 		}
 		if (FabricConfiguration.connectionFilter) {
