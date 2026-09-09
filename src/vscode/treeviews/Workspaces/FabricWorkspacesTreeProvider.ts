@@ -136,7 +136,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 						children.push(treeItem);
 					}
 					else {
-						ThisExtension.Logger.logInfo(`Skipping workspace '${item.displayName}' (${item.id}) because it has no capacityId`);
+						ThisExtension.Logger.logInfo(`Skipping workspace '${item.displayName}' (${item.id}) because it is not assigned to a Capacity!`);
 					}
 				}
 
@@ -151,7 +151,7 @@ export class FabricWorkspacesTreeProvider implements vscode.TreeDataProvider<Fab
 	}
 
 	public get filterRegEx(): RegExp {
-		if (this._filter) {
+		if (!(this._filter === undefined)) {
 			return new RegExp(this._filter, "i");
 		}
 		if (FabricConfiguration.workspaceFilter) {

@@ -1,5 +1,13 @@
 # Change Log
 
+**v2.24.2**:
+- fixed issue with `Publish via Fabric Studio`  ([83](83))
+- fixed issue with empty filters (workspace, connections, ...)
+- fixed issue if `NO_ITEM` is selected in QuickPick during publishing
+
+**v2.24.1**:
+- fixed issue with connections with an `OnePremisesGateway` where the user has no permissions on the gateway itself
+
 **v2.24.0**:
 - added caching to `GET` requests to avoid unnecessary calls
 - added `Update` action to connection and gateway roles

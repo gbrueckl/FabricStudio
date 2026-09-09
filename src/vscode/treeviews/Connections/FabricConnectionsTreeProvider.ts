@@ -49,16 +49,11 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 		if (showInfoMessage) {
 			Helper.showTemporaryInformationMessage('Refreshing Fabric Connections ...');
 		}
-		if(tree_item && tree_item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
-			tree_item = tree_item.parent;
-		}
-		if (tree_item) {
-			tree_item.refreshApiPaths.forEach(path => FabricApiService.clearCache(path));
-		}
-		else {
-			FabricApiService.clearCache("/v1/gateways");
-			FabricApiService.clearCache("/v1/connections");
-		}
+
+		// there are only two APIs that are the source for the whole treeview, so we clear their cache
+		FabricApiService.clearCache("/v1/gateways");
+		FabricApiService.clearCache("/v1/connections");
+
 		this._onDidChangeTreeData.fire(tree_item);
 	}
 
@@ -114,12 +109,16 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 					}
 
 					let gateway = item.gatewayId;
-					if(["PersonalCloud", "ShareableCloud", "OnPremisesGatewayPersonal"].includes(item.connectivityType)) {
-						gateway = item.connectivityType;
-					}
 
 					// for ShareableCloud connectsions, the gatewayId is not set, so we need to use the connectivityType to group them
 					if (!gateways.has(gateway)) {
+						if (["PersonalCloud", "ShareableCloud", "OnPremisesGatewayPersonal"].includes(item.connectivityType)) {
+							gateway = item.connectivityType;
+						}
+						else if (["OnPremisesGateway"].includes(item.connectivityType)) {
+							gateway = "OnPremisesGateway (use-only)";
+						}
+
 						treeItem = new FabricConnectionGenericFolder(
 							gateway,
 							gateway,
@@ -147,7 +146,7 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 	}
 
 	public get filterRegEx(): RegExp {
-		if (this._filter) {
+		if (!(this._filter === undefined)) {
 			return new RegExp(this._filter, "i");
 		}
 		if (FabricConfiguration.connectionFilter) {

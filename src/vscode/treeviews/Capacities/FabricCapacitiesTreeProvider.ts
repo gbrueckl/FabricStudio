@@ -102,7 +102,7 @@ export class FabricCapacitiesTreeProvider implements vscode.TreeDataProvider<Fab
 	}
 
 	public get filterRegEx(): RegExp {
-		if (this._filter) {
+		if (!(this._filter === undefined)) {
 			return new RegExp(this._filter, "i");
 		}
 		if (FabricConfiguration.capacityFilter) {

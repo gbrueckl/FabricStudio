@@ -23,10 +23,16 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 
 			this.tooltip = this.getToolTip(definition);
 			this.iconPath = new vscode.ThemeIcon("extensions-remote");
-			this.description = `${definition.connectionDetails.type} - ${definition.id}`;
+			this.description = `${definition.connectionDetails.type}: ${definition.connectionDetails.path}`;
 			this.iconPath = this.getIcon();
 			this.label = this.label ?? definition.connectionDetails.path ?? definition.id;
 		}
+	}
+
+	get _contextValue(): string {
+		let actions = super._contextValue;
+		actions += "TEST_CONNECTION,";
+		return actions;
 	}
 
 	/* Overwritten properties from FabricConnectionGenericViewer */
@@ -142,11 +148,5 @@ export class FabricConnection extends FabricConnectionGenericFolder {
 				}
 			}
 		);
-	}
-
-	get _contextValue(): string {
-		let actions = super._contextValue;
-		actions += "TEST_CONNECTION,";
-		return actions;
 	}
 }

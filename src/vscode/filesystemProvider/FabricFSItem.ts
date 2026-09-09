@@ -13,6 +13,7 @@ import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
+import { FabricMapper } from '../../fabric/FabricMapper';
 
 export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 	id: string;
@@ -266,7 +267,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 
 	public async publish(): Promise<iFabricApiResponse> {
 		let definition = await this.getItemDefinition();
-		const itemTypeSingular = this.FabricUri.itemType.toLowerCase().slice(0, -1);
+		const itemTypeSingular = FabricMapper.getItemTypeSingular(this.FabricUri.itemType);
 
 		if (!this.publishAction) {
 			this.publishAction = FabricFSCache.getLocalChanges(this.FabricUri);
@@ -281,15 +282,10 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			this.publishAction = FabricFSPublishAction.MODIFIED;
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
-			if (["semanticmodels", "reports"].includes(this.FabricUri.itemType.toLowerCase())) {
-				ThisExtension.Logger.logInfo("Publishing items of type '" + itemTypeSingular + "' is not yet supported by the APIs!");
-			}
-			else {
-				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
-			}
+			response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
 
 			if (!response || !response.error) {
-				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Publishing ${itemTypeSingular} '${this.displayName}'`);
+				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Updating ${itemTypeSingular} '${this.displayName}'`);
 			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {

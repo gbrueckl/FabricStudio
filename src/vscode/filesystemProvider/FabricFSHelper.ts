@@ -11,6 +11,7 @@ import { FabricMapper } from '../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
+import { StringChain } from 'lodash';
 
 const NEW_ITEM_ID = "__NEW_ITEM";
 
@@ -35,13 +36,17 @@ export abstract class FabricFSHelper {
 
 			const matches = uri.toString().matchAll(rx);
 
+			let itemType: FabricApiItemType = undefined;
 			for (const match of matches) {
 				// we check if its a valid item type and if the Definition API is available/configured
 				const plural = FabricMapper.getItemTypePlural(match[1]);
-				const itemType = FabricConfiguration.itemTypeFromString(plural); // checks if the item type also supports definitions
-				if (itemType) {
-					return match[1] as FabricApiItemType;
+				const tempItemType = FabricConfiguration.itemTypeFromString(plural); // checks if the item type also supports definitions
+				if (tempItemType) {
+					itemType = match[1] as FabricApiItemType; // no break or return, we use the last valid item type found
 				}
+			}
+			if (itemType) {
+				return itemType;
 			}
 		}
 		return undefined;
@@ -102,7 +107,7 @@ export abstract class FabricFSHelper {
 
 			targetWorkspace = await FabricCommandBuilder.showQuickPick(workspaces, `Select a workspace ${promptPart} to`, "", "");
 
-			if (!targetWorkspace) {
+			if (!targetWorkspace || targetWorkspace.value == NO_QP_ITEMS_ITEM_ID) {
 				ThisExtension.Logger.logError("No workspace selected, aborting publish operation.", true);
 				return undefined;
 			}
@@ -134,7 +139,7 @@ export abstract class FabricFSHelper {
 		if (includeNewOption) { msg = msg + ` or 'New ${itemType}'`; }
 		const targetItem = await FabricCommandBuilder.showQuickPick(qpItems, msg, "", "");
 
-		if (!targetItem) {
+		if (!targetItem || targetItem.value == NO_QP_ITEMS_ITEM_ID) {
 			ThisExtension.Logger.logError("No item selected, aborting publish operation.", true);
 			return undefined;
 		}
@@ -175,8 +180,11 @@ export abstract class FabricFSHelper {
 		const itemType = platformContent.metadata.type;
 		const target = await this.getTargetFromQuickPick(itemType, true, undefined, platformContent);
 
+		FabricFSUri.addItemNameIdMap(target.label, target.value, target.workspaceId, itemType);
 		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
-		return await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, target.label)}`), true);
+		let uri = await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, target.label)}`), true);
+		
+		return uri;
 	}
 
 	static async updateReportConnection(targetUri: FabricFSUri): Promise<boolean> {
@@ -253,13 +261,18 @@ export abstract class FabricFSHelper {
 			return;
 		}
 
-		const platformFileUri = vscode.Uri.joinPath(sourceFsUri, ".platform");
-		let platformFile = Buffer.from(await vscode.workspace.fs.readFile(platformFileUri)).toString("utf8");
-		const platformContent: iFabricPlatformFile = JSON.parse(platformFile) as iFabricPlatformFile;
+		let displayName: string = sourceFsUri.path.split("/").reverse()[0].split(".")[0];
+		try {
+			const platformFileUri = vscode.Uri.joinPath(sourceFsUri, ".platform");
+			let platformFile = Buffer.from(await vscode.workspace.fs.readFile(platformFileUri)).toString("utf8");
+			const platformContent: iFabricPlatformFile = JSON.parse(platformFile) as iFabricPlatformFile;
 
-		itemType = platformContent["metadata"]["itemType"] || itemType;
+			itemType = platformContent["metadata"]["type"] || itemType;
+			displayName = platformContent["metadata"]["displayName"] || displayName;
+		}
+		catch (error) { }
 
-		const target = await this.getTarget(platformContent);
+		const target = await this.getTarget({ "metadata": { "type": itemType, "displayName": displayName } });
 		if (!target) {
 			ThisExtension.Logger.logError("No target selected, aborting publish operation.", true);
 			return;
