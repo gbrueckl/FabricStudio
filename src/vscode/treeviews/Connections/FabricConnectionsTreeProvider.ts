@@ -49,16 +49,11 @@ export class FabricConnectionsTreeProvider implements vscode.TreeDataProvider<Fa
 		if (showInfoMessage) {
 			Helper.showTemporaryInformationMessage('Refreshing Fabric Connections ...');
 		}
-		if (tree_item && tree_item.collapsibleState == vscode.TreeItemCollapsibleState.None) {
-			tree_item = tree_item.parent;
-		}
-		if (tree_item) {
-			tree_item.refreshApiPaths.forEach(path => FabricApiService.clearCache(path));
-		}
-		else {
-			FabricApiService.clearCache("/v1/gateways");
-			FabricApiService.clearCache("/v1/connections");
-		}
+
+		// there are only two APIs that are the source for the whole treeview, so we clear their cache
+		FabricApiService.clearCache("/v1/gateways");
+		FabricApiService.clearCache("/v1/connections");
+
 		this._onDidChangeTreeData.fire(tree_item);
 	}
 
