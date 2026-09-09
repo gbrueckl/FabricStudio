@@ -1,6 +1,7 @@
 # Change Log
 
 **v2.24.2**:
+- fixed issue with `Publish via Fabric Studio`  ([83](83))
 - fixed issue with empty filters (workspace, connections, ...)
 - fixed issue if `NO_ITEM` is selected in QuickPick during publishing
 

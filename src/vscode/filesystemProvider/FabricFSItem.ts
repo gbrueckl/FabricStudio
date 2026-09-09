@@ -276,18 +276,13 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		let response;
 		// if the item was created locally, we need to use CREATE instead of UPDATE
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
-			response = await FabricApiService.createItem(this.workspaceId, this.displayName, itemTypeSingular, definition, `Creating ${itemTypeSingular} '${this.displayName}'`);
+			response = await FabricApiService.createItem(this.workspaceId, this.displayName, this.FabricUri.itemType, definition, `Creating ${itemTypeSingular} '${this.displayName}'`);
 			// add NameIdMap for subsequent calls to the created item
 			FabricFSUri.addItemNameIdMap(response.success.itemName, response.success.id, response.success.workspaceId, response.success.type);
 			this.publishAction = FabricFSPublishAction.MODIFIED;
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
-			if (["semanticmodels", "reports"].includes(itemTypeSingular.toLowerCase())) {
-				ThisExtension.Logger.logInfo("Publishing items of type '" + itemTypeSingular + "' is not yet supported by the APIs!");
-			}
-			else {
-				response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
-			}
+			response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
 
 			if (!response || !response.error) {
 				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Updating ${itemTypeSingular} '${this.displayName}'`);

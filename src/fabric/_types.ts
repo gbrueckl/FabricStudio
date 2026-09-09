@@ -1,131 +1,132 @@
 import { iGenericApiError, iGenericApiResponse } from "@utils/_types";
 import { UniqueId } from "@utils/Helper";
 
-// https://learn.microsoft.com/en-us/rest/api/fabric/core/items/get-item?tabs=HTTP#itemtype
-export type FabricApiItemType =
+export const fabricApiItemTypes = [
 	"Dashboard"					//	PowerBI dashboard.
-	| "DataPipeline"			//	A data pipeline.
-	| "Datamart"				//	PowerBI datamart.
-	| "Environment"				//	An environment item.
-	| "Eventstream"				//	An eventstream item.
-	| "KQLDataConnection"		//	A KQL data connection.
-	| "KQLDatabase"				//	A KQL database.
-	| "KQLQueryset"				//	A KQL queryset.
-	| "KQLDashboard"			//	A KQL dashboard.
-	| "Lakehouse"				//	Lakehouse item.
-	| "MLExperiment"			//	A machine learning experiment.
-	| "MLModel"					//	A machine learning model.
-	| "MountedWarehouse"		//	A MountedWarehouse item.
-	| "Notebook"				//	A notebook.
-	| "PaginatedReport"			//	PowerBI paginated report.
-	| "Report"					//	PowerBI report.
-	| "SQLEndpoint"				//	An SQL endpoint.
-	| "SemanticModel"			//	PowerBI semantic model.
-	| "SparkJobDefinition"		//	A spark job definition.
-	| "Warehouse"				//	A warehouse item.
-	| "WarehouseSnapshot"		//	A warehouse snapshot item.
-	| "DeploymentPipeline"		//	A deployment pipeline.
-	| "Eventhouse"
-	| "Reflex"					//	Reflex item.
-	| "MountedDataFactory" 		//	A MountedDataFactory item.
-	| "SQLDatabase"				//	A SQL Database item.
-	| "MirroredDatabase"		//	A Mirrored Database item.
-	| "MirroredWarehouse"		//	A Mirrored Warehouse item.
-	| "AnomalyDetector"			//	Anomaly Detector item.
+	, "DataPipeline"			//	A data pipeline.
+	, "Datamart"				//	PowerBI datamart.
+	, "Environment"				//	An environment item.
+	, "Eventstream"				//	An eventstream item.
+	, "KQLDataConnection"		//	A KQL data connection.
+	, "KQLDatabase"				//	A KQL database.
+	, "KQLQueryset"				//	A KQL queryset.
+	, "KQLDashboard"			//	A KQL dashboard.
+	, "Lakehouse"				//	Lakehouse item.
+	, "MLExperiment"			//	A machine learning experiment.
+	, "MLModel"					//	A machine learning model.
+	, "MountedWarehouse"		//	A MountedWarehouse item.
+	, "Notebook"				//	A notebook.
+	, "PaginatedReport"			//	PowerBI paginated report.
+	, "Report"					//	PowerBI report.
+	, "SQLEndpoint"				//	An SQL endpoint.
+	, "SemanticModel"			//	PowerBI semantic model.
+	, "SparkJobDefinition"		//	A spark job definition.
+	, "Warehouse"				//	A warehouse item.
+	, "WarehouseSnapshot"		//	A warehouse snapshot item.
+	, "DeploymentPipeline"		//	A deployment pipeline.
+	, "Eventhouse"
+	, "Reflex"					//	Reflex item.
+	, "MountedDataFactory" 		//	A MountedDataFactory item.
+	, "SQLDatabase"				//	A SQL Database item.
+	, "MirroredDatabase"		//	A Mirrored Database item.
+	, "MirroredWarehouse"		//	A Mirrored Warehouse item.
+	, "AnomalyDetector"			//	Anomaly Detector item.
 
 
 	// custom types
-	| "GenericViewer"			//	A generic viewer item.
-	| "WorkspaceFolder"			//	A workspace folder.
+	, "GenericViewer"			//	A generic viewer item.
+	, "WorkspaceFolder"			//	A workspace folder.
 
 
-	| "Capacity"
-	| "CapacityWorkspaces"
-	| "CapacityWorkspace"
-	| "Dataflow"
-	| "Workspace"
-	| "Lakehouses"							//	Folder for Lakehouse item.
-	| "Warehouses"							//	Folder for Warehouse item.
-	| "WarehouseRestorePoints"				//	Folder for Warehouse Restore Point item.
-	| "WarehouseRestorePoint"				//	A Warehouse Restore Point item.
-	| "SQLEndpoints"						//	Folder for SQLEndpoint item.
-	| "Notebooks"							//	Folder for Notebook item.
-	| "Environments"						//	Folder for Environment item.
-	| "SemanticModels"						//	Folder for Semantic Model item.
-	| "Reports"								//	Folder for Report item.
-	| "MountedDataFactories" 				//	Folder for MountedDataFactory item.
-	| "SparkJobDefinitions"					//	Folder for Spark Job Definition item.
-	| "Eventhouses"							//	Folder for Eventhouse item.
-	| "KQLDatabases"						//	Folder for KQL Database item.
-	| "KQLQuerysets"						//	Folder for KQL Queryset item.
-	| "KQLDashboards"						//	Folder for KQL Dashboard item.
-	| "Reflexes"							//	Folder for Reflex item.
-	| "EventStreams" 						//	Folder for Eventstream item.
-	| "LakehouseTable"						//	Lakehouse Table
-	| "LakehouseTables"						//	Folder for Lakehouse Table item.
-	| "GraphQLApi"							//	GraphQL API item.
-	| "GraphQLApis"							//	Folder for GraphQL API items.
-	| "DataPipelines"						//	Folder for DataPipeline item.
-	| "DeploymentPipelineStage"				//	A Deployment pipleine stage
-	| "DeploymentPipelineStages"			//	Folder for Deployment pipleine stages.
-	| "CopyJob"								//	A copy job item.
-	| "CopyJobs"							//	Folder for copy job items.
-	| "GenericItem"
-	| "ItemShortcuts"						//	Folder for item shortcuts.
-	| "ItemShortcut"						//	An Item shortcut.
-	| "ItemConnections"						//	Folder for item connections.
-	| "ItemConnection" 						//	An Item connection.
-	| "ItemJobInstances"					//	Folder for item job instances.
-	| "ItemJobInstance"						//	An Item job instance.
-	| "ItemJobSchedules"					//	Folder for item job schedules.
-	| "ItemJobSchedule"						//	An Item job schedule.
-	| "ItemDataAccessRoles"					//	Folder for item data access roles.	
-	| "ItemDataAccessRole"					//	An Item data access role.
-	| "ItemTags"							//	Folder for item tags.
-	| "ItemTag"							//	An item tag.
-	| "ItemDefinition"						//	An Item definition.	
-	| "ItemDefinitionFile"					//	An Item definition file.
-	| "ItemDefinitionFolder"				//	Folder for item definition files.
-	| "OneLake"						//	An Item OneLake root folder.
-	| "OneLakeFolder"					//	A folder in the Item OneLake.
-	| "OneLakeFile"						//	A file in the Item OneLake.
-	| "WorkspaceSettings"					//	Folder for workspace settings.
-	| "RecoverableItems"					//	Folder for workspace recoverable items.
-	| "RecoverableItem"					//	A workspace recoverable item.
-	| "WorkspaceTags"						//	Folder for workspace tags.
-	| "WorkspaceTag"						//	A workspace tag.
-	| "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
-	| "WorkspaceRoleAssignment"				//	A workspace role assignment.
-	| "MirroredDatabases"					//	Folder for mirrored databases.
-	| "MirroredDatabaseSynchronization"		//	A mirrored database synchronization.
-	| "MirroredDatabaseTables"				//	Folder for mirrored database tables.
-	| "MirroredDatabaseTable"				//	A mirrored database table.
-	| "Gateway"
-	| "Connection"
-	| "GatewayMembers"						//	Folder for gateway members.
-	| "GatewayMember"						//	A gateway member.
-	| "GatewayRoleAssignments"				//	Folder for gateway role assignments.
-	| "GatewayRoleAssignment"				//	A gateway role assignment.
-	| "ConnectionRoleAssignments"			//	Folder for connection role assignments.
-	| "ConnectionRoleAssignment"			//	A connection role assignment.
-	| "SQLEndpointBatches"					//	Folder for sql endpoint batches.
-	| "WorkspaceManagedPrivateEndpoints"	//	Folder for workspace managed private endpoints.
-	| "WorkspaceManagedPrivateEndpoint"		//	A workspace managed private endpoint.
-	| "AdminTenantSettings"					//	Folder for admin tenant settings.
-	| "AdminTenantSetting"					//	An admin tenant setting.
-	| "AdminDomains"						//	Folder for admin domains.
-	| "AdminDomain"							//	An admin domain.
-	| "AdminDomainWorkspaces"				//	Folder for admin domain workspaces.
-	| "AdminDomainWorkspace"				//	An admin domain workspace.
-	| "AdminTags"							//	Folder for admin tags.
-	| "AdminTag"							//	An admin tag.
-	| "MirroredAzureDatabricksCatalogs"		//	Folder for mirrored Azure Databricks catalogs.
-	| "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
-	| "LivySessions"						//	Folder for Livy sessions.	
-	| "LivySession"							//	A Livy session.
-	| "SqlDatabaseMirroring"
-	| "AzureDatabricksStorage"
-	;
+	, "Capacity"
+	, "CapacityWorkspaces"
+	, "CapacityWorkspace"
+	, "Dataflow"
+	, "Workspace"
+	, "Lakehouses"							//	Folder for Lakehouse item.
+	, "Warehouses"							//	Folder for Warehouse item.
+	, "WarehouseRestorePoints"				//	Folder for Warehouse Restore Point item.
+	, "WarehouseRestorePoint"				//	A Warehouse Restore Point item.
+	, "SQLEndpoints"						//	Folder for SQLEndpoint item.
+	, "Notebooks"							//	Folder for Notebook item.
+	, "Environments"						//	Folder for Environment item.
+	, "SemanticModels"						//	Folder for Semantic Model item.
+	, "Reports"								//	Folder for Report item.
+	, "MountedDataFactories" 				//	Folder for MountedDataFactory item.
+	, "SparkJobDefinitions"					//	Folder for Spark Job Definition item.
+	, "Eventhouses"							//	Folder for Eventhouse item.
+	, "KQLDatabases"						//	Folder for KQL Database item.
+	, "KQLQuerysets"						//	Folder for KQL Queryset item.
+	, "KQLDashboards"						//	Folder for KQL Dashboard item.
+	, "Reflexes"							//	Folder for Reflex item.
+	, "EventStreams" 						//	Folder for Eventstream item.
+	, "LakehouseTable"						//	Lakehouse Table
+	, "LakehouseTables"						//	Folder for Lakehouse Table item.
+	, "GraphQLApi"							//	GraphQL API item.
+	, "GraphQLApis"							//	Folder for GraphQL API items.
+	, "DataPipelines"						//	Folder for DataPipeline item.
+	, "DeploymentPipelineStage"				//	A Deployment pipleine stage
+	, "DeploymentPipelineStages"			//	Folder for Deployment pipleine stages.
+	, "CopyJob"								//	A copy job item.
+	, "CopyJobs"							//	Folder for copy job items.
+	, "GenericItem"
+	, "ItemShortcuts"						//	Folder for item shortcuts.
+	, "ItemShortcut"						//	An Item shortcut.
+	, "ItemConnections"						//	Folder for item connections.
+	, "ItemConnection" 						//	An Item connection.
+	, "ItemJobInstances"					//	Folder for item job instances.
+	, "ItemJobInstance"						//	An Item job instance.
+	, "ItemJobSchedules"					//	Folder for item job schedules.
+	, "ItemJobSchedule"						//	An Item job schedule.
+	, "ItemDataAccessRoles"					//	Folder for item data access roles.	
+	, "ItemDataAccessRole"					//	An Item data access role.
+	, "ItemTags"							//	Folder for item tags.
+	, "ItemTag"							//	An item tag.
+	, "ItemDefinition"						//	An Item definition.	
+	, "ItemDefinitionFile"					//	An Item definition file.
+	, "ItemDefinitionFolder"				//	Folder for item definition files.
+	, "OneLake"						//	An Item OneLake root folder.
+	, "OneLakeFolder"					//	A folder in the Item OneLake.
+	, "OneLakeFile"						//	A file in the Item OneLake.
+	, "WorkspaceSettings"					//	Folder for workspace settings.
+	, "RecoverableItems"					//	Folder for workspace recoverable items.
+	, "RecoverableItem"					//	A workspace recoverable item.
+	, "WorkspaceTags"						//	Folder for workspace tags.
+	, "WorkspaceTag"						//	A workspace tag.
+	, "WorkspaceRoleAssignments"			//	Folder for workspace role assignments.
+	, "WorkspaceRoleAssignment"				//	A workspace role assignment.
+	, "MirroredDatabases"					//	Folder for mirrored databases.
+	, "MirroredDatabaseSynchronization"		//	A mirrored database synchronization.
+	, "MirroredDatabaseTables"				//	Folder for mirrored database tables.
+	, "MirroredDatabaseTable"				//	A mirrored database table.
+	, "Gateway"
+	, "Connection"
+	, "GatewayMembers"						//	Folder for gateway members.
+	, "GatewayMember"						//	A gateway member.
+	, "GatewayRoleAssignments"				//	Folder for gateway role assignments.
+	, "GatewayRoleAssignment"				//	A gateway role assignment.
+	, "ConnectionRoleAssignments"			//	Folder for connection role assignments.
+	, "ConnectionRoleAssignment"			//	A connection role assignment.
+	, "SQLEndpointBatches"					//	Folder for sql endpoint batches.
+	, "WorkspaceManagedPrivateEndpoints"	//	Folder for workspace managed private endpoints.
+	, "WorkspaceManagedPrivateEndpoint"		//	A workspace managed private endpoint.
+	, "AdminTenantSettings"					//	Folder for admin tenant settings.
+	, "AdminTenantSetting"					//	An admin tenant setting.
+	, "AdminDomains"						//	Folder for admin domains.
+	, "AdminDomain"							//	An admin domain.
+	, "AdminDomainWorkspaces"				//	Folder for admin domain workspaces.
+	, "AdminDomainWorkspace"				//	An admin domain workspace.
+	, "AdminTags"							//	Folder for admin tags.
+	, "AdminTag"							//	An admin tag.
+	, "MirroredAzureDatabricksCatalogs"		//	Folder for mirrored Azure Databricks catalogs.
+	, "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
+	, "LivySessions"						//	Folder for Livy sessions.	
+	, "LivySession"							//	A Livy session.
+	, "SqlDatabaseMirroring"
+	, "AzureDatabricksStorage"
+] as const;
+
+export type FabricApiItemType = (typeof fabricApiItemTypes)[number];
 
 export enum FabricApiWorkspaceType {
 	"Personal"		// A personal workspace
@@ -594,12 +595,12 @@ export interface iFabricApiAdminDomainWorkspace {
 }
 
 export interface iFabricPlatformFile {
-	$schema: string;
+	$schema?: string;
 	metadata: {
 		type: FabricApiItemType;
 		displayName: string;
 	},
-	config: {
+	config?: {
 		version: string;
 		logicalId: string;
 	}
