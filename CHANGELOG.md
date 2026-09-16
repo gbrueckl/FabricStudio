@@ -2,9 +2,10 @@
 
 **v2.25.0**:
 - added Upstream and Downstream Relations
+- potential fix for ([#85](/../../issues/85))
 
 **v2.24.2**:
-- fixed issue with `Publish via Fabric Studio`  ([83](83))
+- fixed issue with `Publish via Fabric Studio` ([#83](/../../issues/83))
 - fixed issue with empty filters (workspace, connections, ...)
 - fixed issue if `NO_ITEM` is selected in QuickPick during publishing
 
@@ -24,7 +25,7 @@
 - updated sidebar icon
 
 **v2.23.2**:
-- fixed issue with notebook serialization  ([#77](/../../issues/77))
+- fixed issue with notebook serialization ([#77](/../../issues/77))
 - further improvements and hardening for serialization
 
 **v2.23.1**:

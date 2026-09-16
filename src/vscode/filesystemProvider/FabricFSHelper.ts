@@ -162,7 +162,7 @@ export abstract class FabricFSHelper {
 				ThisExtension.Logger.logError("No name for new item selected, aborting publish operation.", true);
 				return undefined;
 			}
-			let newItem = new FabricQuickPickItem(newItemName);
+			let newItem = new FabricQuickPickItem(newItemName, NEW_ITEM_ID);
 			newItem.workspaceId = targetWorkspace.value;
 			newItem.workspaceName = targetWorkspace.label;
 			newItem.iconPath = Helper.getIconPath(itemType);
@@ -180,7 +180,10 @@ export abstract class FabricFSHelper {
 		const itemType = platformContent.metadata.type;
 		const target = await this.getTargetFromQuickPick(itemType, true, undefined, platformContent);
 
-		FabricFSUri.addItemNameIdMap(target.label, target.value, target.workspaceId, itemType);
+
+		if(target.value != NEW_ITEM_ID) {
+			FabricFSUri.addItemNameIdMap(target.label, target.value, target.workspaceId, itemType);
+		}
 		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
 		let uri = await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, target.label)}`), true);
 		
