@@ -82,6 +82,8 @@ export const fabricApiItemTypes = [
 	, "ItemDataAccessRole"					//	An Item data access role.
 	, "ItemTags"							//	Folder for item tags.
 	, "ItemTag"							//	An item tag.
+	, "ItemDownstreamRelations"			//	Folder for an item's downstream relations.
+	, "ItemUpstreamRelations"				//	Folder for an item's upstream relations.
 	, "ItemDefinition"						//	An Item definition.	
 	, "ItemDefinitionFile"					//	An Item definition file.
 	, "ItemDefinitionFolder"				//	Folder for item definition files.
@@ -170,6 +172,24 @@ export interface iFabricApiItem {
 	id?: string;
 	folderId?: UniqueId;
 	tags?: iFabricApiTag[];
+}
+
+// https://learn.microsoft.com/en-us/rest/api/fabric/core/items/get-downstream-relations(beta)?tabs=HTTP
+export interface iFabricApiRelationsResponse {
+	items: iFabricApiItem[];
+	relations: iFabricApiRelation[];
+	workspaces: iFabricApiRelationsWorkspace[];
+}
+
+export interface iFabricApiRelation {
+	itemId: string;
+	dependentOnItemId: string;
+	relationType: string;
+}
+
+export interface iFabricApiRelationsWorkspace {
+	id: string;
+	displayName: string;
 }
 
 export interface iFabricApiWorkspace {
