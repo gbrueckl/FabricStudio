@@ -18,6 +18,8 @@ import { FabricApiTreeItem } from '../FabricApiTreeItem';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { FabricItemTags } from './FabricItemTags';
 import { FabricAppliedTag } from './FabricAppliedTag';
+import { FabricItemRelationsDownstream } from './FabricItemRelationsDownstream';
+import { FabricItemRelationsUpstream } from './FabricItemRelationsUpstream';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItem extends FabricWorkspaceTreeItem {
@@ -123,6 +125,24 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				ThisExtension.Logger.logInfo("Could not load connections for item " + this.itemName);
 			}
 
+			// Upstream Relations
+			try {
+				let upstreamRelations = new FabricItemRelationsUpstream(this);
+				children.push(upstreamRelations);
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo(`Could not load upstream relations for item '${this.itemName}' (ID: ${this.itemId})`);
+			}
+
+			// Downstream Relations
+			try {
+				let downstreamRelations = new FabricItemRelationsDownstream(this);
+				children.push(downstreamRelations);
+			}
+			catch (e) {
+				ThisExtension.Logger.logInfo(`Could not load downstream relations for item '${this.itemName}'`);
+			}
+
 			// ShortCuts
 			supportedItemTypes = ["Lakehouse", "Warehouse", "AzureDatabricksStorage"];
 			if (supportedItemTypes.includes(this.itemType)) {
@@ -135,7 +155,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 					}
 				}
 				catch (e) {
-					ThisExtension.Logger.logInfo("Could not load shortcuts for item " + this.itemName);
+					ThisExtension.Logger.logInfo(`Could not load shortcuts for item '${this.itemName}' (ID: ${this.itemId})`);
 				}
 			}
 
@@ -151,7 +171,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 					}
 				}
 				catch (e) {
-					ThisExtension.Logger.logInfo("Could not load job instances for item " + this.itemName);
+					ThisExtension.Logger.logInfo(`Could not load job instances for item '${this.itemName}' (ID: ${this.itemId})`);
 				}
 			}
 
@@ -166,7 +186,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 					}
 				}
 				catch (e) {
-					ThisExtension.Logger.logInfo("Could not load job instances for item " + this.itemName);
+					ThisExtension.Logger.logInfo(`Could not load job schedules for item '${this.itemName}' (ID: ${this.itemId})`);
 				}
 			}
 
@@ -182,7 +202,7 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 					}
 				}
 				catch (e) {
-					ThisExtension.Logger.logInfo("Could not load data access roles for item " + this.itemName);
+					ThisExtension.Logger.logInfo(`Could not load data access roles for item '${this.itemName}' (ID: ${this.itemId})`);
 				}
 			}
 

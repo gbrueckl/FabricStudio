@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.25.0**:
+- added Upstream and Downstream Relations
+
 **v2.24.2**:
 - fixed issue with `Publish via Fabric Studio`  ([83](83))
 - fixed issue with empty filters (workspace, connections, ...)
