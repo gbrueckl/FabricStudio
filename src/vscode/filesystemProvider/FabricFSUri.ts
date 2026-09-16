@@ -256,12 +256,12 @@ export class FabricFSUri {
 		const itemUrl = this.fabricItemUri;
 
 		const singular = FabricMapper.getItemTypeSingular(itemUrl.itemType);
-		let qpItem = new FabricQuickPickItem(itemUrl.item, itemUrl.itemId, singular);
+		let qpItem = new FabricQuickPickItem(decodeURIComponent(itemUrl.item), itemUrl.itemId, singular);
 		qpItem.itemType = singular;
 		qpItem.workspaceId = this.workspaceId;
 		for (const [key, value] of FabricFSUri._workspaceNameIdMap) {
 			if (value == itemUrl.workspaceId) {
-				qpItem.workspaceName = key;
+				qpItem.workspaceName = decodeURIComponent(key);
 				break;
 			}
 		}
