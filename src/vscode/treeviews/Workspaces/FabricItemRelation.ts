@@ -9,17 +9,43 @@ export class FabricItemRelation extends FabricWorkspaceTreeItem {
 		definition: iFabricApiItem,
 		parent: FabricWorkspaceTreeItem,
 		workspaceName: string,
-		relationTypes: string[]
+		relationTypes: string[],
+		children: FabricItemRelation[] = []
 	) {
-		super(`${parent.id}${definition.id}`, definition.displayName, definition.type, parent, definition, undefined, vscode.TreeItemCollapsibleState.None);
+		super(
+			`${parent.id}/${definition.id}`,
+			definition.displayName,
+			definition.type,
+			parent,
+			definition,
+			undefined,
+			children.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None
+		);
 
 		this.itemDefinition = definition;
+		this.children = children;
+		this.setChildren(children);
 		this.description = `${definition.type} - ID: ${definition.id}`;
 		this.tooltip = this.getToolTip({
 			...definition,
 			workspace: workspaceName ?? definition.workspaceId,
 			relationship: relationTypes.length > 0 ? relationTypes.join(", ") : undefined
 		});
+	}
+
+	/** Relations returned by the API that depend on this item. */
+	public children: FabricItemRelation[];
+
+	setChildren(children: FabricItemRelation[]): void {
+		this.children = children;
+		this.children.forEach(child => child.parent = this);
+		this.collapsibleState = children.length > 0
+			? vscode.TreeItemCollapsibleState.Collapsed
+			: vscode.TreeItemCollapsibleState.None;
+	}
+
+	async getChildren(): Promise<FabricWorkspaceTreeItem[]> {
+		return this.children;
 	}
 
 	get itemDefinition(): iFabricApiItem {

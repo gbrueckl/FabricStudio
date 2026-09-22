@@ -1,7 +1,11 @@
 # Change Log
 
+**v2.25.1**:
+- added hierarchical view for Upstream and Downstream relations
+- added `logicalId` from API to lookups for hover-providers
+
 **v2.25.0**:
-- added Upstream and Downstream Relations
+- added Upstream and Downstream relations
 - potential fix for ([#85](/../../issues/85))
 
 **v2.24.2**:

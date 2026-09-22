@@ -172,6 +172,7 @@ export interface iFabricApiItem {
 	id?: string;
 	folderId?: UniqueId;
 	tags?: iFabricApiTag[];
+	logicalId?: UniqueId;
 }
 
 // https://learn.microsoft.com/en-us/rest/api/fabric/core/items/get-downstream-relations(beta)?tabs=HTTP

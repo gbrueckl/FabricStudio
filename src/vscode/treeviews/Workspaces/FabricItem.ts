@@ -62,7 +62,13 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 	}
 
 	get refreshApiPaths(): string[] {
-		return Array.from(new Set([this.apiPath, this.itemApiPath].filter(path => path)));
+		const itemApiPath = this.itemApiPath;
+		return Array.from(new Set([
+			this.apiPath,
+			itemApiPath,
+			itemApiPath ? `${itemApiPath}/relations/upstream` : undefined,
+			itemApiPath ? `${itemApiPath}/relations/downstream` : undefined
+		].filter(path => path)));
 	}
 
 	get apiUrlPart(): string {
