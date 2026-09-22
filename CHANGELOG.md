@@ -3,6 +3,7 @@
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
 - added `logicalId` from API to lookups for hover-providers
+- updated API specs for auto-completion in API notebooks
 
 **v2.25.0**:
 - added Upstream and Downstream relations
