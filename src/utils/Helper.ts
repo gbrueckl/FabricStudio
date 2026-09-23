@@ -27,7 +27,7 @@ export abstract class Helper {
 	}
 
 	static async showTemporaryInformationMessage(message: string, timeout: number = 2000): Promise<void> {
-		vscode.window.withProgress({
+		await vscode.window.withProgress({
 			location: vscode.ProgressLocation.Notification,
 			title: message,
 			cancellable: false
