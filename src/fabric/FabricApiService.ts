@@ -303,7 +303,13 @@ export abstract class FabricApiService {
 
 		// Raw responses contain a consumable body and calls that raise errors have
 		// different behavior, so only regular parsed GET responses are shared.
-		if (config.raw || config.raiseErrorOnFailure) {
+		// Livy endpoints expose changing session and statement state, so their
+		// responses must never be served from the GET cache.
+		const isLivyApiRequest = /\/livyapi(?:\/|$)/i.test(vscode.Uri.parse(endpoint).path);
+		if (config.raw || config.raiseErrorOnFailure || isLivyApiRequest) {
+			if (isLivyApiRequest) {
+				this.Logger.logDebug("GET cache bypass for Livy API " + endpoint);
+			}
 			return executeRequest();
 		}
 

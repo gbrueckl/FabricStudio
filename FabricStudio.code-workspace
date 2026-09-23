@@ -5,8 +5,8 @@
 		}
 	],
 	"settings": {
-		"typescript.tsdk": "./node_modules/typescript/lib",
-		"typescript.tsc.autoDetect": "off",
+		"js/ts.tsdk.path": "./node_modules/typescript/lib",
+		"js/Ts.tsc.autoDetect": "off",
 		"chat.instructionsFilesLocations": {
 			"instructions": true
 		},

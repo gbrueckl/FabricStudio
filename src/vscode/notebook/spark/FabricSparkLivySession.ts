@@ -118,17 +118,57 @@ export class FabricSparkLivySession {
 		return createCommand;
 	}
 
-	async waitForCommandResult(commandId: number, pollInterval: number = 500, timeout?: number): Promise<iGenericApiResponse<iFabricLivyStatementResult>> {
+	async waitForCommandResult(
+		commandId: number,
+		pollInterval: number = 500,
+		timeout: number = 300000,
+		cancellationToken?: vscode.CancellationToken
+	): Promise<iGenericApiResponse<iFabricLivyStatementResult>> {
 		let result: iGenericApiResponse<iFabricLivyStatementResult> | undefined = undefined;
-		let timeElapsed: number = 0;
+		const startedAt = Date.now();
 
 		while (result === undefined || (result.success && !["available", "cancelled", "error"].includes(result.success?.state))) {
-			await Helper.delay(pollInterval);
-			timeElapsed += pollInterval;
+			if (cancellationToken?.isCancellationRequested) {
+				return { error: { errorCode: "Cancelled", message: "Spark command execution was cancelled." } };
+			}
+
+			const remainingTimeout = timeout - (Date.now() - startedAt);
+			if (remainingTimeout <= 0) {
+				return { error: { errorCode: "Timeout", message: `Spark command did not finish within ${timeout} ms.` } };
+			}
+
+			const cancelled = await this.waitForPollInterval(Math.min(pollInterval, remainingTimeout), cancellationToken);
+			if (cancelled) {
+				return { error: { errorCode: "Cancelled", message: "Spark command execution was cancelled." } };
+			}
+
 			result = await FabricApiService.get<iFabricLivyStatementResult>(Helper.joinPath(this.apiSessionEndpoint, `statements/${commandId}`));
 		}
 
 		return result;
+	}
+
+	private async waitForPollInterval(interval: number, cancellationToken?: vscode.CancellationToken): Promise<boolean> {
+		if (!cancellationToken) {
+			await Helper.delay(interval);
+			return false;
+		}
+
+		if (cancellationToken.isCancellationRequested) {
+			return true;
+		}
+
+		return new Promise<boolean>((resolve) => {
+			let cancellationSubscription: vscode.Disposable | undefined;
+			const complete = (cancelled: boolean) => {
+				clearTimeout(timer);
+				cancellationSubscription?.dispose();
+				resolve(cancelled);
+			};
+
+			const timer = setTimeout(() => complete(false), interval);
+			cancellationSubscription = cancellationToken.onCancellationRequested(() => complete(true));
+		});
 	}
 
 	async cancelCommand(command: iFabricLivyStatementCreation): Promise<iGenericApiResponse<iFabricLivyStatementCreation>> {
