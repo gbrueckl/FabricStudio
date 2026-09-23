@@ -90,25 +90,17 @@ export abstract class FabricApiService {
 		}
 
 
-		let session: vscode.AuthenticationSession | undefined = undefined;
-
 		this.Logger.logDebug("Getting new session from provider '" + this._authenticationProvider + "' ...");
-		while (!session) {
-			try {
-				session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
-			}
-			catch (error) {
-				if (error.getmessage.includes("Canceled")) {
-					this.Logger.logWarning("Issue with authentication - retrying in 100 ms ...");
-					await Helper.wait(100);
-				}
-				else {
-					this.Logger.logError(error, true, true);
-				}
-			}
+		try {
+			const session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
+			this.Logger.logDebug("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
+			return session;
 		}
-		this.Logger.logDebug("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
-		return session;
+		catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			this.Logger.logWarning(`Authentication was not completed: ${message}`);
+			throw error;
+		}
 	}
 
 	public static get SessionUserEmail(): string {
