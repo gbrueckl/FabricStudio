@@ -11,7 +11,7 @@ import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration
 import { FabricLogger } from '@utils/FabricLogger';
 
 export abstract class FabricApiService {
-	protected static _initializationState: "not_loaded" | "loading" | "loaded" = "not_loaded";
+	private static _initializationPromise: Promise<boolean> | undefined;
 	private static _getCache: Map<string, Promise<iGenericApiResponse<any, iGenericApiError>>> = new Map();
 
 	protected static _apiBaseUrl: string;
@@ -20,15 +20,14 @@ export abstract class FabricApiService {
 	protected static _authenticationProvider: string;
 	protected static _resourceId: string;
 
-	protected static _headers: HeadersInit;
-	protected static _vscodeSession: vscode.AuthenticationSession;
+	// Keep only account metadata for the UI. Access tokens are deliberately kept
+	// local to getHeaders() so every request retrieves the current VS Code token.
+	protected static _vscodeAccount: vscode.AuthenticationSessionAccountInformation;
 
 	//#region Initialization
 	static async initialize(clearSession: boolean = false): Promise<boolean> {
 		try {
 			this.Logger.log(`Initializing Fabric API Service ...`);
-
-			vscode.authentication.onDidChangeSessions((event) => this._onDidChangeSessions(event));
 
 			this._apiBaseUrl = Helper.trimChar(FabricConfiguration.apiUrl, '/');
 			this._tenantId = FabricConfiguration.tenantId;
@@ -51,21 +50,15 @@ export abstract class FabricApiService {
 	}
 
 	private static async refreshConnection(clearSession: boolean): Promise<boolean> {
-		this._vscodeSession = await this.getVSCodeSession(clearSession);
+		const session = await this.getVSCodeSession(clearSession);
 
-		if (!this._vscodeSession || !this._vscodeSession.accessToken) {
+		if (!session || !session.accessToken) {
 			this.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
 			return false;
 		}
 
-		this.Logger.logInfo("Refreshing authentication headers ...");
-		this._headers = {
-			"Authorization": 'Bearer ' + this._vscodeSession.accessToken,
-			"Content-Type": 'application/json',
-			"Accept": 'application/json'
-		}
-
-		this.Logger.logInfo(`Authenticaton headers refreshed!`);
+		this._vscodeAccount = session.account;
+		this.Logger.logInfo(`Authentication session refreshed!`);
 		ThisExtension.updateStatusBarLeft();
 
 		return true;
@@ -80,14 +73,6 @@ export abstract class FabricApiService {
 		// we dont need to specify a clientId here as VSCode is a first party app and can use impersonation by default
 		let session = await this.getAADAccessToken([`${Helper.trimChar(this._resourceId, "/")}/.default`], this._tenantId, this._clientId, clearSession);
 		return session;
-	}
-
-	private static async _onDidChangeSessions(event: vscode.AuthenticationSessionsChangeEvent) {
-		if (event.provider.id === this._authenticationProvider) {
-			this.Logger.logInfo("Session for provider '" + event.provider.label + "' changed - refreshing connections! ");
-
-			await this.refreshConnection(false);
-		}
 	}
 
 	public static async getAADAccessToken(scopes: string[], tenantId?: string, clientId?: string, clearSession: boolean = false): Promise<vscode.AuthenticationSession> {
@@ -105,30 +90,22 @@ export abstract class FabricApiService {
 		}
 
 
-		let session: vscode.AuthenticationSession | undefined = undefined;
-
-		this.Logger.logInfo("Getting new session from provider '" + this._authenticationProvider + "' ...");
-		while (!session) {
-			try {
-				session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
-			}
-			catch (error) {
-				if (error.getmessage.includes("Canceled")) {
-					this.Logger.logWarning("Issue with authentication - retrying in 100 ms ...");
-					await Helper.wait(100);
-				}
-				else {
-					this.Logger.logError(error, true, true);
-				}
-			}
+		this.Logger.logDebug("Getting new session from provider '" + this._authenticationProvider + "' ...");
+		try {
+			const session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
+			this.Logger.logDebug("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
+			return session;
 		}
-		this.Logger.logInfo("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
-		return session;
+		catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			this.Logger.logWarning(`Authentication was not completed: ${message}`);
+			throw error;
+		}
 	}
 
 	public static get SessionUserEmail(): string {
-		if (this._vscodeSession) {
-			const email = Helper.getFirstRegexGroup(/([\w\.\-\_]+@[\w\.\-]+\.+[\w-]{2,5})(\s|$)/gm, this._vscodeSession.account.label);
+		if (this._vscodeAccount) {
+			const email = Helper.getFirstRegexGroup(/([\w\.\-\_]+@[\w\.\-]+\.+[\w-]{2,5})(\s|$)/gm, this._vscodeAccount.label);
 			if (email) {
 				return email;
 			}
@@ -137,22 +114,22 @@ export abstract class FabricApiService {
 	}
 
 	public static get SessionUser(): string {
-		if (this._vscodeSession) {
-			return this._vscodeSession.account.label;
+		if (this._vscodeAccount) {
+			return this._vscodeAccount.label;
 		}
 		return "UNAUTHENTICATED";
 	}
 
 	public static get SessionUserId(): string {
-		if (this._vscodeSession) {
-			return this._vscodeSession.account.id;
+		if (this._vscodeAccount) {
+			return this._vscodeAccount.id;
 		}
 		return "UNAUTHENTICATED";
 	}
 
 	public static get SessionUserTenantId(): string {
-		if (this._vscodeSession) {
-			return this._vscodeSession.account.id.split(".")[1];
+		if (this._vscodeAccount) {
+			return this._vscodeAccount.id.split(".")[1];
 		}
 		return "UNAUTHENTICATED";
 	}
@@ -174,31 +151,26 @@ export abstract class FabricApiService {
 	}
 
 	public static async getHeaders(): Promise<HeadersInit> {
-		if (this._initializationState == "not_loaded") {
-			this._initializationState = "loading";
-
+		if (!this._initializationPromise) {
 			this.Logger.logInfo(`Initializing Connection ...`);
-
-			const initialized = await FabricApiService.initialize(false);
-			if (initialized) {
-				this._initializationState = "loaded";
-			}
-			else {
-				this._initializationState = "not_loaded";
-			}
+			this._initializationPromise = FabricApiService.initialize(false);
 		}
-		else if (this._initializationState == "loading") {
-			this.Logger.logDebug(`Connection Initialization in progress - waiting ... `);
-			const initialized = await Helper.awaitCondition(async () => this._initializationState != "loading", 30000, 100);
 
-			if (initialized) {
-				this.Logger.logDebug(`Connection Initialization SUCCESSFUL!`);
-			}
-			else {
-				this.Logger.logError(`Connection Initialization FAILED!`, true);
-			}
+		const initialized = await this._initializationPromise;
+		if (!initialized) {
+			// A failed initialization must be retried by the next request.
+			this._initializationPromise = undefined;
+			throw new Error("Fabric API Service initialization failed.");
 		}
-		return this._headers;
+		// Do not cache access tokens or Authorization headers. VS Code owns token
+		// refresh, so obtain the session immediately before every API request.
+		const session = await this.getVSCodeSession(false);
+		this._vscodeAccount = session.account;
+		return {
+			"Authorization": 'Bearer ' + session.accessToken,
+			"Content-Type": 'application/json',
+			"Accept": 'application/json'
+		};
 	}
 
 	public static getFullUrl(endpoint: string, params: any = undefined): string {
@@ -260,8 +232,9 @@ export abstract class FabricApiService {
 		params?: object,
 		config: iGenericApiCallConfig = { "raw": false, "raiseErrorOnFailure": false }
 	): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> {
-		const headers = await this.getHeaders(); // this also checks if the connection is initialized
-
+		// Initialize before constructing the URL, since initialization supplies the
+		// configured API base URL. The header remains local to this request.
+		let headers = await this.getHeaders();
 		endpoint = this.getFullUrl(endpoint, params);
 		this.Logger.logInfo("GET " + endpoint);
 
@@ -302,8 +275,8 @@ export abstract class FabricApiService {
 				}
 
 				if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
-					this.Logger.logError("Token expired - refreshing connection!");
-					await this.refreshConnection(true);
+					this.Logger.logError("Token expired - retrieving a new token from VS Code!");
+					headers = await this.getHeaders();
 					return executeRequest();
 				}
 
@@ -316,13 +289,25 @@ export abstract class FabricApiService {
 			} catch (error) {
 				this.handleApiException(error, false, config.raiseErrorOnFailure);
 
-				return undefined;
+				const errorTyped = error instanceof Error ? error : new Error(String(error));
+				return {
+					error: {
+						errorCode: "ClientError",
+						message: errorTyped.message
+					}
+				};
 			}
 		};
 
 		// Raw responses contain a consumable body and calls that raise errors have
 		// different behavior, so only regular parsed GET responses are shared.
-		if (config.raw || config.raiseErrorOnFailure) {
+		// Livy endpoints expose changing session and statement state, so their
+		// responses must never be served from the GET cache.
+		const isLivyApiRequest = /\/livyapi(?:\/|$)/i.test(vscode.Uri.parse(endpoint).path);
+		if (config.raw || config.raiseErrorOnFailure || isLivyApiRequest) {
+			if (isLivyApiRequest) {
+				this.Logger.logDebug("GET cache bypass for Livy API " + endpoint);
+			}
 			return executeRequest();
 		}
 
@@ -381,44 +366,96 @@ export abstract class FabricApiService {
 		};
 	}
 
+	private static getRetryAfterMs(retryAfter: string | null): number | undefined {
+		if (!retryAfter) {
+			return undefined;
+		}
+
+		const seconds = Number(retryAfter);
+		if (Number.isFinite(seconds) && seconds >= 0) {
+			return seconds * 1000;
+		}
+
+		const retryAt = Date.parse(retryAfter);
+		return Number.isNaN(retryAt) ? undefined : Math.max(0, retryAt - Date.now());
+	}
+
+	private static async waitForPollInterval(intervalMs: number, cancellationToken?: vscode.CancellationToken): Promise<boolean> {
+		if (!cancellationToken) {
+			await Helper.wait(intervalMs);
+			return false;
+		}
+
+		if (cancellationToken.isCancellationRequested) {
+			return true;
+		}
+
+		return new Promise<boolean>((resolve) => {
+			let cancellationSubscription: vscode.Disposable | undefined;
+			const complete = (cancelled: boolean) => {
+				clearTimeout(timer);
+				cancellationSubscription?.dispose();
+				resolve(cancelled);
+			};
+
+			const timer = setTimeout(() => complete(false), intervalMs);
+			cancellationSubscription = cancellationToken.onCancellationRequested(() => complete(true));
+		});
+	}
+
 	static async longRunningOperation<TSuccess = any>(
 		response: Response,
-		maxWaitTimeMS: number = 2000
+		maxPollIntervalMs: number = 2000,
+		timeoutMs: number = 300000,
+		cancellationToken?: vscode.CancellationToken
 	): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> {
 		// https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation
 
 		let callback = response.headers.get("location");
 		let retryAfter = response.headers.get("retry-after");
-
-		let customWaitMs: number = 100;
+		let backoffMs: number = 100;
 		let resultText: string;
 		let pollingResult: iFabricPollingResponse;
+		const startedAt = Date.now();
 
 		while (response.ok && callback) {
+			if (cancellationToken?.isCancellationRequested) {
+				return { error: { errorCode: "Cancelled", message: "Long-running operation was cancelled." } };
+			}
+
+			const remainingTimeoutMs = timeoutMs - (Date.now() - startedAt);
+			if (remainingTimeoutMs <= 0) {
+				return { error: { errorCode: "Timeout", message: `Long-running operation did not finish within ${timeoutMs} ms.` } };
+			}
+
 			if (callback.endsWith("/result")) {
 				// next callback is the result already
 				return this.get<TSuccess>(callback);
 			}
-			else {
-				//await Helper.wait(retryAfter ? parseInt(retryAfter) / 10 * 1000 : 1000);
-				await Helper.wait(customWaitMs);
-				customWaitMs = Math.min(customWaitMs * 2, maxWaitTimeMS);
-				let callback_response = await this.get<Response>(callback, undefined, { "raw": true });
 
-				if (callback_response.error) {
-					return { error: callback_response.error };
-				}
+			const retryAfterMs = this.getRetryAfterMs(retryAfter);
+			const delayMs = Math.min(retryAfterMs ?? backoffMs, maxPollIntervalMs, remainingTimeoutMs);
+			const cancelled = await this.waitForPollInterval(delayMs, cancellationToken);
+			if (cancelled) {
+				return { error: { errorCode: "Cancelled", message: "Long-running operation was cancelled." } };
+			}
 
-				callback = callback_response.success.headers.get("location");
-				retryAfter = callback_response.success.headers.get("retry-after");
+			backoffMs = Math.min(backoffMs * 2, maxPollIntervalMs);
+			let callback_response = await this.get<Response>(callback, undefined, { "raw": true });
 
-				resultText = await callback_response.success.text();
-				pollingResult = JSON.parse(resultText) as any as iFabricPollingResponse;
+			if (callback_response.error) {
+				return { error: callback_response.error };
+			}
 
-				if (callback_response.success.ok) {
-					if (pollingResult["status"] == "Failed") {
-						return { error: pollingResult.error ?? pollingResult["failureReason"] };
-					}
+			callback = callback_response.success.headers.get("location");
+			retryAfter = callback_response.success.headers.get("retry-after");
+
+			resultText = await callback_response.success.text();
+			pollingResult = JSON.parse(resultText) as any as iFabricPollingResponse;
+
+			if (callback_response.success.ok) {
+				if (pollingResult["status"] == "Failed") {
+					return { error: pollingResult.error ?? pollingResult["failureReason"] };
 				}
 			}
 		}
@@ -462,7 +499,12 @@ export abstract class FabricApiService {
 				if (response.status == 202) {
 					if (config.awaitLongRunningOperation) {
 
-						let lroResult = await this.longRunningOperation<TSuccess>(response, 2000);
+						let lroResult = await this.longRunningOperation<TSuccess>(
+							response,
+							2000,
+							config.longRunningOperationTimeoutMs,
+							config.cancellationToken
+						);
 						lroResult.responseHeaders = responseHeaders;
 
 						return lroResult;
@@ -505,7 +547,13 @@ export abstract class FabricApiService {
 		} catch (error) {
 			this.handleApiException(error, false, config.raiseErrorOnFailure);
 
-			return undefined;
+			const errorTyped = error instanceof Error ? error : new Error(String(error));
+			return {
+				error: {
+					errorCode: "ClientError",
+					message: errorTyped.message
+				}
+			};
 		}
 	}
 

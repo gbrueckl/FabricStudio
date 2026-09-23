@@ -1,5 +1,11 @@
 # Change Log
 
+**v2.26.0**:
+- general rework of API calls
+  - authentication
+  - polling
+  - caching
+
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
 - added `logicalId` from API to lookups for hover-providers

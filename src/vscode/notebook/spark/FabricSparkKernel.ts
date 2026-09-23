@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 
 import { ThisExtension } from '../../../ThisExtension';
 import { Helper } from '@utils/Helper';
-import { FabricApiItemFormat, iFabricApiItem, iFabricApiLakehouse } from '../../../fabric/_types';
+import { FabricApiItemFormat, iFabricApiItem, iFabricApiLakehouse, iFabricLivyStatementResult } from '../../../fabric/_types';
+import { iGenericApiResponse } from '@utils/_types';
 import { iFabricApiLivySessionJsonResultSet, NotebookType, SparkLanguageConfigs, SparkNotebookLanguage, SparkNotebookMagic, SparkVSCodeLanguage } from './_types';
 import { FABRIC_SCHEME } from '../../filesystemProvider/FabricFileSystemProvider';
 import { FabricSparkLivySession } from './FabricSparkLivySession';
@@ -270,8 +271,10 @@ export class FabricSparkKernel implements vscode.NotebookController {
 				return false;
 			}
 
-			execution.token.onCancellationRequested(() => {
-				livySession.cancelCommand(command.success);
+			const cancellationSubscription = execution.token.onCancellationRequested(() => {
+				void livySession.cancelCommand(command.success).catch((error) =>
+					ThisExtension.Logger.logWarning(`Could not cancel Spark command ${command.success.id}: ${error}`)
+				);
 
 				execution.appendOutput(new vscode.NotebookCellOutput([
 					vscode.NotebookCellOutputItem.text("Execution cancelled!", 'text/plain'),
@@ -281,7 +284,17 @@ export class FabricSparkKernel implements vscode.NotebookController {
 				return false;
 			});
 
-			const result = await livySession.waitForCommandResult(command.success.id)
+			let result: iGenericApiResponse<iFabricLivyStatementResult>;
+			try {
+				result = await livySession.waitForCommandResult(command.success.id, 500, 300000, execution.token);
+			}
+			finally {
+				cancellationSubscription.dispose();
+			}
+
+			if (execution.token.isCancellationRequested) {
+				return false;
+			}
 
 			if (result.success) {
 				if (result.success.output.status == "error") {

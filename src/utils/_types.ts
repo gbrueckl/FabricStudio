@@ -19,4 +19,7 @@ export interface iGenericApiCallConfig {
 	raw?: boolean;
 	raiseErrorOnFailure?: boolean;
 	awaitLongRunningOperation?: boolean;
+	longRunningOperationTimeoutMs?: number;
+	cancellationToken?: vscode.CancellationToken;
 }
+import type * as vscode from 'vscode';

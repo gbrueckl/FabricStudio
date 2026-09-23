@@ -7,6 +7,7 @@ import { FabricGUIDHoverProvider, iFabricItemDetails } from '../vscode/hoverProv
 // AIDEV-NOTE: Parses .platform files from local Fabric Git repos to resolve logicalIds via the hover provider.
 const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
 const PLATFORM_FILE_GLOB = "**/.platform";
+const MAX_CONCURRENT_PLATFORM_FILE_PARSERS = 20;
 
 /**
  * Parses `.platform` files found in the current VSCode workspace folders.
@@ -148,10 +149,31 @@ export abstract class FabricPlatformParser {
 
 				const totalFiles = platformFiles.length;
 
-				// AIDEV-NOTE: perf — process all files in parallel; each call reads, parses, and caches independently.
-				const results = await Promise.all(
-					platformFiles.map((fileUri, i) =>
-						FabricPlatformParser.processPlatformFile(fileUri, progress, token, i, totalFiles)
+				// Process a bounded number of files at once to avoid overwhelming the
+				// extension host or filesystem in large workspaces.
+				const results: boolean[] = [];
+				let nextFileIndex = 0;
+				const worker = async (): Promise<void> => {
+					while (!token.isCancellationRequested) {
+						const fileIndex = nextFileIndex++;
+						if (fileIndex >= totalFiles) {
+							return;
+						}
+
+						results[fileIndex] = await FabricPlatformParser.processPlatformFile(
+							platformFiles[fileIndex],
+							progress,
+							token,
+							fileIndex,
+							totalFiles
+						);
+					}
+				};
+
+				await Promise.all(
+					Array.from(
+						{ length: Math.min(MAX_CONCURRENT_PLATFORM_FILE_PARSERS, totalFiles) },
+						() => worker()
 					)
 				);
 
