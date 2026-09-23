@@ -289,7 +289,13 @@ export abstract class FabricApiService {
 			} catch (error) {
 				this.handleApiException(error, false, config.raiseErrorOnFailure);
 
-				return undefined;
+				const errorTyped = error instanceof Error ? error : new Error(String(error));
+				return {
+					error: {
+						errorCode: "ClientError",
+						message: errorTyped.message
+					}
+				};
 			}
 		};
 
@@ -360,44 +366,96 @@ export abstract class FabricApiService {
 		};
 	}
 
+	private static getRetryAfterMs(retryAfter: string | null): number | undefined {
+		if (!retryAfter) {
+			return undefined;
+		}
+
+		const seconds = Number(retryAfter);
+		if (Number.isFinite(seconds) && seconds >= 0) {
+			return seconds * 1000;
+		}
+
+		const retryAt = Date.parse(retryAfter);
+		return Number.isNaN(retryAt) ? undefined : Math.max(0, retryAt - Date.now());
+	}
+
+	private static async waitForPollInterval(intervalMs: number, cancellationToken?: vscode.CancellationToken): Promise<boolean> {
+		if (!cancellationToken) {
+			await Helper.wait(intervalMs);
+			return false;
+		}
+
+		if (cancellationToken.isCancellationRequested) {
+			return true;
+		}
+
+		return new Promise<boolean>((resolve) => {
+			let cancellationSubscription: vscode.Disposable | undefined;
+			const complete = (cancelled: boolean) => {
+				clearTimeout(timer);
+				cancellationSubscription?.dispose();
+				resolve(cancelled);
+			};
+
+			const timer = setTimeout(() => complete(false), intervalMs);
+			cancellationSubscription = cancellationToken.onCancellationRequested(() => complete(true));
+		});
+	}
+
 	static async longRunningOperation<TSuccess = any>(
 		response: Response,
-		maxWaitTimeMS: number = 2000
+		maxPollIntervalMs: number = 2000,
+		timeoutMs: number = 300000,
+		cancellationToken?: vscode.CancellationToken
 	): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> {
 		// https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation
 
 		let callback = response.headers.get("location");
 		let retryAfter = response.headers.get("retry-after");
-
-		let customWaitMs: number = 100;
+		let backoffMs: number = 100;
 		let resultText: string;
 		let pollingResult: iFabricPollingResponse;
+		const startedAt = Date.now();
 
 		while (response.ok && callback) {
+			if (cancellationToken?.isCancellationRequested) {
+				return { error: { errorCode: "Cancelled", message: "Long-running operation was cancelled." } };
+			}
+
+			const remainingTimeoutMs = timeoutMs - (Date.now() - startedAt);
+			if (remainingTimeoutMs <= 0) {
+				return { error: { errorCode: "Timeout", message: `Long-running operation did not finish within ${timeoutMs} ms.` } };
+			}
+
 			if (callback.endsWith("/result")) {
 				// next callback is the result already
 				return this.get<TSuccess>(callback);
 			}
-			else {
-				//await Helper.wait(retryAfter ? parseInt(retryAfter) / 10 * 1000 : 1000);
-				await Helper.wait(customWaitMs);
-				customWaitMs = Math.min(customWaitMs * 2, maxWaitTimeMS);
-				let callback_response = await this.get<Response>(callback, undefined, { "raw": true });
 
-				if (callback_response.error) {
-					return { error: callback_response.error };
-				}
+			const retryAfterMs = this.getRetryAfterMs(retryAfter);
+			const delayMs = Math.min(retryAfterMs ?? backoffMs, maxPollIntervalMs, remainingTimeoutMs);
+			const cancelled = await this.waitForPollInterval(delayMs, cancellationToken);
+			if (cancelled) {
+				return { error: { errorCode: "Cancelled", message: "Long-running operation was cancelled." } };
+			}
 
-				callback = callback_response.success.headers.get("location");
-				retryAfter = callback_response.success.headers.get("retry-after");
+			backoffMs = Math.min(backoffMs * 2, maxPollIntervalMs);
+			let callback_response = await this.get<Response>(callback, undefined, { "raw": true });
 
-				resultText = await callback_response.success.text();
-				pollingResult = JSON.parse(resultText) as any as iFabricPollingResponse;
+			if (callback_response.error) {
+				return { error: callback_response.error };
+			}
 
-				if (callback_response.success.ok) {
-					if (pollingResult["status"] == "Failed") {
-						return { error: pollingResult.error ?? pollingResult["failureReason"] };
-					}
+			callback = callback_response.success.headers.get("location");
+			retryAfter = callback_response.success.headers.get("retry-after");
+
+			resultText = await callback_response.success.text();
+			pollingResult = JSON.parse(resultText) as any as iFabricPollingResponse;
+
+			if (callback_response.success.ok) {
+				if (pollingResult["status"] == "Failed") {
+					return { error: pollingResult.error ?? pollingResult["failureReason"] };
 				}
 			}
 		}
@@ -441,7 +499,12 @@ export abstract class FabricApiService {
 				if (response.status == 202) {
 					if (config.awaitLongRunningOperation) {
 
-						let lroResult = await this.longRunningOperation<TSuccess>(response, 2000);
+						let lroResult = await this.longRunningOperation<TSuccess>(
+							response,
+							2000,
+							config.longRunningOperationTimeoutMs,
+							config.cancellationToken
+						);
 						lroResult.responseHeaders = responseHeaders;
 
 						return lroResult;
@@ -484,7 +547,13 @@ export abstract class FabricApiService {
 		} catch (error) {
 			this.handleApiException(error, false, config.raiseErrorOnFailure);
 
-			return undefined;
+			const errorTyped = error instanceof Error ? error : new Error(String(error));
+			return {
+				error: {
+					errorCode: "ClientError",
+					message: errorTyped.message
+				}
+			};
 		}
 	}
 
