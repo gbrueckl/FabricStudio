@@ -314,32 +314,6 @@ export abstract class Helper {
 		return text;
 	}
 
-	static async awaitCondition(
-		condition: () => Promise<boolean>,
-		timeout: number,
-		interval: number
-	): Promise<boolean> {
-		// Set a timer that will resolve with null
-		return new Promise<boolean>((resolve) => {
-			let finish: (result: boolean) => void;
-			const timer = setTimeout(() => finish(false), timeout);
-			const intervalId = setInterval(() => {
-				condition()
-					.then((result) => {
-						if (result) {
-							finish(true);
-						}
-					})
-					.catch((_e) => finish(false));
-			}, interval);
-			finish = (result: boolean) => {
-				clearTimeout(timer);
-				clearInterval(intervalId);
-				resolve(result);
-			};
-		});
-	}
-
 	static toLocalDateTime(dateTime: Date): Date {
 		const offset = new Date().getTimezoneOffset() * 60 * 1000;
 		let localDateTime = new Date(dateTime.getTime() - offset);

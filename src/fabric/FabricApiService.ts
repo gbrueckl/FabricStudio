@@ -11,7 +11,7 @@ import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration
 import { FabricLogger } from '@utils/FabricLogger';
 
 export abstract class FabricApiService {
-	protected static _initializationState: "not_loaded" | "loading" | "loaded" = "not_loaded";
+	private static _initializationPromise: Promise<boolean> | undefined;
 	private static _getCache: Map<string, Promise<iGenericApiResponse<any, iGenericApiError>>> = new Map();
 
 	protected static _apiBaseUrl: string;
@@ -20,15 +20,14 @@ export abstract class FabricApiService {
 	protected static _authenticationProvider: string;
 	protected static _resourceId: string;
 
-	protected static _headers: HeadersInit;
-	protected static _vscodeSession: vscode.AuthenticationSession;
+	// Keep only account metadata for the UI. Access tokens are deliberately kept
+	// local to getHeaders() so every request retrieves the current VS Code token.
+	protected static _vscodeAccount: vscode.AuthenticationSessionAccountInformation;
 
 	//#region Initialization
 	static async initialize(clearSession: boolean = false): Promise<boolean> {
 		try {
 			this.Logger.log(`Initializing Fabric API Service ...`);
-
-			vscode.authentication.onDidChangeSessions((event) => this._onDidChangeSessions(event));
 
 			this._apiBaseUrl = Helper.trimChar(FabricConfiguration.apiUrl, '/');
 			this._tenantId = FabricConfiguration.tenantId;
@@ -51,21 +50,15 @@ export abstract class FabricApiService {
 	}
 
 	private static async refreshConnection(clearSession: boolean): Promise<boolean> {
-		this._vscodeSession = await this.getVSCodeSession(clearSession);
+		const session = await this.getVSCodeSession(clearSession);
 
-		if (!this._vscodeSession || !this._vscodeSession.accessToken) {
+		if (!session || !session.accessToken) {
 			this.Logger.logError(`You need to log in before you can use Fabric Studio!`, true);
 			return false;
 		}
 
-		this.Logger.logInfo("Refreshing authentication headers ...");
-		this._headers = {
-			"Authorization": 'Bearer ' + this._vscodeSession.accessToken,
-			"Content-Type": 'application/json',
-			"Accept": 'application/json'
-		}
-
-		this.Logger.logInfo(`Authenticaton headers refreshed!`);
+		this._vscodeAccount = session.account;
+		this.Logger.logInfo(`Authentication session refreshed!`);
 		ThisExtension.updateStatusBarLeft();
 
 		return true;
@@ -80,14 +73,6 @@ export abstract class FabricApiService {
 		// we dont need to specify a clientId here as VSCode is a first party app and can use impersonation by default
 		let session = await this.getAADAccessToken([`${Helper.trimChar(this._resourceId, "/")}/.default`], this._tenantId, this._clientId, clearSession);
 		return session;
-	}
-
-	private static async _onDidChangeSessions(event: vscode.AuthenticationSessionsChangeEvent) {
-		if (event.provider.id === this._authenticationProvider) {
-			this.Logger.logInfo("Session for provider '" + event.provider.label + "' changed - refreshing connections! ");
-
-			await this.refreshConnection(false);
-		}
 	}
 
 	public static async getAADAccessToken(scopes: string[], tenantId?: string, clientId?: string, clearSession: boolean = false): Promise<vscode.AuthenticationSession> {
@@ -107,7 +92,7 @@ export abstract class FabricApiService {
 
 		let session: vscode.AuthenticationSession | undefined = undefined;
 
-		this.Logger.logInfo("Getting new session from provider '" + this._authenticationProvider + "' ...");
+		this.Logger.logDebug("Getting new session from provider '" + this._authenticationProvider + "' ...");
 		while (!session) {
 			try {
 				session = await vscode.authentication.getSession(this._authenticationProvider, scopes, { createIfNone: true, clearSessionPreference: clearSession });
@@ -122,13 +107,13 @@ export abstract class FabricApiService {
 				}
 			}
 		}
-		this.Logger.logInfo("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
+		this.Logger.logDebug("Successfully retrieved session from provider '" + this._authenticationProvider + "' ...");
 		return session;
 	}
 
 	public static get SessionUserEmail(): string {
-		if (this._vscodeSession) {
-			const email = Helper.getFirstRegexGroup(/([\w\.\-\_]+@[\w\.\-]+\.+[\w-]{2,5})(\s|$)/gm, this._vscodeSession.account.label);
+		if (this._vscodeAccount) {
+			const email = Helper.getFirstRegexGroup(/([\w\.\-\_]+@[\w\.\-]+\.+[\w-]{2,5})(\s|$)/gm, this._vscodeAccount.label);
 			if (email) {
 				return email;
 			}
@@ -137,22 +122,22 @@ export abstract class FabricApiService {
 	}
 
 	public static get SessionUser(): string {
-		if (this._vscodeSession) {
-			return this._vscodeSession.account.label;
+		if (this._vscodeAccount) {
+			return this._vscodeAccount.label;
 		}
 		return "UNAUTHENTICATED";
 	}
 
 	public static get SessionUserId(): string {
-		if (this._vscodeSession) {
-			return this._vscodeSession.account.id;
+		if (this._vscodeAccount) {
+			return this._vscodeAccount.id;
 		}
 		return "UNAUTHENTICATED";
 	}
 
 	public static get SessionUserTenantId(): string {
-		if (this._vscodeSession) {
-			return this._vscodeSession.account.id.split(".")[1];
+		if (this._vscodeAccount) {
+			return this._vscodeAccount.id.split(".")[1];
 		}
 		return "UNAUTHENTICATED";
 	}
@@ -174,31 +159,26 @@ export abstract class FabricApiService {
 	}
 
 	public static async getHeaders(): Promise<HeadersInit> {
-		if (this._initializationState == "not_loaded") {
-			this._initializationState = "loading";
-
+		if (!this._initializationPromise) {
 			this.Logger.logInfo(`Initializing Connection ...`);
-
-			const initialized = await FabricApiService.initialize(false);
-			if (initialized) {
-				this._initializationState = "loaded";
-			}
-			else {
-				this._initializationState = "not_loaded";
-			}
+			this._initializationPromise = FabricApiService.initialize(false);
 		}
-		else if (this._initializationState == "loading") {
-			this.Logger.logDebug(`Connection Initialization in progress - waiting ... `);
-			const initialized = await Helper.awaitCondition(async () => this._initializationState != "loading", 30000, 100);
 
-			if (initialized) {
-				this.Logger.logDebug(`Connection Initialization SUCCESSFUL!`);
-			}
-			else {
-				this.Logger.logError(`Connection Initialization FAILED!`, true);
-			}
+		const initialized = await this._initializationPromise;
+		if (!initialized) {
+			// A failed initialization must be retried by the next request.
+			this._initializationPromise = undefined;
+			throw new Error("Fabric API Service initialization failed.");
 		}
-		return this._headers;
+		// Do not cache access tokens or Authorization headers. VS Code owns token
+		// refresh, so obtain the session immediately before every API request.
+		const session = await this.getVSCodeSession(false);
+		this._vscodeAccount = session.account;
+		return {
+			"Authorization": 'Bearer ' + session.accessToken,
+			"Content-Type": 'application/json',
+			"Accept": 'application/json'
+		};
 	}
 
 	public static getFullUrl(endpoint: string, params: any = undefined): string {
@@ -260,8 +240,9 @@ export abstract class FabricApiService {
 		params?: object,
 		config: iGenericApiCallConfig = { "raw": false, "raiseErrorOnFailure": false }
 	): Promise<iGenericApiResponse<TSuccess, iGenericApiError>> {
-		const headers = await this.getHeaders(); // this also checks if the connection is initialized
-
+		// Initialize before constructing the URL, since initialization supplies the
+		// configured API base URL. The header remains local to this request.
+		let headers = await this.getHeaders();
 		endpoint = this.getFullUrl(endpoint, params);
 		this.Logger.logInfo("GET " + endpoint);
 
@@ -302,8 +283,8 @@ export abstract class FabricApiService {
 				}
 
 				if (error && "errorCode" in error && "TokenExpired" == error.errorCode) {
-					this.Logger.logError("Token expired - refreshing connection!");
-					await this.refreshConnection(true);
+					this.Logger.logError("Token expired - retrieving a new token from VS Code!");
+					headers = await this.getHeaders();
 					return executeRequest();
 				}
 

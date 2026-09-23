@@ -3,15 +3,16 @@ import * as vscode from 'vscode';
 import { ThisExtension } from '../../ThisExtension';
 import { FabricFSUri, FabricUriType } from './FabricFSUri';
 import { Helper } from '@utils/Helper';
-import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricFSCache } from './FabricFSCache';
-import { FabricFSPublishAction, LoadingState } from './_types';
+import { FabricFSPublishAction } from './_types';
 
 export class FabricFSCacheItem {
 
 	protected _uri: FabricFSUri;
-	protected _loadingStateStats: LoadingState = "not_loaded";
-	protected _loadingStateChildren: LoadingState = "not_loaded";
+	private _statsLoaded: boolean = false;
+	private _childrenLoaded: boolean = false;
+	private _statsLoad: Promise<vscode.FileStat | undefined> | undefined;
+	private _childrenLoad: Promise<[string, vscode.FileType][] | undefined> | undefined;
 	protected _stats: vscode.FileStat | undefined;
 	protected _children: [string, vscode.FileType][] | undefined;
 	protected _content: Uint8Array | undefined;
@@ -22,12 +23,10 @@ export class FabricFSCacheItem {
 
 	constructor(uri: FabricFSUri) {
 		this._uri = uri;
-		this._loadingStateStats = "not_loaded";
-		this._loadingStateChildren = "not_loaded";
 	}
 
 	public initializeEmpty(apiResponse: any = undefined): void {
-		this._loadingStateStats = "loaded";
+		this._statsLoaded = true;
 		this._stats = {
 			type: vscode.FileType.Directory,
 			ctime: undefined,
@@ -35,7 +34,7 @@ export class FabricFSCacheItem {
 			size: undefined
 		};
 
-		this._loadingStateChildren = "loaded";
+		this._childrenLoaded = true;
 		this._children = [];
 
 		this._apiResponse = apiResponse;
@@ -57,22 +56,6 @@ export class FabricFSCacheItem {
 		return this._apiResponse as T;
 	}
 
-	get loadingStateStats(): LoadingState {
-		return this._loadingStateStats;
-	}
-
-	set loadingStateStats(value: LoadingState) {
-		this._loadingStateStats = value;
-	}
-
-	get loadingStateChildren(): LoadingState {
-		return this._loadingStateChildren;
-	}
-
-	set loadingStateChildren(value: LoadingState) {
-		this._loadingStateChildren = value;
-	}
-
 	get publishAction(): FabricFSPublishAction {
 		return this._publishAction;
 	}
@@ -86,54 +69,51 @@ export class FabricFSCacheItem {
 	}
 
 	public async stats(): Promise<vscode.FileStat | undefined> {
-		if (this.loadingStateStats == "not_loaded") {
-			this.loadingStateStats = "loading";
-
-			ThisExtension.Logger.logInfo(`Loading Fabric URI Stats ${this.FabricUri.uri.toString()} ...`);
-			
-			await this.loadStatsFromApi();
-			this.loadingStateStats = "loaded";
+		if (this._statsLoaded) {
+			return this._stats;
 		}
-		else if (this.loadingStateStats == "loading") {
-			ThisExtension.Logger.logDebug(`Fabric URI Stats for ${this.FabricUri.uri.toString()} are loading in other process - waiting ... `);
-			const result = await Helper.awaitCondition(async () => this.loadingStateStats != "loading", 10000, 100);
 
-			if(!result) {
-				this._loadingStateStats = "not_loaded";
-				ThisExtension.Logger.logWarning(`Fabric URI Stats for ${this.FabricUri.uri.toString()} could not be loaded in other process!`, true);
-				return;
-			}
-			else {
-				this._loadingStateStats = "loaded";
-				ThisExtension.Logger.logInfo(`Fabric URI Stats for ${this.FabricUri.uri.toString()} successfully loaded in other process!`);
-			}
+		if (!this._statsLoad) {
+			this._statsLoad = this.loadStats();
 		}
-		return this._stats;
+
+		return this._statsLoad;
 	}
 
 	public async readDirectory(): Promise<[string, vscode.FileType][] | undefined> {
-		if (this.loadingStateChildren == "not_loaded") {
-			this.loadingStateChildren = "loading";
+		if (this._childrenLoaded) {
+			return this._children;
+		}
 
-			ThisExtension.Logger.logInfo(`Loading Fabric URI Children ${this.FabricUri.uri.toString()} ...`);
+		if (!this._childrenLoad) {
+			this._childrenLoad = this.loadChildren();
+		}
+
+		return this._childrenLoad;
+	}
+
+	private async loadStats(): Promise<vscode.FileStat | undefined> {
+		try {
+			ThisExtension.Logger.logInfo(`Loading Fabric URI Stats ${this.uri.toString()} ...`);
+			await this.loadStatsFromApi();
+			this._statsLoaded = true;
+			return this._stats;
+		}
+		finally {
+			this._statsLoad = undefined;
+		}
+	}
+
+	private async loadChildren(): Promise<[string, vscode.FileType][] | undefined> {
+		try {
+			ThisExtension.Logger.logInfo(`Loading Fabric URI Children ${this.uri.toString()} ...`);
 			await this.loadChildrenFromApi();
-			this.loadingStateChildren = "loaded";
+			this._childrenLoaded = true;
+			return this._children;
 		}
-		else if (this.loadingStateChildren == "loading") {
-			ThisExtension.Logger.logDebug(`Fabric URI Children for ${this.FabricUri.uri.toString()} are loading in other process - waiting ... `);
-			const result = await Helper.awaitCondition(async () => this.loadingStateChildren != "loading", 10000, 100);
-
-			if(!result) {
-				this.loadingStateChildren = "not_loaded";
-				ThisExtension.Logger.logWarning(`Fabric URI Children for ${this.FabricUri.uri.toString()} could not be loaded in other process!`, true);
-				return;
-			}
-			else {
-				this.loadingStateChildren = "loaded";
-				ThisExtension.Logger.logInfo(`Fabric URI Children for ${this.FabricUri.uri.toString()} successfully loaded in other process!`);
-			}
+		finally {
+			this._childrenLoad = undefined;
 		}
-		return this._children;
 	}
 
 	public async readFile(): Promise<Uint8Array | undefined> {
