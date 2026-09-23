@@ -56,15 +56,38 @@ export class FabricSparkLivySession {
 	}
 
 	async waitTillStarted(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
-		await Helper.awaitWithProgress("Attaching to Spark Session", this.waitTillStartedMain(pollInterval, timeout));
+		await vscode.window.withProgress(
+			{
+				location: vscode.ProgressLocation.Notification,
+				title: "Attaching to Spark Session",
+				cancellable: true
+			},
+			(_progress, cancellationToken) => this.waitTillStartedMain(pollInterval, timeout, cancellationToken)
+		);
 	}
 
-	private async waitTillStartedMain(pollInterval: number = 1000, timeout: number = 300000): Promise<void> {
+	private async waitTillStartedMain(
+		pollInterval: number = 1000,
+		timeout: number = 300000,
+		cancellationToken?: vscode.CancellationToken
+	): Promise<void> {
 		let isStarted: boolean = false;
-		let timeElapsed: number = 0;
-		while (!isStarted && timeElapsed < timeout) {
-			await Helper.delay(pollInterval);
-			timeElapsed += pollInterval;
+		const startedAt = Date.now();
+		while (!isStarted) {
+			if (cancellationToken?.isCancellationRequested) {
+				throw new Error("Attaching to the Spark session was cancelled.");
+			}
+
+			const remainingTimeout = timeout - (Date.now() - startedAt);
+			if (remainingTimeout <= 0) {
+				break;
+			}
+
+			const cancelled = await this.waitForPollInterval(Math.min(pollInterval, remainingTimeout), cancellationToken);
+			if (cancelled) {
+				throw new Error("Attaching to the Spark session was cancelled.");
+			}
+
 			// get the session status
 			const response = await FabricApiService.get<iFabricApiLivySessionCreation>(this.apiSessionEndpoint);
 

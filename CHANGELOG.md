@@ -1,8 +1,10 @@
 # Change Log
 
-**v2.25.2**:
-- rework authentication
-- rework polling for API calls
+**v2.26.0**:
+- general rework of API calls
+  - authentication
+  - polling
+  - caching
 
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
