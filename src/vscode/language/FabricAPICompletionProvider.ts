@@ -182,8 +182,10 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 				// replace multiple slashes with one
 				currentPath = currentPath.replace(/\/+/gm, "/");
 
-				// replace guids with placeholders from previous path
-				let pathSearch = currentPath.replace(/\/([a-zA-Z]*?)\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gm, "/$1/{$1XXXId}").replace(new RegExp("sXXX", "g"), "");
+				// Replace GUIDs with the parameter names defined by Swagger. Deriving the
+				// parameter name from a plural path segment fails for irregular plurals,
+				// such as capacities -> capacityId.
+				let pathSearch = this.replaceGuidsWithSwaggerPlaceholders(currentPath);
 
 				let matchingApis = await this.getAvailableEndpoints(pathSearch, method, showOtherMethods);
 				let completionItems: vscode.CompletionItem[] = [];
@@ -291,6 +293,33 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		}
 
 		return [];
+	}
+
+	private replaceGuidsWithSwaggerPlaceholders(currentPath: string): string {
+		const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+		const currentPathParts = currentPath.split("/");
+		const swaggerPath = Object.getOwnPropertyNames(FabricAPICompletionProvider.swagger.paths).find((path) => {
+			const swaggerPathParts = path.split("/");
+			return currentPathParts.every((part, index) => {
+				// The final empty segment represents the slash which triggered completion.
+				if (index == currentPathParts.length - 1 && part == "") {
+					return true;
+				}
+				if (guidRegex.test(part)) {
+					return /^\{[^}]+\}$/.test(swaggerPathParts[index]);
+				}
+				return swaggerPathParts[index]?.toLowerCase() == part.toLowerCase();
+			});
+		});
+
+		if (swaggerPath) {
+			const swaggerPathParts = swaggerPath.split("/");
+			return currentPathParts.map((part, index) => guidRegex.test(part) ? swaggerPathParts[index] : part).join("/");
+		}
+
+		// Preserve the previous behavior for paths that do not yet have a matching
+		// Swagger endpoint.
+		return currentPath.replace(/\/([a-zA-Z]*?)\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/gm, "/$1/{$1XXXId}").replace(new RegExp("sXXX", "g"), "");
 	}
 
 	resolveCompletionItem(item: vscode.CompletionItem, token: vscode.CancellationToken): vscode.ProviderResult<vscode.CompletionItem> {

@@ -54,9 +54,16 @@ import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverP
 import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSparkNotebookSerializer';
 import { FabricPlatformParser } from './fabric/FabricPlatformParser';
 import { FabricRecoverableItem } from './vscode/treeviews/Workspaces/FabricRecoverableItem';
+import { FabricStudioExportPbipTool } from './vscode/languageModelTools/FabricStudioExportPbipTool';
+import { FabricStudioListWorkspacesTool } from './vscode/languageModelTools/FabricStudioListWorkspacesTool';
+import { FabricStudioListWorkspaceItemsTool } from './vscode/languageModelTools/FabricStudioListWorkspaceItemsTool';
+import { FabricStudioListApiElementsTool } from './vscode/languageModelTools/FabricStudioListApiElementsTool';
+import { FabricStudioUpdateApiElementsTool } from './vscode/languageModelTools/FabricStudioUpdateApiElementsTool';
+import { FabricStudioGetApiElementTool } from './vscode/languageModelTools/FabricStudioGetApiElementTool';
+import { FabricStudioDescribeApiOperationTool } from './vscode/languageModelTools/FabricStudioDescribeApiOperationTool';
+import { FabricStudioDeleteApiElementsTool } from './vscode/languageModelTools/FabricStudioDeleteApiElementsTool';
 
 export async function activate(context: vscode.ExtensionContext) {
-
 	await ThisExtension.initializeLogger(context);
 
 	const prevInstalledVersion = context.globalState.get<vscode.Extension<any> | undefined>(`${context.extension.id}.installedVersion`);
@@ -93,6 +100,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	await vscode.commands.executeCommand('FabricStudio.initialize');
+
+	context.subscriptions.push(
+		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
+		vscode.lm.registerTool('fabricstudio_list_workspaces', new FabricStudioListWorkspacesTool()),
+		vscode.lm.registerTool('fabricstudio_list_workspace_items', new FabricStudioListWorkspaceItemsTool()),
+		vscode.lm.registerTool('fabricstudio_list_api_elements', new FabricStudioListApiElementsTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_update_api_elements', new FabricStudioUpdateApiElementsTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_get_api_element', new FabricStudioGetApiElementTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_describe_api_operation', new FabricStudioDescribeApiOperationTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_delete_api_elements', new FabricStudioDeleteApiElementsTool(context.extensionUri))
+	);
 
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
 

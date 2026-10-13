@@ -484,6 +484,11 @@ export abstract class FabricApiService {
 			};
 			let response: Response = await fetch(endpoint, requestConfig);
 
+			// AIDEV-NOTE: Keep unrelated API results cached; clear only the mutated endpoint and its descendants.
+			if (response.ok) {
+				this.clearCache(endpoint);
+			}
+
 			if (config.raw) {
 				return response as any as TSuccess;
 			}

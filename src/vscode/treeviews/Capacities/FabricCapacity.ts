@@ -7,6 +7,7 @@ import { FabricApiService } from '../../../fabric/FabricApiService';
 import { Helper } from '@utils/Helper';
 import { FabricCapacityWorkspaces } from './FabricCapacityWorkspaces';
 import { FabricMapper } from '../../../fabric/FabricMapper';
+import { FabricCapacityGenericViewer } from './FabricCapacityGenericViewer';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricCapacity extends FabricCapacityTreeItem {
@@ -45,6 +46,7 @@ export class FabricCapacity extends FabricCapacityTreeItem {
 		let children: FabricCapacityTreeItem[] = [];
 
 		children.push(new FabricCapacityWorkspaces(this));
+		children.push(new FabricCapacityGenericViewer("Surge Protection", this, "surgeProtection", "GenericViewer", true));
 
 		return children;
 	}

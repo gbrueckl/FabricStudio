@@ -11,16 +11,19 @@ import { TempFileSystemProvider } from '../../filesystemProvider/temp/TempFileSy
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricCapacityGenericViewer extends FabricCapacityTreeItem {
 	private _customApiUrlPart: string;
+	private _canUpdate: boolean;
 
 	constructor(
 		name: string,
 		parent: FabricCapacityTreeItem,
 		apiUrlPart: string = undefined,
-		itemType: FabricApiItemType = "GenericViewer"
+		itemType: FabricApiItemType = "GenericViewer",
+		canUpdate: boolean = false
 	) {
 		super(parent.id + "/" + name, name, itemType, parent, undefined, undefined, vscode.TreeItemCollapsibleState.None);
 
 		this._customApiUrlPart = apiUrlPart;
+		this._canUpdate = canUpdate;
 		// the CapacityId is not unique for logical folders hence we make it unique
 		//this.id = this.CapacityId + "/" + parent.itemId + "/" + this.itemType.toString();
 		this.iconPath = this.getIcon();
