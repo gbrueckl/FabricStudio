@@ -57,11 +57,11 @@ import { FabricRecoverableItem } from './vscode/treeviews/Workspaces/FabricRecov
 import { FabricStudioExportPbipTool } from './vscode/languageModelTools/FabricStudioExportPbipTool';
 import { FabricStudioListWorkspacesTool } from './vscode/languageModelTools/FabricStudioListWorkspacesTool';
 import { FabricStudioListWorkspaceItemsTool } from './vscode/languageModelTools/FabricStudioListWorkspaceItemsTool';
-import { FabricStudioListConnectionsTool } from './vscode/languageModelTools/FabricStudioListConnectionsTool';
-import { FabricStudioListDomainsTool } from './vscode/languageModelTools/FabricStudioListDomainsTool';
-import { FabricStudioListTagsTool } from './vscode/languageModelTools/FabricStudioListTagsTool';
-import { FabricStudioListGatewaysTool } from './vscode/languageModelTools/FabricStudioListGatewaysTool';
-import { FabricStudioListCapacitiesTool } from './vscode/languageModelTools/FabricStudioListCapacitiesTool';
+import { FabricStudioListApiElementsTool } from './vscode/languageModelTools/FabricStudioListApiElementsTool';
+import { FabricStudioUpdateApiElementsTool } from './vscode/languageModelTools/FabricStudioUpdateApiElementsTool';
+import { FabricStudioGetApiElementTool } from './vscode/languageModelTools/FabricStudioGetApiElementTool';
+import { FabricStudioDescribeApiOperationTool } from './vscode/languageModelTools/FabricStudioDescribeApiOperationTool';
+import { FabricStudioDeleteApiElementsTool } from './vscode/languageModelTools/FabricStudioDeleteApiElementsTool';
 
 export async function activate(context: vscode.ExtensionContext) {
 	await ThisExtension.initializeLogger(context);
@@ -105,11 +105,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
 		vscode.lm.registerTool('fabricstudio_list_workspaces', new FabricStudioListWorkspacesTool()),
 		vscode.lm.registerTool('fabricstudio_list_workspace_items', new FabricStudioListWorkspaceItemsTool()),
-		vscode.lm.registerTool('fabricstudio_list_connections', new FabricStudioListConnectionsTool()),
-		vscode.lm.registerTool('fabricstudio_list_domains', new FabricStudioListDomainsTool()),
-		vscode.lm.registerTool('fabricstudio_list_tags', new FabricStudioListTagsTool()),
-		vscode.lm.registerTool('fabricstudio_list_gateways', new FabricStudioListGatewaysTool()),
-		vscode.lm.registerTool('fabricstudio_list_capacities', new FabricStudioListCapacitiesTool())
+		vscode.lm.registerTool('fabricstudio_list_api_elements', new FabricStudioListApiElementsTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_update_api_elements', new FabricStudioUpdateApiElementsTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_get_api_element', new FabricStudioGetApiElementTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_describe_api_operation', new FabricStudioDescribeApiOperationTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_delete_api_elements', new FabricStudioDeleteApiElementsTool(context.extensionUri))
 	);
 
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);

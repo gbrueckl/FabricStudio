@@ -146,59 +146,145 @@
 				}
 			},
 			{
-				"name": "fabricstudio_list_connections",
-				"toolReferenceName": "fabricStudioListConnections",
-				"displayName": "List Fabric Connections",
-				"modelDescription": "Lists all Microsoft Fabric connections available to the current user, including IDs, display names, connectivity types, gateway IDs, and connection paths. Use this when a later task needs a connection ID or gateway relationship.",
-				"userDescription": "List Fabric connections and their IDs.",
+				"name": "fabricstudio_list_api_elements",
+				"toolReferenceName": "fabricStudioListApiElements",
+				"displayName": "List Fabric API Elements",
+				"modelDescription": "Lists elements from any GET endpoint in the bundled local resources/API/swagger.json that is a list operation. Use fabricStudioDescribeApiOperation to obtain its endpoint template and path/query parameters; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters and only documented optional query parameters. The tool automatically follows pagination; never provide continuationToken or a query parameter already fixed in the endpoint template. Use the dedicated workspace and item tools when one of those provides the needed result directly.",
+				"userDescription": "List elements from a Microsoft Fabric REST API list endpoint.",
 				"canBeReferencedInPrompt": true,
-				"icon": "$(plug)",
-				"tags": ["fabricstudio", "fabric", "connection"],
-				"inputSchema": { "type": "object" }
+				"icon": "$(list-unordered)",
+				"tags": ["fabricstudio", "fabric", "api", "list"],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"endpoint": {
+							"type": "string",
+							"description": "The exact GET list endpoint template from resources/API/swagger.json, for example /v1/workspaces/{workspaceId}/lakehouses."
+						},
+						"parameters": {
+							"type": "object",
+							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters. Do not include continuationToken.",
+							"additionalProperties": { "type": ["string", "number", "boolean"] }
+						}
+					},
+					"required": ["endpoint"]
+				}
 			},
 			{
-				"name": "fabricstudio_list_domains",
-				"toolReferenceName": "fabricStudioListDomains",
-				"displayName": "List Fabric Domains",
-				"modelDescription": "Lists Microsoft Fabric admin domains available to the current user, including IDs, display names, descriptions, parent domains, and contributor scopes. Use this when a later administrative task needs a domain ID.",
-				"userDescription": "List Fabric domains and their IDs.",
+				"name": "fabricstudio_update_api_elements",
+				"toolReferenceName": "fabricStudioUpdateApiElements",
+				"displayName": "Update Fabric API Elements",
+				"modelDescription": "Updates a Microsoft Fabric API element through a POST, PATCH, or PUT update operation defined in the bundled local resources/API/swagger.json. Use fabricStudioDescribeApiOperation to obtain its endpoint template, path/query parameters, and request-body schema; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters, only documented optional query parameters, and the endpoint's documented request payload in body. The user must confirm every update request.",
+				"userDescription": "Update a Microsoft Fabric REST API element.",
 				"canBeReferencedInPrompt": true,
-				"icon": "$(organization)",
-				"tags": ["fabricstudio", "fabric", "domain"],
-				"inputSchema": { "type": "object" }
+				"icon": "$(edit)",
+				"tags": ["fabricstudio", "fabric", "api", "update"],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"endpoint": {
+							"type": "string",
+							"description": "The exact POST, PATCH, or PUT update endpoint template from resources/API/swagger.json."
+						},
+						"parameters": {
+							"type": "object",
+							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters.",
+							"additionalProperties": { "type": ["string", "number", "boolean"] }
+						},
+						"method": {
+							"type": "string",
+							"enum": ["POST", "PATCH", "PUT"],
+							"description": "Required only when the selected Swagger endpoint supports more than one update method."
+						},
+						"body": {
+							"type": "object",
+							"description": "The request payload defined by the selected endpoint in resources/API/swagger.json."
+						}
+					},
+					"required": ["endpoint"]
+				}
 			},
 			{
-				"name": "fabricstudio_list_tags",
-				"toolReferenceName": "fabricStudioListTags",
-				"displayName": "List Fabric Tags",
-				"modelDescription": "Lists Microsoft Fabric admin tags available to the current user, including IDs and display names. Use this when a later task needs a tag ID.",
-				"userDescription": "List Fabric tags and their IDs.",
+				"name": "fabricstudio_get_api_element",
+				"toolReferenceName": "fabricStudioGetApiElement",
+				"displayName": "Get Fabric API Element Details",
+				"modelDescription": "Retrieves information or details through any GET endpoint in the bundled local resources/API/swagger.json. Use fabricStudioDescribeApiOperation to obtain its endpoint template and path/query parameters; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters and only documented optional query parameters. Use the dedicated list tools when the user needs a collection rather than a single resource.",
+				"userDescription": "Get details for a Microsoft Fabric REST API resource.",
 				"canBeReferencedInPrompt": true,
-				"icon": "$(tag)",
-				"tags": ["fabricstudio", "fabric", "tag"],
-				"inputSchema": { "type": "object" }
+				"icon": "$(inspect)",
+				"tags": ["fabricstudio", "fabric", "api", "get"],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"endpoint": {
+							"type": "string",
+							"description": "The exact GET endpoint template from resources/API/swagger.json."
+						},
+						"parameters": {
+							"type": "object",
+							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters.",
+							"additionalProperties": { "type": ["string", "number", "boolean"] }
+						}
+					},
+					"required": ["endpoint"]
+				}
 			},
 			{
-				"name": "fabricstudio_list_gateways",
-				"toolReferenceName": "fabricStudioListGateways",
-				"displayName": "List Fabric Gateways",
-				"modelDescription": "Lists Microsoft Fabric gateways available to the current user, including IDs, display names, types, and member-gateway counts. Use this when a later task needs a gateway ID.",
-				"userDescription": "List Fabric gateways and their IDs.",
+				"name": "fabricstudio_describe_api_operation",
+				"toolReferenceName": "fabricStudioDescribeApiOperation",
+				"displayName": "Describe Fabric API Operation",
+				"modelDescription": "Searches or describes operations from the bundled local resources/API/swagger.json. Use search to discover endpoint templates when they are not known; use endpoint and, when needed, method to return documented parameters and request-body schema. Call this before generic GET, list, or update API tools when their endpoint or inputs are not already known. This tool reads Swagger inside the extension; do not use terminal/file tools or external documentation to inspect the API definition.",
+				"userDescription": "Get the local Fabric API definition for an endpoint.",
 				"canBeReferencedInPrompt": true,
-				"icon": "$(server)",
-				"tags": ["fabricstudio", "fabric", "gateway"],
-				"inputSchema": { "type": "object" }
+				"icon": "$(book)",
+				"tags": ["fabricstudio", "fabric", "api", "schema"],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"endpoint": {
+							"type": "string",
+							"description": "The endpoint template from resources/API/swagger.json. Provide this or search."
+						},
+						"method": {
+							"type": "string",
+							"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+							"description": "The HTTP method. Required when the endpoint defines more than one method."
+						},
+						"search": {
+							"type": "string",
+							"description": "Search text for operation IDs, summaries, or endpoint paths. Use this when the endpoint is not known."
+						}
+					}
+				}
 			},
 			{
-				"name": "fabricstudio_list_capacities",
-				"toolReferenceName": "fabricStudioListCapacities",
-				"displayName": "List Fabric Capacities",
-				"modelDescription": "Lists Microsoft Fabric capacities available to the current user, including IDs, display names, states, SKUs, and regions. Use this when a later task needs a capacity ID.",
-				"userDescription": "List Fabric capacities and their IDs.",
+				"name": "fabricstudio_delete_api_elements",
+				"toolReferenceName": "fabricStudioDeleteApiElements",
+				"displayName": "Delete Fabric API Elements",
+				"modelDescription": "Deletes a Microsoft Fabric API element through a DELETE operation defined in the bundled local resources/API/swagger.json. Use fabricStudioDescribeApiOperation to obtain its endpoint template, path/query parameters, and any request-body schema; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters, only documented optional query parameters, and a documented request payload in body only when required. The user must confirm every delete request.",
+				"userDescription": "Delete a Microsoft Fabric REST API element.",
 				"canBeReferencedInPrompt": true,
-				"icon": "$(server-environment)",
-				"tags": ["fabricstudio", "fabric", "capacity"],
-				"inputSchema": { "type": "object" }
+				"icon": "$(trash)",
+				"tags": ["fabricstudio", "fabric", "api", "delete"],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"endpoint": {
+							"type": "string",
+							"description": "The exact DELETE endpoint template from resources/API/swagger.json."
+						},
+						"parameters": {
+							"type": "object",
+							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters.",
+							"additionalProperties": { "type": ["string", "number", "boolean"] }
+						},
+						"body": {
+							"type": "object",
+							"description": "The request payload defined by the selected endpoint, when applicable."
+						}
+					},
+					"required": ["endpoint"]
+				}
 			}
 		],
 		"configuration": [
