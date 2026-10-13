@@ -301,6 +301,13 @@
 						"markdownDescription": "(Optional) A custom ClientID/AAD Application to use when interacting with Fabric REST APIs.",
 						"default": null
 					},
+					"fabricStudio.apiSpecificationUpdateIntervalDays": {
+						"type": "integer",
+						"markdownDescription": "The number of days between automatic Fabric API specification updates. API specifications are also updated whenever the extension version changes.",
+						"default": 7,
+						"minimum": 1,
+						"scope": "window"
+					},
 					"fabricStudio.workspaceFilter": {
 						"type": "string",
 						"markdownDescription": "(Optional) A regex to filter workspaces by name. Only workspaces matching this regex will be shown in the Fabric Studio Workspaces view.",
@@ -539,6 +546,11 @@
 				"category": "FabricStudio",
 				"command": "FabricStudio.changeUser",
 				"title": "Change User"
+			},
+			{
+				"category": "FabricStudio",
+				"command": "FabricStudio.updateApiSpecification",
+				"title": "Update API Specification"
 			},
 			{
 				"category": "FabricStudio",

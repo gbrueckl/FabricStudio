@@ -56,6 +56,12 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		FabricAPICompletionProvider.swagger = JSON.parse(swaggerText);
 	}
 
+	/** Reloads the persisted Swagger definition after it has been updated. */
+	static async reloadSwaggerFile(): Promise<void> {
+		FabricAPICompletionProvider.swagger = undefined;
+		await FabricAPICompletionProvider.loadSwaggerFile();
+	}
+
 	async getAvailableEndpoints(searchPath: string, method: string = undefined, showOtherMethods: boolean = false): Promise<ApiEndpointDetails[]> {
 		if (method) {
 			method = method.toLowerCase();

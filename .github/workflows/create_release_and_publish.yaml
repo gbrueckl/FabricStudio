@@ -39,10 +39,6 @@ jobs:
       - name: Install vsce
         run: npm i -g vsce
 
-      - name: Update Swagger definitions
-        run: npm run update-api-specs
-
-
       # we first publish to VSCode gallery 
       # in case that version is already there, it would fail and also not overwrite the Github Release
       - name: Publish extension to VSCode Marketplace
