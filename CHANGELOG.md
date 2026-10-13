@@ -5,6 +5,9 @@
   - authentication
   - polling
   - caching
+- added Tools for LLMs and Agents
+  - Download reports and semantic models as PBIP
+  - Resolve workspace and item names to IDs
 
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
