@@ -15,6 +15,9 @@
     - domains/tags
 - added `Surge Protection` under the capacities
 - added `OneLake Settings` under the workspace settings
+- API auto-completion provider in notebooks
+  - updated API specs
+  - fixed issue with GUID handling
 
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
