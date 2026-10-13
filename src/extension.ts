@@ -62,12 +62,14 @@ import { FabricStudioUpdateApiElementsTool } from './vscode/languageModelTools/F
 import { FabricStudioGetApiElementTool } from './vscode/languageModelTools/FabricStudioGetApiElementTool';
 import { FabricStudioDescribeApiOperationTool } from './vscode/languageModelTools/FabricStudioDescribeApiOperationTool';
 import { FabricStudioDeleteApiElementsTool } from './vscode/languageModelTools/FabricStudioDeleteApiElementsTool';
+import { FabricApiSpecificationUpdater } from './vscode/apiSpecs/FabricApiSpecificationUpdater';
 
 export async function activate(context: vscode.ExtensionContext) {
 	await ThisExtension.initializeLogger(context);
 
 	const prevInstalledVersion = context.globalState.get<vscode.Extension<any> | undefined>(`${context.extension.id}.installedVersion`);
-	if (!prevInstalledVersion || prevInstalledVersion.packageJSON.version !== context.extension.packageJSON.version) {
+	const extensionWasUpdated = !prevInstalledVersion || prevInstalledVersion.packageJSON.version !== context.extension.packageJSON.version;
+	if (extensionWasUpdated) {
 		context.globalState.update(`${context.extension.id}.installedVersion`, context.extension);
 		const action = vscode.window.showInformationMessage(`${context.extension.packageJSON.displayName} updated to version ${context.extension.packageJSON.version}`, "Change Log");
 
@@ -113,6 +115,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
+	context.subscriptions.push(vscode.commands.registerCommand('FabricStudio.updateApiSpecification', () => FabricApiSpecificationUpdater.updateAndNotify(context)));
+	FabricApiSpecificationUpdater.updateIfDue(context, extensionWasUpdated);
 
 	context.subscriptions.push(
 		vscode.workspace.registerNotebookSerializer(
