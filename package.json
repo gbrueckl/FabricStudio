@@ -26,7 +26,7 @@
 		"url": "https://github.com/sponsors/gbrueckl"
 	},
 	"engines": {
-		"vscode": "^1.105.0"
+		"vscode": "^1.130.0"
 	},
 	"galleryBanner": {
 		"color": "#0ea5ff",
@@ -57,6 +57,108 @@
 	"main": "./dist/node/extension.js",
 	"browser": "./dist/web/extension.js",
 	"contributes": {
+		"languageModelTools": [
+			{
+				"name": "fabricstudio_export_pbip",
+				"toolReferenceName": "fabricStudioExportPbip",
+				"displayName": "Export Power BI Project",
+				"modelDescription": "Exports a Microsoft Fabric Power BI report or semantic model as a local Power BI Project (PBIP). Use this only when the user provides the workspace ID and the ID of a Report or SemanticModel and wants to download it as PBIP. The tool opens the existing export dialogs so the user can choose the local destination and, for reports, the connection mode.",
+				"userDescription": "Export a Fabric report or semantic model as a Power BI Project (PBIP).",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(project)",
+				"tags": [
+					"fabricstudio",
+					"powerbi",
+					"pbip"
+				],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"workspaceId": {
+							"type": "string",
+							"description": "The Microsoft Fabric workspace ID that contains the item to export."
+						},
+						"itemId": {
+							"type": "string",
+							"description": "The ID of the Power BI report or semantic model to export."
+						},
+						"itemType": {
+							"type": "string",
+							"enum": [
+								"Report",
+								"SemanticModel"
+							],
+							"description": "Whether itemId identifies a Report or SemanticModel."
+						}
+					},
+					"required": [
+						"workspaceId",
+						"itemId",
+						"itemType"
+					]
+				}
+			},
+			{
+				"name": "fabricstudio_resolve_workspace",
+				"toolReferenceName": "fabricStudioResolveWorkspace",
+				"displayName": "Resolve Fabric Workspace",
+				"modelDescription": "Resolves an exact Microsoft Fabric workspace display name to its workspace ID. Use this before a tool needs a workspace ID and the user has supplied the workspace name. It returns every case-insensitive exact match because workspace names can be duplicated. Do not use it to list all workspaces or perform partial-name searches.",
+				"userDescription": "Find a Fabric workspace ID from its exact name.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(folder-library)",
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"workspace"
+				],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"workspaceName": {
+							"type": "string",
+							"description": "The exact display name of the Microsoft Fabric workspace to resolve. Matching is case-insensitive."
+						}
+					},
+					"required": [
+						"workspaceName"
+					]
+				}
+			},
+			{
+				"name": "fabricstudio_resolve_workspace_items",
+				"toolReferenceName": "fabricStudioResolveWorkspaceItems",
+				"displayName": "Resolve Fabric Workspace Items",
+				"modelDescription": "Resolves Microsoft Fabric items within a known workspace ID. Optionally restrict results to a Fabric item type, such as Report or SemanticModel, and/or an exact item display name. Use this after resolving the workspace ID when the user provides an item name or needs item IDs. If itemName is omitted, it returns all items of the optional item type. Matching is case-insensitive and exact; it returns all duplicate names.",
+				"userDescription": "Find item IDs in a Fabric workspace by name and optional type.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(list-tree)",
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"item"
+				],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"workspaceId": {
+							"type": "string",
+							"description": "The ID of the Microsoft Fabric workspace that contains the items to resolve."
+						},
+						"itemName": {
+							"type": "string",
+							"description": "Optional exact display name of an item to resolve. Matching is case-insensitive. Omit to list every item of the requested type."
+						},
+						"itemType": {
+							"type": "string",
+							"description": "Optional Microsoft Fabric item type used by listItems, such as Report, SemanticModel, Notebook, or Lakehouse."
+						}
+					},
+					"required": [
+						"workspaceId"
+					]
+				}
+			}
+		],
 		"configuration": [
 			{
 				"title": "FabricStudio",

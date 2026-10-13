@@ -54,8 +54,16 @@ import { FabricGUIDHoverProvider } from './vscode/hoverProvider/FabricGUIDHoverP
 import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSparkNotebookSerializer';
 import { FabricPlatformParser } from './fabric/FabricPlatformParser';
 import { FabricRecoverableItem } from './vscode/treeviews/Workspaces/FabricRecoverableItem';
+import { FabricStudioExportPbipTool } from './vscode/languageModelTools/FabricStudioExportPbipTool';
+import { FabricStudioResolveWorkspaceTool } from './vscode/languageModelTools/FabricStudioResolveWorkspaceTool';
+import { FabricStudioResolveWorkspaceItemsTool } from './vscode/languageModelTools/FabricStudioResolveWorkspaceItemsTool';
 
 export async function activate(context: vscode.ExtensionContext) {
+	context.subscriptions.push(
+		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
+		vscode.lm.registerTool('fabricstudio_resolve_workspace', new FabricStudioResolveWorkspaceTool()),
+		vscode.lm.registerTool('fabricstudio_resolve_workspace_items', new FabricStudioResolveWorkspaceItemsTool())
+	);
 
 	await ThisExtension.initializeLogger(context);
 
