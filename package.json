@@ -99,11 +99,11 @@
 				}
 			},
 			{
-				"name": "fabricstudio_resolve_workspace",
-				"toolReferenceName": "fabricStudioResolveWorkspace",
-				"displayName": "Resolve Fabric Workspace",
-				"modelDescription": "Resolves an exact Microsoft Fabric workspace display name to its workspace ID. Use this before a tool needs a workspace ID and the user has supplied the workspace name. It returns every case-insensitive exact match because workspace names can be duplicated. Do not use it to list all workspaces or perform partial-name searches.",
-				"userDescription": "Find a Fabric workspace ID from its exact name.",
+				"name": "fabricstudio_list_workspaces",
+				"toolReferenceName": "fabricStudioListWorkspaces",
+				"displayName": "List Fabric Workspaces",
+				"modelDescription": "Lists every Microsoft Fabric workspace accessible to the current user, including each workspace's ID, display name, and type. Use this when a later task needs a workspace ID and the language model must choose the appropriate workspace from the returned list.",
+				"userDescription": "List accessible Fabric workspaces and their IDs.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(folder-library)",
 				"tags": [
@@ -112,24 +112,15 @@
 					"workspace"
 				],
 				"inputSchema": {
-					"type": "object",
-					"properties": {
-						"workspaceName": {
-							"type": "string",
-							"description": "The exact display name of the Microsoft Fabric workspace to resolve. Matching is case-insensitive."
-						}
-					},
-					"required": [
-						"workspaceName"
-					]
+					"type": "object"
 				}
 			},
 			{
-				"name": "fabricstudio_resolve_workspace_items",
-				"toolReferenceName": "fabricStudioResolveWorkspaceItems",
-				"displayName": "Resolve Fabric Workspace Items",
-				"modelDescription": "Resolves Microsoft Fabric items within a known workspace ID. Optionally restrict results to a Fabric item type, such as Report or SemanticModel, and/or an exact item display name. Use this after resolving the workspace ID when the user provides an item name or needs item IDs. If itemName is omitted, it returns all items of the optional item type. Matching is case-insensitive and exact; it returns all duplicate names.",
-				"userDescription": "Find item IDs in a Fabric workspace by name and optional type.",
+				"name": "fabricstudio_list_workspace_items",
+				"toolReferenceName": "fabricStudioListWorkspaceItems",
+				"displayName": "List Fabric Workspace Items",
+				"modelDescription": "Lists all Microsoft Fabric items in a known workspace, including each item's ID, display name, and type. Optionally filter the list to one valid Fabric item type, such as Report or SemanticModel. Use this when a later task needs an item ID and the language model must choose it from the returned list.",
+				"userDescription": "List Fabric workspace items and their IDs, optionally by type.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(list-tree)",
 				"tags": [
@@ -144,13 +135,9 @@
 							"type": "string",
 							"description": "The ID of the Microsoft Fabric workspace that contains the items to resolve."
 						},
-						"itemName": {
-							"type": "string",
-							"description": "Optional exact display name of an item to resolve. Matching is case-insensitive. Omit to list every item of the requested type."
-						},
 						"itemType": {
 							"type": "string",
-							"description": "Optional Microsoft Fabric item type used by listItems, such as Report, SemanticModel, Notebook, or Lakehouse."
+							"description": "Optional valid Microsoft Fabric item type used by listItems, such as Report, SemanticModel, Notebook, or Lakehouse."
 						}
 					},
 					"required": [

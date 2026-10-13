@@ -55,14 +55,14 @@ import { FabricSparkNotebookSerializer } from './vscode/notebook/spark/FabricSpa
 import { FabricPlatformParser } from './fabric/FabricPlatformParser';
 import { FabricRecoverableItem } from './vscode/treeviews/Workspaces/FabricRecoverableItem';
 import { FabricStudioExportPbipTool } from './vscode/languageModelTools/FabricStudioExportPbipTool';
-import { FabricStudioResolveWorkspaceTool } from './vscode/languageModelTools/FabricStudioResolveWorkspaceTool';
-import { FabricStudioResolveWorkspaceItemsTool } from './vscode/languageModelTools/FabricStudioResolveWorkspaceItemsTool';
+import { FabricStudioListWorkspacesTool } from './vscode/languageModelTools/FabricStudioListWorkspacesTool';
+import { FabricStudioListWorkspaceItemsTool } from './vscode/languageModelTools/FabricStudioListWorkspaceItemsTool';
 
 export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
-		vscode.lm.registerTool('fabricstudio_resolve_workspace', new FabricStudioResolveWorkspaceTool()),
-		vscode.lm.registerTool('fabricstudio_resolve_workspace_items', new FabricStudioResolveWorkspaceItemsTool())
+		vscode.lm.registerTool('fabricstudio_list_workspaces', new FabricStudioListWorkspacesTool()),
+		vscode.lm.registerTool('fabricstudio_list_workspace_items', new FabricStudioListWorkspaceItemsTool())
 	);
 
 	await ThisExtension.initializeLogger(context);
