@@ -57,14 +57,13 @@ import { FabricRecoverableItem } from './vscode/treeviews/Workspaces/FabricRecov
 import { FabricStudioExportPbipTool } from './vscode/languageModelTools/FabricStudioExportPbipTool';
 import { FabricStudioListWorkspacesTool } from './vscode/languageModelTools/FabricStudioListWorkspacesTool';
 import { FabricStudioListWorkspaceItemsTool } from './vscode/languageModelTools/FabricStudioListWorkspaceItemsTool';
+import { FabricStudioListConnectionsTool } from './vscode/languageModelTools/FabricStudioListConnectionsTool';
+import { FabricStudioListDomainsTool } from './vscode/languageModelTools/FabricStudioListDomainsTool';
+import { FabricStudioListTagsTool } from './vscode/languageModelTools/FabricStudioListTagsTool';
+import { FabricStudioListGatewaysTool } from './vscode/languageModelTools/FabricStudioListGatewaysTool';
+import { FabricStudioListCapacitiesTool } from './vscode/languageModelTools/FabricStudioListCapacitiesTool';
 
 export async function activate(context: vscode.ExtensionContext) {
-	context.subscriptions.push(
-		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
-		vscode.lm.registerTool('fabricstudio_list_workspaces', new FabricStudioListWorkspacesTool()),
-		vscode.lm.registerTool('fabricstudio_list_workspace_items', new FabricStudioListWorkspaceItemsTool())
-	);
-
 	await ThisExtension.initializeLogger(context);
 
 	const prevInstalledVersion = context.globalState.get<vscode.Extension<any> | undefined>(`${context.extension.id}.installedVersion`);
@@ -101,6 +100,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	await vscode.commands.executeCommand('FabricStudio.initialize');
+
+	context.subscriptions.push(
+		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
+		vscode.lm.registerTool('fabricstudio_list_workspaces', new FabricStudioListWorkspacesTool()),
+		vscode.lm.registerTool('fabricstudio_list_workspace_items', new FabricStudioListWorkspaceItemsTool()),
+		vscode.lm.registerTool('fabricstudio_list_connections', new FabricStudioListConnectionsTool()),
+		vscode.lm.registerTool('fabricstudio_list_domains', new FabricStudioListDomainsTool()),
+		vscode.lm.registerTool('fabricstudio_list_tags', new FabricStudioListTagsTool()),
+		vscode.lm.registerTool('fabricstudio_list_gateways', new FabricStudioListGatewaysTool()),
+		vscode.lm.registerTool('fabricstudio_list_capacities', new FabricStudioListCapacitiesTool())
+	);
 
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
 

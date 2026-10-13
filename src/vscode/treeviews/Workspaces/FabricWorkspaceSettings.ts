@@ -35,6 +35,7 @@ export class FabricWorkspaceSettings extends FabricWorkspaceGenericFolder {
                 children.push(new FabricWorkspaceRoleAssignments(this));
                 children.push(new FabricWorkspaceManagedPrivateEndpoints(this));
                 children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings", "GenericViewer", true));
+                children.push(new FabricWorkspaceGenericViewer("OneLake Settings", this, "onelake/settings", "GenericViewer", true));
 
                 return children;
             }

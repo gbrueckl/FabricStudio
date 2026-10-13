@@ -144,6 +144,61 @@
 						"workspaceId"
 					]
 				}
+			},
+			{
+				"name": "fabricstudio_list_connections",
+				"toolReferenceName": "fabricStudioListConnections",
+				"displayName": "List Fabric Connections",
+				"modelDescription": "Lists all Microsoft Fabric connections available to the current user, including IDs, display names, connectivity types, gateway IDs, and connection paths. Use this when a later task needs a connection ID or gateway relationship.",
+				"userDescription": "List Fabric connections and their IDs.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(plug)",
+				"tags": ["fabricstudio", "fabric", "connection"],
+				"inputSchema": { "type": "object" }
+			},
+			{
+				"name": "fabricstudio_list_domains",
+				"toolReferenceName": "fabricStudioListDomains",
+				"displayName": "List Fabric Domains",
+				"modelDescription": "Lists Microsoft Fabric admin domains available to the current user, including IDs, display names, descriptions, parent domains, and contributor scopes. Use this when a later administrative task needs a domain ID.",
+				"userDescription": "List Fabric domains and their IDs.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(organization)",
+				"tags": ["fabricstudio", "fabric", "domain"],
+				"inputSchema": { "type": "object" }
+			},
+			{
+				"name": "fabricstudio_list_tags",
+				"toolReferenceName": "fabricStudioListTags",
+				"displayName": "List Fabric Tags",
+				"modelDescription": "Lists Microsoft Fabric admin tags available to the current user, including IDs and display names. Use this when a later task needs a tag ID.",
+				"userDescription": "List Fabric tags and their IDs.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(tag)",
+				"tags": ["fabricstudio", "fabric", "tag"],
+				"inputSchema": { "type": "object" }
+			},
+			{
+				"name": "fabricstudio_list_gateways",
+				"toolReferenceName": "fabricStudioListGateways",
+				"displayName": "List Fabric Gateways",
+				"modelDescription": "Lists Microsoft Fabric gateways available to the current user, including IDs, display names, types, and member-gateway counts. Use this when a later task needs a gateway ID.",
+				"userDescription": "List Fabric gateways and their IDs.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(server)",
+				"tags": ["fabricstudio", "fabric", "gateway"],
+				"inputSchema": { "type": "object" }
+			},
+			{
+				"name": "fabricstudio_list_capacities",
+				"toolReferenceName": "fabricStudioListCapacities",
+				"displayName": "List Fabric Capacities",
+				"modelDescription": "Lists Microsoft Fabric capacities available to the current user, including IDs, display names, states, SKUs, and regions. Use this when a later task needs a capacity ID.",
+				"userDescription": "List Fabric capacities and their IDs.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(server-environment)",
+				"tags": ["fabricstudio", "fabric", "capacity"],
+				"inputSchema": { "type": "object" }
 			}
 		],
 		"configuration": [

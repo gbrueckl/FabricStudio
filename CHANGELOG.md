@@ -7,7 +7,14 @@
   - caching
 - added Tools for LLMs and Agents
   - Download reports and semantic models as PBIP
-  - Resolve workspace and item names to IDs
+  - List
+    - Workspaces
+    - Items (or specific item types)
+    - connections
+    - gateways
+    - domains/tags
+- added `Surge Protection` under the capacities
+- added `OneLake Settings` under the workspace settings
 
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
