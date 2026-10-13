@@ -10,14 +10,16 @@
   - List
     - Workspaces
     - Items (or specific item types)
-    - connections
-    - gateways
-    - domains/tags
+  - generic tools to work with all API endpoints
+    - LIST/GET
+    - POST/PATCH/UPDATE
+    - DELETE
 - added `Surge Protection` under the capacities
 - added `OneLake Settings` under the workspace settings
 - API auto-completion provider in notebooks
   - updated API specs
   - fixed issue with GUID handling
+- fixed issue with caching when things were updated/changed
 
 **v2.25.1**:
 - added hierarchical view for Upstream and Downstream relations
