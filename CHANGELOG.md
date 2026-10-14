@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.27.0**:
+- added SQL Pool Configurations to the Workspace Settings
+
 **v2.26.0**:
 - general rework of API calls
   - authentication
