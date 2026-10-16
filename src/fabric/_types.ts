@@ -124,6 +124,7 @@ export const fabricApiItemTypes = [
 	, "MirroredAzureDatabricksCatalog"		//	A mirrored Azure Databricks catalog.
 	, "LivySessions"						//	Folder for Livy sessions.	
 	, "LivySession"							//	A Livy session.
+	, "CustomSparkPools"					//	Folder for workspace custom Spark pools.
 	, "SqlDatabaseMirroring"
 	, "AzureDatabricksStorage"
 ] as const;

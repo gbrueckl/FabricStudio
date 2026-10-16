@@ -3,6 +3,7 @@
 **v2.27.0**:
 - added SQL Pool Configurations to the Workspace Settings
 - added Livy Sessions to Workspace Settings
+- added Csutom Spark Pools to Workspace Settings
 
 **v2.26.0**:
 - general rework of API calls
