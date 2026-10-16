@@ -285,6 +285,34 @@
 					},
 					"required": ["endpoint"]
 				}
+			},
+			{
+				"name": "fabricstudio_run_lakehouse_sql_query",
+				"toolReferenceName": "fabricStudioRunLakehouseSqlQuery",
+				"displayName": "Run Lakehouse SQL Query",
+				"modelDescription": "Runs a SQL query against a Microsoft Fabric lakehouse using an interactive Spark Livy session. Requires the workspace ID, lakehouse ID, and SQL query. Use this for queries against lakehouse data; the user must confirm execution because SQL may modify data.",
+				"userDescription": "Run a SQL query against a Fabric lakehouse.",
+				"canBeReferencedInPrompt": true,
+				"icon": "$(database)",
+				"tags": ["fabricstudio", "fabric", "lakehouse", "sql", "livy"],
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"workspaceId": {
+							"type": "string",
+							"description": "The ID of the Fabric workspace that contains the lakehouse."
+						},
+						"lakehouseId": {
+							"type": "string",
+							"description": "The ID of the Fabric lakehouse to query."
+						},
+						"query": {
+							"type": "string",
+							"description": "The SQL statement to run in the lakehouse's interactive Spark session."
+						}
+					},
+					"required": ["workspaceId", "lakehouseId", "query"]
+				}
 			}
 		],
 		"configuration": [
