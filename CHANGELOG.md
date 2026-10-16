@@ -8,7 +8,6 @@
 - improved loading of Item children by parallelizing it
 - fixed issue when stopping/deleting Spark Livy Sessions
 
-
 **v2.26.0**:
 - general rework of API calls
   - authentication
