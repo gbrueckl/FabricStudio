@@ -10,7 +10,7 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceRoot}",
                 "${workspaceRoot}/utils/Fabric_Studio.test.code-workspace",
-                //"--disable-extensions",
+                "--disable-extensions",
                 "--skip-release-notes",
                 "--skip-welcome",
             ],

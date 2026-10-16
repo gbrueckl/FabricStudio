@@ -4,6 +4,8 @@ import { FabricWorkspaceTreeItem } from './FabricWorkspaceTreeItem';
 import { iFabricApiLivySession } from '../../../fabric/_types';
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricApiService } from '../../../fabric/FabricApiService';
+import { Helper } from '@utils/Helper';
+import { FabricMapper } from '../../../fabric/FabricMapper';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemLivySession extends FabricWorkspaceGenericViewer {
@@ -42,6 +44,20 @@ export class FabricItemLivySession extends FabricWorkspaceGenericViewer {
 
 	get canDelete(): boolean {
 		return true;
+	}
+
+	get apiPath(): string {
+		if (!this.itemDefinition) {
+			return super.itemDefinition;
+		}
+
+		return Helper.joinPath(
+			this.workspace.apiPath, 
+			FabricMapper.getItemTypePlural(this.itemDefinition.itemType),
+			this.itemDefinition.item.itemId,
+			"livySessions",
+			this.itemDefinition.livyId
+		);
 	}
 
 	getIcon(): vscode.ThemeIcon {

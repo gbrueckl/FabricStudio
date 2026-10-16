@@ -103,116 +103,131 @@ export class FabricItem extends FabricWorkspaceTreeItem {
 				children.push(new FabricItemDefinition(this));
 			}
 
-			try {
-				let tags = new FabricItemTags(this);
+			const [tags, connections, upstreamRelations, downstreamRelations, shortcuts, jobInstances, jobSchedules, accessRoles] = await Promise.all([
+				this.getTagsChild(),
+				this.getConnectionsChild(),
+				this.getRelationsChild(FabricItemRelationsUpstream, `Could not load upstream relations for item '${this.itemName}' (ID: ${this.itemId})`),
+				this.getRelationsChild(FabricItemRelationsDownstream, `Could not load downstream relations for item '${this.itemName}'`),
+				this.getShortcutsChild(),
+				this.getJobInstancesChild(),
+				this.getJobSchedulesChild(),
+				this.getDataAccessRolesChild()
+			]);
 
-				let itemDefinition = await FabricApiService.get<iFabricApiItem>(this.itemApiPath)
-				this.itemDefinition = itemDefinition.success;
-				if (this.itemDefinition?.tags?.length > 0) {
-					this.itemDefinition?.tags?.forEach(child => tags.addChild(new FabricAppliedTag(child, "ItemTag", tags)));
-					children.push(tags);
-				}
-			}
-			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load tags for item " + this.itemName);
-			}
-
-			// Connections
-			let supportedItemTypes: FabricApiItemType[] = [];
-			try {
-				let connections = new FabricItemConnections(this);
-				const connectionsChildren = await FabricApiTreeItem.getValidChildren(connections) as FabricWorkspaceTreeItem[];
-				if (connectionsChildren.length > 0) {
-					connectionsChildren.forEach(child => connections.addChild(child));
-					children.push(connections);
-				}
-			}
-			catch (e) {
-				ThisExtension.Logger.logInfo("Could not load connections for item " + this.itemName);
-			}
-
-			// Upstream Relations
-			try {
-				let upstreamRelations = new FabricItemRelationsUpstream(this);
-				children.push(upstreamRelations);
-			}
-			catch (e) {
-				ThisExtension.Logger.logInfo(`Could not load upstream relations for item '${this.itemName}' (ID: ${this.itemId})`);
-			}
-
-			// Downstream Relations
-			try {
-				let downstreamRelations = new FabricItemRelationsDownstream(this);
-				children.push(downstreamRelations);
-			}
-			catch (e) {
-				ThisExtension.Logger.logInfo(`Could not load downstream relations for item '${this.itemName}'`);
-			}
-
-			// ShortCuts
-			supportedItemTypes = ["Lakehouse", "Warehouse", "AzureDatabricksStorage"];
-			if (supportedItemTypes.includes(this.itemType)) {
-				try {
-					let shortcuts = new FabricItemShortcuts(this);
-					const shortcutsChildren = await FabricApiTreeItem.getValidChildren(shortcuts) as FabricWorkspaceTreeItem[];
-					if (shortcutsChildren.length > 0) {
-						shortcutsChildren.forEach(child => shortcuts.addChild(child));
-						children.push(shortcuts);
-					}
-				}
-				catch (e) {
-					ThisExtension.Logger.logInfo(`Could not load shortcuts for item '${this.itemName}' (ID: ${this.itemId})`);
-				}
-			}
-
-			// JobInstances
-			supportedItemTypes = ["DataPipeline", "Lakehouse", "Warehouse", "Notebook", "SparkJobDefinition"];
-			if (supportedItemTypes.includes(this.itemType)) {
-				try {
-					let jobInstances = new FabricItemJobInstances(this);
-					const jobInstancesChildren = await FabricApiTreeItem.getValidChildren(jobInstances) as FabricWorkspaceTreeItem[];
-					if (jobInstancesChildren.length > 0) {
-						jobInstancesChildren.forEach(child => jobInstances.addChild(child));
-						children.push(jobInstances);
-					}
-				}
-				catch (e) {
-					ThisExtension.Logger.logInfo(`Could not load job instances for item '${this.itemName}' (ID: ${this.itemId})`);
-				}
-			}
-
-			// JobSchedules
-			if (FabricMapper.ItemTypesWithJob.includes(this.itemType)) {
-				try {
-					let jobSchedules = new FabricItemJobSchedules(this);
-					const jobSchedulesChildren = await FabricApiTreeItem.getValidChildren(jobSchedules) as FabricWorkspaceTreeItem[];
-					if (jobSchedulesChildren.length > 0) {
-						jobSchedulesChildren.forEach(child => jobSchedules.addChild(child));
-						children.push(jobSchedules);
-					}
-				}
-				catch (e) {
-					ThisExtension.Logger.logInfo(`Could not load job schedules for item '${this.itemName}' (ID: ${this.itemId})`);
-				}
-			}
-
-			// DataAccessRoles are currently only supported for Lakehouses
-			supportedItemTypes = ["Lakehouse"];
-			if (supportedItemTypes.includes(this.itemType)) {
-				try {
-					let accessRoles = new FabricItemDataAccessRoles(this);
-					const accessRolesChildren = await accessRoles.getChildren() as FabricWorkspaceTreeItem[];
-					if (accessRolesChildren.length > 0) {
-						accessRolesChildren.forEach(child => accessRoles.addChild(child));
-						children.push(accessRoles);
-					}
-				}
-				catch (e) {
-					ThisExtension.Logger.logInfo(`Could not load data access roles for item '${this.itemName}' (ID: ${this.itemId})`);
-				}
-			}
+			children.push(...[tags, connections, upstreamRelations, downstreamRelations, shortcuts, jobInstances, jobSchedules, accessRoles]
+				.filter((child): child is FabricWorkspaceTreeItem => child !== undefined));
 
 			return children;
+		}
+	}
+
+	private async getTagsChild(): Promise<FabricWorkspaceTreeItem | undefined> {
+		try {
+			const tags = new FabricItemTags(this);
+			const itemDefinition = await FabricApiService.get<iFabricApiItem>(this.itemApiPath);
+			this.itemDefinition = itemDefinition.success;
+			if (this.itemDefinition?.tags?.length > 0) {
+				this.itemDefinition.tags.forEach(tag => tags.addChild(new FabricAppliedTag(tag, "ItemTag", tags)));
+				return tags;
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo("Could not load tags for item " + this.itemName);
+		}
+	}
+
+	private async getConnectionsChild(): Promise<FabricWorkspaceTreeItem | undefined> {
+		try {
+			const connections = new FabricItemConnections(this);
+			const connectionChildren = await FabricApiTreeItem.getValidChildren(connections) as FabricWorkspaceTreeItem[];
+			if (connectionChildren.length > 0) {
+				connectionChildren.forEach(child => connections.addChild(child));
+				return connections;
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo("Could not load connections for item " + this.itemName);
+		}
+	}
+
+	private async getRelationsChild<T extends FabricWorkspaceTreeItem>(relationType: new (parent: FabricItem) => T, errorMessage: string): Promise<T | undefined> {
+		try {
+			return new relationType(this);
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo(errorMessage);
+		}
+	}
+
+	private async getShortcutsChild(): Promise<FabricWorkspaceTreeItem | undefined> {
+		if (!["Lakehouse", "Warehouse", "AzureDatabricksStorage"].includes(this.itemType)) {
+			return undefined;
+		}
+
+		try {
+			const shortcuts = new FabricItemShortcuts(this);
+			const shortcutChildren = await FabricApiTreeItem.getValidChildren(shortcuts) as FabricWorkspaceTreeItem[];
+			if (shortcutChildren.length > 0) {
+				shortcutChildren.forEach(child => shortcuts.addChild(child));
+				return shortcuts;
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo(`Could not load shortcuts for item '${this.itemName}' (ID: ${this.itemId})`);
+		}
+	}
+
+	private async getJobInstancesChild(): Promise<FabricWorkspaceTreeItem | undefined> {
+		if (!["DataPipeline", "Lakehouse", "Warehouse", "Notebook", "SparkJobDefinition"].includes(this.itemType)) {
+			return undefined;
+		}
+
+		try {
+			const jobInstances = new FabricItemJobInstances(this);
+			const jobInstanceChildren = await FabricApiTreeItem.getValidChildren(jobInstances) as FabricWorkspaceTreeItem[];
+			if (jobInstanceChildren.length > 0) {
+				jobInstanceChildren.forEach(child => jobInstances.addChild(child));
+				return jobInstances;
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo(`Could not load job instances for item '${this.itemName}' (ID: ${this.itemId})`);
+		}
+	}
+
+	private async getJobSchedulesChild(): Promise<FabricWorkspaceTreeItem | undefined> {
+		if (!FabricMapper.ItemTypesWithJob.includes(this.itemType)) {
+			return undefined;
+		}
+
+		try {
+			const jobSchedules = new FabricItemJobSchedules(this);
+			const jobScheduleChildren = await FabricApiTreeItem.getValidChildren(jobSchedules) as FabricWorkspaceTreeItem[];
+			if (jobScheduleChildren.length > 0) {
+				jobScheduleChildren.forEach(child => jobSchedules.addChild(child));
+				return jobSchedules;
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo(`Could not load job schedules for item '${this.itemName}' (ID: ${this.itemId})`);
+		}
+	}
+
+	private async getDataAccessRolesChild(): Promise<FabricWorkspaceTreeItem | undefined> {
+		if (this.itemType !== "Lakehouse") {
+			return undefined;
+		}
+
+		try {
+			const accessRoles = new FabricItemDataAccessRoles(this);
+			const accessRoleChildren = await accessRoles.getChildren() as FabricWorkspaceTreeItem[];
+			if (accessRoleChildren.length > 0) {
+				accessRoleChildren.forEach(child => accessRoles.addChild(child));
+				return accessRoles;
+			}
+		}
+		catch (e) {
+			ThisExtension.Logger.logInfo(`Could not load data access roles for item '${this.itemName}' (ID: ${this.itemId})`);
 		}
 	}
 

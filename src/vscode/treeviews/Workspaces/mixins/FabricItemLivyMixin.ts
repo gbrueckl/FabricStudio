@@ -11,7 +11,7 @@ export class FabricItemLivyMixin {
 
 
 
-	async getChildItemLivySessions(parent: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem> {
-		return new FabricItemLivySessions(parent)
+	async getChildItemLivySessions(parent: FabricWorkspaceTreeItem, customPath: string = "livySessions"): Promise<FabricWorkspaceTreeItem> {
+		return new FabricItemLivySessions(parent, customPath)
 	}
 }
