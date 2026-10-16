@@ -8,6 +8,8 @@ import { FabricWorkspaceManagedPrivateEndpoints } from './FabricWorkspaceManaged
 import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricWorkspaceTags } from './FabricWorkspaceTags';
 import { FabricWorkspaceRecoverableItems } from './FabricWorkspaceRecoverableItems';
+import { FabricItemLivyMixin } from './mixins/FabricItemLivyMixin';
+import { applyMixins } from './mixins/FabricMixin';
 
 // A dedicated container node under a workspace for workspace-scoped settings
 export class FabricWorkspaceSettings extends FabricWorkspaceGenericFolder {
@@ -34,6 +36,7 @@ export class FabricWorkspaceSettings extends FabricWorkspaceGenericFolder {
                 children.push(new FabricWorkspaceTags(this));
                 children.push(new FabricWorkspaceRoleAssignments(this));
                 children.push(new FabricWorkspaceManagedPrivateEndpoints(this));
+                children.push(await this.getChildItemLivySessions(this, "spark/livySessions"));
                 children.push(new FabricWorkspaceGenericViewer("Spark Settings", this, "spark/settings", "GenericViewer", true));
                 children.push(new FabricWorkspaceGenericViewer("OneLake Settings", this, "onelake/settings", "GenericViewer", true));
                 children.push(new FabricWorkspaceGenericViewer("SQL Pools Configuration", this, "warehouses/sqlPoolsConfiguration", "GenericViewer", true));
@@ -48,3 +51,6 @@ export class FabricWorkspaceSettings extends FabricWorkspaceGenericFolder {
         }
     }
 }
+
+export interface FabricWorkspaceSettings extends FabricItemLivyMixin {}
+applyMixins(FabricWorkspaceSettings, [FabricItemLivyMixin]);

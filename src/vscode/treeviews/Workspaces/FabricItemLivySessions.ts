@@ -14,9 +14,10 @@ import { FabricItemLivySession } from './FabricItemLivySession';
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemLivySessions extends FabricWorkspaceGenericFolder {
 	constructor(
-		parent: FabricWorkspaceTreeItem
+		parent: FabricWorkspaceTreeItem,
+		customPath: string = "livySessions"
 	) {
-		super(`${parent.id}/LivySessions`, "Livy Sessions", "LivySessions", parent, "livySessions");
+		super(`${parent.id}/LivySessions`, "Livy Sessions", "LivySessions", parent, customPath);
 	}
 
 	/* Overwritten properties from FabricApiTreeItem */
