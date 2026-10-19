@@ -6,6 +6,7 @@ import { FabricWorkspaceGenericViewer } from './FabricWorkspaceGenericViewer';
 import { FabricApiService } from '../../../fabric/FabricApiService';
 import { Helper } from '@utils/Helper';
 import { FabricMapper } from '../../../fabric/FabricMapper';
+import { iGenericApiResponse } from '@utils/_types';
 
 // https://vshaxe.github.io/vscode-extern/vscode/TreeItem.html
 export class FabricItemLivySession extends FabricWorkspaceGenericViewer {
@@ -44,7 +45,20 @@ export class FabricItemLivySession extends FabricWorkspaceGenericViewer {
 
 	get canDelete(): boolean {
 		return true;
+		this.delete()
 	}
+
+	public async delete(): Promise<iGenericApiResponse<any>> {
+		const apiPath = Helper.joinPath(
+			this.workspace.apiPath, 
+			FabricMapper.getItemTypePlural(this.itemDefinition.itemType),
+			this.itemDefinition.item.itemId,
+			"livyapi/versions/2023-12-01/sessions",
+			this.itemDefinition.livyId
+		);
+		const response = await FabricApiService.delete<any>(apiPath, undefined);
+		return response;
+	}	
 
 	get apiPath(): string {
 		if (!this.itemDefinition) {

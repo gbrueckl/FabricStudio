@@ -1,10 +1,12 @@
 # Change Log
 
 **v2.27.0**:
+- added new LLM Tool to run SQL against Lakehouses
 - added SQL Pool Configurations to the Workspace Settings
 - added Livy Sessions to Workspace Settings
 - added Csutom Spark Pools to Workspace Settings
 - improved loading of Item children by parallelizing it
+- fixed issue when stopping/deleting Spark Livy Sessions
 
 **v2.26.0**:
 - general rework of API calls

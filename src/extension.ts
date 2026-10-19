@@ -62,6 +62,7 @@ import { FabricStudioUpdateApiElementsTool } from './vscode/languageModelTools/F
 import { FabricStudioGetApiElementTool } from './vscode/languageModelTools/FabricStudioGetApiElementTool';
 import { FabricStudioDescribeApiOperationTool } from './vscode/languageModelTools/FabricStudioDescribeApiOperationTool';
 import { FabricStudioDeleteApiElementsTool } from './vscode/languageModelTools/FabricStudioDeleteApiElementsTool';
+import { FabricStudioRunLakehouseSqlQueryTool } from './vscode/languageModelTools/FabricStudioRunLakehouseSqlQueryTool';
 import { FabricApiSpecificationUpdater } from './vscode/apiSpecs/FabricApiSpecificationUpdater';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -111,7 +112,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.lm.registerTool('fabricstudio_update_api_elements', new FabricStudioUpdateApiElementsTool(context.extensionUri)),
 		vscode.lm.registerTool('fabricstudio_get_api_element', new FabricStudioGetApiElementTool(context.extensionUri)),
 		vscode.lm.registerTool('fabricstudio_describe_api_operation', new FabricStudioDescribeApiOperationTool(context.extensionUri)),
-		vscode.lm.registerTool('fabricstudio_delete_api_elements', new FabricStudioDeleteApiElementsTool(context.extensionUri))
+		vscode.lm.registerTool('fabricstudio_delete_api_elements', new FabricStudioDeleteApiElementsTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_run_lakehouse_sql_query', new FabricStudioRunLakehouseSqlQueryTool())
 	);
 
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
