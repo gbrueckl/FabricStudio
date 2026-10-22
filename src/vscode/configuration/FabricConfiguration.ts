@@ -17,6 +17,11 @@ interface iCloudConfig {
 	apiEndpoint: string;
 	resourceId: string;
 	allowedDomains: string[];
+	// AIDEV-NOTE: only clouds with Fabric endpoints are selectable; apiEndpoint/resourceId hold the Power BI values
+	fabricApiEndpoint?: string;
+	fabricResourceId?: string;
+	// value for VSCode's microsoft-sovereign-cloud.environment setting
+	sovereignCloudEnvironment?: string;
 }
 
 const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
@@ -26,7 +31,9 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 		"authenticationEndpoint": undefined,
 		"apiEndpoint": "https://api.powerbi.com",
 		"resourceId": "https://analysis.windows.net/powerbi/api",
-		"allowedDomains": ["*.analysis.windows.net"]
+		"allowedDomains": ["*.analysis.windows.net"],
+		"fabricApiEndpoint": "https://api.fabric.microsoft.com",
+		"fabricResourceId": "https://api.fabric.microsoft.com"
 	},
 	"ChinaCloud": {
 		"friendlyName": "China Cloud",
@@ -58,7 +65,11 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 		"authenticationEndpoint": "https://login.microsoftonline.us/common",
 		"apiEndpoint": "https://api.high.powerbigov.us",
 		"resourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
-		"allowedDomains": ["*.high.analysis.usgovcloudapi.net"]
+		"allowedDomains": ["*.high.analysis.usgovcloudapi.net"],
+		// AIDEV-NOTE: GCC High serves Fabric REST on the Power BI host; LROs redirect to highapi.fabric.microsoft.us
+		"fabricApiEndpoint": "https://api.high.powerbigov.us",
+		"fabricResourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
+		"sovereignCloudEnvironment": "USGovernment"
 	},
 	"USGovDoDL5Cloud": {
 		"friendlyName": "US Government DoD",
@@ -173,8 +184,13 @@ export abstract class FabricConfiguration {
 	}
 
 	static get cloud(): string {
-		return "GlobalCloud";
-		return this.getValue("cloud");
+		const cloud = this.getValue<string>("cloud");
+		if (!CLOUD_CONFIGS[cloud]?.fabricApiEndpoint) {
+			const supported = Object.keys(CLOUD_CONFIGS).filter((key) => CLOUD_CONFIGS[key].fabricApiEndpoint);
+			ThisExtension.Logger?.logError(`Cloud '${cloud}' is not supported (supported: ${supported.join(", ")}) - using 'GlobalCloud'!`);
+			return "GlobalCloud";
+		}
+		return cloud;
 	}
 	//static set cloud(value: string) { this.setValue("cloud", value); }
 
@@ -278,8 +294,10 @@ export abstract class FabricConfiguration {
 
 
 	static get apiUrl(): string {
-		//
-		return "https://api.fabric.microsoft.com";
+		return CLOUD_CONFIGS[this.cloud].fabricApiEndpoint;
+	}
+
+	static get powerBIApiUrl(): string {
 		return CLOUD_CONFIGS[this.cloud].apiEndpoint;
 	}
 
@@ -288,16 +306,11 @@ export abstract class FabricConfiguration {
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
 
 	static get resourceId(): string {
-		//return "https://analysis.windows.net/powerbi/api"
-		return "https://api.fabric.microsoft.com";
-		return CLOUD_CONFIGS[this.cloud].resourceId;
+		return CLOUD_CONFIGS[this.cloud].fabricResourceId;
 	}
 
 	static get isSovereignCloud(): boolean {
-		// If the base URL for the API is not pointed to api.fabric.microsoft.com assume 
-		// we are pointed to the sovereign tenant
-		// NOT YET SUPPORTED
-		return this.apiUrl !== "https://api.fabric.microsoft.com";
+		return this.cloud !== "GlobalCloud";
 	}
 
 	static get config(): vscode.WorkspaceConfiguration {
@@ -328,9 +341,33 @@ export abstract class FabricConfiguration {
 	}
 
 	static applySettings(): void {
-		if (this.isSovereignCloud) {
-			ThisExtension.Logger.logInfo(`Setting authentication endpoint to ${this.authenticationEndpoint}`);
-			vscode.workspace.getConfiguration().update("microsoft-sovereign-cloud.endpoint", this.authenticationEndpoint, vscode.ConfigurationTarget.Workspace)
+		const cloudConfig = CLOUD_CONFIGS[this.cloud];
+		const required = cloudConfig.sovereignCloudEnvironment;
+		if (!required) {
+			return;
 		}
+
+		const sovereignConfig = vscode.workspace.getConfiguration("microsoft-sovereign-cloud");
+		const current = sovereignConfig.get<string>("environment");
+		if (current === required) {
+			return;
+		}
+		if (current) {
+			// AIDEV-NOTE: never overwrite an existing value; a "custom" environment can be valid for this cloud
+			ThisExtension.Logger.logWarning(`'microsoft-sovereign-cloud.environment' is '${current}' but ${cloudConfig.friendlyName} requires '${required}'.`, current !== "custom");
+			return;
+		}
+
+		// AIDEV-NOTE: Global target as it is about the signed-in identity; a Workspace target fails with no folder open
+		ThisExtension.Logger.logInfo(`Setting 'microsoft-sovereign-cloud.environment' to '${required}' ...`);
+		sovereignConfig.update("environment", required, vscode.ConfigurationTarget.Global).then(
+			async () => {
+				const action = await vscode.window.showInformationMessage(`Fabric Studio set 'microsoft-sovereign-cloud.environment' to '${required}' for ${cloudConfig.friendlyName}. Reload the window to sign in.`, "Reload Window");
+				if (action == "Reload Window") {
+					vscode.commands.executeCommand("workbench.action.reloadWindow");
+				}
+			},
+			(error) => ThisExtension.Logger.logError(`Could not set 'microsoft-sovereign-cloud.environment': ${error}`, true)
+		);
 	}
 }
