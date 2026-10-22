@@ -297,6 +297,10 @@ export abstract class FabricConfiguration {
 		return CLOUD_CONFIGS[this.cloud].fabricApiEndpoint;
 	}
 
+	static get powerBIApiUrl(): string {
+		return CLOUD_CONFIGS[this.cloud].apiEndpoint;
+	}
+
 	static get authenticationProvider(): string { return CLOUD_CONFIGS[this.cloud].authenticationProvider; }
 
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
