@@ -329,6 +329,19 @@
 						"markdownDescription": "(Optional) A custom ClientID/AAD Application to use when interacting with Fabric REST APIs.",
 						"default": null
 					},
+					"fabricStudio.cloud": {
+						"type": "string",
+						"enum": [
+							"GlobalCloud",
+							"USGovDoDL4Cloud"
+						],
+						"enumDescriptions": [
+							"Public Azure Cloud",
+							"US Government Community Cloud High (GCC High)"
+						],
+						"default": "GlobalCloud",
+						"markdownDescription": "The cloud to connect to. Requires a window reload. For GCC High, Fabric Studio also sets `#microsoft-sovereign-cloud.environment#` to `USGovernment`."
+					},
 					"fabricStudio.apiSpecificationUpdateIntervalDays": {
 						"type": "integer",
 						"markdownDescription": "The number of days between automatic Fabric API specification updates. API specifications are also updated whenever the extension version changes.",
