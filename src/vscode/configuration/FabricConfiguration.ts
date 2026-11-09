@@ -14,12 +14,12 @@ interface iCloudConfig {
 	friendlyName: string;
 	authenticationEndpoint: string;
 	authenticationProvider: string;
-	apiEndpoint: string;
-	resourceId: string;
+	// AIDEV-NOTE: Fabric REST values; only clouds that set them are selectable
+	apiEndpoint?: string;
+	resourceId?: string;
+	powerBIApiEndpoint: string;
+	powerBIResourceId: string;
 	allowedDomains: string[];
-	// AIDEV-NOTE: only clouds with Fabric endpoints are selectable; apiEndpoint/resourceId hold the Power BI values
-	fabricApiEndpoint?: string;
-	fabricResourceId?: string;
 	// value for VSCode's microsoft-sovereign-cloud.environment setting
 	sovereignCloudEnvironment?: string;
 }
@@ -29,70 +29,70 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 		"friendlyName": "Public Azure Cloud",
 		"authenticationProvider": "microsoft",
 		"authenticationEndpoint": undefined,
-		"apiEndpoint": "https://api.powerbi.com",
-		"resourceId": "https://analysis.windows.net/powerbi/api",
-		"allowedDomains": ["*.analysis.windows.net"],
-		"fabricApiEndpoint": "https://api.fabric.microsoft.com",
-		"fabricResourceId": "https://api.fabric.microsoft.com"
+		"apiEndpoint": "https://api.fabric.microsoft.com",
+		"resourceId": "https://api.fabric.microsoft.com",
+		"powerBIApiEndpoint": "https://api.powerbi.com",
+		"powerBIResourceId": "https://analysis.windows.net/powerbi/api",
+		"allowedDomains": ["*.analysis.windows.net"]
 	},
 	"ChinaCloud": {
 		"friendlyName": "China Cloud",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.chinacloudapi.cn/common",
-		"apiEndpoint": "https://api.powerbi.cn",
-		"resourceId": "https://analysis.chinacloudapi.cn/powerbi/api",
+		"powerBIApiEndpoint": "https://api.powerbi.cn",
+		"powerBIResourceId": "https://analysis.chinacloudapi.cn/powerbi/api",
 		"allowedDomains": ["*.analysis.chinacloudapi.cn"]
 	},
 	"GermanyCloud": {
 		"friendlyName": "Germay Cloud",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.microsoftonline.de/common",
-		"apiEndpoint": "https://api.powerbi.de",
-		"resourceId": "https://analysis.cloudapi.de/powerbi/api",
+		"powerBIApiEndpoint": "https://api.powerbi.de",
+		"powerBIResourceId": "https://analysis.cloudapi.de/powerbi/api",
 		"allowedDomains": ["*.analysis.cloudapi.de"]
 	},
 	"USGovCloud": {
 		"friendlyName": "US Government Community Cloud (GCC)",
 		"authenticationProvider": "microsoft",
 		"authenticationEndpoint": "https://login.windows.net/common",
-		"apiEndpoint": "https://api.powerbigov.us",
-		"resourceId": "https://analysis.usgovcloudapi.net/powerbi/api",
+		"powerBIApiEndpoint": "https://api.powerbigov.us",
+		"powerBIResourceId": "https://analysis.usgovcloudapi.net/powerbi/api",
 		"allowedDomains": ["*.analysis.usgovcloudapi.net"]
 	},
 	"USGovDoDL4Cloud": {
 		"friendlyName": "US Government Community Cloud High (GCC High)",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.microsoftonline.us/common",
+		// AIDEV-NOTE: tested Power BI host; docs list highapi.fabric.microsoft.us (the LRO target), but BrowserBaseUrl needs "api." -> "app."
 		"apiEndpoint": "https://api.high.powerbigov.us",
 		"resourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
+		"powerBIApiEndpoint": "https://api.high.powerbigov.us",
+		"powerBIResourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
 		"allowedDomains": ["*.high.analysis.usgovcloudapi.net"],
-		// AIDEV-NOTE: GCC High serves Fabric REST on the Power BI host; LROs redirect to highapi.fabric.microsoft.us
-		"fabricApiEndpoint": "https://api.high.powerbigov.us",
-		"fabricResourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
 		"sovereignCloudEnvironment": "USGovernment"
 	},
 	"USGovDoDL5Cloud": {
 		"friendlyName": "US Government DoD",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.microsoftonline.us/common",
-		"apiEndpoint": "https://api.mil.powerbigov.us",
-		"resourceId": "https://mil.analysis.usgovcloudapi.net/powerbi/api",
+		"powerBIApiEndpoint": "https://api.mil.powerbigov.us",
+		"powerBIResourceId": "https://mil.analysis.usgovcloudapi.net/powerbi/api",
 		"allowedDomains": ["*.mil.analysis.usgovcloudapi.net"]
 	},
 	"USNatCloud": {
 		"friendlyName": "US Government Top Secret",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.microsoftonline.eaglex.ic.gov/common",
-		"apiEndpoint": "https://api.powerbi.eaglex.ic.gov",
-		"resourceId": "https://analysis.eaglex.ic.gov/powerbi/api/common",
+		"powerBIApiEndpoint": "https://api.powerbi.eaglex.ic.gov",
+		"powerBIResourceId": "https://analysis.eaglex.ic.gov/powerbi/api/common",
 		"allowedDomains": ["*.analysis.eaglex.ic.gov"]
 	},
 	"USSecCloud": {
 		"friendlyName": "US Government Secret",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.microsoftonline.eaglex.ic.gov/common",
-		"apiEndpoint": "https://api.powerbi.microsoft.scloud",
-		"resourceId": "https://analysis.microsoft.scloud/powerbi/api",
+		"powerBIApiEndpoint": "https://api.powerbi.microsoft.scloud",
+		"powerBIResourceId": "https://analysis.microsoft.scloud/powerbi/api",
 		"allowedDomains": ["*.analysis.microsoft.scloud"]
 	}
 }
@@ -185,8 +185,8 @@ export abstract class FabricConfiguration {
 
 	static get cloud(): string {
 		const cloud = this.getValue<string>("cloud");
-		if (!CLOUD_CONFIGS[cloud]?.fabricApiEndpoint) {
-			const supported = Object.keys(CLOUD_CONFIGS).filter((key) => CLOUD_CONFIGS[key].fabricApiEndpoint);
+		if (!CLOUD_CONFIGS[cloud]?.apiEndpoint) {
+			const supported = Object.keys(CLOUD_CONFIGS).filter((key) => CLOUD_CONFIGS[key].apiEndpoint);
 			ThisExtension.Logger?.logError(`Cloud '${cloud}' is not supported (supported: ${supported.join(", ")}) - using 'GlobalCloud'!`);
 			return "GlobalCloud";
 		}
@@ -294,11 +294,11 @@ export abstract class FabricConfiguration {
 
 
 	static get apiUrl(): string {
-		return CLOUD_CONFIGS[this.cloud].fabricApiEndpoint;
+		return CLOUD_CONFIGS[this.cloud].apiEndpoint;
 	}
 
 	static get powerBIApiUrl(): string {
-		return CLOUD_CONFIGS[this.cloud].apiEndpoint;
+		return CLOUD_CONFIGS[this.cloud].powerBIApiEndpoint;
 	}
 
 	static get authenticationProvider(): string { return CLOUD_CONFIGS[this.cloud].authenticationProvider; }
@@ -306,7 +306,7 @@ export abstract class FabricConfiguration {
 	static get authenticationEndpoint(): string { return CLOUD_CONFIGS[this.cloud].authenticationEndpoint; }
 
 	static get resourceId(): string {
-		return CLOUD_CONFIGS[this.cloud].fabricResourceId;
+		return CLOUD_CONFIGS[this.cloud].resourceId;
 	}
 
 	static get isSovereignCloud(): boolean {
