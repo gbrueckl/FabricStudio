@@ -14,9 +14,10 @@ interface iCloudConfig {
 	friendlyName: string;
 	authenticationEndpoint: string;
 	authenticationProvider: string;
-	// AIDEV-NOTE: Fabric REST values; only clouds that set them are selectable
+	// AIDEV-NOTE: Fabric values (REST host, audience, portal); only clouds that set them are selectable
 	apiEndpoint?: string;
 	resourceId?: string;
+	portalUrl?: string;
 	powerBIApiEndpoint: string;
 	powerBIResourceId: string;
 	allowedDomains: string[];
@@ -31,6 +32,7 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 		"authenticationEndpoint": undefined,
 		"apiEndpoint": "https://api.fabric.microsoft.com",
 		"resourceId": "https://api.fabric.microsoft.com",
+		"portalUrl": "https://app.fabric.microsoft.com",
 		"powerBIApiEndpoint": "https://api.powerbi.com",
 		"powerBIResourceId": "https://analysis.windows.net/powerbi/api",
 		"allowedDomains": ["*.analysis.windows.net"]
@@ -63,9 +65,10 @@ const CLOUD_CONFIGS: { [key: string]: iCloudConfig } = {
 		"friendlyName": "US Government Community Cloud High (GCC High)",
 		"authenticationProvider": "microsoft-sovereign-cloud",
 		"authenticationEndpoint": "https://login.microsoftonline.us/common",
-		// AIDEV-NOTE: tested Power BI host; docs list highapi.fabric.microsoft.us (the LRO target), but BrowserBaseUrl needs "api." -> "app."
-		"apiEndpoint": "https://api.high.powerbigov.us",
+		// AIDEV-NOTE: Fabric REST host per Microsoft's GCC High docs; they list no audience, and the Power BI one is accepted there
+		"apiEndpoint": "https://highapi.fabric.microsoft.us",
 		"resourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
+		"portalUrl": "https://app.high.powerbigov.us",
 		"powerBIApiEndpoint": "https://api.high.powerbigov.us",
 		"powerBIResourceId": "https://high.analysis.usgovcloudapi.net/powerbi/api",
 		"allowedDomains": ["*.high.analysis.usgovcloudapi.net"],
@@ -299,6 +302,10 @@ export abstract class FabricConfiguration {
 
 	static get powerBIApiUrl(): string {
 		return CLOUD_CONFIGS[this.cloud].powerBIApiEndpoint;
+	}
+
+	static get portalUrl(): string {
+		return CLOUD_CONFIGS[this.cloud].portalUrl;
 	}
 
 	static get authenticationProvider(): string { return CLOUD_CONFIGS[this.cloud].authenticationProvider; }
