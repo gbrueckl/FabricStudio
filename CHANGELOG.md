@@ -1,5 +1,8 @@
 # Change Log
 
+**v2.28.0**:
+- added support for `US Government Community Cloud High (GCC High)` - thanks to [@darrenfishell](https://github.com/darrenfishell) for the [PR](https://github.com/gbrueckl/FabricStudio/pull/95)
+
 **v2.27.1**:
 - added new LLM Tool to run SQL against Lakehouses
 - fixed issue when stopping/deleting Spark Livy Sessions
