@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Manage and develop Microsoft Fabric from VSCode. For admins and developers!",
-	"version": "2.27.1",
+	"version": "2.28.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -153,7 +153,12 @@
 				"userDescription": "List elements from a Microsoft Fabric REST API list endpoint.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(list-unordered)",
-				"tags": ["fabricstudio", "fabric", "api", "list"],
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"api",
+					"list"
+				],
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -164,10 +169,18 @@
 						"parameters": {
 							"type": "object",
 							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters. Do not include continuationToken.",
-							"additionalProperties": { "type": ["string", "number", "boolean"] }
+							"additionalProperties": {
+								"type": [
+									"string",
+									"number",
+									"boolean"
+								]
+							}
 						}
 					},
-					"required": ["endpoint"]
+					"required": [
+						"endpoint"
+					]
 				}
 			},
 			{
@@ -178,7 +191,12 @@
 				"userDescription": "Update a Microsoft Fabric REST API element.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(edit)",
-				"tags": ["fabricstudio", "fabric", "api", "update"],
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"api",
+					"update"
+				],
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -189,11 +207,21 @@
 						"parameters": {
 							"type": "object",
 							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters.",
-							"additionalProperties": { "type": ["string", "number", "boolean"] }
+							"additionalProperties": {
+								"type": [
+									"string",
+									"number",
+									"boolean"
+								]
+							}
 						},
 						"method": {
 							"type": "string",
-							"enum": ["POST", "PATCH", "PUT"],
+							"enum": [
+								"POST",
+								"PATCH",
+								"PUT"
+							],
 							"description": "Required only when the selected Swagger endpoint supports more than one update method."
 						},
 						"body": {
@@ -201,7 +229,9 @@
 							"description": "The request payload defined by the selected endpoint in resources/API/swagger.json."
 						}
 					},
-					"required": ["endpoint"]
+					"required": [
+						"endpoint"
+					]
 				}
 			},
 			{
@@ -212,7 +242,12 @@
 				"userDescription": "Get details for a Microsoft Fabric REST API resource.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(inspect)",
-				"tags": ["fabricstudio", "fabric", "api", "get"],
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"api",
+					"get"
+				],
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -223,10 +258,18 @@
 						"parameters": {
 							"type": "object",
 							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters.",
-							"additionalProperties": { "type": ["string", "number", "boolean"] }
+							"additionalProperties": {
+								"type": [
+									"string",
+									"number",
+									"boolean"
+								]
+							}
 						}
 					},
-					"required": ["endpoint"]
+					"required": [
+						"endpoint"
+					]
 				}
 			},
 			{
@@ -237,7 +280,12 @@
 				"userDescription": "Get the local Fabric API definition for an endpoint.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(book)",
-				"tags": ["fabricstudio", "fabric", "api", "schema"],
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"api",
+					"schema"
+				],
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -247,7 +295,13 @@
 						},
 						"method": {
 							"type": "string",
-							"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+							"enum": [
+								"GET",
+								"POST",
+								"PUT",
+								"PATCH",
+								"DELETE"
+							],
 							"description": "The HTTP method. Required when the endpoint defines more than one method."
 						},
 						"search": {
@@ -265,7 +319,12 @@
 				"userDescription": "Delete a Microsoft Fabric REST API element.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(trash)",
-				"tags": ["fabricstudio", "fabric", "api", "delete"],
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"api",
+					"delete"
+				],
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -276,14 +335,22 @@
 						"parameters": {
 							"type": "object",
 							"description": "Values for the selected endpoint's path placeholders and documented optional query parameters.",
-							"additionalProperties": { "type": ["string", "number", "boolean"] }
+							"additionalProperties": {
+								"type": [
+									"string",
+									"number",
+									"boolean"
+								]
+							}
 						},
 						"body": {
 							"type": "object",
 							"description": "The request payload defined by the selected endpoint, when applicable."
 						}
 					},
-					"required": ["endpoint"]
+					"required": [
+						"endpoint"
+					]
 				}
 			},
 			{
@@ -294,7 +361,13 @@
 				"userDescription": "Run a SQL query against a Fabric lakehouse.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(database)",
-				"tags": ["fabricstudio", "fabric", "lakehouse", "sql", "livy"],
+				"tags": [
+					"fabricstudio",
+					"fabric",
+					"lakehouse",
+					"sql",
+					"livy"
+				],
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -311,7 +384,11 @@
 							"description": "The SQL statement to run in the lakehouse's interactive Spark session."
 						}
 					},
-					"required": ["workspaceId", "lakehouseId", "query"]
+					"required": [
+						"workspaceId",
+						"lakehouseId",
+						"query"
+					]
 				}
 			}
 		],
@@ -1683,5 +1760,10 @@
 		"typescript": "^4.7.4",
 		"webpack": "^5.74.0",
 		"webpack-cli": "^4.10.0"
+	},
+	"allowScripts": {
+		"@vscode/vsce-sign@2.0.9": true,
+		"keytar@7.9.0": true,
+		"@playwright/browser-chromium@1.56.1": true
 	}
 }
