@@ -15,6 +15,7 @@ export abstract class FabricApiService {
 	private static _getCache: Map<string, Promise<iGenericApiResponse<any, iGenericApiError>>> = new Map();
 
 	protected static _apiBaseUrl: string;
+	protected static _browserBaseUrl: string;
 	protected static _tenantId: string;
 	protected static _clientId: string;
 	protected static _authenticationProvider: string;
@@ -30,6 +31,7 @@ export abstract class FabricApiService {
 			this.Logger.log(`Initializing Fabric API Service ...`);
 
 			this._apiBaseUrl = Helper.trimChar(FabricConfiguration.apiUrl, '/');
+			this._browserBaseUrl = Helper.trimChar(FabricConfiguration.portalUrl, '/');
 			this._tenantId = FabricConfiguration.tenantId;
 			this._clientId = FabricConfiguration.clientId;
 			this._authenticationProvider = FabricConfiguration.authenticationProvider;
@@ -143,7 +145,7 @@ export abstract class FabricApiService {
 	}
 
 	public static get BrowserBaseUrl(): string {
-		return this._apiBaseUrl.replace("api.", "app.");
+		return this._browserBaseUrl;
 	}
 
 	public static get ApiBaseUrl(): string {

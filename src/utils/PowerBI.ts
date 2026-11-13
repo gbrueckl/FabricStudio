@@ -10,6 +10,7 @@ import { FabricCommandBuilder } from '../vscode/input/FabricCommandBuilder';
 import { FabricQuickPickItem } from '../vscode/input/FabricQuickPickItem';
 import { FabricApiService } from '../fabric/FabricApiService';
 import { iFabricApiItem } from '../fabric/_types';
+import { FabricConfiguration } from '../vscode/configuration/FabricConfiguration';
 
 class PBIPStructure {
 	private _name: string;
@@ -140,7 +141,7 @@ export class PowerBI {
 
 	public static async downloadReportAsPBIP(reportId: string, workspaceId: string): Promise<vscode.Uri> {
 		// get Report Details from PowerBI API
-		const reportDetails = await FabricApiService.get(`https://api.powerbi.com/v1.0/myorg/groups/${workspaceId}/reports/${reportId}`);
+		const reportDetails = await FabricApiService.get(`${FabricConfiguration.powerBIApiUrl}/v1.0/myorg/groups/${workspaceId}/reports/${reportId}`);
 
 		if (reportDetails.error) {
 			ThisExtension.Logger.logError(reportDetails.error.message);
