@@ -1,5 +1,9 @@
 import { ThisExtension } from "../../ThisExtension";
 
+export function homedir(): string | undefined {
+	return require('os').homedir();
+}
+
 export async function startExternalProcess(executable: string, args: string[]): Promise<any> {
 	ThisExtension.Logger.logInfo(`Starting external process ${executable} with args ${args.join(' ')}`);
 	var execFile = require('child_process').execFile;

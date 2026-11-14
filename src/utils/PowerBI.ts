@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { Helper } from '@utils/Helper';
 import { Buffer } from '@env/buffer';
+import { homedir } from '@env/process';
 
 import { ThisExtension } from './../ThisExtension';
 
@@ -19,12 +20,12 @@ class PBIPStructure {
 		name: string,
 		rootUri: vscode.Uri
 	) {
-		this._name = name.replace(".pbip", "");
+		this._name = name.replace(/\.pbip$/i, "");
 		this._rootUri = rootUri;
 	}
 
 	static fromUri(uri: vscode.Uri): PBIPStructure {
-		const name = uri.path.split("/").pop().replace(".pbip", "");
+		const name = uri.path.split("/").pop().replace(/\.pbip$/i, "");
 		const rootUri = uri.with({ path: uri.path.replace(name + ".pbip", "") });
 		return new PBIPStructure(name, rootUri);
 	}
@@ -59,12 +60,23 @@ class PBIPStructure {
 
 export class PowerBI {
 	private static async showPBIPSaveDialog(defaultName: string): Promise<PBIPStructure | undefined> {
+		// defaultName comes from the tenant (report/dataset display name) - strip any path
+		// separators or traversal so it can't steer the dialog's default outside the base folder.
+		defaultName = defaultName.split(/[\\/]/).pop().replace(/^\.+/, "").trim();
+		if (!defaultName) {
+			defaultName = "Report";
+		}
 		if (!defaultName.endsWith(".pbip")) {
 			defaultName += ".pbip";
 		}
+		// Uri.file() on a bare filename resolves to the filesystem root, so give it a real
+		// writable base folder - the open workspace, falling back to the user's home directory.
+		const defaultFolder = vscode.workspace.workspaceFolders?.[0]?.uri ?? (homedir() ? vscode.Uri.file(homedir()) : undefined);
+		const defaultUri = defaultFolder ? vscode.Uri.joinPath(defaultFolder, defaultName) : vscode.Uri.file(defaultName);
+
 		const output = await vscode.window.showSaveDialog({
 			title: `Download PBIP file`,
-			defaultUri: vscode.Uri.file(defaultName),
+			defaultUri: defaultUri,
 			filters: {
 				"PBIP files": ["pbip"]
 			}
