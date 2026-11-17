@@ -285,7 +285,10 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
 
 			if (!response || !response.error) {
-				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, true, `Updating ${itemTypeSingular} '${this.displayName}'`);
+				// the service requires a .platform part in the definition whenever metadata is updated;
+				// if this item's definition never had one (e.g. not returned by the tenant), don't ask for it
+				const hasPlatformPart = definition.definition.parts.some((part) => part.path == ".platform");
+				response = await FabricApiService.updateItemDefinition(this.workspaceId, this.itemId, definition, hasPlatformPart, `Updating ${itemTypeSingular} '${this.displayName}'`);
 			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {
