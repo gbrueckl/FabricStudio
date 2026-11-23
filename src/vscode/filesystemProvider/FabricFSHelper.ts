@@ -6,14 +6,19 @@ import { FabricFSUri } from './FabricFSUri';
 import { FabricFSCache } from './FabricFSCache';
 import { FabricCommandBuilder, NO_QP_ITEMS_ITEM_ID } from '../input/FabricCommandBuilder';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
-import { FabricApiItemType, iFabricApiItem, iFabricPlatformFile } from '../../fabric/_types';
+import { FabricApiItemType, iFabricApiItem, iFabricApiItemPart, iFabricPlatformFile } from '../../fabric/_types';
+import { FabricFSItem } from './FabricFSItem';
+import { FabricFSPublishAction } from './_types';
 import { FabricMapper } from '../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { StringChain } from 'lodash';
+import { FabricGUIDHoverProvider } from '../hoverProvider/FabricGUIDHoverProvider';
 
 const NEW_ITEM_ID = "__NEW_ITEM";
+// AIDEV-NOTE: Fabric Git uses the empty GUID as workspaceId for references to items in the same workspace (referenced by their logicalId).
+const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+const GUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 
 export abstract class FabricFSHelper {
 	private static async getRegex(itemType: FabricApiItemType): Promise<RegExp> {
@@ -70,9 +75,10 @@ export abstract class FabricFSHelper {
 			let item = FabricFSCache.getCacheItem(parentUri);
 			if (!item) {
 				item = await FabricFSCache.addCacheItem(parentUri);
-				await item.loadStatsFromApi();
-				await item.loadChildrenFromApi();
 			}
+			// stats() and readDirectory() use the cache and avoid parallel loads of the same item
+			await item.stats();
+			await item.readDirectory();
 		}
 	}
 
@@ -114,6 +120,10 @@ export abstract class FabricFSHelper {
 
 			const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
 			const items = await FabricApiService.getList<iFabricApiItem>("/workspaces/" + targetWorkspace.workspaceId + "/" + itemTypePlural);
+			if (items.error) {
+				ThisExtension.Logger.logError(`Could not load ${itemTypePlural} of workspace '${targetWorkspace.workspaceName}': ${items.error.message}`, true);
+				return undefined;
+			}
 
 			for (const item of items.success) {
 				let newItem = new FabricQuickPickItem(item.displayName, item.id, item.displayName, item.description);
@@ -179,13 +189,17 @@ export abstract class FabricFSHelper {
 	static async getTarget(platformContent: iFabricPlatformFile): Promise<FabricFSUri> {
 		const itemType = platformContent.metadata.type;
 		const target = await this.getTargetFromQuickPick(itemType, true, undefined, platformContent);
-
+		if (!target) {
+			// cancelled by the user
+			return undefined;
+		}
 
 		if(target.value != NEW_ITEM_ID) {
 			FabricFSUri.addItemNameIdMap(target.label, target.value, target.workspaceId, itemType);
 		}
 		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
-		let uri = await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, target.label)}`), true);
+		// the name has to be encoded - it might contain characters like # or ? that have a special meaning in URIs
+		let uri = await FabricFSUri.getInstance(vscode.Uri.parse(`${FABRIC_SCHEME}://${Helper.joinPath("workspaces", target.workspaceId, itemTypePlural, encodeURIComponent(target.label))}`), true);
 		
 		return uri;
 	}
@@ -290,6 +304,149 @@ export abstract class FabricFSHelper {
 		}
 	}
 
+	/**
+	 * Returns a function that resolves a logicalId to the ID of the corresponding item in the target workspace.
+	 * Each fallback is only used if the previous one could not resolve the logicalId:
+	 * 1. logicalIds of the items in the target workspace (if connected to Git)
+	 * 2. item type and name from the GUID cache of the hover provider
+	 * 3. GUID cache of the hover provider after loading the local .platform files (only once per session)
+	 */
+	private static async getLogicalIdResolver(workspaceId: string): Promise<(logicalId: string) => Promise<string>> {
+		const response = await FabricApiService.listItems(workspaceId);
+
+		if (response.error) {
+			ThisExtension.Logger.logError(`Could not list items of workspace '${workspaceId}' to resolve logicalIds: ${response.error.message}`);
+			return async () => undefined;
+		}
+
+		const typeAndNameKey = (itemType: string, displayName: string) => `${itemType}/${displayName}`.toLowerCase();
+		const itemIdByLogicalId = new Map<string, string>();
+		const itemIdByTypeAndName = new Map<string, string>();
+		for (const item of response.success || []) {
+			if (item.logicalId && item.id && item.logicalId != EMPTY_GUID) {
+				itemIdByLogicalId.set(item.logicalId.toLowerCase(), item.id);
+			}
+			itemIdByTypeAndName.set(typeAndNameKey(item.type, item.displayName), item.id);
+		}
+		ThisExtension.Logger.logInfo(`Found ${itemIdByLogicalId.size} item(s) with a logicalId in target workspace '${workspaceId}'.`);
+
+		const getItemIdFromCache = (logicalId: string): string => {
+			const cachedItem = FabricGUIDHoverProvider.getFabricObjectNameByGUID(logicalId);
+			// skip cache entries of actual item IDs (itemId == GUID) - only entries cached for a logicalId are relevant
+			if (cachedItem?.itemType && cachedItem?.itemName && (cachedItem.workspaceId == EMPTY_GUID || cachedItem.itemId?.toLowerCase() != logicalId.toLowerCase())) {
+				return itemIdByTypeAndName.get(typeAndNameKey(cachedItem.itemType, cachedItem.itemName));
+			}
+			return undefined;
+		};
+
+		return async (logicalId: string) => {
+			// 1. logicalIds of the target workspace
+			let itemId = itemIdByLogicalId.get(logicalId.toLowerCase());
+			if (itemId) {
+				return itemId;
+			}
+
+			// 2. GUID cache of the hover provider
+			itemId = getItemIdFromCache(logicalId);
+			if (itemId) {
+				return itemId;
+			}
+
+			// 3. load local .platform files into the GUID cache (only once per session) and try again
+			await FabricGUIDHoverProvider.loadLocalPlatformFiles(false);
+			itemId = getItemIdFromCache(logicalId);
+			if (itemId) {
+				return itemId;
+			}
+
+			return undefined;
+		};
+	}
+
+	/**
+	 * Definitions from a local Fabric Git repository reference items of the same workspace via the empty GUID
+	 * as workspaceId and the logicalId of the referenced item. If a copied file contains the empty GUID, it is
+	 * replaced with the target workspace ID and all logicalIds of items in the target workspace are replaced
+	 * with their actual item IDs in the target copy.
+	 * The local source files are not modified.
+	 * @returns `false` if a file contains the empty GUID but no logicalId could be replaced, `true` otherwise.
+	 */
+	static async resolveLogicalIdReferences(
+		sourceUri: vscode.Uri,
+		fabricUri: FabricFSUri,
+		itemsToExclue: string[] = [],
+		isCreate: boolean = false
+	): Promise<boolean> {
+		let resolveLogicalId: (logicalId: string) => Promise<string> = undefined;
+		// resolved itemIds (or undefined if not resolvable) of all GUIDs found so far - shared across all files
+		const itemIdByGuid = new Map<string, string>();
+
+		const processFolder = async (relativePath: string[]): Promise<boolean> => {
+			for (const [name, fileType] of await vscode.workspace.fs.readDirectory(vscode.Uri.joinPath(sourceUri, ...relativePath))) {
+				// same filter as used when copying the definition (only applied on the root level)
+				if (relativePath.length == 0 && !isCreate && (name.startsWith(".") || itemsToExclue.includes(name))) {
+					continue;
+				}
+
+				const itemPath = [...relativePath, name];
+				if (fileType & vscode.FileType.Directory) {
+					if (!await processFolder(itemPath)) {
+						return false;
+					}
+					continue;
+				}
+				if (!(fileType & vscode.FileType.File)) {
+					continue;
+				}
+
+				const content = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(sourceUri, ...itemPath))).toString("utf8");
+				if (!content.includes(EMPTY_GUID)) {
+					continue;
+				}
+
+				if (!resolveLogicalId) {
+					ThisExtension.Logger.logInfo(`Found references to the current workspace (${EMPTY_GUID}) - resolving logicalIds in target workspace '${fabricUri.workspaceId}' ...`);
+					resolveLogicalId = await this.getLogicalIdResolver(fabricUri.workspaceId);
+				}
+
+				// only GUIDs found in the file are looked up
+				for (const match of content.matchAll(GUID_REGEX)) {
+					const guid = match[0].toLowerCase();
+					if (guid != EMPTY_GUID && !itemIdByGuid.has(guid)) {
+						itemIdByGuid.set(guid, await resolveLogicalId(guid));
+					}
+				}
+
+				let workspaceReplacements = 0;
+				let logicalIdReplacements = 0;
+				const newContent = content.replace(GUID_REGEX, (guid) => {
+					if (guid == EMPTY_GUID) {
+						workspaceReplacements++;
+						return fabricUri.workspaceId;
+					}
+					const itemId = itemIdByGuid.get(guid.toLowerCase());
+					if (itemId) {
+						logicalIdReplacements++;
+						return itemId;
+					}
+					return guid;
+				});
+
+				if (logicalIdReplacements == 0) {
+					ThisExtension.Logger.logError(`'${itemPath.join("/")}' references the current workspace (${EMPTY_GUID}) but no logicalId could be resolved to an item in target workspace '${fabricUri.workspaceId}'!`, true);
+					return false;
+				}
+
+				await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(fabricUri.uri, ...itemPath), Buffer.from(newContent, "utf8"));
+				ThisExtension.Logger.logInfo(`Replaced ${workspaceReplacements} workspace reference(s) and ${logicalIdReplacements} logicalId(s) in '${itemPath.join("/")}'.`);
+			}
+
+			return true;
+		};
+
+		return await processFolder([]);
+	}
+
 	static async publishContent(
 		sourceUri: vscode.Uri,
 		fabricUri: FabricFSUri,
@@ -302,59 +459,114 @@ export abstract class FabricFSHelper {
 		ThisExtension.Logger.logInfo("Publishing from: " + sourceUri.toString());
 		ThisExtension.Logger.logInfo("To Fabric target: " + fabricUri.uri.toString());
 
+		// state of the target before it is modified - restored if the publish is aborted so no partial definition is left behind
+		let previousDefinition: iFabricApiItemPart[] = undefined;
+		let previousLocalChange: FabricFSPublishAction = undefined;
+
 		if (isCreate) {
 			await this.ensureParents(fabricUri, 1);
 			await vscode.workspace.fs.createDirectory(fabricUri.uri);
 		}
 		else {
 			await this.ensureParents(fabricUri);
-			// delete current definition from Target - everything except files starting with . (like .platform)
-			for (const item of await FabricFSCache.getCacheItem(fabricUri).readDirectory()) {
-				if (!item[0].startsWith(".") && !itemsToExclue.includes(item[0])) {
-					await vscode.workspace.fs.delete(vscode.Uri.joinPath(fabricUri.uri, item[0]), { recursive: true, useTrash: false });
-				}
-			}
-		}
-		//await vscode.workspace.fs.delete(fabricUri.uri, { recursive: true, useTrash: false });
-		// copy new definition from source
-		for (const item of await vscode.workspace.fs.readDirectory(sourceUri)) {
-			// for create we need to copy everything
-			if (isCreate || (!item[0].startsWith(".") && !itemsToExclue.includes(item[0]))) {
-				await vscode.workspace.fs.copy(
-					vscode.Uri.joinPath(sourceUri, item[0]),
-					vscode.Uri.joinPath(fabricUri.uri, item[0]),
-					{ overwrite: true }
-				);
-			}
+			const targetItem = FabricFSCache.getCacheItem(fabricUri) as FabricFSItem;
+			previousDefinition = targetItem.getDefinitionSnapshot();
+			previousLocalChange = FabricFSCache.getLocalChanges(fabricUri);
 		}
 
-		if (isCreate) {
-			// mark target as created
-			await FabricFSCache.localItemAdded(fabricUri);
-			if (prePublishActionCreate) {
-				const continuePublish = await prePublishActionCreate(fabricUri);
-				if (!continuePublish) {
-					ThisExtension.Logger.logError("Pre-publish action after Create aborted the publish operation.");
-					return;
+		try {
+			if (!isCreate) {
+				// delete current definition from Target - everything except files starting with . (like .platform)
+				for (const item of await FabricFSCache.getCacheItem(fabricUri).readDirectory()) {
+					if (!item[0].startsWith(".") && !itemsToExclue.includes(item[0])) {
+						await vscode.workspace.fs.delete(vscode.Uri.joinPath(fabricUri.uri, item[0]), { recursive: true, useTrash: false });
+					}
 				}
 			}
 
-			FabricCommandBuilder.pushQuickPickItem(fabricUri.asQuickPickItem);
-		}
-		else {
-			// mark target as modified
-			await FabricFSCache.localItemModified(fabricUri);
-			if (prePublishActionUpdate) {
-				const continuePublish = await prePublishActionUpdate(fabricUri);
-				if (!continuePublish) {
-					ThisExtension.Logger.logError("Pre-publish action after Update aborted the publish operation.");
-					return;
+			// copy new definition from source
+			for (const item of await vscode.workspace.fs.readDirectory(sourceUri)) {
+				// for create we need to copy everything
+				if (isCreate || (!item[0].startsWith(".") && !itemsToExclue.includes(item[0]))) {
+					await vscode.workspace.fs.copy(
+						vscode.Uri.joinPath(sourceUri, item[0]),
+						vscode.Uri.joinPath(fabricUri.uri, item[0]),
+						{ overwrite: true }
+					);
 				}
 			}
+
+			if (!await this.resolveLogicalIdReferences(sourceUri, fabricUri, itemsToExclue, isCreate)) {
+				ThisExtension.Logger.logError("Resolving logicalIds aborted the publish operation.");
+				await this.abortPublishContent(fabricUri, isCreate, previousDefinition, previousLocalChange);
+				return;
+			}
+
+			if (isCreate) {
+				// mark target as created
+				FabricFSCache.localItemAdded(fabricUri);
+				if (prePublishActionCreate) {
+					const continuePublish = await prePublishActionCreate(fabricUri);
+					if (!continuePublish) {
+						ThisExtension.Logger.logError("Pre-publish action after Create aborted the publish operation.");
+						await this.abortPublishContent(fabricUri, isCreate, previousDefinition, previousLocalChange);
+						return;
+					}
+				}
+
+				FabricCommandBuilder.pushQuickPickItem(fabricUri.asQuickPickItem);
+			}
+			else {
+				// mark target as modified
+				FabricFSCache.localItemModified(fabricUri);
+				if (prePublishActionUpdate) {
+					const continuePublish = await prePublishActionUpdate(fabricUri);
+					if (!continuePublish) {
+						ThisExtension.Logger.logError("Pre-publish action after Update aborted the publish operation.");
+						await this.abortPublishContent(fabricUri, isCreate, previousDefinition, previousLocalChange);
+						return;
+					}
+				}
+			}
+		}
+		catch (error) {
+			await this.abortPublishContent(fabricUri, isCreate, previousDefinition, previousLocalChange);
+			ThisExtension.Logger.logError(`Publishing '${sourceUri.toString()}' failed: ${error?.message ?? error}`, true);
+			return;
 		}
 
 		await FabricFSCache.publishToFabric(fabricUri.uri);
 
 		return fabricUri;
+	}
+
+	/**
+	 * Restores the target of a publish from a local folder if the publish is aborted - otherwise a partial definition
+	 * would remain in the cache and would be published with the next publish/save.
+	 */
+	private static async abortPublishContent(
+		fabricUri: FabricFSUri,
+		isCreate: boolean,
+		previousDefinition: iFabricApiItemPart[],
+		previousLocalChange: FabricFSPublishAction
+	): Promise<void> {
+		const targetItem = FabricFSCache.getCacheItem(fabricUri) as FabricFSItem;
+		if (!targetItem) {
+			return;
+		}
+
+		if (isCreate) {
+			// the item was only created locally for this publish - remove it again
+			targetItem.publishAction = FabricFSPublishAction.CREATE;
+			await targetItem.delete();
+			FabricFSCache.restoreLocalChange(fabricUri, undefined);
+			ThisExtension.FabricFileSystemProvider.fireDeleted(fabricUri.uri);
+		}
+		else {
+			await targetItem.restoreDefinitionSnapshot(previousDefinition);
+			FabricFSCache.restoreLocalChange(fabricUri, previousLocalChange);
+			ThisExtension.FabricFileSystemProvider._fireSoon({ type: vscode.FileChangeType.Changed, uri: fabricUri.uri });
+		}
+		ThisExtension.Logger.logInfo(`Restored '${fabricUri.uri.toString()}' after the publish was aborted.`);
 	}
 }

@@ -74,14 +74,14 @@ export class FabricFileSystemProvider implements vscode.FileSystemProvider, vsco
 		const newFabricUri: FabricFSUri = await FabricFSUri.getInstance(newUri, true);
 
 		if(oldFabricUri.uriType == FabricUriType.item) {
-			await FabricFSCache.rename(oldFabricUri, newFabricUri);
+			await FabricFSCache.rename(oldFabricUri, newFabricUri, options?.overwrite);
 		}
 		else if(oldFabricUri.uriType == FabricUriType.part) {
-			await FabricFSCache.rename(oldFabricUri, newFabricUri);
+			await FabricFSCache.rename(oldFabricUri, newFabricUri, options?.overwrite);
 		}
 		else {
 			// we only support renaming of Items or Itemparts
-			throw vscode.FileSystemError.FileNotFound("Rename is currently not supported!");
+			throw vscode.FileSystemError.NoPermissions("Only items and files/folders within items can be renamed!");
 		}
 
 		this._fireSoon({ type: vscode.FileChangeType.Changed, uri: Helper.parentUri(oldUri) }, { type: vscode.FileChangeType.Deleted, uri: oldUri });
@@ -118,11 +118,14 @@ export class FabricFileSystemProvider implements vscode.FileSystemProvider, vsco
 		else if(fabricUri.uriType == FabricUriType.item) {
 			await FabricFSCache.createDirectory(fabricUri);
 		}
-		else {
-			// we only support creation of Items or Itemparts
-			throw vscode.FileSystemError.FileNotFound(uri);
+		else if(fabricUri.uriType == FabricUriType.itemType) {
+			await FabricFSCache.createDirectory(fabricUri);
 		}
-		
+		else {
+			// we only support creation of ItemTypes, Items or Itemparts
+			throw vscode.FileSystemError.NoPermissions(`Folders can only be created for item types, items or within items: ${uri.toString()}`);
+		}
+
 		this._fireSoon({ type: vscode.FileChangeType.Changed, uri: Helper.parentUri(uri) }, { type: vscode.FileChangeType.Created, uri });
 	}
 
@@ -153,8 +156,8 @@ export class FabricFileSystemProvider implements vscode.FileSystemProvider, vsco
 		}
 
 		this._fireSoonHandle = setTimeout(() => {
-			this._emitter.fire(this._bufferedEvents);
-			this._bufferedEvents.length = 0;
+			// fire a copy - listeners might keep a reference to the array
+			this._emitter.fire(this._bufferedEvents.splice(0));
 		}, 5);
 	}
 

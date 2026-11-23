@@ -27,12 +27,17 @@ export class FabricFSRoot extends FabricFSCacheItem {
 	public async loadChildrenFromApi<T>(): Promise<void> {
 		if (!this._children) {
 			const response = await FabricApiService.listWorkspaces();
+			if (response.error) {
+				// the children are not marked as loaded so it is retried next time
+				throw vscode.FileSystemError.Unavailable(`Could not load workspaces: ${response.error.message}`);
+			}
 			this._apiResponse = response.success;
-			this._children = [];
+			const children: [string, vscode.FileType][] = [];
 			for (let apiItem of this._apiResponse) {
 				FabricFSUri.addWorkspaceNameIdMap(apiItem.itemName, apiItem.id);
-				this._children.push([apiItem.itemName, vscode.FileType.Directory]);
+				children.push([apiItem.itemName, vscode.FileType.Directory]);
 			}
+			this._children = children;
 		}
 	}
 }

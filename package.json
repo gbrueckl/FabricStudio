@@ -2,7 +2,7 @@
 	"name": "fabricstudio",
 	"displayName": "Fabric Studio",
 	"description": "Manage and develop Microsoft Fabric from VSCode. For admins and developers!",
-	"version": "2.28.1",
+	"version": "2.29.0",
 	"publisher": "GerhardBrueckl",
 	"icon": "resources/fabric_studio_extension.png",
 	"author": {
@@ -149,7 +149,7 @@
 				"name": "fabricstudio_list_api_elements",
 				"toolReferenceName": "fabricStudioListApiElements",
 				"displayName": "List Fabric API Elements",
-				"modelDescription": "Lists elements from any GET endpoint in the bundled local resources/API/swagger.json that is a list operation. Use fabricStudioDescribeApiOperation to obtain its endpoint template and path/query parameters; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters and only documented optional query parameters. The tool automatically follows pagination; never provide continuationToken or a query parameter already fixed in the endpoint template. Use the dedicated workspace and item tools when one of those provides the needed result directly.",
+				"modelDescription": "Lists elements from any GET endpoint in the Fabric API specification (Swagger) downloaded by the extension that is a list operation. Use fabricStudioDescribeApiOperation to obtain its endpoint template and path/query parameters; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters and only documented optional query parameters. The tool automatically follows pagination; never provide continuationToken or a query parameter already fixed in the endpoint template. Use the dedicated workspace and item tools when one of those provides the needed result directly.",
 				"userDescription": "List elements from a Microsoft Fabric REST API list endpoint.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(list-unordered)",
@@ -164,7 +164,7 @@
 					"properties": {
 						"endpoint": {
 							"type": "string",
-							"description": "The exact GET list endpoint template from resources/API/swagger.json, for example /v1/workspaces/{workspaceId}/lakehouses."
+							"description": "The exact GET list endpoint template from the Fabric API specification, for example /v1/workspaces/{workspaceId}/lakehouses."
 						},
 						"parameters": {
 							"type": "object",
@@ -187,7 +187,7 @@
 				"name": "fabricstudio_update_api_elements",
 				"toolReferenceName": "fabricStudioUpdateApiElements",
 				"displayName": "Update Fabric API Elements",
-				"modelDescription": "Updates a Microsoft Fabric API element through a POST, PATCH, or PUT update operation defined in the bundled local resources/API/swagger.json. Use fabricStudioDescribeApiOperation to obtain its endpoint template, path/query parameters, and request-body schema; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters, only documented optional query parameters, and the endpoint's documented request payload in body. The user must confirm every update request.",
+				"modelDescription": "Updates a Microsoft Fabric API element through a POST, PATCH, or PUT update operation defined in the Fabric API specification (Swagger) downloaded by the extension. Use fabricStudioDescribeApiOperation to obtain its endpoint template, path/query parameters, and request-body schema; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters, only documented optional query parameters, and the endpoint's documented request payload in body. The user must confirm every update request.",
 				"userDescription": "Update a Microsoft Fabric REST API element.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(edit)",
@@ -202,7 +202,7 @@
 					"properties": {
 						"endpoint": {
 							"type": "string",
-							"description": "The exact POST, PATCH, or PUT update endpoint template from resources/API/swagger.json."
+							"description": "The exact POST, PATCH, or PUT update endpoint template from the Fabric API specification."
 						},
 						"parameters": {
 							"type": "object",
@@ -226,7 +226,7 @@
 						},
 						"body": {
 							"type": "object",
-							"description": "The request payload defined by the selected endpoint in resources/API/swagger.json."
+							"description": "The request payload defined by the selected endpoint in the Fabric API specification."
 						}
 					},
 					"required": [
@@ -238,7 +238,7 @@
 				"name": "fabricstudio_get_api_element",
 				"toolReferenceName": "fabricStudioGetApiElement",
 				"displayName": "Get Fabric API Element Details",
-				"modelDescription": "Retrieves information or details through any GET endpoint in the bundled local resources/API/swagger.json. Use fabricStudioDescribeApiOperation to obtain its endpoint template and path/query parameters; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters and only documented optional query parameters. Use the dedicated list tools when the user needs a collection rather than a single resource.",
+				"modelDescription": "Retrieves information or details through any GET endpoint in the Fabric API specification (Swagger) downloaded by the extension. Use fabricStudioDescribeApiOperation to obtain its endpoint template and path/query parameters; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters and only documented optional query parameters. Use the dedicated list tools when the user needs a collection rather than a single resource.",
 				"userDescription": "Get details for a Microsoft Fabric REST API resource.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(inspect)",
@@ -253,7 +253,7 @@
 					"properties": {
 						"endpoint": {
 							"type": "string",
-							"description": "The exact GET endpoint template from resources/API/swagger.json."
+							"description": "The exact GET endpoint template from the Fabric API specification."
 						},
 						"parameters": {
 							"type": "object",
@@ -276,7 +276,7 @@
 				"name": "fabricstudio_describe_api_operation",
 				"toolReferenceName": "fabricStudioDescribeApiOperation",
 				"displayName": "Describe Fabric API Operation",
-				"modelDescription": "Searches or describes operations from the bundled local resources/API/swagger.json. Use search to discover endpoint templates when they are not known; use endpoint and, when needed, method to return documented parameters and request-body schema. Call this before generic GET, list, or update API tools when their endpoint or inputs are not already known. This tool reads Swagger inside the extension; do not use terminal/file tools or external documentation to inspect the API definition.",
+				"modelDescription": "Searches or describes operations from the Fabric API specification (Swagger) downloaded by the extension. Use search to discover endpoint templates when they are not known; use endpoint and, when needed, method to return documented parameters and request-body schema. Call this before generic GET, list, or update API tools when their endpoint or inputs are not already known. This tool reads Swagger inside the extension; do not use terminal/file tools or external documentation to inspect the API definition.",
 				"userDescription": "Get the local Fabric API definition for an endpoint.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(book)",
@@ -291,7 +291,7 @@
 					"properties": {
 						"endpoint": {
 							"type": "string",
-							"description": "The endpoint template from resources/API/swagger.json. Provide this or search."
+							"description": "The endpoint template from the Fabric API specification. Provide this or search."
 						},
 						"method": {
 							"type": "string",
@@ -315,7 +315,7 @@
 				"name": "fabricstudio_delete_api_elements",
 				"toolReferenceName": "fabricStudioDeleteApiElements",
 				"displayName": "Delete Fabric API Elements",
-				"modelDescription": "Deletes a Microsoft Fabric API element through a DELETE operation defined in the bundled local resources/API/swagger.json. Use fabricStudioDescribeApiOperation to obtain its endpoint template, path/query parameters, and any request-body schema; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters, only documented optional query parameters, and a documented request payload in body only when required. The user must confirm every delete request.",
+				"modelDescription": "Deletes a Microsoft Fabric API element through a DELETE operation defined in the Fabric API specification (Swagger) downloaded by the extension. Use fabricStudioDescribeApiOperation to obtain its endpoint template, path/query parameters, and any request-body schema; do not read the Swagger file with terminal or file tools, and do not browse Microsoft Learn or other external API documentation. Supply every {pathParameter} in parameters, only documented optional query parameters, and a documented request payload in body only when required. The user must confirm every delete request.",
 				"userDescription": "Delete a Microsoft Fabric REST API element.",
 				"canBeReferencedInPrompt": true,
 				"icon": "$(trash)",
@@ -330,7 +330,7 @@
 					"properties": {
 						"endpoint": {
 							"type": "string",
-							"description": "The exact DELETE endpoint template from resources/API/swagger.json."
+							"description": "The exact DELETE endpoint template from the Fabric API specification."
 						},
 						"parameters": {
 							"type": "object",
@@ -1743,16 +1743,16 @@
 		"@types/vscode": "^1.105.0",
 		"@vscode/test-web": "*",
 		"@vscode/vsce": "*",
-		"adm-zip": "^0.5.16",
+		"adm-zip": "^0.6.1",
 		"buffer": "^6.0.3",
 		"eslint": "^9.0.0",
 		"form-data": "^4.0.0",
-		"glob": "^9.0.0",
+		"glob": "^14.0.6",
 		"https-agent": "^1.0.0",
 		"https-proxy-agent": "^5.0.1",
 		"json-serialize-refs": "^0.1.0-0",
 		"lodash": "^4.17.21",
-		"mocha": "^11.7.0",
+		"mocha": "^11.0.0",
 		"native-ext-loader": "^2.3.0",
 		"node-fetch": "^3.3.2",
 		"ts-loader": "^9.3.1",

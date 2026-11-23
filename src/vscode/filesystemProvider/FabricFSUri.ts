@@ -37,6 +37,8 @@ export class FabricFSUri {
 	item?: string;
 	part: string;
 	uriType: FabricUriType;
+	// false if the URI does not follow the pattern fabric:/workspaces/...
+	private _matchesPattern: boolean = true;
 
 	/*
 	fabric://workspaces/<workspace-id>/<itemType>/<item-id>/<partFolder/partfolder/partFile>
@@ -51,6 +53,7 @@ export class FabricFSUri {
 			let paths = uriString.split("/").filter((path) => path.length > 0).slice(1);
 			if (paths[0] != 'workspaces') {
 				ThisExtension.Logger.logInfo(`Fabric URI '${uri.toString()}' does not match pattern ${REGEX_FABRIC_URI}!`);
+				this._matchesPattern = false;
 			}
 			this.workspace = paths[1];
 			this.itemType = FabricConfiguration.itemTypeFromString(paths[2]);
@@ -117,7 +120,17 @@ export class FabricFSUri {
 	}
 
 	get isValid(): boolean {
+		// e.g. fabric:/ or fabric:/something/<guid>
+		if (!this._matchesPattern || !this.uriType) {
+			return false;
+		}
+
 		if (this.uriType >= FabricUriType.itemType && !this.itemType) {
+			return false;
+		}
+
+		// item types never start with "." - VSCode and other extensions probe for files like .vscode, .git, .mcp.json in the root of a mounted workspace
+		if (this.uriType >= FabricUriType.itemType && this.itemType.startsWith(".")) {
 			return false;
 		}
 
@@ -148,8 +161,9 @@ export class FabricFSUri {
 		return FabricFSUri._workspaceNameIdMap.get(this.workspaceMapName);
 	}
 
+	// the map contains the decoded workspace names - the URI might encode more characters than encodeURIComponent (e.g. "(" or "!")
 	private get workspaceMapName(): string {
-		return this.workspace;
+		return this.workspace ? decodeURIComponent(this.workspace) : this.workspace;
 	}
 
 	public get itemMapName(): string {
@@ -160,10 +174,9 @@ export class FabricFSUri {
 		return decodeURIComponent(`${workspaceId}/${itemType}/${itemName}`);
 	}
 
-	// the final map contains encoded names to handle special characters
+	// the map contains the decoded (original) workspace names
 	public static addWorkspaceNameIdMap(workspaceName: string, workspaceId: string): void {
-		// encode the workspace name to handle special characters
-		FabricFSUri._workspaceNameIdMap.set(encodeURIComponent(workspaceName), workspaceId);
+		FabricFSUri._workspaceNameIdMap.set(workspaceName, workspaceId);
 	}
 
 	// the final map contains encoded names to handle special characters
@@ -175,6 +188,12 @@ export class FabricFSUri {
 		}
 
 		FabricFSUri._itemNameIdMap.set(itemName, itemId);
+	}
+
+	// removes the mapping of an item name (e.g. when the item was renamed)
+	public static removeItemNameIdMap(itemName: string, workspaceId: string, itemType: FabricApiItemType): void {
+		const itemTypePlural = FabricMapper.getItemTypePlural(itemType);
+		FabricFSUri._itemNameIdMap.delete(FabricFSUri.getItemMapName(workspaceId, itemTypePlural, encodeURIComponent(itemName)));
 	}
 
 	get itemId(): string {
@@ -261,7 +280,7 @@ export class FabricFSUri {
 		qpItem.workspaceId = this.workspaceId;
 		for (const [key, value] of FabricFSUri._workspaceNameIdMap) {
 			if (value == itemUrl.workspaceId) {
-				qpItem.workspaceName = decodeURIComponent(key);
+				qpItem.workspaceName = key;
 				break;
 			}
 		}

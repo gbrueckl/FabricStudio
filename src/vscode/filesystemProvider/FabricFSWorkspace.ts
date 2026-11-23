@@ -53,14 +53,19 @@ export class FabricFSWorkspace extends FabricFSCacheItem implements iFabricApiWo
 	public async loadChildrenFromApi<T>(): Promise<void> {
 		if (!this._children) {
 			const response = await FabricApiService.getList<iFabricApiItem>(`/v1/workspaces/${this.FabricUri.workspaceId}/items`);
+			if (response.error) {
+				// the children are not marked as loaded so it is retried next time
+				throw vscode.FileSystemError.Unavailable(`Could not load items of workspace '${this.FabricUri.uri.toString()}': ${response.error.message}`);
+			}
 			this._apiResponse = response.success;
-			this._children = [];
+			const children: [string, vscode.FileType][] = [];
 			for (let item of this._apiResponse) {
 				const itemTypePlural = FabricMapper.getItemTypePlural(item.type);
-				if (!this._children.find((x) => x[0] == itemTypePlural) && FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
-					this._children.push([itemTypePlural, vscode.FileType.Directory]);
+				if (!children.find((x) => x[0] == itemTypePlural) && FabricConfiguration.itemTypeHasDefinition(itemTypePlural)) {
+					children.push([itemTypePlural, vscode.FileType.Directory]);
 				}
 			}
+			this._children = children;
 		}
 	}
 }

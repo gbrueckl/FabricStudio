@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 
-import { Buffer } from '@env/buffer';
 import { Helper } from '@utils/Helper';
 
 import { ThisExtension } from '../../ThisExtension';
@@ -8,6 +7,7 @@ import { ApiEndpointDetails, FabricAPILanguage, SwaggerFile } from './_types';
 import { FabricNotebookContext } from '../notebook/api/FabricNotebookContext';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { iFabricApiItem } from '../../fabric/_types';
+import { FabricApiSpecificationUpdater } from '../apiSpecs/FabricApiSpecificationUpdater';
 
 /** Supported trigger characters */
 const TRIGGER_CHARS = ['/', '%'];
@@ -49,10 +49,8 @@ export class FabricAPICompletionProvider implements vscode.CompletionItemProvide
 		if (FabricAPICompletionProvider.swagger) {
 			return;
 		}
-		const swaggerPath = vscode.Uri.joinPath(ThisExtension.rootUri, 'resources', 'API', 'swagger.json');
-
-		//let api = await SwaggerParser.validate(swaggerPath.fsPath, { validate: { spec: false, schema: false } });
-		const swaggerText = Buffer.from(await vscode.workspace.fs.readFile(swaggerPath)).toString();
+		// the specification is downloaded on demand as it is not shipped with the extension
+		const swaggerText = await FabricApiSpecificationUpdater.readSpecification();
 		FabricAPICompletionProvider.swagger = JSON.parse(swaggerText);
 	}
 

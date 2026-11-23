@@ -19,8 +19,52 @@ interface GitTreeResponse {
 
 /** Downloads, combines, and publishes the Fabric REST API specifications. */
 export class FabricApiSpecificationUpdater {
-	/** Starts an update when the extension changed or the configured update interval elapsed. */
-	public static updateIfDue(context: vscode.ExtensionContext, extensionWasUpdated: boolean = false): void {
+	private static _context: vscode.ExtensionContext;
+	private static _updatePromise: Promise<boolean>;
+
+	/** Must be called on activation before the specification is accessed. */
+	public static initialize(context: vscode.ExtensionContext): void {
+		this._context = context;
+	}
+
+	/**
+	 * The Swagger definition is not shipped with the extension but downloaded into the global storage.
+	 * The global storage is writable on desktop and web, unlike the extension folder.
+	 */
+	public static get specificationUri(): vscode.Uri {
+		return vscode.Uri.joinPath(this._context.globalStorageUri, 'API', OUTPUT_FILE_NAME);
+	}
+
+	/** Returns the content of the Swagger definition - it is downloaded first if it does not exist yet. */
+	public static async readSpecification(): Promise<string> {
+		if (!(await this.specificationExists())) {
+			// a download might already be running (e.g. started on activation)
+			await (this._updatePromise ?? this.updateAndNotify(this._context, false));
+		}
+		if (!(await this.specificationExists())) {
+			throw new Error('The Fabric API specification is not available - run the command "Update Fabric API Specification" to download it.');
+		}
+		return new TextDecoder().decode(await vscode.workspace.fs.readFile(this.specificationUri));
+	}
+
+	public static async specificationExists(): Promise<boolean> {
+		try {
+			await vscode.workspace.fs.stat(this.specificationUri);
+			return true;
+		}
+		catch {
+			return false;
+		}
+	}
+
+	/** Starts an update when the specification does not exist, the extension changed or the configured update interval elapsed. */
+	public static async updateIfDue(context: vscode.ExtensionContext, extensionWasUpdated: boolean = false): Promise<void> {
+		this.initialize(context);
+		if (!(await this.specificationExists())) {
+			ThisExtension.Logger.logInfo('Fabric API specification not found - downloading it ...');
+			await this.updateAndNotify(context, false);
+			return;
+		}
 		const lastUpdated = context.globalState.get<number>(LAST_UPDATED_KEY);
 		// AIDEV-NOTE: Keep the default in sync with the package.json setting declaration.
 		const updateIntervalMs = vscode.workspace.getConfiguration('fabricStudio').get<number>(UPDATE_INTERVAL_SETTING, 7) * 24 * 60 * 60 * 1000;
@@ -31,10 +75,10 @@ export class FabricApiSpecificationUpdater {
 	}
 
 	/**
-	 * Updates the installed extension's Swagger definition without creating local temporary files.
+	 * Updates the Swagger definition in the global storage without creating local temporary files.
 	 */
-	public static async update(extensionUri: vscode.Uri): Promise<SwaggerDocument> {
-		const outputUri = vscode.Uri.joinPath(extensionUri, 'resources', 'API', OUTPUT_FILE_NAME);
+	public static async update(): Promise<SwaggerDocument> {
+		const outputUri = this.specificationUri;
 		ThisExtension.Logger.logInfo('Downloading Fabric API specifications ...');
 		const jsonFiles = await this.getJsonFiles();
 		const sourceFiles = jsonFiles.filter(file => !/(^|\/)examples(\/|$)/i.test(file));
@@ -46,6 +90,7 @@ export class FabricApiSpecificationUpdater {
 		// AIDEV-NOTE: Keep the temporary file beside the target so workspace.fs.rename is atomic where supported.
 		const temporaryUri = vscode.Uri.joinPath(outputUri.with({ path: outputUri.path.substring(0, outputUri.path.lastIndexOf('/')) }), `.${OUTPUT_FILE_NAME}-${Date.now()}.tmp`);
 		try {
+			await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(outputUri, '..'));
 			await vscode.workspace.fs.writeFile(temporaryUri, new TextEncoder().encode(outputContent));
 			await vscode.workspace.fs.rename(temporaryUri, outputUri, { overwrite: true });
 			ThisExtension.Logger.logInfo('Fabric API specification updated successfully.');
@@ -62,19 +107,39 @@ export class FabricApiSpecificationUpdater {
 		return JSON.parse(outputContent) as SwaggerDocument;
 	}
 
-	/** Updates the specification and informs the user of the result. */
-	public static async updateAndNotify(context: vscode.ExtensionContext): Promise<boolean> {
+	/**
+	 * Updates the specification and informs the user of the result.
+	 * Concurrent calls share the same download.
+	 * @param promptReload ask the user to reload VS Code so all API tools pick up the new specification - not needed for the initial download
+	 */
+	public static async updateAndNotify(context: vscode.ExtensionContext, promptReload: boolean = true): Promise<boolean> {
+		this.initialize(context);
+		if (this._updatePromise) {
+			return this._updatePromise;
+		}
+		this._updatePromise = this.runUpdate(context, promptReload);
+		try {
+			return await this._updatePromise;
+		}
+		finally {
+			this._updatePromise = undefined;
+		}
+	}
+
+	private static async runUpdate(context: vscode.ExtensionContext, promptReload: boolean): Promise<boolean> {
 		try {
 			await vscode.window.withProgress({
 				location: vscode.ProgressLocation.Notification,
-				title: 'Updating Fabric API specification',
+				title: 'Downloading Fabric API specification',
 				cancellable: false
-			}, () => this.update(context.extensionUri));
+			}, () => this.update());
 			await FabricAPICompletionProvider.reloadSwaggerFile();
 			await context.globalState.update(LAST_UPDATED_KEY, Date.now());
-			const action = await vscode.window.showInformationMessage('Fabric API specification updated. Reload VS Code to refresh all API tools.', 'Reload Window');
-			if (action === 'Reload Window') {
-				await vscode.commands.executeCommand('workbench.action.reloadWindow');
+			if (promptReload) {
+				const action = await vscode.window.showInformationMessage('Fabric API specification updated. Reload VS Code to refresh all API tools.', 'Reload Window');
+				if (action === 'Reload Window') {
+					await vscode.commands.executeCommand('workbench.action.reloadWindow');
+				}
 			}
 			return true;
 		}

@@ -132,16 +132,24 @@ export class FabricFSCacheItem {
 
 	}
 
+	// the children should be loaded (readDirectory()) before adding a child - otherwise the API is never queried for the other children
 	public addChild(name: string, type: vscode.FileType): void {
 		if (!this._children) {
 			this._children = [];
 		}
-		this._children.push([name, type]);
+		if (!this._children.some((child) => child[0].toLowerCase() == name.toLowerCase())) {
+			this._children.push([name, type]);
+		}
+	}
+
+	// used when an item is renamed - the cache item is moved to the new URI
+	public moveTo(uri: FabricFSUri): void {
+		this._uri = uri;
 	}
 
 	public removeChild(name: string): void {
 		if (this._children) {
-			this._children = this._children.filter((value) => value[0] != name);
+			this._children = this._children.filter((value) => value[0].toLowerCase() != name?.toLowerCase());
 		}
 	}
 }

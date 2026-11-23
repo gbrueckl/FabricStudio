@@ -1,5 +1,29 @@
 # Change Log
 
+**v2.29.0**:
+- fixed publishing from a local Fabric Git folder with references to items in the same workspace - if a file contains the empty GUID (`00000000-0000-0000-0000-000000000000`), it is replaced with the target workspace ID and all `logicalId`s are replaced with the actual item IDs of the target workspace before publishing
+  - `logicalId`s that cannot be found in the target workspace (e.g. not connected to Git) are mapped by item type and name using the GUID cache of the hover provider or, as a fallback, the local `.platform` files in the current VS Code workspace (scanned once per session)
+  - publishing is aborted with an error if a file contains the empty GUID but no `logicalId` could be resolved
+- fixed parsing of local `.platform` files also loading the definitions of all items in mounted Fabric workspaces
+- reworked the Fabric virtual file system for robustness
+  - fixed errors when files are opened before their item was loaded (e.g. restored editor tabs after a reload)
+  - fixed reloading/publishing an item also affecting other items starting with the same name (e.g. `Sales` and `Sales2`) - this could discard unpublished changes
+  - fixed changes made while a publish was in progress being marked as published - publishes of the same item now run one after the other
+  - failed API calls are no longer cached as existing (empty) folders and are retried
+  - deleting an item locally is only applied after it was deleted successfully in Fabric
+  - fixed renaming of files/folders with special characters, renames now honor `overwrite` and are not applied partially
+  - fixed renaming of items leaving the old name behind and publishing twice
+  - publishing from a local folder now restores the target if the publish is aborted instead of leaving a partial definition
+  - proper errors for duplicate items/folders, writing to folders and unsupported operations - without duplicate popups
+  - fixed cancelling the target selection when publishing from a local folder
+  - fixed workspaces with special characters in their name (e.g. `Sales (EU)`) not being found when mounted by name
+  - correct file sizes and modification times so VS Code can detect conflicting changes
+  - JSON editors of tree items (e.g. capacities, connections) now report failed or cancelled saves instead of silently keeping the changes
+- the Fabric API specification (`swagger.json`) is no longer shipped with the extension - it is downloaded into the extension's global storage on startup if it does not exist yet (or on first use by the API completion and language model tools). This reduces the package size and also works in the web version
+- removed the `OneLake` child from SQL Analytics Endpoints in the Workspaces treeview
+- fixed new item type folders (e.g. `DataPipelines`) disappearing again after a refresh in a mounted Fabric workspace - the folder name is validated against the Fabric API
+- fixed error popups when VS Code or other extensions probe for files like `.vscode/settings.json` or `.mcp.json` in a mounted Fabric workspace or item
+
 **v2.28.1**:
 - fixed `EROFS` error when downloading a PBIP - the save dialog could default to the filesystem root
 - fixed `.platform` file not provided error when publishing an item whose definition has no `.platform` part

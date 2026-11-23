@@ -358,17 +358,23 @@ export class FabricApiTreeItem extends vscode.TreeItem {
 			let confirm = confirmQp?.value || "no";
 
 			if (confirm === "yes") {
-				await FabricApiService.patch(this.apiPath, JSON.parse(savedContent));
+				const response = await FabricApiService.patch(this.apiPath, JSON.parse(savedContent));
+				if (response?.error) {
+					// no popup here - the failed save is shown to the user by VSCode
+					ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${response.error.message}`);
+					return false;
+				}
 				ThisExtension.Logger.logInfo(`Successfully published changes to the Fabric Service!`, 5000);
 				return true;
 			}
 			else {
-				ThisExtension.Logger.logWarning(`Publish to Fabric Service was cancelled by the user.`, true);
+				// no popup here - the failed save is shown to the user by VSCode
+				ThisExtension.Logger.logWarning(`Publish to Fabric Service was cancelled by the user.`);
 				return false;
 			}
 		} catch (error) {
 			const handledError = error instanceof Error ? error : new Error(String(error));
-			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${handledError.message}`, true);
+			ThisExtension.Logger.logError(`Could not publish changes to Fabric Service: ${handledError.message}`);
 			return false;
 		}
 	}

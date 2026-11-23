@@ -20,3 +20,5 @@ instructions/**
 images/**
 .*/**
 .agentignore
+# the Fabric API specification is downloaded on demand into the global storage
+resources/API/swagger.json

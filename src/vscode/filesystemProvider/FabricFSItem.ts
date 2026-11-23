@@ -22,6 +22,9 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 	type: FabricApiItemType;
 	workspace: FabricFSWorkspace;
 	private _format?: FabricApiItemFormat;
+	// modification times of the individual parts - VSCode uses mtime + size to detect conflicting changes
+	private _loadTime: number = Date.now();
+	private _partMTimes: Map<string, number> = new Map<string, number>();
 
 	constructor(uri: FabricFSUri) {
 		super(uri);
@@ -76,13 +79,13 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 				this._stats = undefined;
 			}
 		}
+		else if (response.error?.errorCode?.toLowerCase().includes("notfound")) {
+			// the item does not exist (anymore)
+			this._stats = undefined;
+		}
 		else {
-			this._stats = {
-				type: vscode.FileType.Directory,
-				ctime: undefined,
-				mtime: undefined,
-				size: undefined
-			};
+			// any other error (permissions, throttling, network, ...) - do not cache the result so it is retried next time
+			throw vscode.FileSystemError.Unavailable(`Could not load item '${this.FabricUri.uri.toString()}': ${response.error?.message}`);
 		}
 	}
 
@@ -92,10 +95,13 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 				const response = await FabricApiService.getItemDefinitionParts(this.FabricUri.workspaceId, this.FabricUri.itemId, this.format);
 
 				if (response.error) {
-					ThisExtension.Logger.logError(response.error.message, true);
-					return
+					// VSCode shows the thrown error to the user - the children are not marked as loaded so it is retried next time
+					ThisExtension.Logger.logError(`Could not load definition of '${this.FabricUri.uri.toString()}': ${response.error.message}`);
+					throw vscode.FileSystemError.Unavailable(`Could not load definition of '${this.FabricUri.uri.toString()}': ${response.error.message}`);
 				}
 				this._apiResponse = response.success;
+				this._loadTime = Date.now();
+				this._partMTimes.clear();
 			}
 			this._children = [];
 
@@ -135,24 +141,57 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		}
 	}
 
+	/**
+	 * Makes sure the definition (parts) of the item is loaded - e.g. if a part is requested before the item was listed (restored editor tabs, ...)
+	 */
+	public async ensureDefinitionLoaded(): Promise<void> {
+		if (!this._apiResponse) {
+			await this.readDirectory();
+		}
+		if (!this._apiResponse) {
+			throw vscode.FileSystemError.Unavailable(`Could not load definition of '${this.FabricUri.uri.toString()}'!`);
+		}
+	}
+
+	private getPartMTime(partPath: string): number {
+		return this._partMTimes.get(partPath) ?? this._loadTime;
+	}
+
+	private setPartModified(partPath: string): void {
+		this._partMTimes.set(partPath, Date.now());
+	}
+
+	// the size of the decoded content - the payload is stored base64 encoded
+	private static getDecodedSize(payload: string): number {
+		if (!payload) {
+			return 0;
+		}
+		const padding = payload.endsWith("==") ? 2 : (payload.endsWith("=") ? 1 : 0);
+		return Math.floor(payload.length * 3 / 4) - padding;
+	}
+
+	// a path is a folder if any part is stored below it (or a VSCodeFolder marker exists)
+	private isFolder(pathDecoded: string): boolean {
+		return this.getApiResponse().some((item) => item.path.startsWith(pathDecoded + "/"));
+	}
+
 	public getStatsForSubpath(path: string): vscode.FileStat | undefined {
 		const pathDecoded = decodeURIComponent(path);
 		const fileItem = this.getApiResponse().find((item) => item.path == pathDecoded);
 		if (fileItem) {
 			return {
 				type: vscode.FileType.File,
-				ctime: undefined,
-				mtime: undefined,
-				size: fileItem.payload.length
+				ctime: this._loadTime,
+				mtime: this.getPartMTime(pathDecoded),
+				size: fileItem.payloadType == "InlineBase64" ? FabricFSItem.getDecodedSize(fileItem.payload) : fileItem.payload?.length ?? 0
 			};
 		}
-		const folderItem = this.getApiResponse().find((item) => item.path.startsWith(pathDecoded + "/"));
-		if (folderItem) {
+		if (this.isFolder(pathDecoded)) {
 			return {
 				type: vscode.FileType.Directory,
-				ctime: undefined,
-				mtime: undefined,
-				size: undefined
+				ctime: this._loadTime,
+				mtime: this._loadTime,
+				size: 0
 			};
 		}
 
@@ -209,7 +248,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			}
 		}
 
-		ThisExtension.Logger.logError("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString(), true);
+		// VSCode reads files like .vscode/settings.json without checking their existence first - FileNotFound is the expected result, so we must not show an error message to the user!
+		ThisExtension.Logger.logDebug("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString());
 		throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded));
 	}
 
@@ -217,26 +257,28 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		const pathDecoded = decodeURIComponent(path);
 		const item = this.getApiResponse().find((item) => item.path == pathDecoded);
 		if (item) {
-			if (options.overwrite) {
-				if (item.payloadType == "InlineBase64") {
-					item.payload = Buffer.from(content).toString("base64");
-
-					return false;
-				}
-			}
-			else {
+			if (!options.overwrite) {
 				throw vscode.FileSystemError.FileExists(vscode.Uri.joinPath(this.FabricUri.uri, path));
 			}
-		}
-		else {
-			if (options.create) {
-				this.addPart(path);
-				await this.writeContentToSubpath(path, content, { create: false, overwrite: true });
-				return true;
+			if (item.payloadType != "InlineBase64") {
+				throw vscode.FileSystemError.NoPermissions(`Payload type '${item.payloadType}' of '${pathDecoded}' is not supported for writing!`);
 			}
+			item.payload = Buffer.from(content).toString("base64");
+			this.setPartModified(pathDecoded);
+
+			return false;
+		}
+		else if (this.isFolder(pathDecoded)) {
+			throw vscode.FileSystemError.FileIsADirectory(vscode.Uri.joinPath(this.FabricUri.uri, path));
+		}
+		else if (options.create) {
+			await this.addPart(pathDecoded);
+			await this.writeContentToSubpath(path, content, { create: false, overwrite: true });
+			return true;
 		}
 
-		ThisExtension.Logger.logError("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString(), true);
+		// FileNotFound is the expected result if the file does not exist and should not be created - VSCode handles it, so we must not show an error message to the user!
+		ThisExtension.Logger.logDebug("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString());
 		throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded));
 	}
 
@@ -247,10 +289,10 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 
 		if (FabricConfiguration.getFabricItemTypeUseItemNameAsFileName(this.FabricUri.itemType)) {
 			const definitionFileName = FabricConfiguration.getFabricItemTypeDefinitionFileName(this.FabricUri.itemType);
-			const definitionPart = parts.find((part) => part.path.startsWith(this.displayName + ".")); // maybe add another check that its not a folder
+			const definitionPart = FabricFSItem.findDefinitionFilePart(parts, this.displayName);
 
 			if (!definitionPart) {
-				ThisExtension.Logger.logError(`File '${definitionPart}' not found in item '${this.FabricUri.uri.toString()}'`, true);
+				ThisExtension.Logger.logError(`Definition file '${this.displayName}.*' not found in item '${this.FabricUri.uri.toString()}'`, true);
 				throw vscode.FileSystemError.FileNotFound(this.FabricUri.uri);
 			}
 			definitionPart.path = definitionPart.path.replace(this.displayName, definitionFileName);
@@ -265,6 +307,49 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		return { "definition": definition };
 	}
 
+	// finds the definition file in the root of the item that is named after the item (e.g. <displayName>.ipynb)
+	private static findDefinitionFilePart(parts: iFabricApiItemPart[], fileName: string): iFabricApiItemPart {
+		return parts.find((part) => !part.path.includes("/")
+			&& part.payloadType != "VSCodeFolder"
+			&& part.path.lastIndexOf(".") > 0
+			&& part.path.substring(0, part.path.lastIndexOf(".")) == fileName);
+	}
+
+	/**
+	 * Called when the item is renamed - for item types that use the item name as file name, the definition file has to be renamed too
+	 */
+	public async renameDefinitionFile(oldName: string, newName: string): Promise<void> {
+		if (!this._apiResponse || !FabricConfiguration.getFabricItemTypeUseItemNameAsFileName(this.FabricUri.itemType)) {
+			return;
+		}
+		const definitionPart = FabricFSItem.findDefinitionFilePart(this.getApiResponse(), oldName);
+		if (definitionPart) {
+			definitionPart.path = newName + definitionPart.path.substring(oldName.length);
+			this.setPartModified(definitionPart.path);
+
+			// reload children from modified API Response
+			this._children = undefined;
+			await this.loadChildrenFromApi();
+		}
+	}
+
+	// a copy of the current definition - e.g. to restore it if an operation is aborted
+	public getDefinitionSnapshot(): iFabricApiItemPart[] {
+		return this.getApiResponse()?.map((part) => ({ ...part }));
+	}
+
+	public async restoreDefinitionSnapshot(parts: iFabricApiItemPart[]): Promise<void> {
+		this._apiResponse = parts;
+		// mark all parts as modified so open editors pick up the restored content
+		for (const part of parts ?? []) {
+			this.setPartModified(part.path);
+		}
+
+		// reload children from modified API Response
+		this._children = undefined;
+		await this.loadChildrenFromApi();
+	}
+
 	public async publish(): Promise<iFabricApiResponse> {
 		let definition = await this.getItemDefinition();
 		const itemTypeSingular = FabricMapper.getItemTypeSingular(this.FabricUri.itemType);
@@ -277,9 +362,11 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		// if the item was created locally, we need to use CREATE instead of UPDATE
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
 			response = await FabricApiService.createItem(this.workspaceId, this.displayName, this.FabricUri.itemType, definition, `Creating ${itemTypeSingular} '${this.displayName}'`);
-			// add NameIdMap for subsequent calls to the created item
-			FabricFSUri.addItemNameIdMap(response.success.itemName, response.success.id, response.success.workspaceId, response.success.type);
-			this.publishAction = FabricFSPublishAction.MODIFIED;
+			if (!response?.error && response?.success?.id) {
+				// add NameIdMap for subsequent calls to the created item
+				FabricFSUri.addItemNameIdMap(response.success.displayName ?? this.displayName, response.success.id, response.success.workspaceId ?? this.workspaceId, response.success.type ?? this.FabricUri.itemType);
+				this.publishAction = FabricFSPublishAction.MODIFIED;
+			}
 		}
 		else if (this.publishAction == FabricFSPublishAction.MODIFIED) {
 			response = await FabricApiService.updateItem(this.workspaceId, this.itemId, this.displayName, this.description);
@@ -293,38 +380,46 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		}
 		else if (this.publishAction == FabricFSPublishAction.DELETE) {
 			response = await FabricApiService.deleteItem(this.workspaceId, this.itemId, `Deleting ${itemTypeSingular} '${this.displayName || this.FabricUri.item}'`);
-			FabricFSCache.removeCacheItem(this);
-			this.parent.removeChild(this.displayName)
-			ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);
+			// only remove the item locally if it was actually deleted in Fabric
+			if (!response?.error) {
+				FabricFSCache.removeCacheItem(this);
+				this.parent?.removeChild(this.displayName || decodeURIComponent(this.FabricUri.item));
+				ThisExtension.FabricFileSystemProvider.fireDeleted(this.FabricUri.uri);
+			}
 		}
 		else {
-			ThisExtension.Logger.logError("Unknown publish action for item " + this.FabricUri.uri.toString(), true);
-			return;
+			// the caller shows the error to the user
+			return { error: { errorCode: "UnknownPublishAction", message: `Unknown publish action for item '${this.FabricUri.uri.toString()}'!` } };
 		}
 
 		return response;
 	}
 
-	public async removePart(partPath: string): Promise<void> {
+	// partPathDecoded must already be decoded (not a URI path)
+	public async removePart(partPathDecoded: string): Promise<void> {
 		let parts = this.getApiResponse();
-		const partPathDecoded = decodeURIComponent(partPath);
 
 		this._apiResponse = parts.filter((part) => part.path != partPathDecoded && !part.path.startsWith(partPathDecoded + "/"));
+		this._partMTimes.delete(partPathDecoded);
 
 		// reload children from modified API Response
 		this._children = undefined;
 		await this.loadChildrenFromApi();
 	}
 
-	public async addPart(partPath: string, payload: string = "", payloadType: FabricApiPayloadType = "InlineBase64"): Promise<void> {
+	// partPathDecoded must already be decoded (not a URI path)
+	public async addPart(partPathDecoded: string, payload: string = "", payloadType: FabricApiPayloadType = "InlineBase64"): Promise<void> {
 		let parts = this.getApiResponse();
-		const partPathDecoded = decodeURIComponent(partPath);
 		let index = parts.findIndex((part) => part.path == partPathDecoded);
 		if (index >= 0) {
-			throw vscode.FileSystemError.FileExists(partPathDecoded);
+			throw vscode.FileSystemError.FileExists(vscode.Uri.joinPath(this.FabricUri.uri, partPathDecoded));
 		}
 		else {
-			parts.push({ "path": partPathDecoded, "payloadType": payloadType, "payload": payload });
+			// a folder marker is not needed anymore once the folder contains a file
+			const parentFolder = partPathDecoded.substring(0, partPathDecoded.lastIndexOf("/") + 1);
+			this._apiResponse = parts.filter((part) => !(part.payloadType == "VSCodeFolder" && parentFolder && part.path == parentFolder));
+			this.getApiResponse().push({ "path": partPathDecoded, "payloadType": payloadType, "payload": payload });
+			this.setPartModified(partPathDecoded);
 		}
 
 		// reload children from modified API Response
@@ -332,32 +427,35 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		await this.loadChildrenFromApi();
 	}
 
-	public async getPart(partPath: string, raise: boolean = true): Promise<iFabricApiItemPart> {
+	// partPathDecoded must already be decoded (not a URI path)
+	public async getPart(partPathDecoded: string): Promise<iFabricApiItemPart> {
 		let parts = this.getApiResponse();
-		const partPathDecoded = decodeURIComponent(partPath);
 		const part = parts.find((part) => part.path == partPathDecoded);
 
 		// part might be not found and undefined! must be checked by caller!
 		return part;
 	}
 
-	public async getPartsFromFolder(partPath: string): Promise<iFabricApiItemPart[]> {
+	// folderPathDecoded must already be decoded (not a URI path)
+	public async getPartsFromFolder(folderPathDecoded: string): Promise<iFabricApiItemPart[]> {
 		let parts = this.getApiResponse();
-		const partPathDecoded = Helper.trimChar(decodeURIComponent(partPath), '/');
+		const partPathDecoded = Helper.trimChar(folderPathDecoded, '/');
 		const folderParts = parts.filter((part) => part.path.startsWith(partPathDecoded + "/"));
 
 		return folderParts;
 	}
 
-	public async createSubFolder(folderPath: string): Promise<void> {
+	// folderPathDecoded must already be decoded (not a URI path)
+	public async createSubFolder(folderPathDecoded: string): Promise<void> {
 		let parts = this.getApiResponse() || [];
-		const folderPathDecoded = decodeURIComponent(folderPath);
-		let index = parts.findIndex((part) => part.path == folderPathDecoded);
-		if (index >= 0) {
-			throw vscode.FileSystemError.FileExists(folderPathDecoded);
+		folderPathDecoded = Helper.trimChar(folderPathDecoded, '/');
+		// a file with the same name or an existing folder (with files or a folder marker)
+		if (parts.some((part) => part.path == folderPathDecoded || part.path.startsWith(folderPathDecoded + "/"))) {
+			throw vscode.FileSystemError.FileExists(vscode.Uri.joinPath(this.FabricUri.uri, folderPathDecoded));
 		}
 		else {
 			parts.push({ "path": folderPathDecoded + "/", "payloadType": "VSCodeFolder", "payload": "" });
+			this._apiResponse = parts;
 		}
 
 		// reload children from modified API Response
@@ -370,7 +468,7 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 		if (this.publishAction == FabricFSPublishAction.CREATE) {
 			// remove it from the cache and from the parent
 			FabricFSCache.removeCacheItem(this);
-			this.parent.removeChild(this.displayName)
+			this.parent?.removeChild(this.displayName || decodeURIComponent(this.FabricUri.item));
 		}
 		else {
 			this.publishAction = FabricFSPublishAction.DELETE;

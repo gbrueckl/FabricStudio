@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 
 import { FabricApiService } from '../../fabric/FabricApiService';
+import { FabricApiSpecificationUpdater } from '../apiSpecs/FabricApiSpecificationUpdater';
 
 type ApiParameterValue = string | number | boolean;
 
 interface iGetApiElementToolInput {
-	/** A GET endpoint from resources/API/swagger.json. */
+	/** A GET endpoint from the Fabric API specification. */
 	endpoint: string;
 	/** Path and optional query parameters defined for the selected endpoint. */
 	parameters?: Record<string, ApiParameterValue | undefined>;
@@ -13,12 +14,16 @@ interface iGetApiElementToolInput {
 
 /** Retrieves a Fabric API resource through any Swagger-defined GET operation. */
 export class FabricStudioGetApiElementTool implements vscode.LanguageModelTool<iGetApiElementToolInput> {
-	private readonly getEndpointsPromise: Thenable<Set<string>>;
+	private _getEndpointsPromise: Promise<Set<string>>;
 
-	public constructor(extensionUri: vscode.Uri) {
-		this.getEndpointsPromise = vscode.workspace.fs
-			.readFile(vscode.Uri.joinPath(extensionUri, 'resources', 'API', 'swagger.json'))
-			.then(content => this.getGetEndpoints(new TextDecoder().decode(content)));
+	/** Loaded on first use - the API specification is downloaded on demand if it does not exist yet. */
+	private get getEndpointsPromise(): Promise<Set<string>> {
+		if (!this._getEndpointsPromise) {
+			this._getEndpointsPromise = FabricApiSpecificationUpdater.readSpecification().then(content => this.getGetEndpoints(content));
+			// retry on the next invocation if the specification could not be loaded
+			this._getEndpointsPromise.catch(() => this._getEndpointsPromise = undefined);
+		}
+		return this._getEndpointsPromise;
 	}
 
 	public async invoke(
@@ -68,7 +73,7 @@ export class FabricStudioGetApiElementTool implements vscode.LanguageModelTool<i
 		const endpointShape = requestedEndpoint.replace(/\{[^}]+\}/g, '{}');
 		const matchingEndpoint = [...endpoints].find(endpoint => endpoint.replace(/\{[^}]+\}/g, '{}') === endpointShape);
 		if (!matchingEndpoint) {
-			throw new Error(`endpoint is not a GET operation in resources/API/swagger.json: ${requestedEndpoint}.`);
+			throw new Error(`endpoint is not a GET operation in the Fabric API specification: ${requestedEndpoint}.`);
 		}
 		return matchingEndpoint;
 	}

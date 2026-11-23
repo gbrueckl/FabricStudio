@@ -12,6 +12,7 @@ export const TEMP_FILE_ENCODING: BufferEncoding = "utf8";
 
 export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode.Disposable {
 	private static cache: Map<string, Buffer> = new Map<string, Buffer>();
+	private static mtimes: Map<string, number> = new Map<string, number>();
 	private static onSaveActions: Map<string, (savedContent: string) => Promise<boolean>> = new Map<string, (savedContent: string) => Promise<boolean>>();
 
 	constructor() { }
@@ -32,6 +33,7 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 		// we append the extension as a query param to easily convert back to the original path
 		let uri = vscode.Uri.parse(`${TEMP_SCHEME}:///${Helper.trimChar(encodeURI(path), "/")}${extension}?ext=${extension}`);
 		TempFileSystemProvider.cache.set(uri.toString(), Buffer.from(content, TEMP_FILE_ENCODING));
+		TempFileSystemProvider.mtimes.set(uri.toString(), Date.now());
 		if (onSaveAction) {
 			TempFileSystemProvider.onSaveActions.set(uri.toString(), onSaveAction);
 		}
@@ -44,11 +46,12 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 		const item = TempFileSystemProvider.cache.get(uri.toString());
 
 		if (item) {
+			const mtime = TempFileSystemProvider.mtimes.get(uri.toString()) ?? Date.now();
 			return {
 				type: vscode.FileType.File,
-				size: 0,
-				mtime: null,
-				ctime: null
+				size: item.length,
+				mtime: mtime,
+				ctime: mtime
 			}
 		}
 
@@ -63,6 +66,10 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 	async readFile(uri: vscode.Uri): Promise<Uint8Array> {
 		const item = TempFileSystemProvider.cache.get(uri.toString());
 
+		if (!item) {
+			throw vscode.FileSystemError.FileNotFound(uri);
+		}
+
 		return item;
 	}
 
@@ -70,14 +77,18 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 		if (!TempFileSystemProvider.onSaveActions.has(uri.toString())) {
 			throw vscode.FileSystemError.NoPermissions(`This file is read-only!`);
 		}
-		TempFileSystemProvider.cache.set(uri.toString(), Buffer.from(content));
-
 		const onSaveAction = TempFileSystemProvider.onSaveActions.get(uri.toString());
-		const success = await onSaveAction(content.toString());
+		// content is a Uint8Array (not a Buffer) in the web worker - so it has to be decoded explicitly
+		const success = await onSaveAction(Buffer.from(content).toString(TEMP_FILE_ENCODING));
 		if (!success) {
+			// VSCode shows the error and keeps the editor dirty so the changes are not lost
 			ThisExtension.Logger.logInfo(`Changes were not saved to the Fabric Service.`);
-			return;
+			throw vscode.FileSystemError.Unavailable(`Changes were not saved to the Fabric Service (cancelled, failed or not supported) - see the Fabric Studio output for details.`);
 		}
+
+		// only update the local content if it was saved successfully
+		TempFileSystemProvider.cache.set(uri.toString(), Buffer.from(content));
+		TempFileSystemProvider.mtimes.set(uri.toString(), Date.now());
 
 		this._fireSoon({ type: vscode.FileChangeType.Changed, uri });
 	}
@@ -122,8 +133,8 @@ export class TempFileSystemProvider implements vscode.FileSystemProvider, vscode
 		}
 
 		this._fireSoonHandle = setTimeout(() => {
-			this._emitter.fire(this._bufferedEvents);
-			this._bufferedEvents.length = 0;
+			// fire a copy - listeners might keep a reference to the array
+			this._emitter.fire(this._bufferedEvents.splice(0));
 		}, 5);
 	}
 

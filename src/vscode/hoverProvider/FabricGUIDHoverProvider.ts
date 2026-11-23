@@ -24,7 +24,7 @@ export interface iFabricItemDetails {
 }
 
 export class FabricGUIDHoverProvider implements vscode.HoverProvider {
-	private static _localCacheLoaded: boolean = false;
+	private static _localCacheLoading: Promise<void> = undefined;
 	private static _sessionCache: Map<string, iFabricItemDetails> = new Map<string, iFabricItemDetails>();
 
 	constructor() {
@@ -38,16 +38,24 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 
 	static async onDidOpenTextDocument(document: vscode.TextDocument): Promise<void> {
 		if (document.uri.fsPath.endsWith('.platform') && document.uri.scheme === 'file') {
-			ThisExtension.Logger.logInfo("Loading GUIDs from local '.platform' files ...");
-			if(!FabricGUIDHoverProvider._localCacheLoaded) {
-				await FabricPlatformParser.parsePlatformFiles()
-				FabricGUIDHoverProvider._localCacheLoaded = true;
-				ThisExtension.Logger.logInfo("Finished loading GUIDs from local '.platform' files!");
-			}
-			else {
-				ThisExtension.Logger.logInfo("GUIDs from local '.platform' files already loaded. you can use 'FabricStudio.Global.parsePlatformFiles' to force a reload.");
-			}
+			await FabricGUIDHoverProvider.loadLocalPlatformFiles();
 		}
+	}
+
+	/**
+	 * Loads the GUIDs from the local `.platform` files into the cache - only once per session.
+	 * @param showProgress `false` to hide the progress bar and the result messages (e.g. when called during publishing).
+	 */
+	public static async loadLocalPlatformFiles(showProgress: boolean = true): Promise<void> {
+		if (!FabricGUIDHoverProvider._localCacheLoading) {
+			ThisExtension.Logger.logInfo("Loading GUIDs from local '.platform' files ...");
+			FabricGUIDHoverProvider._localCacheLoading = FabricPlatformParser.parsePlatformFiles(showProgress)
+				.then(() => ThisExtension.Logger.logInfo("Finished loading GUIDs from local '.platform' files!"));
+		}
+		else if (showProgress) {
+			ThisExtension.Logger.logInfo("GUIDs from local '.platform' files already loaded. you can use 'FabricStudio.Global.parsePlatformFiles' to force a reload.");
+		}
+		await FabricGUIDHoverProvider._localCacheLoading;
 	}
 
 	public async provideHover(
@@ -97,7 +105,7 @@ export class FabricGUIDHoverProvider implements vscode.HoverProvider {
 		}
 	}
 
-	private static getFabricObjectNameByGUID(guid: string): iFabricItemDetails {
+	public static getFabricObjectNameByGUID(guid: string): iFabricItemDetails {
 		if (this._sessionCache.has(guid)) {
 			return this._sessionCache.get(guid);
 		}
