@@ -19,6 +19,7 @@
   - fixed workspaces with special characters in their name (e.g. `Sales (EU)`) not being found when mounted by name
   - correct file sizes and modification times so VS Code can detect conflicting changes
   - JSON editors of tree items (e.g. capacities, connections) now report failed or cancelled saves instead of silently keeping the changes
+- the Fabric API specification (`swagger.json`) is no longer shipped with the extension - it is downloaded into the extension's global storage on startup if it does not exist yet (or on first use by the API completion and language model tools). This reduces the package size and also works in the web version
 - removed the `OneLake` child from SQL Analytics Endpoints in the Workspaces treeview
 - fixed new item type folders (e.g. `DataPipelines`) disappearing again after a refresh in a mounted Fabric workspace - the folder name is validated against the Fabric API
 - fixed error popups when VS Code or other extensions probe for files like `.vscode/settings.json` or `.mcp.json` in a mounted Fabric workspace or item

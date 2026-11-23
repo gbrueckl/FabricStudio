@@ -1,27 +1,32 @@
 import * as vscode from 'vscode';
 
 import { FabricApiService } from '../../fabric/FabricApiService';
+import { FabricApiSpecificationUpdater } from '../apiSpecs/FabricApiSpecificationUpdater';
 
 type ApiParameterValue = string | number | boolean;
 
 interface iListApiElementsToolInput {
-	/** A GET list endpoint from resources/API/swagger.json. */
+	/** A GET list endpoint from the Fabric API specification. */
 	endpoint: string;
 	/** Path and optional query parameters defined for the selected endpoint. */
 	parameters?: Record<string, ApiParameterValue | undefined>;
 }
 
 /**
- * Lists the elements exposed by any list operation in the bundled Fabric Swagger
+ * Lists the elements exposed by any list operation in the Fabric Swagger
  * definition. Pagination is followed automatically by FabricApiService.getList.
  */
 export class FabricStudioListApiElementsTool implements vscode.LanguageModelTool<iListApiElementsToolInput> {
-	private readonly listEndpointsPromise: Thenable<Set<string>>;
- 
-	public constructor(extensionUri: vscode.Uri) {
-		this.listEndpointsPromise = vscode.workspace.fs
-			.readFile(vscode.Uri.joinPath(extensionUri, 'resources', 'API', 'swagger.json'))
-			.then(content => this.getListEndpoints(new TextDecoder().decode(content)));
+	private _listEndpointsPromise: Promise<Set<string>>;
+
+	/** Loaded on first use - the API specification is downloaded on demand if it does not exist yet. */
+	private get listEndpointsPromise(): Promise<Set<string>> {
+		if (!this._listEndpointsPromise) {
+			this._listEndpointsPromise = FabricApiSpecificationUpdater.readSpecification().then(content => this.getListEndpoints(content));
+			// retry on the next invocation if the specification could not be loaded
+			this._listEndpointsPromise.catch(() => this._listEndpointsPromise = undefined);
+		}
+		return this._listEndpointsPromise;
 	}
 
 	public async invoke(
@@ -30,10 +35,10 @@ export class FabricStudioListApiElementsTool implements vscode.LanguageModelTool
 	): Promise<vscode.LanguageModelToolResult> {
 		const { endpoint: endpointTemplate, parameters = {} } = options.input;
 		if (!endpointTemplate.startsWith('/v1/')) {
-			throw new Error('endpoint must be a relative Fabric API v1 endpoint from resources/API/swagger.json.');
+			throw new Error('endpoint must be a relative Fabric API v1 endpoint from the Fabric API specification.');
 		}
 		if (!(await this.listEndpointsPromise).has(endpointTemplate)) {
-			throw new Error(`endpoint is not a GET list operation in resources/API/swagger.json: ${endpointTemplate}.`);
+			throw new Error(`endpoint is not a GET list operation in the Fabric API specification: ${endpointTemplate}.`);
 		}
 
 		const pathParameterNames = new Set<string>();

@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
 
+import { FabricApiSpecificationUpdater } from '../apiSpecs/FabricApiSpecificationUpdater';
+
 type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface iDescribeApiOperationToolInput {
-	/** An endpoint template from resources/API/swagger.json. */
+	/** An endpoint template from the Fabric API specification. */
 	endpoint?: string;
 	/** Required when the endpoint supports more than one HTTP method. */
 	method?: ApiMethod;
@@ -19,14 +21,18 @@ interface iSwaggerOperation {
 	consumes?: string[];
 }
 
-/** Describes an API operation from the bundled Swagger definition without exposing the file to the language model. */
+/** Describes an API operation from the Fabric Swagger definition without exposing the file to the language model. */
 export class FabricStudioDescribeApiOperationTool implements vscode.LanguageModelTool<iDescribeApiOperationToolInput> {
-	private readonly operationsPromise: Thenable<Map<string, Map<ApiMethod, iSwaggerOperation>>>;
+	private _operationsPromise: Promise<Map<string, Map<ApiMethod, iSwaggerOperation>>>;
 
-	public constructor(extensionUri: vscode.Uri) {
-		this.operationsPromise = vscode.workspace.fs
-			.readFile(vscode.Uri.joinPath(extensionUri, 'resources', 'API', 'swagger.json'))
-			.then(content => this.getOperations(new TextDecoder().decode(content)));
+	/** Loaded on first use - the API specification is downloaded on demand if it does not exist yet. */
+	private get operationsPromise(): Promise<Map<string, Map<ApiMethod, iSwaggerOperation>>> {
+		if (!this._operationsPromise) {
+			this._operationsPromise = FabricApiSpecificationUpdater.readSpecification().then(content => this.getOperations(content));
+			// retry on the next invocation if the specification could not be loaded
+			this._operationsPromise.catch(() => this._operationsPromise = undefined);
+		}
+		return this._operationsPromise;
 	}
 
 	public async invoke(
@@ -72,7 +78,7 @@ export class FabricStudioDescribeApiOperationTool implements vscode.LanguageMode
 		const endpointShape = requestedEndpoint.replace(/\{[^}]+\}/g, '{}');
 		const matchingEndpoint = [...operations.keys()].find(endpoint => endpoint.replace(/\{[^}]+\}/g, '{}') === endpointShape);
 		if (!matchingEndpoint) {
-			throw new Error(`endpoint is not defined in resources/API/swagger.json: ${requestedEndpoint}.`);
+			throw new Error(`endpoint is not defined in the Fabric API specification: ${requestedEndpoint}.`);
 		}
 		return matchingEndpoint;
 	}

@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 
 import { FabricApiService } from '../../fabric/FabricApiService';
+import { FabricApiSpecificationUpdater } from '../apiSpecs/FabricApiSpecificationUpdater';
 
 type ApiParameterValue = string | number | boolean;
 type UpdateMethod = 'POST' | 'PATCH' | 'PUT';
 
 interface iUpdateApiElementsToolInput {
-	/** An update endpoint from resources/API/swagger.json. */
+	/** An update endpoint from the Fabric API specification. */
 	endpoint: string;
 	/** Path and optional query parameters defined for the selected endpoint. */
 	parameters?: Record<string, ApiParameterValue | undefined>;
@@ -18,12 +19,16 @@ interface iUpdateApiElementsToolInput {
 
 /** Updates Fabric API elements through Swagger-defined write operations. */
 export class FabricStudioUpdateApiElementsTool implements vscode.LanguageModelTool<iUpdateApiElementsToolInput> {
-	private readonly updateOperationsPromise: Thenable<Map<string, UpdateMethod[]>>;
+	private _updateOperationsPromise: Promise<Map<string, UpdateMethod[]>>;
 
-	public constructor(extensionUri: vscode.Uri) {
-		this.updateOperationsPromise = vscode.workspace.fs
-			.readFile(vscode.Uri.joinPath(extensionUri, 'resources', 'API', 'swagger.json'))
-			.then(content => this.getUpdateOperations(new TextDecoder().decode(content)));
+	/** Loaded on first use - the API specification is downloaded on demand if it does not exist yet. */
+	private get updateOperationsPromise(): Promise<Map<string, UpdateMethod[]>> {
+		if (!this._updateOperationsPromise) {
+			this._updateOperationsPromise = FabricApiSpecificationUpdater.readSpecification().then(content => this.getUpdateOperations(content));
+			// retry on the next invocation if the specification could not be loaded
+			this._updateOperationsPromise.catch(() => this._updateOperationsPromise = undefined);
+		}
+		return this._updateOperationsPromise;
 	}
 
 	public async prepareInvocation(options: vscode.LanguageModelToolInvocationPrepareOptions<iUpdateApiElementsToolInput>): Promise<vscode.PreparedToolInvocation> {
@@ -96,7 +101,7 @@ export class FabricStudioUpdateApiElementsTool implements vscode.LanguageModelTo
 	private getUpdateMethod(endpoint: string, requestedMethod: UpdateMethod | undefined, operations: Map<string, UpdateMethod[]>): UpdateMethod {
 		const methods = operations.get(endpoint);
 		if (!methods) {
-			throw new Error(`endpoint is not an update operation in resources/API/swagger.json: ${endpoint}.`);
+			throw new Error(`endpoint is not an update operation in the Fabric API specification: ${endpoint}.`);
 		}
 		if (!requestedMethod && methods.length === 1) {
 			return methods[0];
@@ -118,7 +123,7 @@ export class FabricStudioUpdateApiElementsTool implements vscode.LanguageModelTo
 		const endpointShape = requestedEndpoint.replace(/\{[^}]+\}/g, '{}');
 		const matchingEndpoint = [...operations.keys()].find(endpoint => endpoint.replace(/\{[^}]+\}/g, '{}') === endpointShape);
 		if (!matchingEndpoint) {
-			throw new Error(`endpoint is not an update operation in resources/API/swagger.json: ${requestedEndpoint}.`);
+			throw new Error(`endpoint is not an update operation in the Fabric API specification: ${requestedEndpoint}.`);
 		}
 		return matchingEndpoint;
 	}

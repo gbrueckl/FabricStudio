@@ -108,17 +108,17 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.lm.registerTool('fabricstudio_export_pbip', new FabricStudioExportPbipTool()),
 		vscode.lm.registerTool('fabricstudio_list_workspaces', new FabricStudioListWorkspacesTool()),
 		vscode.lm.registerTool('fabricstudio_list_workspace_items', new FabricStudioListWorkspaceItemsTool()),
-		vscode.lm.registerTool('fabricstudio_list_api_elements', new FabricStudioListApiElementsTool(context.extensionUri)),
-		vscode.lm.registerTool('fabricstudio_update_api_elements', new FabricStudioUpdateApiElementsTool(context.extensionUri)),
-		vscode.lm.registerTool('fabricstudio_get_api_element', new FabricStudioGetApiElementTool(context.extensionUri)),
-		vscode.lm.registerTool('fabricstudio_describe_api_operation', new FabricStudioDescribeApiOperationTool(context.extensionUri)),
-		vscode.lm.registerTool('fabricstudio_delete_api_elements', new FabricStudioDeleteApiElementsTool(context.extensionUri)),
+		vscode.lm.registerTool('fabricstudio_list_api_elements', new FabricStudioListApiElementsTool()),
+		vscode.lm.registerTool('fabricstudio_update_api_elements', new FabricStudioUpdateApiElementsTool()),
+		vscode.lm.registerTool('fabricstudio_get_api_element', new FabricStudioGetApiElementTool()),
+		vscode.lm.registerTool('fabricstudio_describe_api_operation', new FabricStudioDescribeApiOperationTool()),
+		vscode.lm.registerTool('fabricstudio_delete_api_elements', new FabricStudioDeleteApiElementsTool()),
 		vscode.lm.registerTool('fabricstudio_run_lakehouse_sql_query', new FabricStudioRunLakehouseSqlQueryTool())
 	);
 
 	vscode.commands.registerCommand('FabricStudio.changeUser', FabricApiService.changeUser);
 	context.subscriptions.push(vscode.commands.registerCommand('FabricStudio.updateApiSpecification', () => FabricApiSpecificationUpdater.updateAndNotify(context)));
-	FabricApiSpecificationUpdater.updateIfDue(context, extensionWasUpdated);
+	void FabricApiSpecificationUpdater.updateIfDue(context, extensionWasUpdated);
 
 	context.subscriptions.push(
 		vscode.workspace.registerNotebookSerializer(
