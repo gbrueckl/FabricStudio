@@ -1,5 +1,10 @@
 # Change Log
 
+**v2.28.2**:
+- fixed publishing from a local Fabric Git folder with references to items in the same workspace - if a file contains the empty GUID (`00000000-0000-0000-0000-000000000000`), it is replaced with the target workspace ID and all `logicalId`s are replaced with the actual item IDs of the target workspace before publishing
+  - `logicalId`s that cannot be found in the target workspace (e.g. not connected to Git) are mapped by item type and name using the GUID cache of the hover provider or, as a fallback, the local `.platform` files in the current VS Code workspace (scanned once per session)
+  - publishing is aborted with an error if a file contains the empty GUID but no `logicalId` could be resolved
+
 **v2.28.1**:
 - fixed `EROFS` error when downloading a PBIP - the save dialog could default to the filesystem root
 - fixed `.platform` file not provided error when publishing an item whose definition has no `.platform` part

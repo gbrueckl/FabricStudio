@@ -116,8 +116,9 @@ export abstract class FabricPlatformParser {
 	 * Searches all workspace folders for `.platform` files, processes them
 	 * in parallel, and caches each item in global state keyed by its logicalId.
 	 * Shows a progress bar while processing and logs each file individually.
+	 * @param showProgress `false` to hide the progress bar and the result messages (e.g. when called during publishing).
 	 */
-	public static async parsePlatformFiles(): Promise<void> {
+	public static async parsePlatformFiles(showProgress: boolean = true): Promise<void> {
 		const workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders || workspaceFolders.length === 0) {
 			ThisExtension.Logger.logWarning("No workspace folders found. Cannot parse .platform files.");
@@ -138,55 +139,66 @@ export abstract class FabricPlatformParser {
 
 		ThisExtension.Logger.logInfo(`Found ${platformFiles.length} local .platform file(s). Parsing ...`);
 
-		await vscode.window.withProgress(
-			{
-				location: vscode.ProgressLocation.Notification,
-				title: "Parsing .platform files",
-				cancellable: true
-			},
-			async (progress, token) => {
-				await FabricGUIDHoverProvider.cacheFabricObjectName(EMPTY_GUID, FabricPlatformParser.WORKSPACE_DETAILS);
+		const parse = async (progress: vscode.Progress<{ increment?: number; message?: string }>, token: vscode.CancellationToken): Promise<void> => {
+			await FabricGUIDHoverProvider.cacheFabricObjectName(EMPTY_GUID, FabricPlatformParser.WORKSPACE_DETAILS);
 
-				const totalFiles = platformFiles.length;
+			const totalFiles = platformFiles.length;
 
-				// Process a bounded number of files at once to avoid overwhelming the
-				// extension host or filesystem in large workspaces.
-				const results: boolean[] = [];
-				let nextFileIndex = 0;
-				const worker = async (): Promise<void> => {
-					while (!token.isCancellationRequested) {
-						const fileIndex = nextFileIndex++;
-						if (fileIndex >= totalFiles) {
-							return;
-						}
-
-						results[fileIndex] = await FabricPlatformParser.processPlatformFile(
-							platformFiles[fileIndex],
-							progress,
-							token,
-							fileIndex,
-							totalFiles
-						);
+			// Process a bounded number of files at once to avoid overwhelming the
+			// extension host or filesystem in large workspaces.
+			const results: boolean[] = [];
+			let nextFileIndex = 0;
+			const worker = async (): Promise<void> => {
+				while (!token.isCancellationRequested) {
+					const fileIndex = nextFileIndex++;
+					if (fileIndex >= totalFiles) {
+						return;
 					}
-				};
 
-				await Promise.all(
-					Array.from(
-						{ length: Math.min(MAX_CONCURRENT_PLATFORM_FILE_PARSERS, totalFiles) },
-						() => worker()
-					)
-				);
+					results[fileIndex] = await FabricPlatformParser.processPlatformFile(
+						platformFiles[fileIndex],
+						progress,
+						token,
+						fileIndex,
+						totalFiles
+					);
+				}
+			};
 
-				const parsedCount = results.filter(Boolean).length;
+			await Promise.all(
+				Array.from(
+					{ length: Math.min(MAX_CONCURRENT_PLATFORM_FILE_PARSERS, totalFiles) },
+					() => worker()
+				)
+			);
 
-				if (token.isCancellationRequested) {
-					ThisExtension.Logger.logInfo(`Parsing cancelled. Cached ${parsedCount} item(s) before cancellation.`);
+			const parsedCount = results.filter(Boolean).length;
+
+			if (token.isCancellationRequested) {
+				ThisExtension.Logger.logInfo(`Parsing cancelled. Cached ${parsedCount} item(s) before cancellation.`);
+				if (showProgress) {
 					vscode.window.showWarningMessage(`Fabric Studio: Parsing cancelled. ${parsedCount} .platform file(s) cached before cancellation.`);
-				} else {
-					ThisExtension.Logger.logInfo(`Successfully parsed and cached ${parsedCount} item(s) from ${totalFiles} .platform file(s).`);
+				}
+			} else {
+				ThisExtension.Logger.logInfo(`Successfully parsed and cached ${parsedCount} item(s) from ${totalFiles} .platform file(s).`);
+				if (showProgress) {
 					vscode.window.showInformationMessage(`Fabric Studio: Parsed ${parsedCount} local .platform file(s) from workspace.`);
 				}
 			}
-		);
+		};
+
+		if (showProgress) {
+			await vscode.window.withProgress(
+				{
+					location: vscode.ProgressLocation.Notification,
+					title: "Parsing .platform files",
+					cancellable: true
+				},
+				parse
+			);
+		}
+		else {
+			await parse({ report: () => { } }, new vscode.CancellationTokenSource().token);
+		}
 	}
 }

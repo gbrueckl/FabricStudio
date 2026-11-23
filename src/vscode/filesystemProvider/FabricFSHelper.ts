@@ -11,9 +11,12 @@ import { FabricMapper } from '../../fabric/FabricMapper';
 import { FabricQuickPickItem } from '../input/FabricQuickPickItem';
 import { FabricApiService } from '../../fabric/FabricApiService';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { StringChain } from 'lodash';
+import { FabricGUIDHoverProvider } from '../hoverProvider/FabricGUIDHoverProvider';
 
 const NEW_ITEM_ID = "__NEW_ITEM";
+// AIDEV-NOTE: Fabric Git uses the empty GUID as workspaceId for references to items in the same workspace (referenced by their logicalId).
+const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+const GUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 
 export abstract class FabricFSHelper {
 	private static async getRegex(itemType: FabricApiItemType): Promise<RegExp> {
@@ -290,6 +293,149 @@ export abstract class FabricFSHelper {
 		}
 	}
 
+	/**
+	 * Returns a function that resolves a logicalId to the ID of the corresponding item in the target workspace.
+	 * Each fallback is only used if the previous one could not resolve the logicalId:
+	 * 1. logicalIds of the items in the target workspace (if connected to Git)
+	 * 2. item type and name from the GUID cache of the hover provider
+	 * 3. GUID cache of the hover provider after loading the local .platform files (only once per session)
+	 */
+	private static async getLogicalIdResolver(workspaceId: string): Promise<(logicalId: string) => Promise<string>> {
+		const response = await FabricApiService.listItems(workspaceId);
+
+		if (response.error) {
+			ThisExtension.Logger.logError(`Could not list items of workspace '${workspaceId}' to resolve logicalIds: ${response.error.message}`);
+			return async () => undefined;
+		}
+
+		const typeAndNameKey = (itemType: string, displayName: string) => `${itemType}/${displayName}`.toLowerCase();
+		const itemIdByLogicalId = new Map<string, string>();
+		const itemIdByTypeAndName = new Map<string, string>();
+		for (const item of response.success || []) {
+			if (item.logicalId && item.id && item.logicalId != EMPTY_GUID) {
+				itemIdByLogicalId.set(item.logicalId.toLowerCase(), item.id);
+			}
+			itemIdByTypeAndName.set(typeAndNameKey(item.type, item.displayName), item.id);
+		}
+		ThisExtension.Logger.logInfo(`Found ${itemIdByLogicalId.size} item(s) with a logicalId in target workspace '${workspaceId}'.`);
+
+		const getItemIdFromCache = (logicalId: string): string => {
+			const cachedItem = FabricGUIDHoverProvider.getFabricObjectNameByGUID(logicalId);
+			// skip cache entries of actual item IDs (itemId == GUID) - only entries cached for a logicalId are relevant
+			if (cachedItem?.itemType && cachedItem?.itemName && (cachedItem.workspaceId == EMPTY_GUID || cachedItem.itemId?.toLowerCase() != logicalId.toLowerCase())) {
+				return itemIdByTypeAndName.get(typeAndNameKey(cachedItem.itemType, cachedItem.itemName));
+			}
+			return undefined;
+		};
+
+		return async (logicalId: string) => {
+			// 1. logicalIds of the target workspace
+			let itemId = itemIdByLogicalId.get(logicalId.toLowerCase());
+			if (itemId) {
+				return itemId;
+			}
+
+			// 2. GUID cache of the hover provider
+			itemId = getItemIdFromCache(logicalId);
+			if (itemId) {
+				return itemId;
+			}
+
+			// 3. load local .platform files into the GUID cache (only once per session) and try again
+			await FabricGUIDHoverProvider.loadLocalPlatformFiles(false);
+			itemId = getItemIdFromCache(logicalId);
+			if (itemId) {
+				return itemId;
+			}
+
+			return undefined;
+		};
+	}
+
+	/**
+	 * Definitions from a local Fabric Git repository reference items of the same workspace via the empty GUID
+	 * as workspaceId and the logicalId of the referenced item. If a copied file contains the empty GUID, it is
+	 * replaced with the target workspace ID and all logicalIds of items in the target workspace are replaced
+	 * with their actual item IDs in the target copy.
+	 * The local source files are not modified.
+	 * @returns `false` if a file contains the empty GUID but no logicalId could be replaced, `true` otherwise.
+	 */
+	static async resolveLogicalIdReferences(
+		sourceUri: vscode.Uri,
+		fabricUri: FabricFSUri,
+		itemsToExclue: string[] = [],
+		isCreate: boolean = false
+	): Promise<boolean> {
+		let resolveLogicalId: (logicalId: string) => Promise<string> = undefined;
+		// resolved itemIds (or undefined if not resolvable) of all GUIDs found so far - shared across all files
+		const itemIdByGuid = new Map<string, string>();
+
+		const processFolder = async (relativePath: string[]): Promise<boolean> => {
+			for (const [name, fileType] of await vscode.workspace.fs.readDirectory(vscode.Uri.joinPath(sourceUri, ...relativePath))) {
+				// same filter as used when copying the definition (only applied on the root level)
+				if (relativePath.length == 0 && !isCreate && (name.startsWith(".") || itemsToExclue.includes(name))) {
+					continue;
+				}
+
+				const itemPath = [...relativePath, name];
+				if (fileType & vscode.FileType.Directory) {
+					if (!await processFolder(itemPath)) {
+						return false;
+					}
+					continue;
+				}
+				if (!(fileType & vscode.FileType.File)) {
+					continue;
+				}
+
+				const content = Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(sourceUri, ...itemPath))).toString("utf8");
+				if (!content.includes(EMPTY_GUID)) {
+					continue;
+				}
+
+				if (!resolveLogicalId) {
+					ThisExtension.Logger.logInfo(`Found references to the current workspace (${EMPTY_GUID}) - resolving logicalIds in target workspace '${fabricUri.workspaceId}' ...`);
+					resolveLogicalId = await this.getLogicalIdResolver(fabricUri.workspaceId);
+				}
+
+				// only GUIDs found in the file are looked up
+				for (const match of content.matchAll(GUID_REGEX)) {
+					const guid = match[0].toLowerCase();
+					if (guid != EMPTY_GUID && !itemIdByGuid.has(guid)) {
+						itemIdByGuid.set(guid, await resolveLogicalId(guid));
+					}
+				}
+
+				let workspaceReplacements = 0;
+				let logicalIdReplacements = 0;
+				const newContent = content.replace(GUID_REGEX, (guid) => {
+					if (guid == EMPTY_GUID) {
+						workspaceReplacements++;
+						return fabricUri.workspaceId;
+					}
+					const itemId = itemIdByGuid.get(guid.toLowerCase());
+					if (itemId) {
+						logicalIdReplacements++;
+						return itemId;
+					}
+					return guid;
+				});
+
+				if (logicalIdReplacements == 0) {
+					ThisExtension.Logger.logError(`'${itemPath.join("/")}' references the current workspace (${EMPTY_GUID}) but no logicalId could be resolved to an item in target workspace '${fabricUri.workspaceId}'!`, true);
+					return false;
+				}
+
+				await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(fabricUri.uri, ...itemPath), Buffer.from(newContent, "utf8"));
+				ThisExtension.Logger.logInfo(`Replaced ${workspaceReplacements} workspace reference(s) and ${logicalIdReplacements} logicalId(s) in '${itemPath.join("/")}'.`);
+			}
+
+			return true;
+		};
+
+		return await processFolder([]);
+	}
+
 	static async publishContent(
 		sourceUri: vscode.Uri,
 		fabricUri: FabricFSUri,
@@ -326,6 +472,11 @@ export abstract class FabricFSHelper {
 					{ overwrite: true }
 				);
 			}
+		}
+
+		if (!await this.resolveLogicalIdReferences(sourceUri, fabricUri, itemsToExclue, isCreate)) {
+			ThisExtension.Logger.logError("Resolving logicalIds aborted the publish operation.");
+			return;
 		}
 
 		if (isCreate) {
