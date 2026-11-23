@@ -22,6 +22,10 @@ export class FabricSqlEndpoint extends FabricSQLItem {
 
 	/* Overwritten properties from FabricApiTreeItem */
 
+	protected get showOneLakeChild(): boolean {
+		return false;
+	}
+
 	static async syncMetadata(sqlEndpoint: FabricSqlEndpoint): Promise<void> {
 		// https://learn.microsoft.com/en-us/rest/api/fabric/sqlendpoint/items/refresh-sql-endpoint-metadata?tabs=HTTP
 

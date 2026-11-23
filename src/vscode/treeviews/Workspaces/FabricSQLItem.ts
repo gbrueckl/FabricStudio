@@ -58,6 +58,11 @@ export class FabricSQLItem extends FabricItem {
 		return false;
 	}
 
+	// whether the OneLake child is shown in the treeview
+	protected get showOneLakeChild(): boolean {
+		return true;
+	}
+
 	async getChildren(element?: FabricWorkspaceTreeItem): Promise<FabricWorkspaceTreeItem[]> {
 		let children: FabricWorkspaceTreeItem[] = [];
 
@@ -65,7 +70,9 @@ export class FabricSQLItem extends FabricItem {
 			return element.getChildren();
 		}
 		else {
-			children.push(new FabricItemOneLake(this));
+			if (this.showOneLakeChild) {
+				children.push(new FabricItemOneLake(this));
+			}
 			children.push(...(await super.getChildren()));
 
 			return children;
