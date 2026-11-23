@@ -10,7 +10,8 @@ import { FabricFSPublishAction } from './_types';
 import { FabricFSItemType } from './FabricFSItemType';
 import { Helper } from '@utils/Helper';
 import { FabricConfiguration } from '../configuration/FabricConfiguration';
-import { FabricApiItemType, iFabricApiItemPart } from '../../fabric/_types';
+import { iFabricApiItem, iFabricApiItemPart } from '../../fabric/_types';
+import { FabricApiService } from '../../fabric/FabricApiService';
 import { FABRIC_SCHEME } from './FabricFileSystemProvider';
 
 export abstract class FabricFSCache {
@@ -80,8 +81,9 @@ export abstract class FabricFSCache {
 			return (item as FabricFSItem).getContentForSubpath(fabricUri.part);
 		}
 
-		ThisExtension.Logger.logError(`readFile() - Could not read File: ${fabricUri.uri.toString()}`, true);
-		throw vscode.FileSystemError.Unavailable("Could not read File: " + fabricUri.uri.toString());
+		// only parts below an item are files - VSCode and other extensions probe for files (e.g. .mcp.json) without checking their existence first, so we must not show an error message to the user!
+		ThisExtension.Logger.logDebug(`readFile() - Could not read File: ${fabricUri.uri.toString()}`);
+		throw vscode.FileSystemError.FileNotFound(fabricUri.uri);
 	}
 
 	public static async writeFile(fabricUri: FabricFSUri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): Promise<void> {
@@ -203,6 +205,38 @@ export abstract class FabricFSCache {
 	}
 
 	public static async createDirectory(fabricUri: FabricFSUri): Promise<void> {
+		// a cache item for the item type might already exist (e.g. from a previous stat() call) - so this is handled independent of the cache
+		if (fabricUri.uriType == FabricUriType.itemType && fabricUri.itemType && !fabricUri.itemType.startsWith(".")) {
+			// make sure the children of the workspace are loaded so the new folder is not lost when they are loaded later
+			const workspaceUri = await fabricUri.getParent();
+			const workspaceChildren = await FabricFSCache.readDirectory(workspaceUri);
+			const workspace = FabricFSCache.getCacheItem(workspaceUri);
+
+			const newFolderName = decodeURIComponent(fabricUri.uri.path.split("/").pop());
+			if (workspaceChildren.find((child) => child[0].toLowerCase() == newFolderName.toLowerCase())) {
+				throw vscode.FileSystemError.FileExists(fabricUri.uri);
+			}
+
+			// check if the folder name is a valid item type by listing all items of this type in the workspace
+			const response = await FabricApiService.getList<iFabricApiItem>(`/v1/workspaces/${fabricUri.workspaceId}/${fabricUri.itemType}`);
+			if (response.error) {
+				// no popup here - VSCode already shows the thrown error to the user
+				const msg = `'${newFolderName}' is not a valid Fabric item type: ${response.error.message}`;
+				ThisExtension.Logger.logError(`createDirectory() - ${msg}`);
+				throw vscode.FileSystemError.NoPermissions(msg);
+			}
+
+			// replace any existing cache item (e.g. from a previous stat() call that did not find the folder)
+			const newItemType = await FabricFSCache.addCacheItem(fabricUri) as FabricFSItemType;
+			if (response.success.length == 0) {
+				// the new item type does not have any items yet - no need to load them from the API again
+				newItemType.initializeEmpty([]);
+			}
+			workspace.addChild(newFolderName, vscode.FileType.Directory);
+
+			return;
+		}
+
 		let item = FabricFSCache.getCacheItem(fabricUri);
 		if (!item) {
 			if (fabricUri.uriType == FabricUriType.item) {
@@ -215,17 +249,6 @@ export abstract class FabricFSCache {
 			}
 			else if (fabricUri.uriType == FabricUriType.workspace) {
 
-			}
-			else if (fabricUri.uriType == FabricUriType.itemType) {
-				const newFolderName = fabricUri.uri.path.split("/").pop();
-
-				const newItemType: FabricApiItemType = newFolderName.split(".").pop() as FabricApiItemType;
-
-				if (!FabricConfiguration.itemTypeHasDefinition(newItemType)) {
-					(item as FabricFSItem).createSubFolder(newItemType);
-				}
-
-				return;
 			}
 		}
 		if (item) {

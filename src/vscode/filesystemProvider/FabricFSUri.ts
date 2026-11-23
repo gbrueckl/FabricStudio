@@ -121,6 +121,11 @@ export class FabricFSUri {
 			return false;
 		}
 
+		// item types never start with "." - VSCode and other extensions probe for files like .vscode, .git, .mcp.json in the root of a mounted workspace
+		if (this.uriType >= FabricUriType.itemType && this.itemType.startsWith(".")) {
+			return false;
+		}
+
 		if (FabricFSCache.hasCacheItem(this)) {
 			return true;
 		}

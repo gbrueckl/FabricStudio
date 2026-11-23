@@ -209,7 +209,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			}
 		}
 
-		ThisExtension.Logger.logError("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString(), true);
+		// VSCode reads files like .vscode/settings.json without checking their existence first - FileNotFound is the expected result, so we must not show an error message to the user!
+		ThisExtension.Logger.logDebug("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString());
 		throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded));
 	}
 
@@ -236,7 +237,8 @@ export class FabricFSItem extends FabricFSCacheItem implements iFabricApiItem {
 			}
 		}
 
-		ThisExtension.Logger.logError("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString(), true);
+		// FileNotFound is the expected result if the file does not exist and should not be created - VSCode handles it, so we must not show an error message to the user!
+		ThisExtension.Logger.logDebug("FILE_NOT_FOUND - Path: " + vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded).toString());
 		throw vscode.FileSystemError.FileNotFound(vscode.Uri.joinPath(this.FabricUri.uri, pathDecoded));
 	}
 

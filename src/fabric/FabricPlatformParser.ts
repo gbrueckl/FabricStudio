@@ -119,18 +119,19 @@ export abstract class FabricPlatformParser {
 	 * @param showProgress `false` to hide the progress bar and the result messages (e.g. when called during publishing).
 	 */
 	public static async parsePlatformFiles(showProgress: boolean = true): Promise<void> {
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (!workspaceFolders || workspaceFolders.length === 0) {
-			ThisExtension.Logger.logWarning("No workspace folders found. Cannot parse .platform files.");
+		// AIDEV-NOTE: Only search local (file://) workspace folders — searching virtual file systems like fabric://
+		// would walk every mounted Fabric item and load its definition from the API.
+		const workspaceFolders = (vscode.workspace.workspaceFolders || []).filter(folder => folder.uri.scheme === "file");
+		if (workspaceFolders.length === 0) {
+			ThisExtension.Logger.logWarning("No local workspace folders found. Cannot parse .platform files.");
 			return;
 		}
 
 		ThisExtension.Logger.logInfo("Scanning workspace for .platform files ...");
 
-		const allPlatformFiles = await vscode.workspace.findFiles(PLATFORM_FILE_GLOB);
-
-		// AIDEV-NOTE: Only consider local (file://) URIs — excludes virtual file systems like fabric://.
-		const platformFiles = allPlatformFiles.filter(uri => uri.scheme === "file");
+		const platformFiles = (await Promise.all(
+			workspaceFolders.map(folder => vscode.workspace.findFiles(new vscode.RelativePattern(folder, PLATFORM_FILE_GLOB)))
+		)).flat();
 
 		if (platformFiles.length === 0) {
 			ThisExtension.Logger.logInfo("No local .platform files found in the current workspace.");

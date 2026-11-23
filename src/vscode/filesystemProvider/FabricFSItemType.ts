@@ -24,7 +24,13 @@ export class FabricFSItemType extends FabricFSCacheItem {
 	}
 
 	public async loadStatsFromApi<T>(): Promise<void> {
-		if (FabricConfiguration.itemTypeHasDefinition(this.itemType)) {
+		// the folder only exists if the workspace contains items of this type or it was created locally
+		// otherwise VSCode assumes the folder already exists when creating it and never calls createDirectory()
+		const folderName = decodeURIComponent(this.uri.path.split("/").pop()).toLowerCase();
+		const workspaceChildren = await FabricFSCache.readDirectory(await this.FabricUri.getParent());
+		const folderExists = workspaceChildren?.some((child) => child[0].toLowerCase() == folderName);
+
+		if (folderExists && FabricConfiguration.itemTypeHasDefinition(this.itemType)) {
 			this._stats = {
 				type: vscode.FileType.Directory,
 				ctime: undefined,

@@ -4,7 +4,10 @@
 - fixed publishing from a local Fabric Git folder with references to items in the same workspace - if a file contains the empty GUID (`00000000-0000-0000-0000-000000000000`), it is replaced with the target workspace ID and all `logicalId`s are replaced with the actual item IDs of the target workspace before publishing
   - `logicalId`s that cannot be found in the target workspace (e.g. not connected to Git) are mapped by item type and name using the GUID cache of the hover provider or, as a fallback, the local `.platform` files in the current VS Code workspace (scanned once per session)
   - publishing is aborted with an error if a file contains the empty GUID but no `logicalId` could be resolved
+- fixed parsing of local `.platform` files also loading the definitions of all items in mounted Fabric workspaces
 - removed the `OneLake` child from SQL Analytics Endpoints in the Workspaces treeview
+- fixed new item type folders (e.g. `DataPipelines`) disappearing again after a refresh in a mounted Fabric workspace - the folder name is validated against the Fabric API
+- fixed error popups when VS Code or other extensions probe for files like `.vscode/settings.json` or `.mcp.json` in a mounted Fabric workspace or item
 
 **v2.28.1**:
 - fixed `EROFS` error when downloading a PBIP - the save dialog could default to the filesystem root

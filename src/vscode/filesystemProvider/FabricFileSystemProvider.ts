@@ -118,11 +118,14 @@ export class FabricFileSystemProvider implements vscode.FileSystemProvider, vsco
 		else if(fabricUri.uriType == FabricUriType.item) {
 			await FabricFSCache.createDirectory(fabricUri);
 		}
-		else {
-			// we only support creation of Items or Itemparts
-			throw vscode.FileSystemError.FileNotFound(uri);
+		else if(fabricUri.uriType == FabricUriType.itemType) {
+			await FabricFSCache.createDirectory(fabricUri);
 		}
-		
+		else {
+			// we only support creation of ItemTypes, Items or Itemparts
+			throw vscode.FileSystemError.NoPermissions(`Folders can only be created for item types, items or within items: ${uri.toString()}`);
+		}
+
 		this._fireSoon({ type: vscode.FileChangeType.Changed, uri: Helper.parentUri(uri) }, { type: vscode.FileChangeType.Created, uri });
 	}
 
