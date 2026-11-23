@@ -46,27 +46,35 @@ export class FabricFSItemType extends FabricFSCacheItem {
 	public async loadChildrenFromApi<T>(): Promise<void> {
 		if (!this._children) {
 			const response = await FabricApiService.getList<iFabricApiItem>(`/v1/workspaces/${this.FabricUri.workspaceId}/${this.FabricUri.itemType.toString()}`);
+			if (response.error) {
+				// the children are not marked as loaded so it is retried next time
+				throw vscode.FileSystemError.Unavailable(`Could not load items of '${this.FabricUri.uri.toString()}': ${response.error.message}`);
+			}
 			this._apiResponse = response.success;
-			this._children = [];
+			const children: [string, vscode.FileType][] = [];
 			for (let item of this._apiResponse) {
 				FabricFSUri.addItemNameIdMap(item.displayName, item.id, item.workspaceId, this.itemType);
-				this._children.push([item.displayName, vscode.FileType.Directory]);
+				children.push([item.displayName, vscode.FileType.Directory]);
 			}
+			this._children = children;
 		}
 	}
 
 	public async createItem(name: string): Promise<void> {
-		if (!this._children.includes([name, vscode.FileType.Directory])) {
-			this._children.push([name, vscode.FileType.Directory]);
+		const children = await this.readDirectory();
+		const fabricUri = await FabricFSUri.getInstance(vscode.Uri.joinPath(this._uri.uri, name), true);
 
-			const fabricUri = await FabricFSUri.getInstance(vscode.Uri.joinPath(this._uri.uri, name), true)
-			FabricFSCache.localItemAdded(fabricUri);
-
-			let newItem = await FabricFSCache.addCacheItem(fabricUri) as FabricFSItem;
-
-			newItem.initializeEmpty([]);
-			newItem.displayName = name;
-			newItem.publishAction = FabricFSPublishAction.CREATE;
+		if (children.some((child) => child[0].toLowerCase() == name.toLowerCase())) {
+			throw vscode.FileSystemError.FileExists(fabricUri.uri);
 		}
+
+		this.addChild(name, vscode.FileType.Directory);
+		FabricFSCache.localItemAdded(fabricUri);
+
+		let newItem = await FabricFSCache.addCacheItem(fabricUri) as FabricFSItem;
+
+		newItem.initializeEmpty([]);
+		newItem.displayName = name;
+		newItem.publishAction = FabricFSPublishAction.CREATE;
 	}
 }
